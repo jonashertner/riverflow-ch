@@ -1,30 +1,70 @@
-/* Palette: the reference data-viz instance, dark surface only.
-   Sequential encoding is ONE hue (blue), ordered by lightness. On a dark ground
-   the ramp runs dark -> light, so more water reads as brighter. */
+/* Abfluss Schweiz — interface.
+ *
+ * DARK ONLY, ON PURPOSE. Water is drawn as light on the plane: a brighter line is
+ * more water. A light surface would invert that reading and cost the map its first
+ * sentence. This is a data constraint, not a skipped requirement.
+ *
+ * Every colour below was run through the data-viz validator before it was written
+ * in. What passed, and on which check, is recorded next to the value.
+ */
+
 :root {
   color-scheme: dark;
-  --surface-1:   #1a1a19;
+
+  /* surfaces and ink */
   --plane:       #0d0d0d;
+  --surface-1:   #1a1a19;
+  --surface-2:   #232321;
   --ink:         #ffffff;
   --ink-2:       #c3c2b7;
   --ink-muted:   #898781;
-  --hairline:    rgba(255,255,255,0.10);
+  --hairline:    rgba(255,255,255,0.12);
   --rule:        #2c2c2a;
 
-  --seq-700: #0d366b;
-  --seq-600: #184f95;
-  --seq-500: #256abf;
-  --seq-450: #2a78d6;
-  --seq-400: #3987e5;
-  --seq-300: #6da7ec;
-  --seq-200: #9ec5f4;
-  --seq-100: #cde2fb;
+  /* Sequential, discharge. One hue, ordered by lightness. Continuous, so the dark
+     end is allowed to recede toward the plane. */
+  --seq-700: #0d366b; --seq-600: #184f95; --seq-500: #256abf; --seq-450: #2a78d6;
+  --seq-400: #3987e5; --seq-300: #6da7ec; --seq-200: #9ec5f4; --seq-100: #cde2fb;
 
-  --good:     #0ca30c;
-  --warning:  #fab219;
-  --serious:  #ec835a;
-  --critical: #d03b3b;
+  /* Evidence classes. Ordinal, one hue, plus a neutral for absence.
+     Validated dark/ordinal: monotone L, gaps >= 0.06, dark end 2.15:1. */
+  --ev-measured:  #9ec5f4;
+  --ev-estimated: #3987e5;
+  --ev-none:      #3a4450;
+
+  /* Water use. Two hues, because the legally meaningful axis is direction:
+     Art. 31 GSchG governs taking water out, GSchV Annex 2 No. 12(4) putting heat in.
+     Validated dark/all-pairs: CVD dE 9.4, normal-vision dE 26.5, both >= floor.
+     Three or more hues cannot clear the all-pairs floors here, so the register is
+     carried by the form of the mark, not by a fourth colour. */
+  --use-out: #d95926;
+  --use-in:  #199e70;
+
+  /* Temperature. Single hue, brighter is warmer. Validated dark/ordinal. */
+  --temp-5: #f8d79c; --temp-4: #eeb96a; --temp-3: #dd9436; --temp-2: #c4731f; --temp-1: #9a5518;
+
+  /* Reserved status. BAFU Gefahrenstufen and the 25 C ceiling only. Never a series. */
+  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
+
+  /* The active layer keys the sheets. Set from setMode(). */
+  --accent: var(--seq-400);
+
+  --sheet-pad: 14px;
+  --sheet-w: 320px;
+
 }
+
+/* The map is centred in the space the chrome leaves, not in the window. Each panel
+   declares which edge it claims; fit() measures how much it actually takes. Declaring
+   the edge here keeps the layout described in one place, and measuring rather than
+   guessing means the frame is right whatever the panel happens to contain. */
+#titlebar { --claim: left; }
+#legend   { --claim: left; }
+#modes    { --claim: top; }
+body[data-layer="normal"] { --accent: #c8813c; }
+body[data-layer="temp"]   { --accent: var(--temp-3); }
+body[data-layer="ice"]    { --accent: #dce9f8; }
+body[data-layer="use"]    { --accent: var(--use-out); }
 
 * { box-sizing: border-box; }
 
@@ -32,106 +72,208 @@ html, body {
   margin: 0; height: 100%;
   background: var(--plane);
   color: var(--ink);
-  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: 400 14px/1.45 Archivo, system-ui, -apple-system, sans-serif;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
+/* A watercourse is set in italic. That is the convention of the topographic sheet,
+   and it is the one place the type carries a fact. */
+.hydronym { font-style: italic; }
+
+/* Readings wear the mono. A number you could copy into a submission looks like one. */
+.num { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+       font-variant-numeric: tabular-nums; }
+
 #map, #flow { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
 #map { cursor: grab; }
 #map.dragging { cursor: grabbing; }
-/* the current runs on its own canvas so the base map stops redrawing at 60 Hz */
 #flow { pointer-events: none; }
 
-/* ---- title ---- */
-#titlebar {
-  position: fixed; top: 24px; left: 24px; max-width: 340px;
-  pointer-events: none;
-  background: linear-gradient(to right, rgba(13,13,13,0.88), rgba(13,13,13,0.6) 70%, rgba(13,13,13,0));
-  padding: 10px 40px 12px 12px; margin: -10px 0 0 -12px; border-radius: 8px;
-}
-#titlebar h1 {
-  margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
-}
-#titlebar .sub { margin: 4px 0 0; color: var(--ink-2); font-size: 13px; }
-#titlebar .stamp {
-  margin: 10px 0 0; color: var(--ink-muted); font-size: 12px;
-  font-variant-numeric: tabular-nums;
+/* ---------- the sheet ----------
+   Panels are sheets, not glass. Flat surface, one hairline, and a 2px edge in the
+   colour of the layer being read, so the chrome always says which reading is on. */
+.sheet {
+  background: color-mix(in srgb, var(--surface-1) 94%, transparent);
+  border: 1px solid var(--hairline);
+  border-left: 2px solid var(--accent);
+  border-radius: 2px;
 }
 
-/* ---- legend ---- */
+/* ---------- title ---------- */
+#titlebar {
+  position: fixed; top: 20px; left: 20px; width: var(--sheet-w);
+  padding: 13px var(--sheet-pad) 12px;
+}
+#titlebar h1 {
+  margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.2;
+}
+#titlebar .sub { margin: 5px 0 0; color: var(--ink-2); font-size: 12.5px; line-height: 1.4; }
+#titlebar .stamp {
+  margin: 11px 0 0; color: var(--ink-muted); font-size: 11px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums;
+}
+
+/* ---------- the evidence bar ----------
+   The one claim this page makes about itself: most of what you see is inference.
+   The bar is the drawing's own composition, by class of evidence. */
+#evidence { margin: 12px 0 0; padding-top: 11px; border-top: 1px solid var(--rule); }
+#evidence .evLabel {
+  margin: 0 0 7px; font-size: 10px; font-weight: 600; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ink-muted);
+}
+.evBar { display: flex; gap: 2px; height: 8px; }      /* 2px surface gap between fills */
+.evBar span { display: block; border-radius: 1px; min-width: 2px; }
+.evBar span:first-child { border-radius: 4px 1px 1px 4px; }
+.evBar span:last-child  { border-radius: 1px 4px 4px 1px; }
+.evMeasured  { background: var(--ev-measured); }
+.evEstimated { background: var(--ev-estimated); }
+.evNone      { background: var(--ev-none); }
+.evKeys { list-style: none; margin: 9px 0 0; padding: 0; }
+.evKeys li {
+  display: flex; align-items: baseline; gap: 7px;
+  font-size: 11.5px; color: var(--ink-2); margin-bottom: 3px;
+}
+.evKeys i { width: 8px; height: 8px; border-radius: 2px; flex: none; align-self: center; }
+.evKeys b {
+  margin-left: auto; font-weight: 500; color: var(--ink);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums;
+}
+
+/* ---------- layer switch ---------- */
+#modes {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 1px; padding: 3px;
+  background: color-mix(in srgb, var(--surface-1) 94%, transparent);
+  border: 1px solid var(--hairline); border-radius: 2px;
+}
+#modes button {
+  background: none; border: 0; border-radius: 1px;
+  color: var(--ink-muted); font: inherit; font-size: 12px; font-weight: 500;
+  padding: 6px 13px; cursor: pointer; white-space: nowrap;
+  border-bottom: 2px solid transparent;
+}
+#modes button:hover:not(:disabled) { color: var(--ink); }
+#modes button.on { color: var(--ink); border-bottom-color: var(--accent); }
+#modes button:disabled { opacity: 0.35; cursor: default; }
+#modes button:focus-visible { outline: 2px solid var(--seq-200); outline-offset: 1px; }
+
+/* ---------- legend ---------- */
 #legend {
-  position: fixed; left: 24px; bottom: 24px; width: 260px;
-  background: color-mix(in srgb, var(--surface-1) 88%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--hairline); border-radius: 10px;
-  padding: 14px 14px 12px;
+  position: fixed; left: 20px; bottom: 20px; width: var(--sheet-w);
+  padding: 12px var(--sheet-pad);
+  max-height: calc(100vh - 260px);
+  display: flex; flex-direction: column;
+}
+/* The reading scrolls. The controls do not: a legend you have to scroll to reach the
+   refresh button is a legend that hides its own switch. */
+#legendScroll { overflow-y: auto; min-height: 0; }
+#legendToggle {
+  display: none;
+  position: absolute; top: 7px; right: 8px;
+  background: none; border: 1px solid var(--hairline); border-radius: 2px;
+  color: var(--ink-2); font: inherit; font-size: 11px; font-weight: 500;
+  padding: 4px 9px; cursor: pointer;
 }
 #legend h2 {
-  margin: 0 0 8px; font-size: 11px; font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);
+  margin: 0 0 9px; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-muted);
 }
-.ramp {
-  height: 8px; border-radius: 4px;
+.ramp { height: 8px; border-radius: 4px; }
+.rampLabels {
+  display: flex; justify-content: space-between; margin-top: 6px;
+  font-size: 10px; color: var(--ink-muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums;
+}
+.notes { list-style: none; margin: 12px 0 0; padding: 0; font-size: 11.5px; color: var(--ink-2); }
+.notes li { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.swatch { width: 22px; height: 3px; border-radius: 2px; flex: none; }
+.swatch.measured  { background: var(--ev-measured); }
+.swatch.estimated { background: var(--ev-estimated); }
+.swatch.nobasis   { background: var(--ev-none); }
+
+.ramp-seq {
   background: linear-gradient(90deg,
     var(--seq-600) 0%, var(--seq-500) 20%, var(--seq-450) 40%,
     var(--seq-400) 58%, var(--seq-300) 74%, var(--seq-200) 88%, var(--seq-100) 100%);
 }
-.rampLabels {
-  display: flex; justify-content: space-between; margin-top: 5px;
-  font-size: 10px; color: var(--ink-muted); font-variant-numeric: tabular-nums;
+/* Diverging: warm below the mean, cool above, neutral grey at it. The reference
+   pair is blue/red; red is not used here because the legend says this is a ratio
+   and not a drought index, and an alarm colour would state a verdict the data
+   does not carry. Each arm validated on its own for lightness monotonicity. */
+.ramp-div {
+  background: linear-gradient(90deg,
+    #7a3f19 0%, #a85f28 15%, #c8813c 28%, #dda86d 40%,
+    #7f7d78 50%, #8fb6de 60%, #4d90cc 72%, #2a6cb0 86%, #184f95 100%);
 }
-.notes { list-style: none; margin: 12px 0 0; padding: 0; font-size: 12px; color: var(--ink-2); }
-.notes li { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
-.swatch { width: 22px; height: 3px; border-radius: 2px; flex: none; }
-.swatch.measured  { background: var(--seq-200); }
-.swatch.estimated { background: var(--seq-200); opacity: 0.6; }
-.swatch.nobasis   { background: #2a3340; }
+/* Temperature: one hue. The old ramp ran blue-green-yellow-red, which is a rainbow
+   and reads as four categories rather than one rising quantity. */
+.ramp-temp {
+  background: linear-gradient(90deg,
+    var(--temp-1) 0%, var(--temp-2) 26%, var(--temp-3) 52%, var(--temp-4) 78%, var(--temp-5) 100%);
+}
+.lgNote { margin: 9px 0 0; font-size: 11px; line-height: 1.5; color: var(--ink-muted); }
+.lgNote b { color: var(--ink-2); font-weight: 600; }
+.swatch.ice1850 { background: rgba(200,129,60,0.42); height: 8px; border: 1px solid rgba(200,129,60,0.7); }
+.swatch.ice2023 { background: #dce9f8; height: 8px; }
 
-.controls { margin-top: 12px; border-top: 1px solid var(--rule); padding-top: 10px; }
+/* the 25 C ceiling is a status, so it ships with a label and never with colour alone */
+.threshold {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin: 10px 0 0; padding: 5px 8px; border-radius: 2px;
+  background: rgba(208,59,59,0.13); border: 1px solid rgba(208,59,59,0.34);
+  font-size: 11px; color: var(--ink-2);
+}
+.threshold i {
+  width: 9px; height: 9px; border-radius: 50%; flex: none;
+  background: var(--temp-5); box-shadow: 0 0 0 2px var(--critical);
+}
+
+.controls { margin-top: 13px; border-top: 1px solid var(--rule); padding-top: 11px; }
 .controls label {
   display: flex; align-items: center; gap: 7px;
-  font-size: 12px; color: var(--ink-2); margin-bottom: 5px; cursor: pointer;
+  font-size: 11.5px; color: var(--ink-2); margin-bottom: 5px; cursor: pointer;
 }
-.controls input { accent-color: var(--seq-400); margin: 0; }
+.controls input { accent-color: var(--accent); margin: 0; }
 
-#refresh {
-  margin-top: 10px; width: 100%; padding: 7px 10px;
+.act {
+  margin-top: 7px; width: 100%; padding: 7px 10px;
   background: transparent; color: var(--ink-2);
-  border: 1px solid var(--hairline); border-radius: 6px;
-  font: inherit; font-size: 12px; cursor: pointer;
+  border: 1px solid var(--hairline); border-radius: 2px;
+  font: inherit; font-size: 11.5px; font-weight: 500; cursor: pointer; text-align: left;
 }
-#refresh:hover { background: rgba(255,255,255,0.05); color: var(--ink); }
-#refresh:disabled { opacity: 0.5; cursor: default; }
+.act:hover { background: rgba(255,255,255,0.05); color: var(--ink); }
+.act:disabled { opacity: 0.5; cursor: default; }
+.act:focus-visible { outline: 2px solid var(--seq-200); outline-offset: 1px; }
 
-/* ---- detail panel ---- */
+/* ---------- detail panel ---------- */
 #panel {
-  position: fixed; right: 24px; top: 24px; width: 300px;
-  background: color-mix(in srgb, var(--surface-1) 92%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--hairline); border-radius: 10px;
-  padding: 16px 16px 14px;
+  position: fixed; right: 20px; top: 20px; width: var(--sheet-w);
+  padding: 15px var(--sheet-pad) 13px;
+  max-height: calc(100vh - 40px); overflow-y: auto;
 }
-#panel h2 { margin: 0 26px 12px 0; font-size: 15px; font-weight: 600; }
-#panelClose {
+#panel h2 { margin: 0 26px 12px 0; font-size: 15px; font-weight: 600; line-height: 1.25; }
+#panelClose, #lawClose, #srcClose {
   position: absolute; top: 10px; right: 10px;
   background: none; border: 0; color: var(--ink-muted);
   font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 6px;
 }
-#panelClose:hover { color: var(--ink); }
+#panelClose:hover, #lawClose:hover, #srcClose:hover { color: var(--ink); }
 #panel dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; }
-#panel dt { color: var(--ink-muted); font-size: 12px; }
+#panel dt { color: var(--ink-muted); font-size: 11.5px; }
+/* A value that does not exist is drawn, not omitted. The record shows its own gaps. */
 #panel dd {
   margin: 0; text-align: right; font-size: 13px;
-  font-variant-numeric: tabular-nums;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums;
 }
-#panel dd .unit { color: var(--ink-muted); font-size: 11px; margin-left: 3px; }
+#panel dd:empty::after { content: "—"; color: var(--ink-muted); }
+#panel dd .unit { color: var(--ink-muted); font-size: 11px; margin-left: 3px; font-family: Archivo, sans-serif; }
 .panelNote {
   margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--rule);
   font-size: 11px; line-height: 1.5; color: var(--ink-muted);
 }
 .pill {
-  display: inline-block; padding: 1px 7px; border-radius: 10px;
+  display: inline-block; padding: 1px 7px; border-radius: 2px;
   font-size: 11px; font-weight: 600;
 }
 .pill.d1 { background: rgba(12,163,12,0.18);  color: var(--good); }
@@ -139,158 +281,240 @@ html, body {
 .pill.d3 { background: rgba(236,131,90,0.20); color: var(--serious); }
 .pill.d4, .pill.d5 { background: rgba(208,59,59,0.22); color: var(--critical); }
 
-/* ---- tooltip ---- */
+/* ---------- tooltip ---------- */
 #tooltip {
   position: fixed; pointer-events: none; z-index: 20;
-  background: color-mix(in srgb, var(--surface-1) 94%, transparent);
-  border: 1px solid var(--hairline); border-radius: 7px;
-  padding: 7px 10px; font-size: 12px; max-width: 230px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  background: var(--surface-2);
+  border: 1px solid var(--hairline); border-radius: 2px;
+  padding: 7px 10px; font-size: 12px; max-width: 240px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.55);
 }
 #tooltip .tName { font-weight: 600; }
-#tooltip .tVal { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+#tooltip .tName.num {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums;
+}
+#tooltip .tVal {
+  color: var(--ink-2);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums;
+}
 #tooltip .tEst { color: var(--ink-muted); font-size: 11px; }
 
-/* ---- credits ---- */
-#credits {
-  position: fixed; right: 24px; bottom: 24px; max-width: 430px;
-  font-size: 10.5px; line-height: 1.55; color: var(--ink-muted);
-  text-align: right; pointer-events: none;
-  background: linear-gradient(to left, rgba(13,13,13,0.86), rgba(13,13,13,0.72) 70%, rgba(13,13,13,0));
-  padding: 10px 12px 10px 40px; border-radius: 8px;
-}
-#credits p { margin: 0; }
-#credits strong { color: var(--ink-2); font-weight: 600; }
-
-
-/* ---- layer switch ---- */
-#modes {
-  position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 2px; padding: 3px;
-  background: color-mix(in srgb, var(--surface-1) 88%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--hairline); border-radius: 8px;
-}
-#modes button {
-  background: none; border: 0; border-radius: 6px;
-  color: var(--ink-muted); font: inherit; font-size: 12px;
-  padding: 6px 12px; cursor: pointer; white-space: nowrap;
-}
-#modes button:hover:not(:disabled) { color: var(--ink); background: rgba(255,255,255,0.05); }
-#modes button.on { background: rgba(255,255,255,0.10); color: var(--ink); }
-#modes button:disabled { opacity: 0.35; cursor: default; }
-
-/* ---- legend variants ---- */
-.ramp-seq {
-  background: linear-gradient(90deg,
-    var(--seq-600) 0%, var(--seq-500) 20%, var(--seq-450) 40%,
-    var(--seq-400) 58%, var(--seq-300) 74%, var(--seq-200) 88%, var(--seq-100) 100%);
-}
-/* Diverging: brown below the mean, blue above, grey at it. */
-.ramp-div {
-  background: linear-gradient(90deg,
-    #7a3f19 0%, #a85f28 15%, #c8813c 28%, #dda86d 40%,
-    #7f7d78 50%, #8fb6de 60%, #4d90cc 72%, #2a6cb0 86%, #123f77 100%);
-}
-.ramp-temp {
-  background: linear-gradient(90deg,
-    #1d4f86 0%, #3d7fbc 18%, #79aad8 34%, #b9c8bb 50%,
-    #e0c477 66%, #dd8f47 83%, #d03b3b 100%);
-}
-.lgNote { margin: 9px 0 0; font-size: 11px; line-height: 1.5; color: var(--ink-muted); }
-.lgNote b { color: var(--ink-2); font-weight: 600; }
-.swatch.ice1850 { background: rgba(200,129,60,0.42); height: 8px; border: 1px solid rgba(200,129,60,0.7); }
-.swatch.ice2023 { background: #dce9f8; height: 8px; }
-
-#openLaw {
-  margin-top: 6px; width: 100%; padding: 7px 10px;
-  background: transparent; color: var(--ink-2);
-  border: 1px solid var(--hairline); border-radius: 6px;
-  font: inherit; font-size: 12px; cursor: pointer;
-}
-#openLaw:hover { background: rgba(255,255,255,0.05); color: var(--ink); }
-
-/* ---- sparkline and flags in the panel ---- */
+/* ---------- sparkline and flags in the panel ---------- */
 .spark { margin: 12px 0 0; }
 .spark svg { width: 100%; height: auto; display: block; }
 .sparkZero { stroke: var(--rule); stroke-width: 1; }
-.sparkLine { fill: none; stroke: var(--seq-200); stroke-width: 1.4; stroke-linejoin: round; }
+.sparkLine { fill: none; stroke: var(--seq-200); stroke-width: 2; stroke-linejoin: round; }
 .spark figcaption { margin-top: 5px; font-size: 10.5px; color: var(--ink-muted); }
 .aside {
-  margin: 12px 0 0; padding: 8px 10px; border-radius: 6px;
+  margin: 12px 0 0; padding: 8px 10px; border-radius: 2px;
   background: rgba(255,255,255,0.04); border: 1px solid var(--hairline);
   font-size: 11px; line-height: 1.5; color: var(--ink-muted);
 }
 .flag {
-  margin: 12px 0 0; padding: 8px 10px; border-radius: 6px;
+  margin: 12px 0 0; padding: 8px 10px; border-radius: 2px;
   background: rgba(208,59,59,0.14); border: 1px solid rgba(208,59,59,0.35);
   font-size: 11px; line-height: 1.5; color: var(--ink-2);
 }
 
-/* ---- the law drawer ---- */
-#law[hidden] { display: none; }
-#law {
+/* ---------- drawers: the statute, and the sources ---------- */
+#law[hidden], #sources[hidden] { display: none; }
+#law, #sources {
   position: fixed; inset: 0; z-index: 40;
-  background: rgba(6,6,6,0.72); backdrop-filter: blur(3px);
+  background: rgba(6,6,6,0.74);
   display: flex; align-items: flex-start; justify-content: center;
   padding: 5vh 16px; overflow: auto;
 }
 .lawBox {
   position: relative; width: min(720px, 100%);
   background: var(--surface-1); border: 1px solid var(--hairline);
-  border-radius: 12px; padding: 26px 30px 30px;
+  border-left: 2px solid var(--accent);
+  border-radius: 2px; padding: 26px 30px 30px;
 }
 .lawBox h2 { margin: 0 30px 10px 0; font-size: 19px; font-weight: 600; }
 .lawBox h3 {
   margin: 26px 0 6px; font-size: 13px; font-weight: 600; color: var(--ink);
   border-top: 1px solid var(--rule); padding-top: 16px;
 }
-.lawBox h3 span { float: right; color: var(--ink-muted); font-weight: 400; font-size: 11px; }
+.lawBox h3 span {
+  float: right; color: var(--ink-muted); font-weight: 400; font-size: 11px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
 .lawBox p { margin: 0 0 8px; font-size: 13px; line-height: 1.6; color: var(--ink-2); }
 .lawLead { color: var(--ink-2); }
 .lawFine { font-size: 11.5px; line-height: 1.6; color: var(--ink-muted); }
+/* The statute changes the register, so it changes the face. Everything on this page
+   is an instrument reading except these words, which are law. */
 .lawBox blockquote {
-  margin: 8px 0 10px; padding: 10px 14px;
+  margin: 8px 0 10px; padding: 10px 15px;
   border-left: 2px solid var(--seq-500); background: rgba(255,255,255,0.03);
-  font-size: 12.5px; line-height: 1.6; color: var(--ink-2);
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 14px; line-height: 1.62; color: var(--ink-2);
 }
-#lawClose {
-  position: absolute; top: 14px; right: 16px;
-  background: none; border: 0; color: var(--ink-muted);
-  font-size: 22px; line-height: 1; cursor: pointer; padding: 2px 6px;
-}
-#lawClose:hover { color: var(--ink); }
 .calc {
-  margin: 12px 0; padding: 12px 14px; border-radius: 8px;
+  margin: 12px 0; padding: 12px 14px; border-radius: 2px;
   background: rgba(255,255,255,0.035); border: 1px solid var(--hairline);
 }
 .calc label { display: block; font-size: 11px; color: var(--ink-muted); margin-bottom: 6px; }
 .calc input {
-  width: 160px; padding: 6px 9px; font: inherit; font-variant-numeric: tabular-nums;
+  width: 160px; padding: 6px 9px; font: inherit;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums;
   background: var(--plane); color: var(--ink);
-  border: 1px solid var(--hairline); border-radius: 6px;
+  border: 1px solid var(--hairline); border-radius: 2px;
 }
 .calc output { display: block; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
-.calc output b { color: var(--ink); font-variant-numeric: tabular-nums; }
-
-@media (max-width: 900px) {
-  #credits { display: none; }
-  #legend { width: 220px; left: 12px; bottom: 12px; }
-  #titlebar { left: 12px; top: 12px; max-width: 60vw; }
-  #panel { right: 12px; top: 62px; width: 260px; }
-  #modes { top: auto; bottom: 12px; left: 12px; right: 12px; transform: none; justify-content: space-between; }
-  #modes button { padding: 6px 8px; font-size: 11px; }
-  #legend { bottom: 58px; }
-  .lawBox { padding: 22px 18px 24px; }
+.calc output b {
+  color: var(--ink);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums;
 }
 
-/* The use layer. The four registers, and the difference between a point that
-   carries a number and a point that carries only a place. */
-.useKeys .swatch { width: 10px; height: 10px; border-radius: 50%; }
-.swatch.useHydro { background: #f0b429; }
-.swatch.useAbs   { background: transparent; box-shadow: inset 0 0 0 2px #e07a5f; }
-.swatch.useNpp   { background: transparent; box-shadow: inset 0 0 0 2px #d03b3b; }
-.swatch.useAra   { background: #6fae7f; }
+/* the table the evidence bar stands for, so identity is never colour alone */
+.evTable { width: 100%; border-collapse: collapse; margin: 10px 0 4px; font-size: 12px; }
+.evTable th, .evTable td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); }
+.evTable th { color: var(--ink-muted); font-weight: 500; font-size: 10.5px;
+              letter-spacing: 0.07em; text-transform: uppercase; }
+.evTable td:last-child, .evTable th:last-child { text-align: right; }
+.evTable tbody tr:last-child td { border-top: 1px solid var(--ink-muted); border-bottom: 0; }
+.evTable td:last-child {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.srcBody p { margin: 0 0 10px; font-size: 12px; line-height: 1.62; color: var(--ink-2); }
+.srcBody h3 + p { margin-top: 0; }
+.srcBody strong { color: var(--ink); font-weight: 600; }
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ---------- the world's screens ----------
+   Five sizes, and the two that hurt: the phone in the hand and the phone on its side.
+   Each one moves the map's own frame as well as the chrome, so the country is always
+   centred in the space that is left rather than behind a panel. */
+
+/* Comfortable: large laptop and desktop. More room for the reading, not more chrome. */
+@media (min-width: 1700px) {
+  :root { --sheet-w: 372px; --sheet-pad: 17px; }
+  html, body { font-size: 15px; }
+  #titlebar { top: 28px; left: 28px; }
+  #legend { left: 28px; bottom: 28px; max-height: calc(100vh - 300px); }
+  #panel { right: 28px; top: 28px; }
+  #titlebar h1 { font-size: 22px; }
+  #titlebar .sub { font-size: 13.5px; }
+  #modes { top: 28px; }
+  #modes button { font-size: 13px; padding: 7px 16px; }
+  .evKeys li { font-size: 12.5px; }
+  .notes, .controls label { font-size: 12.5px; }
+  .lgNote { font-size: 12px; }
+  .act { font-size: 12.5px; }
+}
+
+/* Compact: small laptop, tablet in either hand. The sheets narrow before they move. */
+@media (max-width: 1099px) {
+  :root { --sheet-w: 274px; --sheet-pad: 12px; }
+  #titlebar { top: 14px; left: 14px; }
+  #legend { left: 14px; bottom: 14px; max-height: calc(100vh - 250px); }
+  #panel { right: 14px; top: 62px; }
+  #titlebar h1 { font-size: 17px; }
+  #titlebar .sub { font-size: 12px; }
+  #modes { top: 14px; }
+  #modes button { font-size: 11.5px; padding: 6px 10px; }
+}
+
+/* Tablet portrait: tall and not wide. The layer switch cannot sit beside the title,
+   so it goes to the foot, where the thumb is anyway. */
+@media (max-width: 1099px) and (max-aspect-ratio: 1/1) {
+  #titlebar { --claim: top; left: 14px; right: 14px; width: auto; }
+  #legend { --claim: bottom; }
+  #modes { --claim: bottom; }
+  #legend { left: 14px; right: 14px; width: auto; bottom: 60px; max-height: 40vh; }
+  #panel { left: 14px; right: 14px; width: auto; top: auto; bottom: 60px; max-height: 40vh; }
+  #modes {
+    top: auto; bottom: 14px; left: 14px; right: 14px; transform: none;
+    justify-content: space-between;
+  }
+}
+
+/* Phone. The map is the page; the legend is a drawer that opens on the title.
+   Closed by default, because a legend that covers the country explains nothing. */
+@media (max-width: 640px) {
+  :root { --sheet-w: auto; --sheet-pad: 12px; }
+  #titlebar, #legend, #panel { overflow-x: hidden; }
+  #titlebar { --claim: top; left: 10px; top: 10px; right: 10px; width: auto; }
+  #legend { --claim: bottom; }
+  #modes { --claim: bottom; }
+  #titlebar h1 { font-size: 17px; }
+  #titlebar .sub { display: none; }
+  #evidence { margin-top: 9px; padding-top: 9px; }
+  #evidence .evLabel { font-size: 9.5px; }
+  #evidence .evKeys {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 10px;
+  }
+  #evidence .evKeys li {
+    display: block; margin: 0; font-size: 10px; line-height: 1.3; min-width: 0;
+  }
+  #evidence .evKeys i { display: inline-block; vertical-align: middle; margin-right: 5px; }
+  #evidence .evKeys b { display: block; margin: 2px 0 0 13px; font-size: 12px; }
+
+  #modes {
+    top: auto; bottom: 10px; left: 10px; right: 10px; transform: none;
+    justify-content: space-between; overflow-x: auto; gap: 0;
+  }
+  #modes button { padding: 8px 5px; font-size: 10.5px; }
+
+  #legend {
+    left: 10px; right: 10px; bottom: 54px; width: auto;
+    max-height: 46vh; padding-right: 78px;
+  }
+  #legend > *:not(h2):not(#legendToggle) { padding-right: 0; }
+  #legend h2 { margin-bottom: 0; }
+  #legendToggle { display: block; }
+  #legend .rampLabels { font-size: 9.5px; }
+  #panel { right: 10px; left: 10px; top: auto; bottom: 54px; width: auto; max-height: 46vh; }
+  .lawBox { padding: 22px 16px 24px; }
+  .lawBox h3 span { float: none; display: block; margin-top: 3px; }
+
+}
+
+/* Phone on its side, and any short window. Height is the scarce thing, so the title
+   loses its second line, the evidence keys fold away, and the legend becomes a drawer
+   like the one on the phone: a legend that fills a 390 px window is not a legend. */
+@media (max-height: 560px) {
+  #titlebar .sub { display: none; }
+  #titlebar { padding-top: 10px; padding-bottom: 9px; }
+  #evidence { margin-top: 8px; padding-top: 8px; }
+  #evidence .evKeys { display: none; }
+  #legend { max-height: calc(100vh - 84px); padding-right: 78px; }
+  #legend h2 { margin-bottom: 0; }
+  #legendToggle { display: block; }
+  #panel { max-height: calc(100vh - 60px); }
+  .lawBox { padding: 18px 18px 20px; }
+  #law, #sources { padding: 2vh 12px; }
+}
+
+/* The drawer, shut. One rule for both the phone and the short window. */
+@media (max-width: 640px), (max-height: 560px) {
+  body[data-legend="closed"] #legendScroll,
+  body[data-legend="closed"] #legend .controls,
+  body[data-legend="closed"] #legend .act { display: none; }
+  body[data-legend="open"] #legend { padding-right: var(--sheet-pad); }
+  body[data-legend="open"] #legend h2 { margin-bottom: 9px; }
+}
+
+/* ---------- the use layer ----------
+   Direction carries the colour. The register carries the form:
+   a filled disc has a quantity behind it, an open ring has a place and nothing more. */
+.useKeys .swatch { width: 11px; height: 11px; border-radius: 50%; }
+.swatch.useHydro { background: var(--use-out); }
+.swatch.useAbs   { background: transparent; box-shadow: inset 0 0 0 2px var(--use-out); }
+.swatch.useNpp   { background: transparent;
+                   box-shadow: inset 0 0 0 2px var(--use-out), inset 0 0 0 4px var(--surface-1),
+                               inset 0 0 0 5px var(--use-out); }
+.swatch.useAra   { background: var(--use-in); }
 .useKeys li { display: block; }
-.useKeys label { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
-.useKeys input { margin: 0; }
+.useKeys label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.useKeys input { margin: 0; accent-color: var(--accent); }
+.useDir {
+  margin: 11px 0 2px; font-size: 10px; font-weight: 600; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ink-muted);
+}

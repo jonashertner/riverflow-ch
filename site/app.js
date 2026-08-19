@@ -16,10 +16,12 @@ const STATUS = { 1: '#0ca30c', 2: '#fab219', 3: '#ec835a', 4: '#d03b3b', 5: '#d0
 
 // Against normal. One hue below the mean, one above, neutral at the mean. The
 // middle is grey on purpose: a river at its long-term mean is not news.
-const DIV = ['#7a3f19', '#a85f28', '#c8813c', '#dda86d', '#7f7d78', '#8fb6de', '#4d90cc', '#2a6cb0', '#123f77'];
-// Water temperature, 0 to 25 C. The last step is the status red, because 25 C is
-// where GSchV Annex 2 No. 12(4) puts the ceiling for a thermally altered river.
-const TEMP = ['#1d4f86', '#3d7fbc', '#79aad8', '#b9c8bb', '#e0c477', '#dd8f47', '#d03b3b'];
+const DIV = ['#7a3f19', '#a85f28', '#c8813c', '#dda86d', '#7f7d78', '#8fb6de', '#4d90cc', '#2a6cb0', '#184f95'];
+// Water temperature, 0 to 25 C. ONE hue, dark to light: a rising quantity, not a set
+// of categories. The old ramp ran blue-green-yellow-red, which reads as four things.
+// The 25 C ceiling of GSchV Annex 2 No. 12(4) is a status, so it is drawn as a rim on
+// the gauge and stated in words in the legend. It is never carried by the ramp alone.
+const TEMP = ['#9a5518', '#c4731f', '#dd9436', '#eeb96a', '#f8d79c'];
 
 let mode = 'flow';
 let wantMode = null;          // asked for in the hash, applied once its layer is ready
@@ -35,11 +37,19 @@ const LGTITLE = { flow: 'Discharge', normal: 'Against the long-term mean', temp:
 // nothing more. That is the whole grammar, and it is forced by the sources: of the
 // four federal registers only the hydropower statistic yields a discharge, and even
 // that one yields it by arithmetic rather than by measurement.
+// Two hues, not four. The axis that carries meaning is the direction of the
+// transaction, because that is what the law turns on: Art. 31 GSchG governs taking
+// water out, GSchV Annex 2 No. 12(4) governs putting heat in. Three or more hues
+// cannot clear the all-pairs colour-vision floors on this surface; two clear them
+// with room to spare (CVD dE 9.4, normal-vision dE 26.5). The register is therefore
+// carried by the form of the mark and by the label, never by colour alone.
+const USE_OUT = '#d95926';   // takes water out of the river
+const USE_IN  = '#199e70';   // puts water into the river
 const USE = {
-  hydro:       { c: '#f0b429', label: 'Hydropower plant' },
-  abstraction: { c: '#e07a5f', label: 'Abstraction, residual-flow register' },
-  npp:         { c: '#d03b3b', label: 'Nuclear power station' },
-  ara:         { c: '#6fae7f', label: 'Wastewater treatment plant' },
+  hydro:       { c: USE_OUT, label: 'Hydropower plant' },
+  abstraction: { c: USE_OUT, label: 'Abstraction, residual-flow register' },
+  npp:         { c: USE_OUT, label: 'Nuclear power station' },
+  ara:         { c: USE_IN,  label: 'Wastewater treatment plant' },
 };
 
 function stepColor(pal, t) {
@@ -105,7 +115,10 @@ let gaugeByReach = new Map();
 let liveStamp = null;
 let hovered = null;        // {kind:'reach'|'station', ref}
 let selected = null;
-let motion = true, showStations = true;
+let motion = true, showStations = true;   // corrected to the reader's setting at start-up
+// True once the reader has chosen a view of their own. After that a window resize
+// keeps their view and only re-measures the canvas.
+let viewTouched = false;
 let particles = [], pool = [], poolWeight = 0, allocAt = 0;
 const REDUCED = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 let phase = 0;
@@ -140,6 +153,8 @@ async function load() {
   stations = st.stations;
   for (const s of stations) if (s.reach !== undefined) gaugeByReach.set(s.reach, s);
   fit();
+  updateEvidence();          // true from the first frame: before the live read every
+                             // reach carries its long-term mean and nothing more
   applyHash();
   requestAnimationFrame(frame);
   if (wantMode && wantMode !== 'ice') { setMode(wantMode); wantMode = null; }
@@ -300,6 +315,7 @@ function applyHash() {
   const m = /^#(-?[\d.]+),(-?[\d.]+),([\d.]+)(?:,(\w+))?$/.exec(location.hash);
   if (!m) return false;
   resize();
+  viewTouched = true;   // a link that carries a view is the reader's choice too
   view.k = +m[3];
   view.x = W / 2 - view.k * mercX(+m[1]);
   view.y = H / 2 - view.k * mercY(+m[2]);
@@ -366,6 +382,7 @@ async function refresh() {
     invalidate(); dirtyAlloc = true;
   } catch (e) {
     document.getElementById('stamp').textContent = 'Live read failed: ' + e.message + '. Showing long-term mean.';
+    updateEvidence();
   } finally {
     btn.disabled = false; btn.textContent = 'Refresh live data';
   }
@@ -419,6 +436,39 @@ function applyLive() {
     if (rr === null) { r.live = r.mean; r.basis = 'none'; }
     else { r.live = r.mean * rr; r.basis = basis; }
   }
+  updateEvidence();
+}
+
+// ---- the evidence bar -------------------------------------------------------
+// The page's one claim about itself: most of what is drawn is inference. The bar is
+// the drawing's own composition by class of evidence, counted, not asserted. It adds
+// no fact; it counts the facts already on the map.
+function updateEvidence() {
+  let measured = 0, estimated = 0, none = 0;
+  for (const r of reaches) {
+    if (r.basis === 'measured') measured++;
+    else if (r.basis === 'none') none++;
+    else estimated++;
+  }
+  const total = measured + estimated + none;
+  if (!total) return;
+  const bar = document.getElementById('evBar');
+  const seg = bar.children;
+  seg[0].style.flex = measured;
+  seg[1].style.flex = estimated;
+  seg[2].style.flex = none;
+  const n = v => v.toLocaleString('de-CH');
+  document.getElementById('evNumMeasured').textContent = n(measured);
+  document.getElementById('evNumEstimated').textContent = n(estimated);
+  document.getElementById('evNumNone').textContent = n(none);
+  bar.setAttribute('aria-label',
+    `Of ${n(total)} reaches drawn, ${n(measured)} are measured at a gauge, ` +
+    `${n(estimated)} are estimated for the reach, and ${n(none)} have no basis today.`);
+  for (const [id, v] of [['evTdMeasured', measured], ['evTdEstimated', estimated],
+                         ['evTdNone', none], ['evTdTotal', total]]) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = n(v);
+  }
 }
 
 function stampText() {
@@ -443,6 +493,32 @@ function stampText() {
 }
 
 // ---- view -------------------------------------------------------------------
+// The frame the map gets is the window less the chrome, and the chrome moves with the
+// screen size. The four insets are declared in CSS next to the breakpoints that set
+// them, so the layout is described in one place and read here.
+function mapInsets() {
+  const GAP = 14;
+  let l = 10, r = 10, t = 10, b = 10;
+  for (const id of ['titlebar', 'legend', 'modes']) {
+    const el = document.getElementById(id);
+    if (!el || el.hidden) continue;
+    const q = el.getBoundingClientRect();
+    if (!q.width || !q.height) continue;
+    const claim = (getComputedStyle(el).getPropertyValue('--claim') || '').trim();
+    if (claim === 'left')        l = Math.max(l, q.right + GAP);
+    else if (claim === 'right')  r = Math.max(r, W - q.left + GAP);
+    else if (claim === 'top')    t = Math.max(t, q.bottom + GAP);
+    else if (claim === 'bottom') b = Math.max(b, H - q.top + GAP);
+  }
+  // The layer switch sits above the map on a wide screen. It is narrow and centred,
+  // so it claims the top strip and nothing else.
+  // Never let the frame collapse: on a very small window the chrome wins the argument
+  // and the map would be given nothing.
+  if (l + r > W * 0.7) { const f = (W * 0.7) / (l + r); l *= f; r *= f; }
+  if (t + b > H * 0.7) { const f = (H * 0.7) / (t + b); t *= f; b *= f; }
+  return { l, r, t, b };
+}
+
 function fit() {
   resize();
   let x0 = 1, x1 = 0, y0 = 1, y1 = 0;
@@ -450,11 +526,13 @@ function fit() {
     if (r.px[i] < x0) x0 = r.px[i]; if (r.px[i] > x1) x1 = r.px[i];
     if (r.py[i] < y0) y0 = r.py[i]; if (r.py[i] > y1) y1 = r.py[i];
   }
-  const pad = 0.94;
-  view.k = Math.min(W / (x1 - x0), H / (y1 - y0)) * pad;
+  const { l, r: ri, t, b } = mapInsets();
+  const aw = Math.max(80, W - l - ri), ah = Math.max(80, H - t - b);
+  const pad = 0.98;
+  view.k = Math.min(aw / (x1 - x0), ah / (y1 - y0)) * pad;
   K0 = view.k;
-  view.x = W / 2 - view.k * (x0 + x1) / 2;
-  view.y = H / 2 - view.k * (y0 + y1) / 2;
+  view.x = l + aw / 2 - view.k * (x0 + x1) / 2;
+  view.y = t + ah / 2 - view.k * (y0 + y1) / 2;
 }
 function resize() {
   dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -550,7 +628,7 @@ function drawBase() {
   if (hovered?.kind === 'reach') {
     const r = hovered.ref;
     path(r);
-    ctx.strokeStyle = '#fab219';
+    ctx.strokeStyle = '#cde2fb';
     ctx.globalAlpha = 0.95;
     ctx.lineWidth = lineWidth(r.live) + 1.6;
     ctx.stroke();
@@ -566,7 +644,39 @@ function drawBase() {
       if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
       const live = s.q !== null && s.q !== undefined;
       const d = s.obs?.danger ?? null;
-      const rad = hovered?.kind === 'station' && hovered.ref === s ? 6 : (live ? 3.4 : 2.4);
+      const on = hovered?.kind === 'station' && hovered.ref === s;
+
+      // Under the temperature layer the gauge carries the reading, so it is filled
+      // from the temperature ramp. A gauge with no temperature series is left hollow
+      // rather than coloured, because an absent reading is not a cold one. At or above
+      // 25 C the statutory ceiling applies, and that is a status: it gets its own rim,
+      // it is named in the legend, and it is never left to the ramp alone.
+      if (mode === 'temp') {
+        const t = s.obs?.temp;
+        const has = t !== null && t !== undefined;
+        const rad = on ? 6.4 : (has ? 4.2 : 2.2);
+        ctx.beginPath();
+        ctx.arc(x, y, rad, 0, 6.2832);
+        ctx.globalAlpha = 1;
+        if (has) {
+          ctx.fillStyle = tempColor(t);
+          ctx.fill();
+          ctx.lineWidth = t >= 25 ? 2 : 1;
+          ctx.strokeStyle = t >= 25 ? '#d03b3b' : 'rgba(13,13,13,0.8)';
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = '#0d0d0d';
+          ctx.globalAlpha = 0.5;
+          ctx.fill();
+          ctx.globalAlpha = 0.7;
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = '#898781';
+          ctx.stroke();
+        }
+        continue;
+      }
+
+      const rad = on ? 6 : (live ? 3.4 : 2.4);
       ctx.beginPath();
       ctx.arc(x, y, rad, 0, 6.2832);
       ctx.fillStyle = '#0d0d0d';
@@ -708,7 +818,7 @@ cv.addEventListener('pointerdown', e => {
 cv.addEventListener('pointermove', e => {
   if (drag) {
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
+    if (Math.abs(dx) + Math.abs(dy) > 3) { drag.moved = true; viewTouched = true; }
     view.x = drag.vx + dx; view.y = drag.vy + dy;
     invalidate(); dirtyAlloc = true;
     return;
@@ -725,6 +835,7 @@ cv.addEventListener('wheel', e => {
   e.preventDefault();
   const f = Math.exp(-e.deltaY * 0.0016);
   const k2 = Math.max(K0 * 0.5, Math.min(K0 * 10, view.k * f));
+  viewTouched = true;
   const s = k2 / view.k;
   view.x = e.clientX - (e.clientX - view.x) * s;
   view.y = e.clientY - (e.clientY - view.y) * s;
@@ -834,12 +945,12 @@ function tip(mx, my) {
       `<div class="tEst">${esc(USE[p.kind].label)}${p.w ? ' &#183; ' + esc(p.w) : ''}${p.v ? ' &#183; ' + esc(p.v) : ''}</div>`;
   } else if (hovered.kind === 'station') {
     const s = hovered.ref;
-    tt.innerHTML = `<div class="tName">${esc(s.name)}</div>` +
+    tt.innerHTML = `<div class="tName hydronym">${esc(s.name)}</div>` +
       `<div class="tVal">${s.q !== null && s.q !== undefined ? fmtQ(s.q) + ' m³/s' : 'no discharge series'}</div>` +
       `<div class="tEst">BAFU gauge ${esc(s.id)}</div>`;
   } else {
     const r = hovered.ref;
-    tt.innerHTML = `<div class="tName">${fmtQ(r.live)} m³/s</div>` +
+    tt.innerHTML = `<div class="tName num">${fmtQ(r.live)} m³/s</div>` +
       `<div class="tVal">catchment ${r.upland.toFixed(0)} km²</div>` +
       `<div class="tEst">${r.basis === 'measured' ? 'measured at a gauge'
         : r.basis === 'none' ? 'outside the gauged network, long-term mean only'
@@ -856,6 +967,7 @@ function select(h) {
   selected = h;
   if (!h) { panel.hidden = true; return; }
   const T = document.getElementById('panelTitle');
+  T.className = '';
   const B = document.getElementById('panelBody');
   const N = document.getElementById('panelNote');
   const row = (k, v, u) => `<dt>${k}</dt><dd>${v}${u ? `<span class="unit">${u}</span>` : ''}</dd>`;
@@ -973,7 +1085,7 @@ function select(h) {
 
   if (h.kind === 'station') {
     const s = h.ref, o = s.obs ?? {};
-    T.textContent = s.name;
+    T.textContent = s.name; T.className = 'hydronym';
     let html = row('Discharge', fmtQ(s.q), 'm³/s');
     if (s.meanQ) html += row('Long-term mean', fmtQ(s.meanQ), 'm³/s');
     if (s.q !== null && s.q !== undefined && s.meanQ) html += row('Share of mean', (100 * s.q / s.meanQ).toFixed(0), '%');
@@ -1055,12 +1167,40 @@ function spark(ser) {
 
 document.getElementById('panelClose').onclick = () => { panel.hidden = true; selected = null; };
 document.getElementById('refresh').onclick = refresh;
+// The legend is a drawer on a phone: the map is the page, and a legend that covers
+// the country explains nothing. On every larger screen it is simply always open.
+const legendToggle = document.getElementById('legendToggle');
+const phone = window.matchMedia('(max-width: 640px), (max-height: 560px)');
+function setLegend(open) {
+  document.body.dataset.legend = open ? 'open' : 'closed';
+  legendToggle.setAttribute('aria-expanded', String(open));
+  legendToggle.textContent = open ? 'Hide' : 'Legend';
+}
+setLegend(!phone.matches);
+legendToggle.onclick = () => setLegend(document.body.dataset.legend !== 'open');
+phone.addEventListener('change', e => setLegend(!e.matches));
+
 document.getElementById('toggleStations').onchange = e => { showStations = e.target.checked; dirty = true; };
 document.getElementById('toggleMotion').onchange = e => { motion = e.target.checked; if (!motion) clearFlow(); };
+// prefers-reduced-motion is a request, so the control starts where the reader put it.
+if (REDUCED) {
+  motion = false;
+  document.getElementById('toggleMotion').checked = false;
+}
 for (const el of document.querySelectorAll('#lgUse input[data-use]')) {
   el.onchange = () => { useOn[el.dataset.use] = el.checked; dirty = true; };
 }
-window.addEventListener('resize', () => { resize(); dirtyAlloc = true; });
+let __rz = 0;
+window.addEventListener('resize', () => {
+  clearTimeout(__rz);
+  __rz = setTimeout(() => {
+    // Refit only while the view is still the one the page chose. Once the reader has
+    // panned or zoomed, the view is theirs and a resize must not take it away.
+    if (!viewTouched && reaches.length) fit(); else resize();
+    dirtyAlloc = true;
+    invalidate();
+  }, 120);
+});
 
 window.__fps = () => (__frames / Math.max(0.001, (performance.now() - __t0) / 1000)).toFixed(1);
 window.__diag = () => {
@@ -1075,6 +1215,7 @@ window.__diag = () => {
 function setMode(m) {
   if (m === 'ice' && !glaciers) return;
   mode = m;
+  document.body.dataset.layer = m;
   for (const b of document.querySelectorAll('#modes button')) b.classList.toggle('on', b.dataset.mode === m);
   for (const [k, id] of Object.entries(LG)) document.getElementById(id).hidden = k !== m;
   document.getElementById('legendTitle').textContent = LGTITLE[m];
@@ -1125,12 +1266,31 @@ q347.addEventListener('input', calc);
 calc();
 
 const lawBox = document.getElementById('law');
-document.getElementById('openLaw').onclick = () => { lawBox.hidden = false; };
+const srcBox = document.getElementById('sources');
+
+// The statute is set in a serif, because it is the only text on this page that is not
+// an instrument reading. The face is fetched when the drawer first opens, so the map
+// does not pay for it.
+let serifAsked = false;
+function askSerif() {
+  if (serifAsked) return;
+  serifAsked = true;
+  const l = document.createElement('link');
+  l.rel = 'stylesheet';
+  l.href = 'https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap';
+  document.head.appendChild(l);
+}
+
+document.getElementById('openLaw').onclick = () => { askSerif(); lawBox.hidden = false; };
 document.getElementById('lawClose').onclick = () => { lawBox.hidden = true; };
 lawBox.addEventListener('click', e => { if (e.target === lawBox) lawBox.hidden = true; });
+document.getElementById('openSources').onclick = () => { srcBox.hidden = false; };
+document.getElementById('srcClose').onclick = () => { srcBox.hidden = true; };
+srcBox.addEventListener('click', e => { if (e.target === srcBox) srcBox.hidden = true; });
 window.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (!lawBox.hidden) lawBox.hidden = true;
+  else if (!srcBox.hidden) srcBox.hidden = true;
   else if (!panel.hidden) { panel.hidden = true; selected = null; }
 });
 

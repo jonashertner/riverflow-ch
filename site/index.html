@@ -10,17 +10,35 @@
 <meta property="og:title" content="Water and ice in Switzerland">
 <meta property="og:description" content="Swiss rivers, live. Swiss glaciers, 1850 against 2023. A measured base layer for legal work on climate.">
 <meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
-<body class="viz-root">
+<body class="viz-root" data-layer="flow">
 
 <canvas id="map"></canvas>
 <canvas id="flow"></canvas>
 
-<header id="titlebar">
+<header id="titlebar" class="sheet">
   <h1>Water and ice in Switzerland</h1>
   <p class="sub">Rivers read live from the federal gauges. Glaciers as they were in 1850 and as they are in 2023.</p>
   <p class="stamp" id="stamp">Loading&#8230;</p>
+
+  <!-- The page's one claim about itself, drawn rather than asserted. -->
+  <div id="evidence">
+    <p class="evLabel">What is drawn, by class of evidence</p>
+    <div class="evBar" id="evBar" role="img" aria-label="Composition of the drawing by class of evidence">
+      <span class="evMeasured" style="flex:0"></span>
+      <span class="evEstimated" style="flex:1"></span>
+      <span class="evNone" style="flex:0"></span>
+    </div>
+    <ul class="evKeys">
+      <li><i class="evMeasured"></i>Measured at a gauge<b id="evNumMeasured">&mdash;</b></li>
+      <li><i class="evEstimated"></i>Estimated for the reach<b id="evNumEstimated">&mdash;</b></li>
+      <li><i class="evNone"></i>No basis today<b id="evNumNone">&mdash;</b></li>
+    </ul>
+  </div>
 </header>
 
 <nav id="modes" aria-label="Layer">
@@ -31,9 +49,11 @@
   <button type="button" data-mode="use" id="modeUse" disabled>Water use</button>
 </nav>
 
-<section id="legend" aria-label="Legend">
+<section id="legend" class="sheet" aria-label="Legend">
   <h2 id="legendTitle">Discharge</h2>
+  <button id="legendToggle" type="button" aria-expanded="true" aria-controls="legendScroll">Legend</button>
 
+  <div id="legendScroll">
   <div class="lg" id="lgFlow">
     <div class="ramp ramp-seq"></div>
     <div class="rampLabels"><span>0.1</span><span>1</span><span>10</span><span>100</span><span>1000 m&#179;/s</span></div>
@@ -50,16 +70,21 @@
     <p class="lgNote">Discharge now against the long-term mean of the same reach. The mean is an
       annual figure, so a summer reading below 100&nbsp;% is in part the season and not only the year.
       Read it as a ratio, not as a drought index.</p>
+    <p class="lgNote">The mean is HydroRIVERS <span class="num">DIS_AV_CMS</span>, which is modelled and
+      not the federal statistic. <b>Not quotable.</b></p>
   </div>
 
   <div class="lg" id="lgTemp" hidden>
     <div class="ramp ramp-temp"></div>
     <div class="rampLabels"><span>0</span><span>10</span><span>20</span><span>25&nbsp;&deg;C</span></div>
+    <p class="threshold"><i></i>At or above 25&nbsp;&deg;C, the ceiling in GSchV Annex&nbsp;2 No.&nbsp;12(4)</p>
     <p class="lgNote" id="tempCount">&nbsp;</p>
-    <p class="lgNote">The ring marks the gauge. A white rim marks a gauge at or above 25&nbsp;&deg;C, the
-      ceiling that GSchV Annex&nbsp;2 No.&nbsp;12(4) sets for a watercourse whose temperature is altered by
-      heat. One reading is one sensor. Open a gauge to see it against the others in the same river system
-      before you rely on it.</p>
+    <p class="lgNote">A filled disc is a gauge with a temperature series, and it is filled from the
+      ramp. A hollow ring is a gauge with none: an absent reading is not a cold one. The rivers keep
+      their discharge colour under this layer, dimmed, because temperature is measured at the gauge
+      and nowhere else.</p>
+    <p class="lgNote">One reading is one sensor. Open a gauge to see it against the others in the same
+      river system before you rely on it.</p>
   </div>
 
   <div class="lg" id="lgIce" hidden>
@@ -73,12 +98,19 @@
   </div>
 
   <div class="lg" id="lgUse" hidden>
+    <p class="useDir">Takes water out</p>
     <ul class="notes useKeys">
       <li><label><input type="checkbox" data-use="hydro" checked><span class="swatch useHydro"></span>Hydropower, sized by design discharge</label></li>
       <li><label><input type="checkbox" data-use="abstraction" checked><span class="swatch useAbs"></span>Abstraction, residual-flow register</label></li>
       <li><label><input type="checkbox" data-use="npp" checked><span class="swatch useNpp"></span>Nuclear station, cooling water</label></li>
+    </ul>
+    <p class="useDir">Puts water in</p>
+    <ul class="notes useKeys">
       <li><label><input type="checkbox" data-use="ara" checked><span class="swatch useAra"></span>Treatment plant, sized by population equivalents</label></li>
     </ul>
+    <p class="lgNote">Two colours, because the direction is what the law turns on: Art.&nbsp;31 GSchG
+      governs taking water out, GSchV Annex&nbsp;2 No.&nbsp;12(4) governs putting heat in. The register
+      is carried by the shape of the mark, not by a third and fourth colour.</p>
     <p class="lgNote"><b>A filled disc carries a quantity. An open ring carries a place and nothing
       more.</b> Of the four federal registers only the hydropower statistic yields a discharge, and it
       yields it by arithmetic, not by measurement: capacity divided by head. The residual-flow map holds
@@ -91,15 +123,18 @@
       a plant means nothing without the water it stands in. Nothing here is a finding of breach.</p>
   </div>
 
+  </div>
+
   <div class="controls">
     <label><input type="checkbox" id="toggleStations" checked> Gauging stations</label>
     <label><input type="checkbox" id="toggleMotion" checked> Motion</label>
   </div>
-  <button id="refresh" type="button">Refresh live data</button>
-  <button id="openLaw" type="button">The three legal hooks</button>
+  <button id="refresh" class="act" type="button">Refresh live data</button>
+  <button id="openLaw" class="act" type="button">The three legal hooks</button>
+  <button id="openSources" class="act" type="button">Sources and method</button>
 </section>
 
-<aside id="panel" hidden>
+<aside id="panel" class="sheet" hidden>
   <button id="panelClose" type="button" aria-label="Close">&times;</button>
   <h2 id="panelTitle"></h2>
   <dl id="panelBody"></dl>
@@ -165,20 +200,54 @@
   </div>
 </div>
 
-<footer id="credits">
-  <p><strong>Rivers</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), reaches with a catchment of 5&nbsp;km&#178; or more.
-  Live discharge, water level and temperature from the BAFU gauging network through LINDAS, every ten minutes.
-  A reach with no gauge takes its long-term mean scaled by the nearest gauge downstream; those reaches are drawn dimmer.
-  A reach past no gauge at all is grey and carries its long-term mean only. Nine stations report in litres per second and are converted.
-  <strong>Ice</strong> GLAMOS, Swiss Glacier Inventory 1850 (doi:10.18750/inventory.sgi1850.r1992), Swiss Glacier Inventory 2023 (doi:10.18750/inventory.sgi2023.r2026)
-  and Swiss Glacier Length Change (doi:10.18750/lengthchange.2025.r2025). The DOI index states CC BY 4.0; the length-change file header adds "scientific and non-commercial use". Both statements stand.
-  <strong>Water use</strong> BAFU Restwasserkarte Schweiz (ch.bafu.wasser-entnahme, federal data state 1.1.2004),
-  BFE WASTA statistics of hydropower plants from 300&nbsp;kW up (ch.bfe.statistik-wasserkraftanlagen, to 31.12.2025),
-  BFE nuclear power stations (ch.bfe.kernkraftwerke), BAFU treatment-plant database with the share of the receiving water at
-  Q<sub>347</sub> (ch.bafu.gewaesserschutz-klaeranlagen_anteilq347, survey 2011, federal data state 1.1.2014). All four through opendata.swiss, attribution required.
-  There is no federal open register of drinking-water, industrial, irrigation or snowmaking abstraction, so those users are absent from this map and not from the rivers.
-  <strong>Context</strong> Natural Earth 10m. Measured and modelled water, not a forecast.</p>
-</footer>
+<div id="sources" hidden>
+  <div class="lawBox">
+    <button id="srcClose" type="button" aria-label="Close">&times;</button>
+    <h2>Sources and method</h2>
+    <p class="lawLead">Every figure on the map belongs to one of three classes of evidence. The bar at
+      the top of the page is this table.</p>
+
+    <table class="evTable">
+      <thead><tr><th scope="col">Class</th><th scope="col">What the number is</th><th scope="col">Reaches</th></tr></thead>
+      <tbody>
+        <tr><td>Measured</td><td>A gauge sits on this reach; the figure is read from it.</td><td id="evTdMeasured">&mdash;</td></tr>
+        <tr><td>Estimated</td><td>Long-term mean of the reach, scaled by the nearest gauge.</td><td id="evTdEstimated">&mdash;</td></tr>
+        <tr><td>No basis</td><td>No gauge above or below. Long-term mean only; says nothing about today.</td><td id="evTdNone">&mdash;</td></tr>
+        <tr><td><strong>Drawn</strong></td><td>Reaches with a catchment of 5&nbsp;km&#178; or more.</td><td id="evTdTotal">&mdash;</td></tr>
+      </tbody>
+    </table>
+
+    <div class="srcBody">
+      <h3>Rivers</h3>
+      <p>HydroRIVERS v1.0 (HydroSHEDS, WWF). Live discharge, water level and temperature from the BAFU
+      gauging network through LINDAS, every ten minutes. A reach with no gauge takes its long-term mean
+      scaled by the nearest gauge downstream; those reaches are drawn dimmer. A reach past no gauge at
+      all is grey and carries its long-term mean only. Nine stations report in litres per second and are
+      converted; the LINDAS <span class="num">isLiter</span> flag is true on all 190 rows and is useless,
+      so the unit is resolved per station from the federal plot data at build time.</p>
+
+      <h3>Ice</h3>
+      <p>GLAMOS, Swiss Glacier Inventory 1850 (doi:10.18750/inventory.sgi1850.r1992), Swiss Glacier
+      Inventory 2023 (doi:10.18750/inventory.sgi2023.r2026) and Swiss Glacier Length Change
+      (doi:10.18750/lengthchange.2025.r2025). The DOI index states CC BY 4.0; the length-change file
+      header adds "scientific and non-commercial use". Both statements stand.</p>
+
+      <h3>Water use</h3>
+      <p>BAFU Restwasserkarte Schweiz (<span class="num">ch.bafu.wasser-entnahme</span>, federal data
+      state 1.1.2004), BFE WASTA statistics of hydropower plants from 300&nbsp;kW up
+      (<span class="num">ch.bfe.statistik-wasserkraftanlagen</span>, to 31.12.2025), BFE nuclear power
+      stations (<span class="num">ch.bfe.kernkraftwerke</span>), BAFU treatment-plant database with the
+      share of the receiving water at Q<sub>347</sub>
+      (<span class="num">ch.bafu.gewaesserschutz-klaeranlagen_anteilq347</span>, survey 2011, federal
+      data state 1.1.2014). All four through opendata.swiss, attribution required.</p>
+      <p>There is no federal open register of drinking-water, industrial, irrigation or snowmaking
+      abstraction, so those users are absent from this map and not from the rivers.</p>
+
+      <h3>Context</h3>
+      <p>Natural Earth 10m. Measured and modelled water, not a forecast.</p>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>
