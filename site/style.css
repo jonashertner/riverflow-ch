@@ -1,0 +1,167 @@
+/* Palette: the reference data-viz instance, dark surface only.
+   Sequential encoding is ONE hue (blue), ordered by lightness. On a dark ground
+   the ramp runs dark -> light, so more water reads as brighter. */
+:root {
+  color-scheme: dark;
+  --surface-1:   #1a1a19;
+  --plane:       #0d0d0d;
+  --ink:         #ffffff;
+  --ink-2:       #c3c2b7;
+  --ink-muted:   #898781;
+  --hairline:    rgba(255,255,255,0.10);
+  --rule:        #2c2c2a;
+
+  --seq-700: #0d366b;
+  --seq-600: #184f95;
+  --seq-500: #256abf;
+  --seq-450: #2a78d6;
+  --seq-400: #3987e5;
+  --seq-300: #6da7ec;
+  --seq-200: #9ec5f4;
+  --seq-100: #cde2fb;
+
+  --good:     #0ca30c;
+  --warning:  #fab219;
+  --serious:  #ec835a;
+  --critical: #d03b3b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; height: 100%;
+  background: var(--plane);
+  color: var(--ink);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#map { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+#map.dragging { cursor: grabbing; }
+
+/* ---- title ---- */
+#titlebar {
+  position: fixed; top: 24px; left: 24px; max-width: 340px;
+  pointer-events: none;
+  background: linear-gradient(to right, rgba(13,13,13,0.88), rgba(13,13,13,0.6) 70%, rgba(13,13,13,0));
+  padding: 10px 40px 12px 12px; margin: -10px 0 0 -12px; border-radius: 8px;
+}
+#titlebar h1 {
+  margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
+}
+#titlebar .sub { margin: 4px 0 0; color: var(--ink-2); font-size: 13px; }
+#titlebar .stamp {
+  margin: 10px 0 0; color: var(--ink-muted); font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- legend ---- */
+#legend {
+  position: fixed; left: 24px; bottom: 24px; width: 260px;
+  background: color-mix(in srgb, var(--surface-1) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--hairline); border-radius: 10px;
+  padding: 14px 14px 12px;
+}
+#legend h2 {
+  margin: 0 0 8px; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);
+}
+.ramp {
+  height: 8px; border-radius: 4px;
+  background: linear-gradient(90deg,
+    var(--seq-600) 0%, var(--seq-500) 20%, var(--seq-450) 40%,
+    var(--seq-400) 58%, var(--seq-300) 74%, var(--seq-200) 88%, var(--seq-100) 100%);
+}
+.rampLabels {
+  display: flex; justify-content: space-between; margin-top: 5px;
+  font-size: 10px; color: var(--ink-muted); font-variant-numeric: tabular-nums;
+}
+.notes { list-style: none; margin: 12px 0 0; padding: 0; font-size: 12px; color: var(--ink-2); }
+.notes li { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.swatch { width: 22px; height: 3px; border-radius: 2px; flex: none; }
+.swatch.measured  { background: var(--seq-200); }
+.swatch.estimated { background: var(--seq-200); opacity: 0.6; }
+.swatch.nobasis   { background: #2a3340; }
+
+.controls { margin-top: 12px; border-top: 1px solid var(--rule); padding-top: 10px; }
+.controls label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--ink-2); margin-bottom: 5px; cursor: pointer;
+}
+.controls input { accent-color: var(--seq-400); margin: 0; }
+
+#refresh {
+  margin-top: 10px; width: 100%; padding: 7px 10px;
+  background: transparent; color: var(--ink-2);
+  border: 1px solid var(--hairline); border-radius: 6px;
+  font: inherit; font-size: 12px; cursor: pointer;
+}
+#refresh:hover { background: rgba(255,255,255,0.05); color: var(--ink); }
+#refresh:disabled { opacity: 0.5; cursor: default; }
+
+/* ---- detail panel ---- */
+#panel {
+  position: fixed; right: 24px; top: 24px; width: 300px;
+  background: color-mix(in srgb, var(--surface-1) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--hairline); border-radius: 10px;
+  padding: 16px 16px 14px;
+}
+#panel h2 { margin: 0 26px 12px 0; font-size: 15px; font-weight: 600; }
+#panelClose {
+  position: absolute; top: 10px; right: 10px;
+  background: none; border: 0; color: var(--ink-muted);
+  font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 6px;
+}
+#panelClose:hover { color: var(--ink); }
+#panel dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; }
+#panel dt { color: var(--ink-muted); font-size: 12px; }
+#panel dd {
+  margin: 0; text-align: right; font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+#panel dd .unit { color: var(--ink-muted); font-size: 11px; margin-left: 3px; }
+.panelNote {
+  margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--rule);
+  font-size: 11px; line-height: 1.5; color: var(--ink-muted);
+}
+.pill {
+  display: inline-block; padding: 1px 7px; border-radius: 10px;
+  font-size: 11px; font-weight: 600;
+}
+.pill.d1 { background: rgba(12,163,12,0.18);  color: var(--good); }
+.pill.d2 { background: rgba(250,178,25,0.18); color: var(--warning); }
+.pill.d3 { background: rgba(236,131,90,0.20); color: var(--serious); }
+.pill.d4, .pill.d5 { background: rgba(208,59,59,0.22); color: var(--critical); }
+
+/* ---- tooltip ---- */
+#tooltip {
+  position: fixed; pointer-events: none; z-index: 20;
+  background: color-mix(in srgb, var(--surface-1) 94%, transparent);
+  border: 1px solid var(--hairline); border-radius: 7px;
+  padding: 7px 10px; font-size: 12px; max-width: 230px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+#tooltip .tName { font-weight: 600; }
+#tooltip .tVal { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+#tooltip .tEst { color: var(--ink-muted); font-size: 11px; }
+
+/* ---- credits ---- */
+#credits {
+  position: fixed; right: 24px; bottom: 24px; max-width: 430px;
+  font-size: 10.5px; line-height: 1.55; color: var(--ink-muted);
+  text-align: right; pointer-events: none;
+  background: linear-gradient(to left, rgba(13,13,13,0.86), rgba(13,13,13,0.72) 70%, rgba(13,13,13,0));
+  padding: 10px 12px 10px 40px; border-radius: 8px;
+}
+#credits p { margin: 0; }
+#credits strong { color: var(--ink-2); font-weight: 600; }
+
+@media (max-width: 900px) {
+  #credits { display: none; }
+  #legend { width: 220px; left: 12px; bottom: 12px; }
+  #titlebar { left: 12px; top: 12px; }
+  #panel { right: 12px; top: 12px; width: 260px; }
+}

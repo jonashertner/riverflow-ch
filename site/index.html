@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Abfluss Schweiz — live streamflow in Swiss rivers</title>
+<meta name="description" content="Live discharge in Swiss rivers, from the BAFU gauging network. Colour and width show cubic metres per second. Motion points downstream.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="viz-root">
+
+<canvas id="map"></canvas>
+
+<header id="titlebar">
+  <h1>Abfluss Schweiz</h1>
+  <p class="sub">Live discharge in Swiss rivers, from the federal gauging network.</p>
+  <p class="stamp" id="stamp">Loading&#8230;</p>
+</header>
+
+<section id="legend" aria-label="Legend">
+  <h2>Discharge</h2>
+  <div class="ramp" id="ramp"></div>
+  <div class="rampLabels"><span>0.1</span><span>1</span><span>10</span><span>100</span><span>1000 m&#179;/s</span></div>
+  <ul class="notes">
+    <li><span class="swatch measured"></span>Measured at a gauge</li>
+    <li><span class="swatch estimated"></span>Estimated for the reach</li>
+    <li><span class="swatch nobasis"></span>Outside the gauged network</li>
+  </ul>
+  <div class="controls">
+    <label><input type="checkbox" id="toggleStations" checked> Gauging stations</label>
+    <label><input type="checkbox" id="toggleMotion" checked> Motion</label>
+  </div>
+  <button id="refresh" type="button">Refresh live data</button>
+</section>
+
+<aside id="panel" hidden>
+  <button id="panelClose" type="button" aria-label="Close">&times;</button>
+  <h2 id="panelTitle"></h2>
+  <dl id="panelBody"></dl>
+  <p class="panelNote" id="panelNote"></p>
+</aside>
+
+<div id="tooltip" role="status" hidden></div>
+
+<footer id="credits">
+  <p><strong>Geometry</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), reaches with a catchment of 5&nbsp;km&#178; or more. Flow direction comes from the network itself.
+  <strong>Discharge</strong> BAFU gauging stations, read live through the federal Linked Data service LINDAS, updated every ten minutes.
+  A reach with no gauge takes the long-term mean discharge of the reach, scaled by how far the nearest gauge downstream stands from its own mean, or failing that the largest gauged river above it; those reaches are drawn dimmer.
+  A reach that drains out of the country past no gauge at all is drawn in grey and carries its long-term mean only.
+  Nine stations report in litres per second; those readings are converted. Measured and modelled water, not a forecast.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
