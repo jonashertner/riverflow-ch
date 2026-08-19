@@ -2,13 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<!-- user-scalable is deliberately NOT disabled. The canvas takes its own gestures
+     through touch-action:none, so pinching the page still works for anyone who
+     needs the text bigger. A map is not a reason to break zoom. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Water and ice in Switzerland — a measured base layer</title>
-<meta name="description" content="Live discharge in Swiss rivers from the federal gauging network, water temperature against the statutory ceiling, and Swiss glacier area in 1850 against 2023. Every figure carries its source and its class of evidence.">
+<meta name="description" content="Live discharge in Swiss rivers from the federal gauging network, water temperature against the statutory ceiling, reservoir storage against 26 years of its own record, and Swiss glacier area across five dated inventories. Every figure carries its source, its class of evidence and its age.">
 <meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0d0d0d">
 <link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/">
 <meta property="og:title" content="Water and ice in Switzerland">
-<meta property="og:description" content="Swiss rivers, live. Swiss glaciers, 1850 against 2023. A measured base layer for legal work on climate.">
+<meta property="og:description" content="Swiss rivers, live. Reservoirs against 26 years of their own record. Glaciers across five dated inventories. A measured base layer for legal work on climate.">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -17,21 +21,40 @@
 <canvas id="map"></canvas>
 <canvas id="flow"></canvas>
 
+<a class="skip" href="#modes">Skip to the layer controls</a>
+
 <header id="titlebar">
   <h1>Water and ice in Switzerland</h1>
-  <p class="sub">Rivers read live from the federal gauges. Glaciers as they were in 1850 and as they are in 2023.</p>
+  <p class="sub">Rivers read live from the federal gauges. Ice across five surveys. Reservoirs against their own record.</p>
   <p class="stamp" id="stamp">Loading&#8230;</p>
 </header>
 
 <nav id="modes" aria-label="Layer">
-  <button type="button" data-mode="flow" class="on">Flow</button>
-  <button type="button" data-mode="normal">Against normal</button>
-  <button type="button" data-mode="temp">Temperature</button>
-  <button type="button" data-mode="ice" id="modeIce" disabled>Ice</button>
-  <button type="button" data-mode="use" id="modeUse" disabled>Water use</button>
+  <div class="modeGroup" role="group" aria-label="Water now">
+    <span class="modeGroupLabel">Now</span>
+    <button type="button" data-mode="flow" class="on">Flow</button>
+    <button type="button" data-mode="normal">Against normal</button>
+    <button type="button" data-mode="temp">Temperature</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Water stored">
+    <span class="modeGroupLabel">Stored</span>
+    <button type="button" data-mode="res" id="modeRes" disabled>Reservoirs</button>
+    <button type="button" data-mode="ice" id="modeIce" disabled>Ice</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Water and law">
+    <span class="modeGroupLabel">Law</span>
+    <button type="button" data-mode="residual" id="modeResidual" disabled>Residual flow</button>
+    <button type="button" data-mode="use" id="modeUse" disabled>Water use</button>
+  </div>
 </nav>
 
 <section id="legend" aria-label="Legend">
+  <button id="sheetHandle" type="button" aria-expanded="false" aria-controls="legendBody">
+    <span class="grip" aria-hidden="true"></span>
+    <span class="sheetTitle" id="sheetTitle">Discharge</span>
+  </button>
+
+  <div id="legendBody">
   <h2 id="legendTitle">Discharge</h2>
 
   <div class="lg" id="lgFlow">
@@ -58,8 +81,25 @@
     <p class="lgNote" id="tempCount">&nbsp;</p>
     <p class="lgNote">The ring marks the gauge. A white rim marks a gauge at or above 25&nbsp;&deg;C, the
       ceiling that GSchV Annex&nbsp;2 No.&nbsp;12(4) sets for a watercourse whose temperature is altered by
-      heat. One reading is one sensor. Open a gauge to see it against the others in the same river system
-      before you rely on it.</p>
+      heat. One reading is one sensor. Open a gauge to see it against the others nearby before you rely on it.</p>
+  </div>
+
+  <div class="lg" id="lgRes" hidden>
+    <ul class="notes">
+      <li><span class="swatch resFull"></span>Dam, sized by the volume it holds when full</li>
+      <li><span class="swatch resFlood"></span>Built for flood retention, not for power</li>
+    </ul>
+    <div class="ramp ramp-res"></div>
+    <div class="rampLabels"><span>empty</span><span>half</span><span>full</span></div>
+    <p class="lgNote">The tint is the level of the dam's <b>region</b> in the week at the playhead, so
+      every dam in a region moves as one body. Press play to run twenty-six years of it.</p>
+    <p class="lgNote" id="resTotals">&nbsp;</p>
+    <p class="lgNote"><b>Two registers, and they do not describe the same objects.</b> The dams are
+      structures, with the volume each reservoir holds when full. The filling level is a weekly figure in
+      GWh &mdash; stored electricity, not stored water &mdash; and it is published for four regions, not for
+      225 dams. So this layer can say what a reservoir holds when full, and it can say how full the region
+      is this week. <b>It cannot say how full the Grande Dixence is today.</b> Nobody publishes that.</p>
+    <p class="lgNote" id="resRank">&nbsp;</p>
   </div>
 
   <div class="lg" id="lgIce" hidden>
@@ -68,8 +108,31 @@
       <li><span class="swatch ice2023"></span>Ice in 2023</li>
     </ul>
     <p class="lgNote">The 2023 bodies are drawn over the 1850 outlines. What stays in colour is
-      the ice that has gone.</p>
+      the ice that has gone. Press play to run the five dated surveys in their real intervals.</p>
     <p class="lgNote" id="iceTotals">&nbsp;</p>
+    <p class="lgNote"><b>This is area, not volume.</b> The two have not moved together: through recent
+      decades the ice thinned faster than it shrank in plan, because a glacier loses thickness over its
+      whole surface before it loses its outline. The area figures here are measured. The volume figures
+      are cited, and they come from separate work by separate methods.</p>
+  </div>
+
+  <div class="lg" id="lgResidual" hidden>
+    <ul class="notes">
+      <li><span class="swatch resiMeas"></span>Q<sub>347</sub> from gauge records</li>
+      <li><span class="swatch resiMod"></span>Q<sub>347</sub> modelled &mdash; a rough estimate</li>
+    </ul>
+    <p class="lgNote" id="residualCount">&nbsp;</p>
+    <p class="lgNote"><b>What the statute would require, not what anyone owes today.</b> Art. 31(1) GSchG
+      sets a minimum that must stay in the bed where water is taken. The figure follows from
+      Q<sub>347</sub>, and BAFU publishes Q<sub>347</sub> at 1&#8239;041 points, so the minimum can be
+      computed and mapped instead of typed in. But the rule bites only on a <b>new</b> abstraction, and on
+      an existing one only when its concession expires and has to be renewed. An abstraction already
+      running is governed by the restoration regime of Art.&nbsp;80&nbsp;ff instead.</p>
+    <p class="lgNote"><b>Datenstand 1 January 2000.</b> That is the strangest fact in this layer and the
+      most useful. Art.&nbsp;4(h) defines Q<sub>347</sub> as a ten-year mean, and the decade in this file is
+      the decade the determinations were made on &mdash; so for the question "what was required" the old
+      figure is the right one. For the question "how much water is in this brook in a dry year" it
+      describes a hydrology that has since changed.</p>
   </div>
 
   <div class="lg" id="lgUse" hidden>
@@ -82,21 +145,39 @@
     <p class="lgNote"><b>A filled disc carries a quantity. An open ring carries a place and nothing
       more.</b> Of the four federal registers only the hydropower statistic yields a discharge, and it
       yields it by arithmetic, not by measurement: capacity divided by head. The residual-flow map holds
-      no volume at all, and no cooling volume for the four nuclear sites is published as open data.
+      no volume at all, and no cooling volume for the nuclear sites is published as open data.
       Treatment plants carry a ratio instead: their discharge against the receiving water at
       Q<sub>347</sub>. For 39 of them it is above 100&#8201;%, which is to say the brook at low flow
       carries less than the plant puts into it.</p>
     <p class="lgNote" id="useCount">&#160;</p>
-    <p class="lgNote">The rivers are dimmed under this layer. They are dimmed and not removed, because
-      a plant means nothing without the water it stands in. Nothing here is a finding of breach.</p>
   </div>
 
   <div class="controls">
     <label><input type="checkbox" id="toggleStations" checked> Gauging stations</label>
     <label><input type="checkbox" id="toggleMotion" checked> Motion</label>
   </div>
-  <button id="refresh" type="button">Refresh live data</button>
-  <button id="openLaw" type="button">The three legal hooks</button>
+  <div class="btnRow">
+    <button id="refresh" type="button">Refresh live data</button>
+    <button id="openLaw" type="button">The legal hooks</button>
+    <button id="openSources" type="button">Sources and their age</button>
+  </div>
+  </div>
+</section>
+
+<!-- The time ribbon. It is empty on the layers that describe only now, and it
+     carries the record on the layers that describe a change. -->
+<section id="ribbon" hidden aria-label="Time">
+  <div class="ribbonHead">
+    <button id="play" type="button" aria-label="Play">
+      <svg viewBox="0 0 12 14" aria-hidden="true" width="11" height="13"><path d="M1 1l10 6-10 6z"/></svg>
+      <span id="playLabel">Play</span>
+    </button>
+    <h2 id="ribbonTitle">&nbsp;</h2>
+    <output id="ribbonRead">&nbsp;</output>
+  </div>
+  <canvas id="ribbonCv"></canvas>
+  <input id="scrub" type="range" min="0" max="1000" value="1000" step="1" aria-label="Scrub through time">
+  <p class="ribbonNote" id="ribbonNote">&nbsp;</p>
 </section>
 
 <aside id="panel" hidden>
@@ -109,16 +190,19 @@
 
 <div id="tooltip" role="status" hidden></div>
 
-<div id="law" hidden>
-  <div class="lawBox">
-    <button id="lawClose" type="button" aria-label="Close">&times;</button>
-    <h2>Three places where this data meets Swiss law</h2>
-    <p class="lawLead">The provisions are quoted from the consolidated German texts on fedlex.admin.ch,
-      in the versions in force on 19 August 2026. A datum below is a fact about a river or a glacier.
-      It is not a finding of breach. The step from one to the other is the lawyer's, and it needs the
-      concession, the licence and the site.</p>
+<!-- ---- the law ---- -->
+<div id="law" class="modal" hidden>
+  <div class="modalBox lawBox">
+    <button class="modalClose" data-close="law" type="button" aria-label="Close">&times;</button>
+    <h2>Where this data meets Swiss law</h2>
+    <p class="lawLead">Statute and ordinance are quoted from the consolidated German texts on
+      fedlex.admin.ch, in the versions in force on 19 August 2026; the ordinance annexes are quoted from
+      the consolidated file Fedlex serves for SR 814.201, because the annexes are not carried in the
+      article-level indexes. Case law is cited to the published reports. <b>A datum on this map is a fact
+      about a river, a reservoir or a glacier. It is not a finding of breach.</b> The step from one to the
+      other is the lawyer's, and it needs the concession, the licence and the site.</p>
 
-    <h3>1. Residual flow. Water Protection Act, Art. 31(1) <span>SR 814.20</span></h3>
+    <h3>1. Residual flow: the floor. GSchG Art. 31(1) <span>SR 814.20</span></h3>
     <p>Where water is taken from a watercourse with a permanent flow, a minimum must remain in the bed.
       The figure follows from Q<sub>347</sub>, defined in Art. 4(h) as the discharge that, averaged over
       ten years, is reached or exceeded on 347 days of the year, and that is not substantially affected
@@ -129,27 +213,99 @@
       <output id="q347out"></output>
     </div>
     <p class="lawFine">Computed from the table in Art. 31(1). Each band starts from the figure the
-      statute states for it and rises at the rate the statute gives. The bands do not close exactly: a rate carried up to a boundary
-      and the figure the statute states at that boundary differ by a fraction of a litre, 279.6 against
-      280 at 500&nbsp;l/s and 2497.5 against 2500 at 10&nbsp;000&nbsp;l/s. That is the statute's own
-      arithmetic, reproduced and not smoothed. The table begins at 50&nbsp;l/s and stops at 10&nbsp;000&nbsp;l/s from
-      a Q<sub>347</sub> of 60&nbsp;000&nbsp;l/s. The result is a floor, not a permission: Art. 31(2) requires the figure to be
-      raised where water quality, groundwater recharge, rare habitats, fish passage or spawning grounds
-      are not otherwise secured, and Arts. 32 and 33 govern the exceptions and the weighing of interests.
-      Q<sub>347</sub> is not published per gauge in the live federal feed, so it is entered here, not read
-      from the map.</p>
+      statute states for it and rises at the rate the statute gives. The bands do not close exactly: a rate
+      carried up to a boundary and the figure the statute states at that boundary differ by a fraction of a
+      litre, 279.6 against 280 at 500&nbsp;l/s and 2497.5 against 2500 at 10&nbsp;000&nbsp;l/s. That is the
+      statute's own arithmetic, reproduced and not smoothed.</p>
 
-    <h3>2. Temperature. Waters Protection Ordinance, Annex 2 No. 12(4) <span>SR 814.201</span></h3>
+    <h3>2. The floor moves, and it moves in two different ways <span>Arts. 31(2), 32, 33</span></h3>
+    <p class="lawFine"><b>Upward, and it must.</b> Art.&nbsp;31(2) requires the minimum to be raised where
+      five things are not otherwise secured: surface-water quality despite the abstraction and existing
+      discharges; groundwater recharge sufficient for drinking water and the soil-water balance;
+      rare habitats and communities that depend on the watercourse; the water depth free fish migration
+      needs; and the spawning and rearing function of small streams with a Q<sub>347</sub> at or below
+      40&nbsp;l/s below 800&nbsp;m. Art.&nbsp;33 raises it further, on a weighing of the public and
+      economic interest in the abstraction against landscape and habitat value, water quality, the
+      groundwater balance and agricultural irrigation.</p>
+    <p class="lawFine"><b>Downward, and only within a closed list.</b> Art.&nbsp;33 is titled
+      <i>Erhöhung der Mindestrestwassermenge</i> and does one thing: it raises. Going below the Art.&nbsp;31
+      minimum is governed exclusively by Art.&nbsp;32, whose grounds are exhaustive — short reaches below
+      1700&nbsp;m with a Q<sub>347</sub> under 50&nbsp;l/s, waters without fish down to 35&nbsp;% of
+      Q<sub>347</sub>, reaches of a thousand metres with low ecological potential, an approved protection
+      and use plan with compensating measures, and time-limited emergency takings. The Federal Supreme
+      Court states the division in one sentence in <b>BGE 145 II 140, E. 2</b>: the minima are raised in
+      the individual case on a comprehensive weighing of interests under Art.&nbsp;33, and falling below
+      them is admissible only in the exceptional cases of Art.&nbsp;32.</p>
+
+    <h3>3. When Art. 31 bites, and when it does not <span>Arts. 29, 80–83</span></h3>
+    <p class="lawFine">This is the point on which the residual-flow layer of this map turns.
+      Arts.&nbsp;29&#8211;36 attach to an abstraction that needs a <b>new</b> permit or concession. An
+      abstraction running under a concession already granted is governed instead by the transitional
+      restoration regime, Arts.&nbsp;80&#8211;83. And Art.&nbsp;80(1) reaches only so far as restoration is
+      possible <i>without interference in existing water rights that would found a claim to compensation</i>;
+      Art.&nbsp;80(2) allows more, against compensation under the expropriation act, where the watercourse
+      is in an inventory or another overriding public interest requires it. So an existing plant may
+      lawfully sit below the Art.&nbsp;31 figure this map computes for its reach, and that is not a defect
+      in the map: it is the gap the transitional regime creates.</p>
+    <p class="lawFine">The gap closes at renewal. <b>BGer 1C_526/2015 of 12 October 2016, E.&nbsp;3</b>:
+      once a concession has run out, abstractions must be newly licensed and must therefore comply in full
+      with water-protection and environmental law, citing <b>BGE 120 Ib 233</b>; and the same applies where
+      a running concession is so substantially altered that it amounts in substance to a new one, the rule
+      laid down in <b>BGE 119 Ib 254</b> (Curciusa). <b>BGE 145 II 140</b> adds that even an immemorial
+      water right cannot be perpetual: it ends without compensation once the investment is amortised, at
+      the latest after eighty years, and continuation requires a fresh concession under current law
+      exactly as for a new plant. BAFU puts the practical consequence on the face of its own
+      Q<sub>347</sub> map, and most Swiss renewals fall between 2025 and 2050. <b>The operative date for an
+      abstraction on this map is its concession expiry, not today.</b> That date is in the concession, and
+      no federal open dataset carries it, which is why this map cannot draw it.</p>
+    <p class="lawFine"><b>The restoration deadline has passed.</b> Art.&nbsp;82 required the cantons to
+      inventory existing abstractions and report; Art.&nbsp;81(2), as amended with effect from 1 January
+      2005, required that <i>the restorations be completed by the end of 2012 at the latest</i>. They were
+      not: BAFU reporting put remediation at roughly 87&nbsp;% of about a thousand abstraction points at the
+      end of 2018. The courts treat the lapsed deadline as raising the urgency of ordering restoration, not
+      as a sanction — <b>BGer 1C_526/2015, E.&nbsp;3.5.1</b> and <b>BGer 1C_185/2016, E.&nbsp;2.2.2</b>.
+      No decision was found holding that a canton's failure to meet it founds an independent claim for a
+      third party. Treat that as open, not as settled either way.</p>
+
+    <h3>4. Concession expiry and reversion <span>WRG, SR 721.80</span></h3>
+    <p class="lawFine">Art.&nbsp;58 caps a concession at eighty years from the start of operation.
+      Art.&nbsp;43 makes it a vested right, withdrawable only in the public interest and against full
+      compensation, which is the doctrinal reason Art.&nbsp;80 GSchG and not Art.&nbsp;31 governs
+      mid-term. Art.&nbsp;54(1) requires every concession to state its duration and the fate of the works
+      at expiry, and Arts.&nbsp;66&#8211;67 govern reversion: absent contrary terms the granting community
+      may take the intake and diversion works free of charge and the generating works against fair
+      compensation, and the concessionaire must keep the works operable until then.</p>
+
+    <h3>5. Temperature. GSchV Annex 2 No. 12(4) <span>SR 814.201</span></h3>
     <blockquote>Die Temperatur eines Fliessgewässers darf durch Wärmeeintrag oder ‑entzug gegenüber dem
       möglichst unbeeinflussten Zustand um höchstens 3&nbsp;°C, in Gewässerabschnitten der Forellenregion
       um höchstens 1,5&nbsp;°C, verändert werden; dabei darf die Wassertemperatur 25&nbsp;°C nicht
       übersteigen. Diese Anforderungen gelten nach weitgehender Durchmischung.</blockquote>
     <p class="lawFine">The rule governs alteration by heat input or removal, measured against the least
       affected state, and it applies after substantial mixing. A river that is warm without a heat source
-      is not in breach of it. The temperature layer therefore shows where the question arises. It does not
-      answer it. To answer it you need the unaffected reference state and the discharge point.</p>
+      is not in breach of it. The temperature layer therefore shows where the question arises; it does not
+      answer it. To answer it you need the unaffected reference state and the discharge point.
+      <b>No Bundesgericht decision enforcing this provision on its merits was found</b> in a search of the
+      federal and cantonal corpora — what exists is adjacent, mostly sewer-fee disputes over cooling water.
+      That is a gap in the case law, not a body of it, and it is worth knowing before the provision is
+      relied on as the spine of a claim.</p>
 
-    <h3>3. Ecological goals. Waters Protection Ordinance, Annex 1 No. 1(3)(a) <span>SR 814.201</span></h3>
+    <h3>6. Cooling water, and the carve-out. GSchV Annex 3.3 No. 21(4)(b) <span>SR 814.201</span></h3>
+    <blockquote>Die Aufwärmung des Gewässers darf gegenüber dem möglichst unbeeinflussten Zustand
+      höchstens 3&nbsp;°C, in Gewässerabschnitten der Forellenregion höchstens 1,5&nbsp;°C, betragen; dabei
+      darf die Wassertemperatur 25&nbsp;°C nicht übersteigen. Übersteigt die Wassertemperatur 25&nbsp;°C,
+      so kann die Behörde Ausnahmen zulassen, wenn die Erwärmung der Wassertemperatur höchstens
+      0,01&nbsp;°C pro Einleitung beträgt oder die Einleitung von einem bestehenden Kernkraftwerk
+      stammt.</blockquote>
+    <p class="lawFine">Once-through cooling has its own regime, and it contains the sharpest sentence on
+      this page: above the 25&nbsp;°C ceiling the authority may allow an exception where the warming is at
+      most a hundredth of a degree per discharge <b>or the discharge comes from an existing nuclear power
+      station</b>. Three of the four sites on the water-use layer are still operating. No federal open
+      dataset publishes their cooling volumes or their thermal load; those figures sit in the cantonal
+      concession and in the operators' own reporting. The map can show you the gauge, the river and the
+      site. The quantity has to be asked for.</p>
+
+    <h3>7. Ecological goals. GSchV Annex 1 No. 1(3)(a) <span>SR 814.201</span></h3>
     <blockquote>Die Wasserqualität soll so beschaffen sein, dass: a. die Temperaturverhältnisse naturnah
       sind.</blockquote>
     <p class="lawFine">A goal, not a limit value. It carries weight in the weighing of interests and in
@@ -157,11 +313,62 @@
       directly: a catchment that has lost half its ice does not have a near-natural thermal or flow regime,
       whatever any single gauge reads today.</p>
 
-    <h3>What the glacier record is good for</h3>
-    <p class="lawFine">The 1850 and 2023 inventories are the same office measuring the same objects by the
-      methods of their day. They are strong evidence of a change of state in a catchment and of its size
-      and its timing. They are not, on their own, evidence that any named party caused it. Causation and
-      attribution are separate questions and need separate sources.</p>
+    <h3>8. Who can put this in front of a court <span>NHG Art. 12, USG Art. 55, VBO</span></h3>
+    <p class="lawFine">The ideelle Verbandsbeschwerde runs through three gates that in practice are one:
+      NHG Art.&nbsp;12 for organisations active throughout Switzerland pursuing purely ideal aims, for
+      legal fields that have been their statutory purpose for ten years; USG Art.&nbsp;55 for decisions on
+      installations subject to an environmental impact assessment; and the VBO (SR 814.076), whose annex
+      is the list that decides who actually has the right — see <b>BGer 1C_15/2023 of 11 October 2024</b>,
+      which resolves standing by pointing at the annex entry. Since 1 August 2025 NHG Art.&nbsp;12(1<sup>bis</sup>)
+      excludes standing against decisions on residential buildings under 400&nbsp;m² in building zones,
+      with exceptions.</p>
+    <p class="lawFine">Two categories of decision matter for this map. Concession grants and renewals are
+      squarely challengeable — <b>BGE 140 II 262</b>, <b>BGE 126 II 283</b>, <b>BGE 119 Ib 254</b>. So are
+      restoration orders under Art.&nbsp;80 GSchG, and the Zurich Verwaltungsgericht has held that they are
+      challengeable <b>even where the order produces only ecological improvement</b>
+      (<b>VB.2011.00070</b>, E.&nbsp;2.2.1 and 2.2.3). A purely local association generally cannot invoke
+      Art.&nbsp;12 NHG or Art.&nbsp;55 USG; cantonal law may grant it standing separately.</p>
+
+    <h3>9. KlimaSeniorinnen, and what it does not yet do <span>ECtHR 53600/20</span></h3>
+    <p class="lawFine"><i>Verein KlimaSeniorinnen Schweiz and Others v. Switzerland</i>, Grand Chamber,
+      9 April 2024: the association had standing, the four individual applicants did not, and Switzerland
+      violated Art.&nbsp;8 by failing to put in place the regulatory framework needed to address climate
+      change, including any quantification of national emissions limits, and Art.&nbsp;6&nbsp;§&nbsp;1
+      because the Swiss courts had not engaged with the arguments. The judgment requires general measures
+      under Art.&nbsp;46&nbsp;§&nbsp;2. <b>Execution is not finished.</b> The Committee of Ministers
+      declined Switzerland's position that implementation was complete in March 2025 and, on its second
+      review in September 2025, held that a CO<sub>2</sub> budget compatible with 1.5&nbsp;°C had not
+      credibly been produced; Switzerland reports again in 2026.</p>
+    <p class="lawFine">No Swiss decision applying KlimaSeniorinnen to a water-law dispute was found.
+      It is Strasbourg authority under continuing supervision, relevant to state positive obligations that
+      touch climate-driven hydrology, and it is <b>not</b> domestically operative Swiss water-law
+      authority. Any statement about its implementation status should be dated, because the status is
+      moving.</p>
+
+    <h3>What the record on this map is good for</h3>
+    <p class="lawFine">The glacier inventories are one office measuring the same objects by the methods
+      of its day, and the reservoir series is one office counting the same stored energy every week for
+      twenty-six years. They are strong evidence of a change of state, of its size and of its timing. They
+      are not, on their own, evidence that any named party caused it. Causation and attribution are
+      separate questions and they need separate sources. The most useful thing this map does for a file is
+      narrower and more reliable than proof: it tells you which register is old, what quantity nobody
+      publishes, and which reach the question actually sits on.</p>
+  </div>
+</div>
+
+<!-- ---- sources and their age ---- -->
+<div id="sources" class="modal" hidden>
+  <div class="modalBox">
+    <button class="modalClose" data-close="sources" type="button" aria-label="Close">&times;</button>
+    <h2>Sources and their age</h2>
+    <p class="lawLead">A federal geoportal will draw you a register from 2004 and a reading from ten
+      minutes ago in the same crisp style, and nothing in the picture says which is which. For a map meant
+      to be usable as evidence that is the defect that matters most: not a wrong number, but a number whose
+      age is invisible. So every source below states its own data state, and the dates are fetched from the
+      federal legend endpoints at build time rather than remembered here. If BAFU refreshes a register
+      tomorrow, the next build says so without anyone editing a line.</p>
+    <div id="vintageTable">Loading&#8230;</div>
+    <p class="lawFine" id="vintageBuilt">&nbsp;</p>
   </div>
 </div>
 
@@ -169,15 +376,12 @@
   <p><strong>Rivers</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), reaches with a catchment of 5&nbsp;km&#178; or more.
   Live discharge, water level and temperature from the BAFU gauging network through LINDAS, every ten minutes.
   A reach with no gauge takes its long-term mean scaled by the nearest gauge downstream; those reaches are drawn dimmer.
-  A reach past no gauge at all is grey and carries its long-term mean only. Nine stations report in litres per second and are converted.
-  <strong>Ice</strong> GLAMOS, Swiss Glacier Inventory 1850 (doi:10.18750/inventory.sgi1850.r1992), Swiss Glacier Inventory 2023 (doi:10.18750/inventory.sgi2023.r2026)
-  and Swiss Glacier Length Change (doi:10.18750/lengthchange.2025.r2025). The DOI index states CC BY 4.0; the length-change file header adds "scientific and non-commercial use". Both statements stand.
-  <strong>Water use</strong> BAFU Restwasserkarte Schweiz (ch.bafu.wasser-entnahme, federal data state 1.1.2004),
-  BFE WASTA statistics of hydropower plants from 300&nbsp;kW up (ch.bfe.statistik-wasserkraftanlagen, to 31.12.2025),
-  BFE nuclear power stations (ch.bfe.kernkraftwerke), BAFU treatment-plant database with the share of the receiving water at
-  Q<sub>347</sub> (ch.bafu.gewaesserschutz-klaeranlagen_anteilq347, survey 2011, federal data state 1.1.2014). All four through opendata.swiss, attribution required.
-  There is no federal open register of drinking-water, industrial, irrigation or snowmaking abstraction, so those users are absent from this map and not from the rivers.
-  <strong>Context</strong> Natural Earth 10m. Measured and modelled water, not a forecast.</p>
+  <strong>Ice</strong> GLAMOS Swiss Glacier Inventories 1850, 1931, 1973, 2010 and 2023, and Swiss Glacier Length Change.
+  <strong>Reservoirs</strong> BFE dams under federal supervision, and the weekly filling level of the storage reservoirs since 2000.
+  <strong>Residual flow</strong> BAFU basis for determining Q<sub>347</sub>, with the minimum computed from GSchG Art.&nbsp;31(1).
+  <strong>Water use</strong> BFE WASTA, BAFU residual-flow register, BFE nuclear sites, BAFU treatment plants.
+  Every source, its licence and its data state is listed under <em>Sources and their age</em>.
+  Measured and modelled water, not a forecast.</p>
 </footer>
 
 <script src="app.js"></script>

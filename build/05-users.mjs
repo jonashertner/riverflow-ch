@@ -142,10 +142,43 @@ const hydro = plants.map(p => {
 // The operator and owner fields are DE##FR##IT##EN##url, so the German name is
 // the first field and the URL the last.
 const first = v => String(v ?? '').split('##')[0];
+
+// This register's data state is 20 December 2019, and that date is not a
+// coincidence: it is the day Mühleberg was shut down. The register was written
+// once, on that day, and has not moved since. So it still lists Mühleberg as a
+// power station, and it still names its operator "BKW FMB Energie AG", a company
+// that renamed itself BKW Energie AG in 2013.
+//
+// A site in dismantling is not a cooling-water abstraction, so leaving the entry
+// as it stands would put a water user on the Aare that stopped being one seven
+// years ago. Dropping it silently would be worse: the reactor is still there, the
+// site is still licensed, and its history is exactly what a water case would ask
+// about. So the entry is kept and corrected, and the correction is carried in the
+// data with its source, so the page can show both what the register says and what
+// is the case.
+const CORRECTIONS = {
+  'Kernkraftwerk Mühleberg': {
+    status: 'shut down',
+    since: '2019-12-20',
+    detail: 'Shut down on 20 December 2019. Free of nuclear fuel since September 2023, after 418 fuel '
+          + 'elements were moved to the interim store at Würenlingen in 66 transports, which removed over '
+          + '99 % of the radioactivity on site. Nuclear dismantling is planned to be complete at the end of '
+          + '2031 and the site released for other use from 2034. It no longer abstracts cooling water at '
+          + 'operating volumes.',
+    src: 'https://www.bkw.ch/de/energie/energieproduktion/stilllegung-kernkraftwerk-muehleberg',
+  },
+};
+
 const npp = (await identify('ch.bfe.kernkraftwerke')).map(f => {
   const a = f.attributes;
   const [lon, lat] = pt(f);
-  return { n: a.name, o: first(a.operator), x: lon, y: lat };
+  const fix = CORRECTIONS[a.name];
+  return {
+    n: a.name, o: first(a.operator), x: lon, y: lat,
+    // st: 'operating' unless the register is known to be out of date for this site
+    st: fix ? fix.status : 'operating',
+    ...(fix ? { since: fix.since, fix: fix.detail, fixSrc: fix.src } : {}),
+  };
 });
 
 // ---- 4. wastewater ----------------------------------------------------------
@@ -169,7 +202,7 @@ const out = {
   built: new Date().toISOString().slice(0, 10),
   vintage: {
     abstraction: '2004-01-01', hydro: specs.values().next().value?.DateOfStatistic ?? '',
-    npp: 'current', ara: '2014-01-01 (survey 2011)',
+    npp: '2019-12-20', ara: '2014-01-01 (survey 2011)',
   },
   abstraction, hydro, npp, ara,
 };
@@ -189,6 +222,6 @@ for (const h of hydro.filter(h => h.q).sort((a, b) => b.q - a.q).slice(0, 6))
   console.log(`    ${h.n.padEnd(22)} ${String(h.q).padStart(6)} m3/s  from ${h.p} MW at ${h.h} m`);
 const far = hydro.filter(h => !(5.5 < h.x && h.x < 11.0 && 45.5 < h.y && h.y < 48.0));
 console.log(`  outside a generous Swiss box ${far.length}: ` + far.map(h => `${h.n} (${h.c || 'no canton'})`).join(', '));
-console.log(`nuclear ${npp.length}: ${npp.map(n => n.n).join(', ')}`);
+console.log(`nuclear ${npp.length}: ${npp.map(n => `${n.n} [${n.st}]`).join(', ')}`);
 console.log(`wastewater ${ara.length}, with a share of Q347 ${ara.filter(a => a.q !== null).length}` +
             `, at or above 50 % ${ara.filter(a => a.q >= 50).length}`);

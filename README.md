@@ -1,9 +1,11 @@
 # Water and ice in Switzerland
 
-A map of Swiss rivers, read live from the federal gauging network, and of Swiss
-glaciers as they were in 1850 against what is left in 2023. It is built to be a
-base layer for legal work: every figure carries its source and its class of
-evidence, and the page says what each number does not prove.
+A map of Swiss rivers read live from the federal gauging network, of Swiss
+glaciers across five dated surveys, of the water the country holds back behind
+225 dams, and of who takes water out and who puts it back. It is built to be a
+base layer for legal work: every figure carries its source, its class of evidence
+and the date the source was last touched, and the page says what each number does
+not prove.
 
 Live at **https://jonashertner.github.io/riverflow-ch/**
 
@@ -14,19 +16,27 @@ cd site && python3 -m http.server 8899   # then open http://127.0.0.1:8899/
 ```
 
 The page has no backend. It fetches the gauge readings from the federal endpoint
-in the browser. A view is written into the URL hash as `#lon,lat,scale,layer`, so
-a link is a citation: this place, this reading, this scale. `#ice` alone opens the
-glacier layer at the country view.
+in the browser; everything else is baked into `site/data/`. A view is written into
+the URL hash as `#lon,lat,scale,layer`, so a link is a citation: this place, this
+reading, this scale. A bare layer name works too — `#ice`, `#res`, `#residual`,
+`#use` — and opens that layer at the country view.
 
-## The five layers
+## The seven layers
 
 | Layer | What the colour carries | Class of evidence |
 |---|---|---|
-| Flow | Discharge in m³/s, log scale | Measured at 171 reaches, modelled at 5,004, absent at 3,541 |
+| Flow | Discharge in m³/s, log scale | Measured at 171 reaches, estimated at 5,004, absent at 3,541 |
 | Against normal | Discharge now divided by the long-term mean of the same reach | Ratio of a measurement to a modelled annual mean |
 | Temperature | Water temperature at the gauge, 0 to 25 °C | Measured, one sensor per point |
-| Ice | Glacier outlines, 1850 under 2023 | Measured by survey, 173 years apart |
+| Reservoirs | 225 dams sized by the volume they hold, tinted by their region's filling level in the week at the playhead | Register of structures; regional stored-energy statistic. Two different objects, kept apart |
+| Ice | Five glacier inventories, 1850 · 1931 · 1973 · 2010 · 2023, played in their real intervals | Measured by survey. Area, not volume |
+| Residual flow | Q<sub>347</sub> at 1,041 points and the minimum GSchG Art. 31(1) computes from it | Measured, station-derived or modelled — stated per point |
 | Water use | Who takes the water out and who puts it back | Registered locations; one quantity, and that one derived |
+
+Two of the seven run on a time ribbon: the reservoir layer plays 1,390 weekly
+readings from 3 January 2000 to the most recent week, and the ice layer plays the
+five surveys held in proportion to their own intervals — 81, 42, 37 and 13 years —
+so that 1850–1931 does not look as fast as 2010–2023.
 
 ## Rebuild the data
 
@@ -36,9 +46,56 @@ node build/01-stations.mjs        # gauges, coordinates, per-station unit
 node build/02-network.mjs         # river network, gauge-to-reach binding
 node build/03-context.mjs         # lakes and the national border
 node build/04-glaciers.mjs        # glacier bodies, length series, gauge downstream
+node build/05-users.mjs           # abstractions, hydropower, nuclear, treatment plants
+node build/06-reservoirs.mjs      # dam register and the weekly filling series
+node build/07-residual.mjs        # Q347 and the Art. 31(1) minimum
+node build/09-icehistory.mjs      # the five dated inventories
+node build/08-vintage.mjs         # read every federal layer's Datenstand back
 ```
 
 Only `site/data/*.json` is kept in the repository. The sources stay in `/tmp`.
+`06` and `08` take everything they need off the network, so they also run in CI:
+`.github/workflows/pages.yml` re-runs both every Monday and commits the result,
+which is what keeps the baked filling series and the vintage audit from going
+quietly stale.
+
+## How old is any of this, really
+
+This was the question that changed the build. `map.geo.admin.ch` serves several
+of these layers with no visible date, and some of them are much older than a
+reader would assume. `build/08-vintage.mjs` reads each layer's `Datenstand` back
+out of its own legend endpoint and writes `site/data/vintage.json`; the page shows
+the table under **Sources and their age** and marks anything over three years old
+as stale.
+
+| Source | Data state | Age at build |
+|---|---|---|
+| Gauges (BAFU, through LINDAS) | live | ten minutes |
+| Reservoir filling level (BFE) | 17.08.2026 | 2 days |
+| WASTA hydropower statistic (BFE) | 31.12.2025 | 231 days |
+| Glacier inventories and length change (GLAMOS) | 2026 release | 230 days |
+| Dams under federal supervision (BFE) | 28.11.2023 | 995 days |
+| Lakes and border (Natural Earth) | 2022 | 1,571 days |
+| **Nuclear power stations (BFE)** | 20.12.2019 | 2,434 days |
+| **River network (HydroRIVERS v1.0)** | 2019 | 2,787 days |
+| **Treatment plants, share at Q347 (BAFU)** | 01.01.2014, survey 2011 | 4,613 days |
+| **Abstraction inventory (BAFU)** | 01.01.2004 | 8,266 days |
+| **Basis for Q347 (BAFU)** | 01.01.2000 | 9,727 days |
+
+Two of the old ones are worth pausing on.
+
+The nuclear register still lists Mühleberg as a power station, and its data state
+is the day Mühleberg was shut down. The page keeps the site, marks it closed since
+20 December 2019, and shows the correction next to the register's own claim rather
+than silently dropping the point.
+
+The Q<sub>347</sub> layer is old in a way that is not simply a defect. GSchG
+Art. 4(h) defines Q<sub>347</sub> as a ten-year average, and the decade in that
+file, 1984–1993, is the decade the cantons made their determinations on. For the
+legal question — what did the statute require here — the old figure is the right
+one. For the factual question — how much water is in this brook in a dry year —
+it describes a hydrology that has since moved. The layer's job is to show that
+those two questions have drifted apart.
 
 ## Sources
 
@@ -47,13 +104,15 @@ Only `site/data/*.json` is kept in the repository. The sources stay in `/tmp`.
 | River geometry, catchment area, long-term mean discharge | HydroRIVERS v1.0 (HydroSHEDS, WWF) | free for non-commercial and commercial use with attribution |
 | Live discharge, water level, temperature, flood danger level | BAFU, through the federal Linked Data service LINDAS, `https://lindas.admin.ch/query`, graph `<https://lindas.admin.ch/foen/hydro>` | open government data, updated every ten minutes, no key |
 | Discharge unit per station | `hydrodaten.admin.ch/plots/p_q_7days/<id>_p_q_7days_de.json` | same |
-| Glacier outlines and areas, 1850 | GLAMOS, Swiss Glacier Inventory 1850, doi:10.18750/inventory.sgi1850.r1992 | CC BY 4.0 per the DOI index |
-| Glacier outlines and areas, 2023 | GLAMOS, Swiss Glacier Inventory 2023, doi:10.18750/inventory.sgi2023.r2026 | CC BY 4.0 per the DOI index |
+| Glacier outlines and areas, 1850 · 1931 · 1973 · 2010 · 2023 | GLAMOS, Swiss Glacier Inventories, doi:10.18750/inventory.sgi{1850.r1992, 1931.r2022, 1973.r1976, 2010.r2010, 2023.r2026} | CC BY 4.0 per the DOI index |
 | Glacier tongue position, 1880 to 2025 | GLAMOS, Swiss Glacier Length Change, doi:10.18750/lengthchange.2025.r2025 | CC BY 4.0 per the DOI index; the file header adds "scientific and non-commercial use" |
+| Dams under federal supervision | BFE, `ch.bfe.stauanlagen-bundesaufsicht`, data state 28.11.2023 | opendata.swiss, attribution |
+| Filling level of the storage reservoirs, weekly since 2000 | BFE, `ogd17_fuellungsgrad_speicherseen.csv` | opendata.swiss, attribution |
+| Basis for determining Q<sub>347</sub> | BAFU, `ch.bafu.hydrologie-q347`, federal data state 1.1.2000 | opendata.swiss, attribution |
 | Abstractions subject to residual flow | BAFU, Restwasserkarte Schweiz, `ch.bafu.wasser-entnahme`, federal data state 1.1.2004 | opendata.swiss, attribution |
 | Hydropower plants from 300 kW up | BFE, WASTA, `ch.bfe.statistik-wasserkraftanlagen`, statistic to 31.12.2025 | opendata.swiss, attribution |
-| Nuclear power stations | BFE, `ch.bfe.kernkraftwerke` | opendata.swiss, attribution |
-| Wastewater treatment plants, share of the receiving water at Q347 | BAFU, ARA database, `ch.bafu.gewaesserschutz-klaeranlagen_anteilq347`, survey 2011, federal data state 1.1.2014 | opendata.swiss, attribution |
+| Nuclear power stations | BFE, `ch.bfe.kernkraftwerke`, data state 20.12.2019 | opendata.swiss, attribution |
+| Wastewater treatment plants, share of the receiving water at Q<sub>347</sub> | BAFU, `ch.bafu.gewaesserschutz-klaeranlagen_anteilq347`, survey 2011, federal data state 1.1.2014 | opendata.swiss, attribution |
 | Lakes, national border | Natural Earth 10m | public domain |
 | Statutory text | fedlex.admin.ch, consolidated German versions in force on 19 August 2026 | federal law |
 
@@ -81,22 +140,64 @@ Anyone putting this to commercial use should settle the point with GLAMOS first.
   Neuhausen read 31.8 °C while Rheinau, ten kilometres down the same river, read
   24.6. Opening a gauge shows it against the five nearest gauges that also report
   temperature, so a value outside their spread declares itself.
+- **The reservoir layer holds two registers that do not describe the same
+  objects, and it must not let the eye slide between them.** The dam register is
+  225 structures with the volume each holds when full, 4,016 million m³ in total;
+  it carries no fill state and never has. The filling level is a weekly figure in
+  gigawatt hours — stored electricity, not stored water — published for four
+  regions only. So every dam in Valais carries the same tint, and all 54 of them
+  move as one body. The page can say that Valais reservoirs held a given share of
+  their usable energy last week. It cannot say how full the Grande Dixence is
+  today, because nobody publishes that, and it says so in the legend, the tooltip
+  and the panel.
+- **The filling denominator is not constant.** Usable capacity was about 8,500 GWh
+  in 2000 and is 8,895 GWh now, because Nant de Drance and several dam raisings
+  were added. Every comparison across the 26 years is therefore in per cent of the
+  capacity of its own week. Compared in raw GWh, a new pumped-storage plant reads
+  as a wet year.
+- **The percentile band on the reservoir ribbon is a computation on this site, not
+  a federal statement.** It is the tenth to ninetieth percentile of the same
+  calendar week across the complete years 2000–2025, computed from the BFE file.
+- **The ice layer measures area.** Area is what an inventory measures and it is the
+  honest quantity to animate from these files. It is not volume, and the two have
+  not moved together: through recent decades Swiss glaciers thinned faster than
+  they shrank in plan, because a glacier loses thickness over its whole surface
+  before it loses its outline. The per-interval rates on the page — the fastest is
+  1973–2010 at 9.9 km² a year — are rates of area loss and are labelled as such.
+  Where the page says how fast the ice is going in volume, it cites the volume
+  sources, which are separate work by separate methods.
+- **Between two surveys the outline is interpolated.** What moves there is
+  arithmetic, not a measurement, and the read-out says which two surveys the
+  playhead sits between.
 - **The 1850 and 2023 glacier outlines are not joined body to body.** Glaciers
   split as they shrink. Where the same SGI identifier appears in both inventories
   the pair is shown, for 1,053 of the 1,299 bodies, and it is labelled an
   identifier match rather than a hydrological identity. The national totals,
   1,788.3 km² against 861.3 km², do not depend on the join.
+- **The Q<sub>347</sub> record carries three figures and they are not
+  interchangeable.** `q_84_93` is the ten-year average for 1984–1993, the legally
+  operative one; `qp` is the average over the station's own full record, a better
+  description of the river but not the figure the determination was made on;
+  `qmod` is a model value, which BAFU's own legend calls a rough estimate that
+  generally still needs checking against a short measurement. The preference is
+  `q_84_93`, then `qp`, then `qmod`, and every point states which one it used,
+  because the answer changes with the choice. Of 1,041 points, 237 use `q_84_93`,
+  265 use `qp`, 523 use `qmod` and 16 carry no figure.
+- **Art. 31 does not bite on every abstraction on the map.** The residual-flow
+  rules apply to new abstractions, and to existing ones only when the concession
+  expires and has to be renewed; an existing abstraction is governed by the
+  restoration regime of Art. 80 ff instead. A figure computed on this layer is
+  what the statute would require of a *new* abstraction at that point. It is not a
+  duty owed today by whoever is already taking water there.
+- **The abstraction register has no volumes.** It is the cantonal inventory under
+  GSchG Art. 80 ff, federal data state 1 January 2004. It gives the point, the
+  watercourse and, for 1,282 of the 1,488 entries, a link to the cantonal report.
+  206 entries carry no number and so no report, four of them on the Rhine at Basel.
 - **The use layer shows one quantity, and it is derived.** Of the four registers only
   WASTA yields a discharge, and it yields it by arithmetic: Q = P/(ρgHη) with η at
   0.85. At Rheinfelden that gives 1,621 m³/s where the plant states it can take 1,500
   at the same 100 MW, so the method runs about eight per cent high there. A filled
   disc on the map therefore carries a number; an open ring carries a place.
-- **The residual-flow register has no volumes and is old.** It is the cantonal
-  inventory under GSchG Art. 80 ff, and the federal data state is 1 January 2004. It
-  gives the point, the watercourse and, for 1,282 of the 1,488 entries, a link to the
-  cantonal report. 206 entries carry no number and so no report, four of them on the
-  Rhine at Basel. Q347 is not in it either, so the Art. 31 calculator still has to be
-  fed by hand.
 - **A run-of-river plant is not a consumer.** It passes the water on. A storage or
   pumped-storage plant releases water that often came from another catchment. The
   layer keeps the plant types apart for that reason, and no ratio of use to flow is
@@ -114,26 +215,47 @@ Anyone putting this to commercial use should settle the point with GLAMOS first.
 - **The gauge named under a glacier is a spatial assignment.** It is the first
   BAFU station downstream of the mapped reach nearest to the ice. It is not a
   routing model. It answers which gauge would see this water, and nothing finer.
+- **A dam's region is a spatial assignment too.** The register carries no canton,
+  so each dam is put to the canton polygon it falls in and the canton decides its
+  BFE region. That step is exact. What is inexact is in the source, not here:
+  BFE's fourth region is everything outside Valais, Grisons and Ticino, so it pools
+  the Bernese Oberland with the Jura.
 
 ## The legal layer
 
-Three provisions are quoted on the page from the consolidated German texts on
-fedlex.admin.ch, in the versions in force on 19 August 2026:
+The page carries a legal panel in nine sections, quoting the consolidated German
+texts on fedlex.admin.ch in the versions in force on 19 August 2026. The main
+provisions:
 
 1. **GSchG Art. 31(1)** (SR 814.20), minimum residual flow, with Art. 4(h) for
-   Q<sub>347</sub>. The page computes the minimum from a Q<sub>347</sub> you
-   enter. It is not read off the map, because Q<sub>347</sub> is not published per
-   gauge in the live federal feed.
-2. **GSchV Annex 2 No. 12(4)** (SR 814.201), the 3 °C and 1.5 °C limits on thermal
-   alteration and the 25 °C ceiling that goes with them.
-3. **GSchV Annex 1 No. 1(3)(a)** (SR 814.201), the ecological goal of near-natural
-   temperature conditions.
+   Q<sub>347</sub>, and a calculator that reproduces the table band by band.
+2. **The floor moves in one direction only.** Art. 33 is titled *Erhöhung der
+   Mindestrestwassermenge* and raises. Lowering is available only on the closed
+   list of Art. 32 (BGE 145 II 140 E. 2).
+3. **When Art. 31 bites**: Arts. 29 ff against the restoration regime of
+   Arts. 80–83, the end-2012 deadline in Art. 81(2) and how the Federal Supreme
+   Court has treated its expiry (1C_526/2015 E. 3.5.1; 1C_185/2016 E. 2.2.2).
+4. **WRG** Arts. 43, 54, 58 and 66–67 (SR 721.80), the concession side.
+5. **GSchV Annex 2 No. 12(4)** (SR 814.201), the 3 °C and 1.5 °C limits on thermal
+   alteration and the 25 °C ceiling. No Federal Supreme Court decision enforcing
+   this number was found, which the page states.
+6. **GSchV Annex 3.3 No. 21(4)(b)** (SR 814.201). Above 25 °C the authority may
+   permit an exception where the warming is at most 0.01 °C, *or where the
+   discharge comes from an existing nuclear power station*. The carve-out is
+   quoted verbatim on the temperature layer and in the panel for each of the four
+   sites, because it is directly on point for both.
+7. **GSchV Annex 1 No. 1(3)(a)**, the ecological goal of near-natural temperature
+   conditions.
+8. **Standing**: NHG Art. 12, USG Art. 55 and the VBO annex, with 1C_15/2023,
+   BGE 140 II 262, BGE 126 II 283 and ZH VB.2011.00070.
+9. **KlimaSeniorinnen v. Switzerland**, application 53600/20, and the Committee of
+   Ministers supervision still running in 2026.
 
-A datum on this map is a fact about a river or a glacier. It is not a finding of
-breach. The step from one to the other needs the concession, the licence and the
-site, and it is the lawyer's step, not the map's.
+A datum on this map is a fact about a river, a reservoir or a glacier. It is not a
+finding of breach. The step from one to the other needs the concession, the licence
+and the site, and it is the lawyer's step, not the map's.
 
-## Three traps found in the source data
+## Traps found in the source data
 
 1. **The LINDAS cube gives no usable unit.** It carries a predicate
    `<http://example.com/isLiter>` which is set `true` on every one of the 190
@@ -147,14 +269,23 @@ site, and it is the lawyer's step, not the map's.
    but never drive an estimate.
 3. **HydroRIVERS is traced from a 15 arc-second grid.** Its polylines carry the
    staircase of the raster. The renderer rounds interior corners with a quadratic
-   through the segment midpoints, and the zoom is capped at ten times the country
-   view, because past that the geometry stops being honest.
-
-A fourth trap sits in the glacier data. The `.prj` files declare CH1903+/LV95 as a
-Hotine oblique Mercator, which mapshaper reads but cannot project: it drops every
-vertex in silence and writes a file of 1,299 features with no geometry. The source
-frame is therefore given to mapshaper as an explicit proj4 string in
-`build/00-sources.sh`.
+   through the segment midpoints, and the zoom is capped, because past that the
+   geometry stops being honest.
+4. **The glacier `.prj` files declare CH1903+/LV95 as a Hotine oblique Mercator**,
+   which mapshaper reads but cannot project: it drops every vertex in silence and
+   writes a file of 1,299 features with no geometry. The source frame is therefore
+   given to mapshaper as an explicit proj4 string in `build/00-sources.sh`.
+5. **The 1931 inventory is in the old national frame, LV03**, with a false origin
+   of 600000/200000, while 1973 and 2010 are LV95 at 2600000/1200000. Reprojecting
+   1931 with the LV95 string lands every glacier in the Mediterranean, silently.
+6. **The 1931 inventory ships no area field.** Its area is computed from the
+   geometry in the source frame, in square metres, *before* reprojection — a planar
+   area taken after projecting to degrees is not an area. The method is checked
+   against SGI1850, which carries both: computed 1788.3 km² against a stated
+   1788.3 km².
+7. **The BFE filling-level CSV allows only map.geo.admin.ch to read it from a
+   browser.** It is therefore baked in at build time, and the Pages workflow
+   rebuilds it weekly so the baked copy does not drift.
 
 ## The statute's own arithmetic
 
@@ -166,28 +297,91 @@ rate. The gap is reproduced, not smoothed.
 
 ## Design
 
-Dark surface only. Discharge is one hue stepped by lightness, so more water reads
-as brighter. Against-normal is a diverging ramp, warm below the mean and blue
-above, grey at it. Flood danger levels use the fixed status palette on the gauge
-rings, never on the water itself. In the ice layer the 1850 outlines are filled in
-the low colour of the diverging ramp and the 2023 bodies are drawn in white over
-them, so what stays coloured is the ice that has gone.
+Dark surface only, one full-bleed canvas, all furniture floating over it.
+
+**Two kinds of ink, never mixed.** Measured quantities are set in the sans face on
+the blue ramps with tabular figures. Statutory text and anything computed from a
+statute is set in a serif, in bone (`#d9cbb0`). The reader can tell at a glance
+whether a number came from an instrument or from a rule, which is the distinction
+the whole project turns on.
+
+Discharge is one hue stepped by lightness, so more water reads as brighter.
+Against-normal is a diverging ramp, warm below the mean and blue above, grey at
+it. Flood danger levels use the fixed status palette on the gauge rings, never on
+the water itself. The reservoir tint is its own teal ramp so a filling level is
+never mistaken for a discharge. In the ice layer the 1850 outlines are filled in
+warm ochre and the surveyed ice is drawn in white over them, so what stays
+coloured is the ice that has gone.
+
+**Four layout shapes.** Phone: a bottom sheet with three snap states, a
+horizontally scrollable layer switch, and the map fitted into the strip left
+between them. Narrow landscape and tablet: the layer switch moves to the foot of
+the window, the legend keeps a left rail and the ribbon takes the room beside it.
+Desktop from 1500 px: the switch returns to the top line beside the full title
+block. Wide: the panels grow rather than the map stretching. The map re-fits
+itself on rotation and resize, and a portrait window is fitted into the box the
+furniture actually leaves rather than into the whole viewport.
+
+Motion is data or it is off. Particles run at the reach's own discharge; the two
+time ribbons play real series at their real intervals. `prefers-reduced-motion` is
+respected, and the motion checkbox in the legend turns the particles off for good.
+
+## Prior art
+
+Seven sweeps found no public product, in Switzerland or in Europe, that puts live
+river discharge on a river-network graph and annotates it with the statute that
+governs it. The pieces exist separately and each is missing the one next to it.
+
+- **hydrodaten.admin.ch** has the same BAFU ten-minute readings and even computes a
+  day-of-year percentile against 1991–2020 — but it has no river network, no
+  estimation onto ungauged reaches, no glaciers, no reservoirs, no water use and no
+  legal text, and it does not publish the percentile as data, only as a rendered
+  category.
+- **map.geo.admin.ch** carries the dam register, WASTA and the Restwasserkarte as
+  static togglable layers, with no discharge and no narrative.
+- **energiedashboard.admin.ch** has reservoir filling as one national line chart,
+  with no map and no per-reservoir figure.
+- **GLAMOS's map viewer** is glacier-only. CH2025 and Hydro-CH2018 are scenario
+  products, not monitoring.
+- In Europe, **Copernicus EFAS and GloFAS** model discharge at roughly 5 km
+  global-model resolution — GloFAS does treat reservoirs as a first-class layer,
+  which is precedent for this one — and the **European Drought Observatory** is a
+  coarse EU grid.
+- The **EEA's WISE/WFD viewer** is the only European tool that pairs measurement
+  with legal compliance status, but that is Water Framework Directive status under
+  Arts. 4 and 8, a regime Switzerland is not bound by and takes part in only
+  voluntarily and partially. The template exists; the Swiss instance of it does not.
+- On the litigation side the gap is starker. No tool anywhere arms environmental
+  litigants with live monitoring data against a threshold: EJAtlas catalogues
+  conflicts, Global Forest Watch tracks tree cover, neither is a
+  discharge-and-threshold instrument.
+- Nothing found in Switzerland or Europe renders rivers, glaciers or reservoirs as
+  genuine data-driven time playback. Everything is a static snapshot or a
+  live-but-frozen dashboard. The closest methodological relative is **NOAA's
+  National Water Model map**, which colours reaches by both absolute flow and
+  anomaly-against-normal and gives a time slider — American, not transferable as
+  data, but the right idiom.
+
+Two things here appear to be this site's own construction rather than anyone's
+published product: propagating gauge anomaly ratios onto an 8,716-reach ungauged
+network for the whole country, and pairing live hydrology with GSchG and GSchV
+citation.
 
 ## Next, if it is worth continuing
 
-- **Day-of-year percentiles.** They would turn against-normal from "how much
-  water" into "is this a lot for a 19 August". BAFU holds them. They are not on
-  any endpoint found so far.
-- **Q<sub>347</sub> per gauge.** With it, Art. 31 stops being a calculator and
-  becomes a layer.
-- **Glacier volume and mass balance.** GLAMOS publishes both, with DOIs, and both
-  speak to the same question with a different instrument.
-- **Better geometry.** swissTLM3D would remove the staircase inside Switzerland,
-  at the cost of a second network that does not carry HydroRIVERS' topology.
-- **The 1,282 cantonal residual-flow reports.** They are PDFs and they hold the
-  figures the register omits: the abstracted quantity, Q347 and the residual flow
-  ordered. Read into a table, the abstraction points stop being places and become
-  quantities, and Art. 31 becomes a layer rather than a calculator. That is the single
-  largest step available from here, and it is the one with real work in it.
+- **Day-of-year percentiles for discharge.** They would turn against-normal from
+  "how much water" into "is this a lot for a 19 August". hydrodaten.admin.ch
+  computes them against 1991–2020 but renders them rather than publishing them.
+  This is the single change that would most improve the flow layers.
+- **The 1,282 cantonal residual-flow reports.** They are PDFs and they hold what
+  the register omits: the abstracted quantity, the Q<sub>347</sub> determined and
+  the residual flow ordered. Read into a table, the abstraction points stop being
+  places and become quantities. That is the largest step available from here, and
+  the one with real work in it.
+- **Glacier volume and mass balance.** GLAMOS publishes both, with DOIs. Volume is
+  the quantity the area animation deliberately does not claim, and it would let
+  the page say how fast the ice is going without changing instruments mid-sentence.
+- **Better geometry.** swissTLM3D would remove the staircase inside Switzerland, at
+  the cost of a second network that does not carry HydroRIVERS' topology.
 - **The cantonal water-use registers.** Drinking water, industry, irrigation and
   snowmaking are licensed cantonally. There is no national set to fetch.

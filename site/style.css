@@ -1,9 +1,31 @@
-/* Palette: the reference data-viz instance, dark surface only.
-   Sequential encoding is ONE hue (blue), ordered by lightness. On a dark ground
-   the ramp runs dark -> light, so more water reads as brighter. */
+/* Water and ice in Switzerland.
+ *
+ * The page has exactly two kinds of ink and they never mix.
+ *
+ *   MEASURED INK is the data ramps — one blue hue stepped by lightness for
+ *   discharge, a diverging ramp for anomaly, a thermal ramp for temperature. It
+ *   is set in the sans face with tabular figures. It says what an instrument read.
+ *
+ *   STATUTORY INK is bone, --law, and it is set in a serif. It says what a text
+ *   requires. A minimum residual flow is not a measurement and must never be able
+ *   to be mistaken for one at a glance, so it does not get to wear the colour of
+ *   one.
+ *
+ * That distinction is the whole design. Everything else is kept quiet so that it
+ * stays legible.
+ *
+ * Layout runs on four shapes, not on a grid framework:
+ *   phone     the map, a compact header, and one bottom sheet that snaps
+ *   tablet    a legend rail on the left, the panel on the right
+ *   desktop   the settled arrangement
+ *   wide      a reading column on the right, so nothing floats in a sea of black
+ */
+
 :root {
   color-scheme: dark;
+
   --surface-1:   #1a1a19;
+  --surface-2:   #131312;
   --plane:       #0d0d0d;
   --ink:         #ffffff;
   --ink-2:       #c3c2b7;
@@ -11,6 +33,7 @@
   --hairline:    rgba(255,255,255,0.10);
   --rule:        #2c2c2a;
 
+  /* measured ink: one hue, ordered by lightness, so more water reads brighter */
   --seq-700: #0d366b;
   --seq-600: #184f95;
   --seq-500: #256abf;
@@ -20,10 +43,42 @@
   --seq-200: #9ec5f4;
   --seq-100: #cde2fb;
 
+  /* statutory ink. Bone, not blue: a figure the law states is not a reading. */
+  --law:      #d9cbb0;
+  --law-dim:  #9c9282;
+  --law-bg:   rgba(217,203,176,0.10);
+  --law-line: rgba(217,203,176,0.32);
+
   --good:     #0ca30c;
   --warning:  #fab219;
   --serious:  #ec835a;
   --critical: #d03b3b;
+
+  /* the register colours, shared between the legend swatches and the canvas */
+  --use-hydro: #f0b429;
+  --use-abs:   #e07a5f;
+  --use-npp:   #d03b3b;
+  --use-ara:   #6fae7f;
+  --res-full:  #7fd4d0;
+  --res-flood: #8f9bb3;
+
+  /* fluid spine. One step at 360 px, another at 2560, linear in between. */
+  --pad:   clamp(10px, 1.6vw, 24px);
+  --gap:   clamp(6px, 0.7vw, 12px);
+  --r:     10px;
+  --sheet-h: 0px;                    /* set by script on phones */
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+
+  --fs-base: 14px;
+  --panel-w: 300px;
+  --legend-w: 268px;
+
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* the statute gets a serif. It is the cheapest way to make a quotation from a
+     text look like a quotation from a text and not like another data field. */
+  --serif: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
 }
 
 * { box-sizing: border-box; }
@@ -32,104 +87,279 @@ html, body {
   margin: 0; height: 100%;
   background: var(--plane);
   color: var(--ink);
-  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: var(--fs-base)/1.45 var(--sans);
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
 }
 
+button, input, select { font: inherit; }
+
+:where(button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--seq-300);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.skip {
+  position: fixed; top: -60px; left: 12px; z-index: 100;
+  background: var(--surface-1); color: var(--ink);
+  padding: 8px 14px; border-radius: 6px; border: 1px solid var(--hairline);
+  text-decoration: none;
+}
+.skip:focus { top: 12px; }
+
+/* ---- the two canvases ----
+   The base map redraws only when the view or the data changes. The current runs
+   on its own canvas every frame over the top, so 3 200 particles never force a
+   redraw of 8 716 reaches. touch-action is none so the canvas takes its own
+   gestures; the rest of the page still pinches normally. */
 #map, #flow { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
-#map { cursor: grab; }
+#map { cursor: grab; touch-action: none; }
 #map.dragging { cursor: grabbing; }
-/* the current runs on its own canvas so the base map stops redrawing at 60 Hz */
 #flow { pointer-events: none; }
+
+/* ---- floating furniture, shared ---- */
+.card {
+  background: color-mix(in srgb, var(--surface-1) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r);
+}
 
 /* ---- title ---- */
 #titlebar {
-  position: fixed; top: 24px; left: 24px; max-width: 340px;
-  pointer-events: none;
-  background: linear-gradient(to right, rgba(13,13,13,0.88), rgba(13,13,13,0.6) 70%, rgba(13,13,13,0));
+  position: fixed; top: var(--pad); left: calc(var(--pad) + var(--safe-l));
+  max-width: min(340px, 34vw);
+  pointer-events: none; z-index: 6;
+  background: linear-gradient(to right, rgba(13,13,13,0.9), rgba(13,13,13,0.62) 70%, rgba(13,13,13,0));
   padding: 10px 40px 12px 12px; margin: -10px 0 0 -12px; border-radius: 8px;
 }
 #titlebar h1 {
-  margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
+  margin: 0; font-size: clamp(17px, 1.35vw, 24px); font-weight: 600; letter-spacing: -0.015em;
+  line-height: 1.15;
 }
-#titlebar .sub { margin: 4px 0 0; color: var(--ink-2); font-size: 13px; }
+#titlebar .sub { display: none; margin: 5px 0 0; color: var(--ink-2); font-size: 12.5px; line-height: 1.4; }
+@media (min-width: 1500px) { #titlebar .sub { display: block; } }
 #titlebar .stamp {
-  margin: 10px 0 0; color: var(--ink-muted); font-size: 12px;
+  margin: 9px 0 0; color: var(--ink-muted); font-size: 11.5px;
   font-variant-numeric: tabular-nums;
 }
 
+/* ---- layer switch ----
+   Seven layers is too many for one undifferentiated row, so they are grouped by
+   the question they answer: what is there now, what is stored, what the law says.
+   The group label is the structure doing work, not decoration. */
+#modes {
+  position: fixed; top: var(--pad); left: 50%; transform: translateX(-50%);
+  display: flex; gap: 3px; padding: 3px; z-index: 8;
+  background: color-mix(in srgb, var(--surface-1) 90%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--hairline); border-radius: 9px;
+  max-width: calc(100vw - 2 * var(--pad));
+}
+.modeGroup { display: flex; align-items: center; gap: 2px; }
+.modeGroup + .modeGroup { border-left: 1px solid var(--rule); padding-left: 5px; margin-left: 2px; }
+.modeGroupLabel {
+  font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-muted); padding: 0 5px 0 3px; user-select: none;
+}
+#modes button {
+  background: none; border: 0; border-radius: 6px;
+  color: var(--ink-muted); font-size: 12px;
+  padding: 7px 11px; cursor: pointer; white-space: nowrap;
+  transition: background 120ms, color 120ms;
+}
+#modes button:hover:not(:disabled) { color: var(--ink); background: rgba(255,255,255,0.06); }
+#modes button.on { background: rgba(255,255,255,0.11); color: var(--ink); }
+#modes button:disabled { opacity: 0.32; cursor: default; }
+
 /* ---- legend ---- */
 #legend {
-  position: fixed; left: 24px; bottom: 24px; width: 260px;
-  background: color-mix(in srgb, var(--surface-1) 88%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--hairline); border-radius: 10px;
+  position: fixed; left: calc(var(--pad) + var(--safe-l)); bottom: calc(var(--pad) + var(--safe-b));
+  width: var(--legend-w); z-index: 7;
+  background: color-mix(in srgb, var(--surface-1) 90%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--hairline); border-radius: var(--r);
   padding: 14px 14px 12px;
+  max-height: calc(100vh - 2 * var(--pad) - 90px);
+  overflow-y: auto; overscroll-behavior: contain;
 }
 #legend h2 {
   margin: 0 0 8px; font-size: 11px; font-weight: 600;
   letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);
 }
-.ramp {
-  height: 8px; border-radius: 4px;
+#sheetHandle { display: none; }
+
+.ramp { height: 8px; border-radius: 4px; }
+.ramp-seq {
   background: linear-gradient(90deg,
     var(--seq-600) 0%, var(--seq-500) 20%, var(--seq-450) 40%,
     var(--seq-400) 58%, var(--seq-300) 74%, var(--seq-200) 88%, var(--seq-100) 100%);
+}
+/* Diverging: brown below the mean, blue above, grey at it. Grey in the middle on
+   purpose — a river at its long-term mean is not news. */
+.ramp-div {
+  background: linear-gradient(90deg,
+    #7a3f19 0%, #a85f28 15%, #c8813c 28%, #dda86d 40%,
+    #7f7d78 50%, #8fb6de 60%, #4d90cc 72%, #2a6cb0 86%, #123f77 100%);
+}
+.ramp-res {
+  background: linear-gradient(90deg,
+    #22333d 0%, #2b5560 20%, #377f81 40%, #4da8a2 60%, #7fd4d0 80%, #aeeae5 100%);
+}
+.ramp-temp {
+  background: linear-gradient(90deg,
+    #1d4f86 0%, #3d7fbc 18%, #79aad8 34%, #b9c8bb 50%,
+    #e0c477 66%, #dd8f47 83%, #d03b3b 100%);
 }
 .rampLabels {
   display: flex; justify-content: space-between; margin-top: 5px;
   font-size: 10px; color: var(--ink-muted); font-variant-numeric: tabular-nums;
 }
 .notes { list-style: none; margin: 12px 0 0; padding: 0; font-size: 12px; color: var(--ink-2); }
-.notes li { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.notes li { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .swatch { width: 22px; height: 3px; border-radius: 2px; flex: none; }
 .swatch.measured  { background: var(--seq-200); }
 .swatch.estimated { background: var(--seq-200); opacity: 0.6; }
 .swatch.nobasis   { background: #2a3340; }
+.swatch.ice1850 { background: rgba(200,129,60,0.42); height: 8px; border: 1px solid rgba(200,129,60,0.7); }
+.swatch.ice2023 { background: #dce9f8; height: 8px; }
+.swatch.resFull  { width: 10px; height: 10px; border-radius: 50%; background: var(--res-full); }
+.swatch.resFlood { width: 10px; height: 10px; border-radius: 50%; background: var(--res-flood); }
+/* statutory swatches wear the bone, because they mark a computed legal minimum */
+.swatch.resiMeas { width: 10px; height: 10px; border-radius: 50%; background: var(--law); }
+.swatch.resiMod  { width: 10px; height: 10px; border-radius: 50%; background: transparent; box-shadow: inset 0 0 0 1.5px var(--law-dim); }
+
+.lgNote { margin: 9px 0 0; font-size: 11px; line-height: 1.5; color: var(--ink-muted); }
+.lgNote b { color: var(--ink-2); font-weight: 600; }
+
+.useKeys .swatch { width: 10px; height: 10px; border-radius: 50%; }
+.swatch.useHydro { background: var(--use-hydro); }
+.swatch.useAbs   { background: transparent; box-shadow: inset 0 0 0 2px var(--use-abs); }
+.swatch.useNpp   { background: transparent; box-shadow: inset 0 0 0 2px var(--use-npp); }
+.swatch.useAra   { background: var(--use-ara); }
+.useKeys li { display: block; }
+.useKeys label { display: flex; align-items: center; gap: 0.45rem; cursor: pointer; padding: 3px 0; }
+.useKeys input { margin: 0; accent-color: var(--seq-400); }
 
 .controls { margin-top: 12px; border-top: 1px solid var(--rule); padding-top: 10px; }
 .controls label {
   display: flex; align-items: center; gap: 7px;
-  font-size: 12px; color: var(--ink-2); margin-bottom: 5px; cursor: pointer;
+  font-size: 12px; color: var(--ink-2); margin-bottom: 6px; cursor: pointer;
+  min-height: 22px;
 }
 .controls input { accent-color: var(--seq-400); margin: 0; }
 
-#refresh {
-  margin-top: 10px; width: 100%; padding: 7px 10px;
+.btnRow { display: grid; gap: 6px; margin-top: 10px; }
+.btnRow button {
+  width: 100%; padding: 8px 10px; min-height: 34px;
   background: transparent; color: var(--ink-2);
   border: 1px solid var(--hairline); border-radius: 6px;
-  font: inherit; font-size: 12px; cursor: pointer;
+  font-size: 12px; cursor: pointer; text-align: center;
+  transition: background 120ms, color 120ms;
 }
-#refresh:hover { background: rgba(255,255,255,0.05); color: var(--ink); }
-#refresh:disabled { opacity: 0.5; cursor: default; }
+.btnRow button:hover { background: rgba(255,255,255,0.06); color: var(--ink); }
+.btnRow button:disabled { opacity: 0.5; cursor: default; }
+#openLaw, #openSources { color: var(--law-dim); border-color: var(--law-line); }
+#openLaw:hover, #openSources:hover { background: var(--law-bg); color: var(--law); }
+
+/* ---- the time ribbon ----
+   The signature of the page. On the layers that describe only now it is not
+   there at all. On the layers that describe a change it carries the record: the
+   reservoir series against twenty-six years of itself, the ice across five dated
+   surveys held in their real intervals. It is a chart and a control at once. */
+#ribbon {
+  position: fixed; z-index: 7;
+  left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--pad) + var(--safe-b));
+  width: min(760px, calc(100vw - 2 * var(--pad) - var(--legend-w) - var(--panel-w) - 40px));
+  min-width: 320px;
+  background: color-mix(in srgb, var(--surface-1) 92%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--hairline); border-radius: var(--r);
+  padding: 10px 12px 8px;
+}
+#ribbon[hidden] { display: none; }
+/* The read-out is the sentence the layer exists to say, and on the reservoir
+   layer it runs to seventy characters. It must never be the thing that gives
+   way: the head wraps and the read-out takes the second line whole rather than
+   squeezing the label into an ellipsis. */
+.ribbonHead { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
+#ribbon h2 {
+  margin: 0; font-size: 11px; font-weight: 600; flex: 0 1 auto; min-width: 0;
+  letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#ribbonRead {
+  flex: 1 1 auto;
+  font-size: 12px; color: var(--ink); font-variant-numeric: tabular-nums;
+  white-space: nowrap; text-align: right;
+}
+#play {
+  display: inline-flex; align-items: center; gap: 6px; flex: none;
+  background: rgba(255,255,255,0.07); color: var(--ink-2);
+  border: 1px solid var(--hairline); border-radius: 6px;
+  padding: 5px 10px; min-height: 28px; cursor: pointer; font-size: 11.5px;
+}
+#play:hover { background: rgba(255,255,255,0.12); color: var(--ink); }
+#play svg { fill: currentColor; }
+#play:disabled { opacity: 0.45; cursor: default; }
+#ribbonCv { display: block; width: 100%; height: 74px; margin-top: 8px; }
+#scrub {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 18px;
+  background: transparent; margin: 2px 0 0; cursor: pointer;
+}
+#scrub::-webkit-slider-runnable-track { height: 2px; background: var(--rule); border-radius: 1px; }
+#scrub::-moz-range-track { height: 2px; background: var(--rule); border-radius: 1px; }
+#scrub::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; border-radius: 50%; margin-top: -6px;
+  background: var(--ink); border: 0; box-shadow: 0 0 0 3px rgba(13,13,13,0.8);
+}
+#scrub::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--ink); border: 0; box-shadow: 0 0 0 3px rgba(13,13,13,0.8);
+}
+.ribbonNote { margin: 4px 0 0; font-size: 10.5px; line-height: 1.45; color: var(--ink-muted); }
+.ribbonNote b { color: var(--ink-2); }
 
 /* ---- detail panel ---- */
 #panel {
-  position: fixed; right: 24px; top: 24px; width: 300px;
-  background: color-mix(in srgb, var(--surface-1) 92%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--hairline); border-radius: 10px;
+  position: fixed; right: calc(var(--pad) + var(--safe-r)); top: calc(var(--pad) + 48px);
+  width: var(--panel-w); z-index: 9;
+  background: color-mix(in srgb, var(--surface-1) 93%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--hairline); border-radius: var(--r);
   padding: 16px 16px 14px;
+  max-height: calc(100vh - 2 * var(--pad) - 48px);
+  overflow-y: auto; overscroll-behavior: contain;
 }
-#panel h2 { margin: 0 26px 12px 0; font-size: 15px; font-weight: 600; }
-#panelClose {
+#panel h2 { margin: 0 26px 12px 0; font-size: 15px; font-weight: 600; line-height: 1.25; }
+#panelClose, .modalClose {
   position: absolute; top: 10px; right: 10px;
   background: none; border: 0; color: var(--ink-muted);
-  font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 6px;
+  font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 9px;
+  min-width: 34px; min-height: 34px;
 }
-#panelClose:hover { color: var(--ink); }
+#panelClose:hover, .modalClose:hover { color: var(--ink); }
 #panel dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; }
 #panel dt { color: var(--ink-muted); font-size: 12px; }
 #panel dd {
   margin: 0; text-align: right; font-size: 13px;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
 }
 #panel dd .unit { color: var(--ink-muted); font-size: 11px; margin-left: 3px; }
+#panel a { color: var(--seq-200); }
+/* a row that states a legal quantity wears the statutory ink */
+#panel dd.statutory { color: var(--law); font-family: var(--serif); }
+#panel dt.statutory { color: var(--law-dim); }
+
 .panelNote {
   margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--rule);
-  font-size: 11px; line-height: 1.5; color: var(--ink-muted);
+  font-size: 11px; line-height: 1.55; color: var(--ink-muted);
 }
+.panelNote b { color: var(--ink-2); }
 .pill {
   display: inline-block; padding: 1px 7px; border-radius: 10px;
   font-size: 11px; font-weight: 600;
@@ -139,158 +369,311 @@ html, body {
 .pill.d3 { background: rgba(236,131,90,0.20); color: var(--serious); }
 .pill.d4, .pill.d5 { background: rgba(208,59,59,0.22); color: var(--critical); }
 
-/* ---- tooltip ---- */
-#tooltip {
-  position: fixed; pointer-events: none; z-index: 20;
-  background: color-mix(in srgb, var(--surface-1) 94%, transparent);
-  border: 1px solid var(--hairline); border-radius: 7px;
-  padding: 7px 10px; font-size: 12px; max-width: 230px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+.aside, .flag, .statute {
+  /* declared block so they read the same whether the panel emits a <p> or drops
+     one inline into a note as a <span> */
+  display: block;
+  margin: 12px 0 0; padding: 8px 10px; border-radius: 6px;
+  font-size: 11px; line-height: 1.5;
 }
-#tooltip .tName { font-weight: 600; }
-#tooltip .tVal { color: var(--ink-2); font-variant-numeric: tabular-nums; }
-#tooltip .tEst { color: var(--ink-muted); font-size: 11px; }
+.aside { background: rgba(255,255,255,0.04); border: 1px solid var(--hairline); color: var(--ink-muted); }
+.flag  { background: rgba(208,59,59,0.14); border: 1px solid rgba(208,59,59,0.35); color: var(--ink-2); }
+/* a block that carries a statutory consequence, in the statutory ink */
+.statute {
+  background: var(--law-bg); border: 1px solid var(--law-line);
+  color: var(--law); font-family: var(--serif); font-size: 11.5px;
+}
+.statute b { color: #f0e6d4; }
 
-/* ---- credits ---- */
-#credits {
-  position: fixed; right: 24px; bottom: 24px; max-width: 430px;
-  font-size: 10.5px; line-height: 1.55; color: var(--ink-muted);
-  text-align: right; pointer-events: none;
-  background: linear-gradient(to left, rgba(13,13,13,0.86), rgba(13,13,13,0.72) 70%, rgba(13,13,13,0));
-  padding: 10px 12px 10px 40px; border-radius: 8px;
-}
-#credits p { margin: 0; }
-#credits strong { color: var(--ink-2); font-weight: 600; }
-
-
-/* ---- layer switch ---- */
-#modes {
-  position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 2px; padding: 3px;
-  background: color-mix(in srgb, var(--surface-1) 88%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--hairline); border-radius: 8px;
-}
-#modes button {
-  background: none; border: 0; border-radius: 6px;
-  color: var(--ink-muted); font: inherit; font-size: 12px;
-  padding: 6px 12px; cursor: pointer; white-space: nowrap;
-}
-#modes button:hover:not(:disabled) { color: var(--ink); background: rgba(255,255,255,0.05); }
-#modes button.on { background: rgba(255,255,255,0.10); color: var(--ink); }
-#modes button:disabled { opacity: 0.35; cursor: default; }
-
-/* ---- legend variants ---- */
-.ramp-seq {
-  background: linear-gradient(90deg,
-    var(--seq-600) 0%, var(--seq-500) 20%, var(--seq-450) 40%,
-    var(--seq-400) 58%, var(--seq-300) 74%, var(--seq-200) 88%, var(--seq-100) 100%);
-}
-/* Diverging: brown below the mean, blue above, grey at it. */
-.ramp-div {
-  background: linear-gradient(90deg,
-    #7a3f19 0%, #a85f28 15%, #c8813c 28%, #dda86d 40%,
-    #7f7d78 50%, #8fb6de 60%, #4d90cc 72%, #2a6cb0 86%, #123f77 100%);
-}
-.ramp-temp {
-  background: linear-gradient(90deg,
-    #1d4f86 0%, #3d7fbc 18%, #79aad8 34%, #b9c8bb 50%,
-    #e0c477 66%, #dd8f47 83%, #d03b3b 100%);
-}
-.lgNote { margin: 9px 0 0; font-size: 11px; line-height: 1.5; color: var(--ink-muted); }
-.lgNote b { color: var(--ink-2); font-weight: 600; }
-.swatch.ice1850 { background: rgba(200,129,60,0.42); height: 8px; border: 1px solid rgba(200,129,60,0.7); }
-.swatch.ice2023 { background: #dce9f8; height: 8px; }
-
-#openLaw {
-  margin-top: 6px; width: 100%; padding: 7px 10px;
-  background: transparent; color: var(--ink-2);
-  border: 1px solid var(--hairline); border-radius: 6px;
-  font: inherit; font-size: 12px; cursor: pointer;
-}
-#openLaw:hover { background: rgba(255,255,255,0.05); color: var(--ink); }
-
-/* ---- sparkline and flags in the panel ---- */
+/* ---- the tongue sparkline ---- */
 .spark { margin: 12px 0 0; }
 .spark svg { width: 100%; height: auto; display: block; }
 .sparkZero { stroke: var(--rule); stroke-width: 1; }
 .sparkLine { fill: none; stroke: var(--seq-200); stroke-width: 1.4; stroke-linejoin: round; }
 .spark figcaption { margin-top: 5px; font-size: 10.5px; color: var(--ink-muted); }
-.aside {
-  margin: 12px 0 0; padding: 8px 10px; border-radius: 6px;
-  background: rgba(255,255,255,0.04); border: 1px solid var(--hairline);
-  font-size: 11px; line-height: 1.5; color: var(--ink-muted);
-}
-.flag {
-  margin: 12px 0 0; padding: 8px 10px; border-radius: 6px;
-  background: rgba(208,59,59,0.14); border: 1px solid rgba(208,59,59,0.35);
-  font-size: 11px; line-height: 1.5; color: var(--ink-2);
-}
 
-/* ---- the law drawer ---- */
-#law[hidden] { display: none; }
-#law {
-  position: fixed; inset: 0; z-index: 40;
-  background: rgba(6,6,6,0.72); backdrop-filter: blur(3px);
-  display: flex; align-items: flex-start; justify-content: center;
-  padding: 5vh 16px; overflow: auto;
+/* ---- tooltip ---- */
+#tooltip {
+  position: fixed; pointer-events: none; z-index: 20;
+  background: color-mix(in srgb, var(--surface-1) 95%, transparent);
+  border: 1px solid var(--hairline); border-radius: 7px;
+  padding: 7px 10px; font-size: 12px; max-width: 240px;
+  box-shadow: 0 4px 22px rgba(0,0,0,0.55);
 }
-.lawBox {
+#tooltip .tName { font-weight: 600; }
+#tooltip .tVal { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+#tooltip .tEst { color: var(--ink-muted); font-size: 11px; }
+#tooltip .tLaw { color: var(--law); font-family: var(--serif); font-size: 11.5px; }
+
+/* ---- credits ---- */
+#credits {
+  position: fixed; right: calc(var(--pad) + var(--safe-r)); bottom: calc(var(--pad) + var(--safe-b));
+  max-width: 430px; z-index: 5;
+  font-size: 10.5px; line-height: 1.55; color: var(--ink-muted);
+  text-align: right; pointer-events: none;
+  background: linear-gradient(to left, rgba(13,13,13,0.88), rgba(13,13,13,0.74) 70%, rgba(13,13,13,0));
+  padding: 10px 12px 10px 40px; border-radius: 8px;
+}
+body.hasRibbon #credits { display: none; }
+#credits p { margin: 0; }
+#credits strong { color: var(--ink-2); font-weight: 600; }
+#credits em { color: var(--law-dim); font-style: normal; }
+
+/* ---- modals ---- */
+.modal[hidden] { display: none; }
+.modal {
+  position: fixed; inset: 0; z-index: 40;
+  background: rgba(6,6,6,0.74); backdrop-filter: blur(4px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 5vh var(--pad); overflow: auto; overscroll-behavior: contain;
+}
+.modalBox {
   position: relative; width: min(720px, 100%);
   background: var(--surface-1); border: 1px solid var(--hairline);
-  border-radius: 12px; padding: 26px 30px 30px;
+  border-radius: 12px; padding: 26px clamp(18px, 3vw, 30px) 30px;
+  margin-bottom: 5vh;
 }
-.lawBox h2 { margin: 0 30px 10px 0; font-size: 19px; font-weight: 600; }
-.lawBox h3 {
+.modalBox h2 { margin: 0 34px 10px 0; font-size: clamp(17px, 1.5vw, 20px); font-weight: 600; }
+.modalBox h3 {
   margin: 26px 0 6px; font-size: 13px; font-weight: 600; color: var(--ink);
   border-top: 1px solid var(--rule); padding-top: 16px;
 }
-.lawBox h3 span { float: right; color: var(--ink-muted); font-weight: 400; font-size: 11px; }
-.lawBox p { margin: 0 0 8px; font-size: 13px; line-height: 1.6; color: var(--ink-2); }
+.modalBox h3 span { float: right; color: var(--ink-muted); font-weight: 400; font-size: 11px; }
+.modalBox p { margin: 0 0 8px; font-size: 13px; line-height: 1.6; color: var(--ink-2); }
 .lawLead { color: var(--ink-2); }
-.lawFine { font-size: 11.5px; line-height: 1.6; color: var(--ink-muted); }
-.lawBox blockquote {
-  margin: 8px 0 10px; padding: 10px 14px;
-  border-left: 2px solid var(--seq-500); background: rgba(255,255,255,0.03);
-  font-size: 12.5px; line-height: 1.6; color: var(--ink-2);
+.lawFine { font-size: 11.5px; line-height: 1.62; color: var(--ink-muted); }
+.lawFine b { color: var(--ink-2); }
+/* the quoted statute, in the serif, in the statutory ink */
+.modalBox blockquote {
+  margin: 8px 0 10px; padding: 11px 15px;
+  border-left: 2px solid var(--law-line); background: var(--law-bg);
+  font-family: var(--serif); font-size: 13px; line-height: 1.65; color: var(--law);
 }
-#lawClose {
-  position: absolute; top: 14px; right: 16px;
-  background: none; border: 0; color: var(--ink-muted);
-  font-size: 22px; line-height: 1; cursor: pointer; padding: 2px 6px;
-}
-#lawClose:hover { color: var(--ink); }
 .calc {
   margin: 12px 0; padding: 12px 14px; border-radius: 8px;
-  background: rgba(255,255,255,0.035); border: 1px solid var(--hairline);
+  background: var(--law-bg); border: 1px solid var(--law-line);
 }
-.calc label { display: block; font-size: 11px; color: var(--ink-muted); margin-bottom: 6px; }
+.calc label { display: block; font-size: 11px; color: var(--law-dim); margin-bottom: 6px; }
 .calc input {
-  width: 160px; padding: 6px 9px; font: inherit; font-variant-numeric: tabular-nums;
+  width: 160px; max-width: 100%; padding: 8px 9px; font-variant-numeric: tabular-nums;
   background: var(--plane); color: var(--ink);
   border: 1px solid var(--hairline); border-radius: 6px;
 }
-.calc output { display: block; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
-.calc output b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.calc output {
+  display: block; margin-top: 10px; font-size: 13px; color: var(--law);
+  font-family: var(--serif); line-height: 1.6;
+}
+.calc output b { color: #f4ead8; font-variant-numeric: tabular-nums; }
 
-@media (max-width: 900px) {
-  #credits { display: none; }
-  #legend { width: 220px; left: 12px; bottom: 12px; }
-  #titlebar { left: 12px; top: 12px; max-width: 60vw; }
-  #panel { right: 12px; top: 62px; width: 260px; }
-  #modes { top: auto; bottom: 12px; left: 12px; right: 12px; transform: none; justify-content: space-between; }
-  #modes button { padding: 6px 8px; font-size: 11px; }
-  #legend { bottom: 58px; }
-  .lawBox { padding: 22px 18px 24px; }
+/* ---- the vintage table ----
+   Sorted oldest first, because the oldest source is the one that decides what the
+   map can be used for. */
+#vintageTable { margin: 14px 0 6px; }
+.vRow {
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 14px;
+  padding: 10px 0; border-top: 1px solid var(--rule);
+}
+.vRow:first-child { border-top: 0; }
+.vName { font-size: 12.5px; color: var(--ink); }
+.vHolder { font-size: 11px; color: var(--ink-muted); }
+.vAge {
+  font-size: 12px; text-align: right; white-space: nowrap;
+  font-variant-numeric: tabular-nums; color: var(--ink-2);
+}
+.vAge b { display: block; font-size: 11px; font-weight: 400; color: var(--ink-muted); }
+.vRow.isLive .vAge { color: var(--seq-200); }
+.vRow.isStale .vAge { color: var(--serious); }
+.vBar { grid-column: 1 / -1; height: 2px; background: var(--rule); border-radius: 1px; overflow: hidden; margin-top: 4px; }
+.vBar i { display: block; height: 100%; background: var(--seq-400); }
+.vRow.isStale .vBar i { background: var(--serious); }
+.vRow.isLive .vBar i { background: var(--seq-200); }
+.vNote { grid-column: 1 / -1; font-size: 11px; line-height: 1.5; color: var(--ink-muted); margin-top: 5px; }
+.vCls {
+  display: inline-block; font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase;
+  border: 1px solid var(--hairline); border-radius: 3px; padding: 1px 5px; margin-left: 6px;
+  color: var(--ink-muted); vertical-align: 1px;
 }
 
-/* The use layer. The four registers, and the difference between a point that
-   carries a number and a point that carries only a place. */
-.useKeys .swatch { width: 10px; height: 10px; border-radius: 50%; }
-.swatch.useHydro { background: #f0b429; }
-.swatch.useAbs   { background: transparent; box-shadow: inset 0 0 0 2px #e07a5f; }
-.swatch.useNpp   { background: transparent; box-shadow: inset 0 0 0 2px #d03b3b; }
-.swatch.useAra   { background: #6fae7f; }
-.useKeys li { display: block; }
-.useKeys label { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
-.useKeys input { margin: 0; }
+/* ============================================================
+   Tablet and below: the panel narrows, the credits go.
+   ============================================================ */
+/* The layer switch is about 700 px of pills and the title needs 340. Under
+   1500 px the two cannot share the top line, so the switch moves to the foot of
+   the window and everything that lives down there lifts over it. 1500 is also
+   where the subtitle appears, which is the same judgement made twice: the top
+   line is either roomy enough for the whole title block or it is not. */
+@media (max-width: 1499px) {
+  #credits { display: none; }
+  #modes { top: auto; bottom: calc(var(--pad) + var(--safe-b)); }
+  #panel { top: var(--pad); max-height: calc(100vh - 2 * var(--pad) - 56px); }
+  #legend { bottom: calc(var(--pad) + var(--safe-b) + 52px); }
+  #ribbon { bottom: calc(var(--pad) + var(--safe-b) + 52px); }
+}
+
+@media (max-width: 1180px) {
+  :root { --panel-w: 268px; --legend-w: 250px; }
+  #ribbon { width: min(560px, calc(100vw - 2 * var(--pad) - var(--legend-w) - 24px)); }
+}
+
+/* Between phone and desktop the legend keeps the left rail, so the ribbon stops
+   being centred and takes the room that is left beside it. */
+@media (min-width: 701px) and (max-width: 1180px) {
+  #ribbon {
+    left: auto; right: calc(var(--pad) + var(--safe-r)); transform: none;
+    width: min(560px, calc(100vw - 3 * var(--pad) - var(--legend-w)));
+  }
+}
+
+@media (max-width: 900px) {
+  :root { --panel-w: 260px; --legend-w: 230px; }
+  #titlebar { max-width: 54vw; }
+}
+
+/* ============================================================
+   Phone. One sheet, three snap states, and the map keeps the screen.
+   The legend stops being a floating card and becomes a bottom sheet with a
+   handle: peek shows the layer name, half shows the legend, full scrolls.
+   ============================================================ */
+@media (max-width: 700px) {
+  :root { --fs-base: 15px; --panel-w: auto; }
+
+  #titlebar {
+    top: 0; left: 0; right: 0; max-width: none; padding: 10px 12px 12px;
+    margin: 0; border-radius: 0;
+    background: linear-gradient(to bottom, rgba(13,13,13,0.94), rgba(13,13,13,0.7) 60%, rgba(13,13,13,0));
+    padding-left: calc(12px + var(--safe-l));
+  }
+  #titlebar h1 { font-size: 16px; }
+  #titlebar .stamp { margin-top: 3px; font-size: 11px; }
+
+  /* the layer switcher scrolls horizontally rather than wrapping or shrinking
+     below a usable tap target */
+  #modes {
+    top: 58px; bottom: auto; left: 0; right: 0; transform: none;
+    max-width: none; border-radius: 0; border-left: 0; border-right: 0;
+    overflow-x: auto; scrollbar-width: none;
+    padding: 4px calc(8px + var(--safe-l)) 4px calc(8px + var(--safe-r));
+    justify-content: flex-start;
+  }
+  #modes::-webkit-scrollbar { display: none; }
+  #modes button { padding: 9px 12px; font-size: 12.5px; min-height: 38px; }
+  .modeGroupLabel { display: none; }
+  .modeGroup + .modeGroup { margin-left: 4px; padding-left: 6px; }
+
+  /* ---- the sheet ---- */
+  #legend {
+    left: 0; right: 0; bottom: 0; width: auto; max-height: 76vh;
+    border-radius: 14px 14px 0 0; border-left: 0; border-right: 0; border-bottom: 0;
+    padding: 0 0 calc(10px + var(--safe-b));
+    background: color-mix(in srgb, var(--surface-1) 96%, transparent);
+    transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  #sheetHandle {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    width: 100%; padding: 8px 14px 10px; min-height: 46px;
+    background: none; border: 0; color: var(--ink-2); cursor: pointer;
+    touch-action: none;
+  }
+  .grip { width: 38px; height: 4px; border-radius: 2px; background: var(--rule); }
+  .sheetTitle {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  #legendBody {
+    padding: 0 14px 14px; overflow-y: auto; overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  #legend.collapsed #legendBody { overflow: hidden; }
+  #legend h2 { display: none; }             /* the handle carries the title */
+  .btnRow { grid-template-columns: 1fr 1fr; }
+  .btnRow button:first-child { grid-column: 1 / -1; }
+  .btnRow button { min-height: 42px; }
+  .controls label { min-height: 32px; }
+
+  /* the panel becomes a second sheet, over the first */
+  #panel {
+    left: 0; right: 0; top: auto; bottom: 0; width: auto;
+    max-height: 72vh; border-radius: 14px 14px 0 0;
+    border-left: 0; border-right: 0; border-bottom: 0;
+    padding: 16px 14px calc(16px + var(--safe-b));
+    background: color-mix(in srgb, var(--surface-1) 97%, transparent);
+    z-index: 12;
+    animation: sheetUp 240ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+  #panelClose { top: 8px; right: 8px; }
+
+  /* the ribbon sits above the sheet */
+  #ribbon {
+    left: 8px; right: 8px; width: auto; min-width: 0; transform: none;
+    bottom: calc(var(--sheet-h) + 8px + var(--safe-b));
+    transition: bottom 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    padding: 8px 10px 6px;
+  }
+  #ribbonCv { height: 60px; }
+  /* the reading gets its own line rather than a truncation: on this layer the
+     clause that says where the week sits against the record is the whole point */
+  .ribbonHead { flex-wrap: wrap; }
+  #ribbon h2 { display: none; }
+  #ribbonRead {
+    flex: 1 0 100%; order: 2; text-align: left;
+    white-space: normal; font-size: 12px; line-height: 1.35; margin-top: 6px;
+  }
+  .ribbonNote { display: none; }
+
+  .modal { padding: 0; align-items: stretch; }
+  .modalBox {
+    width: 100%; border-radius: 0; border: 0; margin: 0;
+    padding: 22px 16px calc(40px + var(--safe-b));
+    min-height: 100%;
+  }
+  #tooltip { display: none; }               /* a finger has no hover */
+}
+
+/* very small phones: give the numbers room by dropping the sub-labels */
+@media (max-width: 380px) {
+  #modes button { padding: 9px 9px; font-size: 12px; }
+  #titlebar h1 { font-size: 15px; }
+}
+
+/* short landscape phones: the sheet would eat the map */
+@media (max-height: 480px) and (orientation: landscape) and (max-width: 940px) {
+  #titlebar .sub, #titlebar .stamp { display: none; }
+  #legend { max-height: 60vh; }
+  #ribbon { display: none; }
+}
+
+/* ============================================================
+   Wide and very wide. Switzerland is about 2.2:1, so on a wide screen the
+   country fits with room to spare. That room becomes a reading column on the
+   right rather than more black around a small map.
+   ============================================================ */
+@media (min-width: 1800px) {
+  :root { --fs-base: 15px; --panel-w: 360px; --legend-w: 320px; --r: 12px; }
+  #titlebar { max-width: 460px; }
+  #titlebar .sub { font-size: 13.5px; }
+  #ribbon { width: min(760px, 40vw); }
+  #credits { max-width: 520px; font-size: 11.5px; }
+  #legend { padding: 18px 18px 16px; }
+  .notes, .controls label { font-size: 13px; }
+  .lgNote { font-size: 12px; }
+  #panel { padding: 20px 20px 18px; }
+  #panel dt { font-size: 13px; }
+  #panel dd { font-size: 14px; }
+}
+@media (min-width: 2400px) {
+  :root { --fs-base: 16px; --panel-w: 400px; --legend-w: 360px; }
+  #titlebar h1 { font-size: 26px; }
+  #ribbon { width: 820px; }
+  #ribbonCv { height: 96px; }
+}
+
+/* ---- reduced motion ----
+   The particles stop and the replays stop advancing on their own. The scrubber
+   still works, because a control the reader drives is not motion imposed on them. */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important; }
+}

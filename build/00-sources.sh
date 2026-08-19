@@ -82,3 +82,41 @@ unzip -oq wasta.zip
 # The other three registers are points and come straight off the federal identify
 # API at build time, so nothing to download here.
 echo "water use ready. now run: node build/05-users.mjs"
+
+# ---- the inventories in between ---------------------------------------------
+# 1850 and 2023 are two states, not a sequence. GLAMOS publishes three more dated
+# inventories between them, and with those the retreat can be shown as it happened
+# rather than as a before and after: 1850, 1931, 1973, 2010, 2023. The intervals
+# are 81, 42, 37 and 13 years, and holding each frame in proportion to its own
+# interval is what puts the acceleration on the screen.
+#
+# Two traps here. The 1931 inventory is in the OLD national frame, CH1903/LV03,
+# with a false origin of 600000/200000, while 1973 and 2010 are in LV95 at
+# 2600000/1200000. Reprojecting 1931 with the LV95 string silently lands every
+# glacier in the Mediterranean. And 1931 ships no area field at all, so the area
+# is computed from the geometry in the source frame, in square metres, BEFORE the
+# reprojection: a planar area taken after the projection to degrees is not an area.
+LV03='+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=600000 +y_0=200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs'
+
+cd "$G"
+for f in inventory_sgi1931_r2022 inventory_sgi1973_r1976 inventory_sgi2010_r2010; do
+  [ -f "$f.zip" ] || curl -fL -o "$f.zip" "https://doi.glamos.ch/data/inventory/$f.zip"
+  mkdir -p "x/$f"; unzip -oq "$f.zip" -d "x/$f"
+done
+
+npx -y mapshaper x/inventory_sgi1931_r2022/SGI_1931.shp \
+  -each 'AREA_M2 = this.area' -proj from="$LV03" wgs84 \
+  -filter-fields SGI,AREA_M2,date -simplify 3% keep-shapes \
+  -o "$G/g1931.json" format=geojson precision=0.00001
+
+npx -y mapshaper x/inventory_sgi1973_r1976/SGI_1973.shp \
+  -each 'AREA_M2 = this.area' -proj from="$LV95" wgs84 \
+  -filter-fields SGI,AREA_M2 -simplify 3% keep-shapes \
+  -o "$G/g1973.json" format=geojson precision=0.00001
+
+npx -y mapshaper x/inventory_sgi2010_r2010/SGI_2010.shp \
+  -each 'AREA_M2 = this.area' -proj from="$LV95" wgs84 \
+  -filter-fields SGI,AREA_M2 -simplify 3% keep-shapes \
+  -o "$G/g2010.json" format=geojson precision=0.00001
+
+echo "ice history ready. now run: node build/09-icehistory.mjs"
