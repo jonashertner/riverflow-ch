@@ -1,10 +1,11 @@
-# Abfluss Schweiz — live streamflow map
+# Water and ice in Switzerland
 
-A map of live discharge in Swiss rivers. Colour and width give cubic metres per
-second on a log scale. The motion along each river points downstream.
+A map of Swiss rivers, read live from the federal gauging network, and of Swiss
+glaciers as they were in 1850 against what is left in 2023. It is built to be a
+base layer for legal work: every figure carries its source and its class of
+evidence, and the page says what each number does not prove.
 
-Built 19 August 2026, after the American reference at
-`norway-charts.netlify.app/river_flow_map_usa/`.
+Live at **https://jonashertner.github.io/riverflow-ch/**
 
 ## Run it
 
@@ -13,15 +14,27 @@ cd site && python3 -m http.server 8899   # then open http://127.0.0.1:8899/
 ```
 
 The page has no backend. It fetches the gauge readings from the federal endpoint
-in the browser. A shareable view is written into the URL hash as `#lon,lat,scale`.
+in the browser. A view is written into the URL hash as `#lon,lat,scale,layer`, so
+a link is a citation: this place, this reading, this scale. `#ice` alone opens the
+glacier layer at the country view.
+
+## The four layers
+
+| Layer | What the colour carries | Class of evidence |
+|---|---|---|
+| Flow | Discharge in m³/s, log scale | Measured at 171 reaches, modelled at 5,004, absent at 3,541 |
+| Against normal | Discharge now divided by the long-term mean of the same reach | Ratio of a measurement to a modelled annual mean |
+| Temperature | Water temperature at the gauge, 0 to 25 °C | Measured, one sensor per point |
+| Ice | Glacier outlines, 1850 under 2023 | Measured by survey, 173 years apart |
 
 ## Rebuild the data
 
 ```bash
-bash build/00-sources.sh          # download and clip, into /tmp/riv
+bash build/00-sources.sh          # download and clip, into /tmp/riv and /tmp/gl
 node build/01-stations.mjs        # gauges, coordinates, per-station unit
 node build/02-network.mjs         # river network, gauge-to-reach binding
 node build/03-context.mjs         # lakes and the national border
+node build/04-glaciers.mjs        # glacier bodies, length series, gauge downstream
 ```
 
 Only `site/data/*.json` is kept in the repository. The sources stay in `/tmp`.
@@ -33,7 +46,14 @@ Only `site/data/*.json` is kept in the repository. The sources stay in `/tmp`.
 | River geometry, catchment area, long-term mean discharge | HydroRIVERS v1.0 (HydroSHEDS, WWF) | free for non-commercial and commercial use with attribution |
 | Live discharge, water level, temperature, flood danger level | BAFU, through the federal Linked Data service LINDAS, `https://lindas.admin.ch/query`, graph `<https://lindas.admin.ch/foen/hydro>` | open government data, updated every ten minutes, no key |
 | Discharge unit per station | `hydrodaten.admin.ch/plots/p_q_7days/<id>_p_q_7days_de.json` | same |
+| Glacier outlines and areas, 1850 | GLAMOS, Swiss Glacier Inventory 1850, doi:10.18750/inventory.sgi1850.r1992 | CC BY 4.0 per the DOI index |
+| Glacier outlines and areas, 2023 | GLAMOS, Swiss Glacier Inventory 2023, doi:10.18750/inventory.sgi2023.r2026 | CC BY 4.0 per the DOI index |
+| Glacier tongue position, 1880 to 2025 | GLAMOS, Swiss Glacier Length Change, doi:10.18750/lengthchange.2025.r2025 | CC BY 4.0 per the DOI index; the file header adds "scientific and non-commercial use" |
 | Lakes, national border | Natural Earth 10m | public domain |
+| Statutory text | fedlex.admin.ch, consolidated German versions in force on 19 August 2026 | federal law |
+
+The two GLAMOS licence statements do not agree. Both are shown on the page.
+Anyone putting this to commercial use should settle the point with GLAMOS first.
 
 ## What the map shows, and what it does not
 
@@ -47,9 +67,41 @@ Only `site/data/*.json` is kept in the repository. The sources stay in `/tmp`.
   Swiss gauge and no gauge stands above them. They carry the long-term mean and
   nothing more, and are drawn in neutral grey, not on the discharge ramp. Inside
   the Swiss border only 87 reaches out of 3,935 fall in this class.
+- **The against-normal layer divides by an annual mean.** `DIS_AV_CMS` is a
+  long-term mean over the whole year, not a normal for the day. A reading below
+  100 % in August is in part the season. It is a ratio, not a drought index. BAFU
+  publishes day-of-year statistics, but not through any endpoint the browser can
+  reach, so the honest fallback stands until that changes.
+- **A temperature reading is one sensor.** On 19 August 2026 the gauge at
+  Neuhausen read 31.8 °C while Rheinau, ten kilometres down the same river, read
+  24.6. Opening a gauge shows it against the five nearest gauges that also report
+  temperature, so a value outside their spread declares itself.
+- **The 1850 and 2023 glacier outlines are not joined body to body.** Glaciers
+  split as they shrink. Where the same SGI identifier appears in both inventories
+  the pair is shown, for 1,053 of the 1,299 bodies, and it is labelled an
+  identifier match rather than a hydrological identity. The national totals,
+  1,788.3 km² against 861.3 km², do not depend on the join.
+- **The gauge named under a glacier is a spatial assignment.** It is the first
+  BAFU station downstream of the mapped reach nearest to the ice. It is not a
+  routing model. It answers which gauge would see this water, and nothing finer.
 
-A gauge reading proves what the gauge measured. It does not prove what the river
-is doing a kilometre downstream. That is why the three classes are drawn apart.
+## The legal layer
+
+Three provisions are quoted on the page from the consolidated German texts on
+fedlex.admin.ch, in the versions in force on 19 August 2026:
+
+1. **GSchG Art. 31(1)** (SR 814.20), minimum residual flow, with Art. 4(h) for
+   Q<sub>347</sub>. The page computes the minimum from a Q<sub>347</sub> you
+   enter. It is not read off the map, because Q<sub>347</sub> is not published per
+   gauge in the live federal feed.
+2. **GSchV Annex 2 No. 12(4)** (SR 814.201), the 3 °C and 1.5 °C limits on thermal
+   alteration and the 25 °C ceiling that goes with them.
+3. **GSchV Annex 1 No. 1(3)(a)** (SR 814.201), the ecological goal of near-natural
+   temperature conditions.
+
+A datum on this map is a fact about a river or a glacier. It is not a finding of
+breach. The step from one to the other needs the concession, the licence and the
+site, and it is the lawyer's step, not the map's.
 
 ## Three traps found in the source data
 
@@ -68,20 +120,37 @@ is doing a kilometre downstream. That is why the three classes are drawn apart.
    through the segment midpoints, and the zoom is capped at ten times the country
    view, because past that the geometry stops being honest.
 
+A fourth trap sits in the glacier data. The `.prj` files declare CH1903+/LV95 as a
+Hotine oblique Mercator, which mapshaper reads but cannot project: it drops every
+vertex in silence and writes a file of 1,299 features with no geometry. The source
+frame is therefore given to mapshaper as an explicit proj4 string in
+`build/00-sources.sh`.
+
+## The statute's own arithmetic
+
+Art. 31(1) states a base figure at the foot of each band and a rate above it. The
+two do not close. The rate above 500 l/s reaches 279.6 l/s where the table states
+280, and the rate above 2500 l/s reaches 2497.5 l/s where the table states 2500.
+Each band in the calculator starts from the stated figure and rises at the stated
+rate. The gap is reproduced, not smoothed.
+
 ## Design
 
-Dark surface only. The discharge ramp is a single hue stepped by lightness, from
-the reference data-viz palette, so more water reads as brighter. Flood danger
-levels use the fixed status palette on the gauge rings, never on the water itself.
+Dark surface only. Discharge is one hue stepped by lightness, so more water reads
+as brighter. Against-normal is a diverging ramp, warm below the mean and blue
+above, grey at it. Flood danger levels use the fixed status palette on the gauge
+rings, never on the water itself. In the ice layer the 1850 outlines are filled in
+the low colour of the diverging ramp and the 2023 bodies are drawn in white over
+them, so what stays coloured is the ice that has gone.
 
 ## Next, if it is worth continuing
 
-- **Flow against normal.** BAFU publishes day-of-year percentiles. That turns the
-  map from "how much water" into "is this a lot for a 19 August", which is the
-  more interesting question and the one the American map answers.
-- **Europe.** There is no USGS. Either stitch the national feeds (PEGELONLINE,
-  Hub'Eau, the Environment Agency, NVE, eHYD) or take modelled discharge from
-  Copernicus EFAS. The first gives measurements and a dozen schemas; the second
-  gives one schema and no measurements.
+- **Day-of-year percentiles.** They would turn against-normal from "how much
+  water" into "is this a lot for a 19 August". BAFU holds them. They are not on
+  any endpoint found so far.
+- **Q<sub>347</sub> per gauge.** With it, Art. 31 stops being a calculator and
+  becomes a layer.
+- **Glacier volume and mass balance.** GLAMOS publishes both, with DOIs, and both
+  speak to the same question with a different instrument.
 - **Better geometry.** swissTLM3D would remove the staircase inside Switzerland,
   at the cost of a second network that does not carry HydroRIVERS' topology.

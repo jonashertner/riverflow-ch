@@ -1,10 +1,15 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Abfluss Schweiz — live streamflow in Swiss rivers</title>
-<meta name="description" content="Live discharge in Swiss rivers, from the BAFU gauging network. Colour and width show cubic metres per second. Motion points downstream.">
+<title>Water and ice in Switzerland — a measured base layer</title>
+<meta name="description" content="Live discharge in Swiss rivers from the federal gauging network, water temperature against the statutory ceiling, and Swiss glacier area in 1850 against 2023. Every figure carries its source and its class of evidence.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/">
+<meta property="og:title" content="Water and ice in Switzerland">
+<meta property="og:description" content="Swiss rivers, live. Swiss glaciers, 1850 against 2023. A measured base layer for legal work on climate.">
+<meta property="og:type" content="website">
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="viz-root">
@@ -12,42 +17,141 @@
 <canvas id="map"></canvas>
 
 <header id="titlebar">
-  <h1>Abfluss Schweiz</h1>
-  <p class="sub">Live discharge in Swiss rivers, from the federal gauging network.</p>
+  <h1>Water and ice in Switzerland</h1>
+  <p class="sub">Rivers read live from the federal gauges. Glaciers as they were in 1850 and as they are in 2023.</p>
   <p class="stamp" id="stamp">Loading&#8230;</p>
 </header>
 
+<nav id="modes" aria-label="Layer">
+  <button type="button" data-mode="flow" class="on">Flow</button>
+  <button type="button" data-mode="normal">Against normal</button>
+  <button type="button" data-mode="temp">Temperature</button>
+  <button type="button" data-mode="ice" id="modeIce" disabled>Ice</button>
+</nav>
+
 <section id="legend" aria-label="Legend">
-  <h2>Discharge</h2>
-  <div class="ramp" id="ramp"></div>
-  <div class="rampLabels"><span>0.1</span><span>1</span><span>10</span><span>100</span><span>1000 m&#179;/s</span></div>
-  <ul class="notes">
-    <li><span class="swatch measured"></span>Measured at a gauge</li>
-    <li><span class="swatch estimated"></span>Estimated for the reach</li>
-    <li><span class="swatch nobasis"></span>Outside the gauged network</li>
-  </ul>
+  <h2 id="legendTitle">Discharge</h2>
+
+  <div class="lg" id="lgFlow">
+    <div class="ramp ramp-seq"></div>
+    <div class="rampLabels"><span>0.1</span><span>1</span><span>10</span><span>100</span><span>1000 m&#179;/s</span></div>
+    <ul class="notes">
+      <li><span class="swatch measured"></span>Measured at a gauge</li>
+      <li><span class="swatch estimated"></span>Estimated for the reach</li>
+      <li><span class="swatch nobasis"></span>Outside the gauged network</li>
+    </ul>
+  </div>
+
+  <div class="lg" id="lgNormal" hidden>
+    <div class="ramp ramp-div"></div>
+    <div class="rampLabels"><span>25%</span><span>50%</span><span>100%</span><span>200%</span><span>400%</span></div>
+    <p class="lgNote">Discharge now against the long-term mean of the same reach. The mean is an
+      annual figure, so a summer reading below 100&nbsp;% is in part the season and not only the year.
+      Read it as a ratio, not as a drought index.</p>
+  </div>
+
+  <div class="lg" id="lgTemp" hidden>
+    <div class="ramp ramp-temp"></div>
+    <div class="rampLabels"><span>0</span><span>10</span><span>20</span><span>25&nbsp;&deg;C</span></div>
+    <p class="lgNote" id="tempCount">&nbsp;</p>
+    <p class="lgNote">The ring marks the gauge. A white rim marks a gauge at or above 25&nbsp;&deg;C, the
+      ceiling that GSchV Annex&nbsp;2 No.&nbsp;12(4) sets for a watercourse whose temperature is altered by
+      heat. One reading is one sensor. Open a gauge to see it against the others in the same river system
+      before you rely on it.</p>
+  </div>
+
+  <div class="lg" id="lgIce" hidden>
+    <ul class="notes">
+      <li><span class="swatch ice1850"></span>Ice in 1850</li>
+      <li><span class="swatch ice2023"></span>Ice in 2023</li>
+    </ul>
+    <p class="lgNote">The 2023 bodies are drawn over the 1850 outlines. What stays in colour is
+      the ice that has gone.</p>
+    <p class="lgNote" id="iceTotals">&nbsp;</p>
+  </div>
+
   <div class="controls">
     <label><input type="checkbox" id="toggleStations" checked> Gauging stations</label>
     <label><input type="checkbox" id="toggleMotion" checked> Motion</label>
   </div>
   <button id="refresh" type="button">Refresh live data</button>
+  <button id="openLaw" type="button">The three legal hooks</button>
 </section>
 
 <aside id="panel" hidden>
   <button id="panelClose" type="button" aria-label="Close">&times;</button>
   <h2 id="panelTitle"></h2>
   <dl id="panelBody"></dl>
+  <div id="panelExtra"></div>
   <p class="panelNote" id="panelNote"></p>
 </aside>
 
 <div id="tooltip" role="status" hidden></div>
 
+<div id="law" hidden>
+  <div class="lawBox">
+    <button id="lawClose" type="button" aria-label="Close">&times;</button>
+    <h2>Three places where this data meets Swiss law</h2>
+    <p class="lawLead">The provisions are quoted from the consolidated German texts on fedlex.admin.ch,
+      in the versions in force on 19 August 2026. A datum below is a fact about a river or a glacier.
+      It is not a finding of breach. The step from one to the other is the lawyer's, and it needs the
+      concession, the licence and the site.</p>
+
+    <h3>1. Residual flow. Water Protection Act, Art. 31(1) <span>SR 814.20</span></h3>
+    <p>Where water is taken from a watercourse with a permanent flow, a minimum must remain in the bed.
+      The figure follows from Q<sub>347</sub>, defined in Art. 4(h) as the discharge that, averaged over
+      ten years, is reached or exceeded on 347 days of the year, and that is not substantially affected
+      by damming, abstraction or diversion.</p>
+    <div class="calc">
+      <label for="q347">Q<sub>347</sub> in litres per second</label>
+      <input id="q347" type="number" min="0" step="1" value="2500" inputmode="numeric">
+      <output id="q347out"></output>
+    </div>
+    <p class="lawFine">Computed from the table in Art. 31(1). Each band starts from the figure the
+      statute states for it and rises at the rate the statute gives. The bands do not close exactly: a rate carried up to a boundary
+      and the figure the statute states at that boundary differ by a fraction of a litre, 279.6 against
+      280 at 500&nbsp;l/s and 2497.5 against 2500 at 10&nbsp;000&nbsp;l/s. That is the statute's own
+      arithmetic, reproduced and not smoothed. The table begins at 50&nbsp;l/s and stops at 10&nbsp;000&nbsp;l/s from
+      a Q<sub>347</sub> of 60&nbsp;000&nbsp;l/s. The result is a floor, not a permission: Art. 31(2) requires the figure to be
+      raised where water quality, groundwater recharge, rare habitats, fish passage or spawning grounds
+      are not otherwise secured, and Arts. 32 and 33 govern the exceptions and the weighing of interests.
+      Q<sub>347</sub> is not published per gauge in the live federal feed, so it is entered here, not read
+      from the map.</p>
+
+    <h3>2. Temperature. Waters Protection Ordinance, Annex 2 No. 12(4) <span>SR 814.201</span></h3>
+    <blockquote>Die Temperatur eines Fliessgewässers darf durch Wärmeeintrag oder ‑entzug gegenüber dem
+      möglichst unbeeinflussten Zustand um höchstens 3&nbsp;°C, in Gewässerabschnitten der Forellenregion
+      um höchstens 1,5&nbsp;°C, verändert werden; dabei darf die Wassertemperatur 25&nbsp;°C nicht
+      übersteigen. Diese Anforderungen gelten nach weitgehender Durchmischung.</blockquote>
+    <p class="lawFine">The rule governs alteration by heat input or removal, measured against the least
+      affected state, and it applies after substantial mixing. A river that is warm without a heat source
+      is not in breach of it. The temperature layer therefore shows where the question arises. It does not
+      answer it. To answer it you need the unaffected reference state and the discharge point.</p>
+
+    <h3>3. Ecological goals. Waters Protection Ordinance, Annex 1 No. 1(3)(a) <span>SR 814.201</span></h3>
+    <blockquote>Die Wasserqualität soll so beschaffen sein, dass: a. die Temperaturverhältnisse naturnah
+      sind.</blockquote>
+    <p class="lawFine">A goal, not a limit value. It carries weight in the weighing of interests and in
+      the reading of the numerical requirements, and it is the provision the glacier record speaks to most
+      directly: a catchment that has lost half its ice does not have a near-natural thermal or flow regime,
+      whatever any single gauge reads today.</p>
+
+    <h3>What the glacier record is good for</h3>
+    <p class="lawFine">The 1850 and 2023 inventories are the same office measuring the same objects by the
+      methods of their day. They are strong evidence of a change of state in a catchment and of its size
+      and its timing. They are not, on their own, evidence that any named party caused it. Causation and
+      attribution are separate questions and need separate sources.</p>
+  </div>
+</div>
+
 <footer id="credits">
-  <p><strong>Geometry</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), reaches with a catchment of 5&nbsp;km&#178; or more. Flow direction comes from the network itself.
-  <strong>Discharge</strong> BAFU gauging stations, read live through the federal Linked Data service LINDAS, updated every ten minutes.
-  A reach with no gauge takes the long-term mean discharge of the reach, scaled by how far the nearest gauge downstream stands from its own mean, or failing that the largest gauged river above it; those reaches are drawn dimmer.
-  A reach that drains out of the country past no gauge at all is drawn in grey and carries its long-term mean only.
-  Nine stations report in litres per second; those readings are converted. Measured and modelled water, not a forecast.</p>
+  <p><strong>Rivers</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), reaches with a catchment of 5&nbsp;km&#178; or more.
+  Live discharge, water level and temperature from the BAFU gauging network through LINDAS, every ten minutes.
+  A reach with no gauge takes its long-term mean scaled by the nearest gauge downstream; those reaches are drawn dimmer.
+  A reach past no gauge at all is grey and carries its long-term mean only. Nine stations report in litres per second and are converted.
+  <strong>Ice</strong> GLAMOS, Swiss Glacier Inventory 1850 (doi:10.18750/inventory.sgi1850.r1992), Swiss Glacier Inventory 2023 (doi:10.18750/inventory.sgi2023.r2026)
+  and Swiss Glacier Length Change (doi:10.18750/lengthchange.2025.r2025). The DOI index states CC BY 4.0; the length-change file header adds "scientific and non-commercial use". Both statements stand.
+  <strong>Context</strong> Natural Earth 10m. Measured and modelled water, not a forecast.</p>
 </footer>
 
 <script src="app.js"></script>

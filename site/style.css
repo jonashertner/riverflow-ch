@@ -159,9 +159,124 @@ html, body {
 #credits p { margin: 0; }
 #credits strong { color: var(--ink-2); font-weight: 600; }
 
+
+/* ---- layer switch ---- */
+#modes {
+  position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 2px; padding: 3px;
+  background: color-mix(in srgb, var(--surface-1) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--hairline); border-radius: 8px;
+}
+#modes button {
+  background: none; border: 0; border-radius: 6px;
+  color: var(--ink-muted); font: inherit; font-size: 12px;
+  padding: 6px 12px; cursor: pointer; white-space: nowrap;
+}
+#modes button:hover:not(:disabled) { color: var(--ink); background: rgba(255,255,255,0.05); }
+#modes button.on { background: rgba(255,255,255,0.10); color: var(--ink); }
+#modes button:disabled { opacity: 0.35; cursor: default; }
+
+/* ---- legend variants ---- */
+.ramp-seq {
+  background: linear-gradient(90deg,
+    var(--seq-600) 0%, var(--seq-500) 20%, var(--seq-450) 40%,
+    var(--seq-400) 58%, var(--seq-300) 74%, var(--seq-200) 88%, var(--seq-100) 100%);
+}
+/* Diverging: brown below the mean, blue above, grey at it. */
+.ramp-div {
+  background: linear-gradient(90deg,
+    #7a3f19 0%, #a85f28 15%, #c8813c 28%, #dda86d 40%,
+    #7f7d78 50%, #8fb6de 60%, #4d90cc 72%, #2a6cb0 86%, #123f77 100%);
+}
+.ramp-temp {
+  background: linear-gradient(90deg,
+    #1d4f86 0%, #3d7fbc 18%, #79aad8 34%, #b9c8bb 50%,
+    #e0c477 66%, #dd8f47 83%, #d03b3b 100%);
+}
+.lgNote { margin: 9px 0 0; font-size: 11px; line-height: 1.5; color: var(--ink-muted); }
+.lgNote b { color: var(--ink-2); font-weight: 600; }
+.swatch.ice1850 { background: rgba(200,129,60,0.42); height: 8px; border: 1px solid rgba(200,129,60,0.7); }
+.swatch.ice2023 { background: #dce9f8; height: 8px; }
+
+#openLaw {
+  margin-top: 6px; width: 100%; padding: 7px 10px;
+  background: transparent; color: var(--ink-2);
+  border: 1px solid var(--hairline); border-radius: 6px;
+  font: inherit; font-size: 12px; cursor: pointer;
+}
+#openLaw:hover { background: rgba(255,255,255,0.05); color: var(--ink); }
+
+/* ---- sparkline and flags in the panel ---- */
+.spark { margin: 12px 0 0; }
+.spark svg { width: 100%; height: auto; display: block; }
+.sparkZero { stroke: var(--rule); stroke-width: 1; }
+.sparkLine { fill: none; stroke: var(--seq-200); stroke-width: 1.4; stroke-linejoin: round; }
+.spark figcaption { margin-top: 5px; font-size: 10.5px; color: var(--ink-muted); }
+.aside {
+  margin: 12px 0 0; padding: 8px 10px; border-radius: 6px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--hairline);
+  font-size: 11px; line-height: 1.5; color: var(--ink-muted);
+}
+.flag {
+  margin: 12px 0 0; padding: 8px 10px; border-radius: 6px;
+  background: rgba(208,59,59,0.14); border: 1px solid rgba(208,59,59,0.35);
+  font-size: 11px; line-height: 1.5; color: var(--ink-2);
+}
+
+/* ---- the law drawer ---- */
+#law[hidden] { display: none; }
+#law {
+  position: fixed; inset: 0; z-index: 40;
+  background: rgba(6,6,6,0.72); backdrop-filter: blur(3px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 5vh 16px; overflow: auto;
+}
+.lawBox {
+  position: relative; width: min(720px, 100%);
+  background: var(--surface-1); border: 1px solid var(--hairline);
+  border-radius: 12px; padding: 26px 30px 30px;
+}
+.lawBox h2 { margin: 0 30px 10px 0; font-size: 19px; font-weight: 600; }
+.lawBox h3 {
+  margin: 26px 0 6px; font-size: 13px; font-weight: 600; color: var(--ink);
+  border-top: 1px solid var(--rule); padding-top: 16px;
+}
+.lawBox h3 span { float: right; color: var(--ink-muted); font-weight: 400; font-size: 11px; }
+.lawBox p { margin: 0 0 8px; font-size: 13px; line-height: 1.6; color: var(--ink-2); }
+.lawLead { color: var(--ink-2); }
+.lawFine { font-size: 11.5px; line-height: 1.6; color: var(--ink-muted); }
+.lawBox blockquote {
+  margin: 8px 0 10px; padding: 10px 14px;
+  border-left: 2px solid var(--seq-500); background: rgba(255,255,255,0.03);
+  font-size: 12.5px; line-height: 1.6; color: var(--ink-2);
+}
+#lawClose {
+  position: absolute; top: 14px; right: 16px;
+  background: none; border: 0; color: var(--ink-muted);
+  font-size: 22px; line-height: 1; cursor: pointer; padding: 2px 6px;
+}
+#lawClose:hover { color: var(--ink); }
+.calc {
+  margin: 12px 0; padding: 12px 14px; border-radius: 8px;
+  background: rgba(255,255,255,0.035); border: 1px solid var(--hairline);
+}
+.calc label { display: block; font-size: 11px; color: var(--ink-muted); margin-bottom: 6px; }
+.calc input {
+  width: 160px; padding: 6px 9px; font: inherit; font-variant-numeric: tabular-nums;
+  background: var(--plane); color: var(--ink);
+  border: 1px solid var(--hairline); border-radius: 6px;
+}
+.calc output { display: block; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+.calc output b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
 @media (max-width: 900px) {
   #credits { display: none; }
   #legend { width: 220px; left: 12px; bottom: 12px; }
-  #titlebar { left: 12px; top: 12px; }
-  #panel { right: 12px; top: 12px; width: 260px; }
+  #titlebar { left: 12px; top: 12px; max-width: 60vw; }
+  #panel { right: 12px; top: 62px; width: 260px; }
+  #modes { top: auto; bottom: 12px; left: 12px; right: 12px; transform: none; justify-content: space-between; }
+  #modes button { padding: 6px 8px; font-size: 11px; }
+  #legend { bottom: 58px; }
+  .lawBox { padding: 22px 18px 24px; }
 }

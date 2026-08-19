@@ -14,6 +14,44 @@ const ENDPOINT = 'https://lindas.admin.ch/query';
 const SEQ = ['#0d366b', '#184f95', '#256abf', '#2a78d6', '#3987e5', '#6da7ec', '#9ec5f4', '#cde2fb'];
 const STATUS = { 1: '#0ca30c', 2: '#fab219', 3: '#ec835a', 4: '#d03b3b', 5: '#d03b3b' };
 
+// Against normal. One hue below the mean, one above, neutral at the mean. The
+// middle is grey on purpose: a river at its long-term mean is not news.
+const DIV = ['#7a3f19', '#a85f28', '#c8813c', '#dda86d', '#7f7d78', '#8fb6de', '#4d90cc', '#2a6cb0', '#123f77'];
+// Water temperature, 0 to 25 C. The last step is the status red, because 25 C is
+// where GSchV Annex 2 No. 12(4) puts the ceiling for a thermally altered river.
+const TEMP = ['#1d4f86', '#3d7fbc', '#79aad8', '#b9c8bb', '#e0c477', '#dd8f47', '#d03b3b'];
+
+let mode = 'flow';
+let wantMode = null;          // asked for in the hash, applied once its layer is ready
+let glaciers = null;          // {glaciers[], pastRings[], length[], now, past}
+
+const LG = { flow: 'lgFlow', normal: 'lgNormal', temp: 'lgTemp', ice: 'lgIce' };
+const LGTITLE = { flow: 'Discharge', normal: 'Against the long-term mean', temp: 'Water temperature', ice: 'Ice, 1850 and 2023' };
+
+function stepColor(pal, t) {
+  const u = Math.max(0, Math.min(1, t)) * (pal.length - 1);
+  const a = pal[Math.floor(u)], b = pal[Math.min(pal.length - 1, Math.ceil(u))];
+  return mix(a, b, u - Math.floor(u));
+}
+// ratio 1 sits in the middle; the scale is symmetric in log2 out to a quarter and
+// four times the mean, because water is multiplicative and the eye is not.
+const divColor = ratio => stepColor(DIV, 0.5 + Math.log2(Math.max(ratio, 1e-3)) / 4);
+const tempColor = c => stepColor(TEMP, c / 25);
+
+function reachColor(r) {
+  if (mode === 'ice' || mode === 'temp') {
+    if (r.basis === 'none') return { c: '#2b3138', a: 0.26 };
+    return { c: rampColor(r.live), a: r.est ? 0.30 : 0.46 };
+  }
+  if (mode === 'normal') {
+    if (r.basis === 'none' || !r.mean) return { c: '#3a4450', a: 0.30 };
+    return { c: divColor(r.live / r.mean), a: r.est ? 0.72 : 1 };
+  }
+  if (r.basis === 'none') return { c: '#3a4450', a: 0.34 };
+  return { c: rampColor(r.live), a: r.est ? 0.72 : 1 };
+}
+
+
 // discharge in m3/s -> position on the ramp, log scale from 0.05 to 2000
 const QMIN = Math.log10(0.05), QMAX = Math.log10(2000);
 function rampColor(q) {
@@ -78,23 +116,84 @@ async function load() {
   fit();
   applyHash();
   requestAnimationFrame(draw);
+  if (wantMode && wantMode !== 'ice') { setMode(wantMode); wantMode = null; }
+  loadIce();                 // 1.1 MB, so it must not hold up the first frame
   await refresh();
 }
 
+// The ice arrives after the water. Until it does the Ice button stays disabled,
+// because a layer that is not loaded must not look like a layer that is empty.
+async function loadIce() {
+  try {
+    const g = await fetch('data/glaciers.json').then(r => r.json());
+    const P = g.p;
+    const decode = rings => rings.map(([xs, ys]) => {
+      const n = xs.length;
+      const px = new Float64Array(n), py = new Float64Array(n);
+      let x = 0, y = 0, x0 = 1, x1 = 0, y0 = 1, y1 = 0;
+      for (let i = 0; i < n; i++) {
+        x += xs[i]; y += ys[i];
+        px[i] = mercX(x / P); py[i] = mercY(y / P);
+        if (px[i] < x0) x0 = px[i]; if (px[i] > x1) x1 = px[i];
+        if (py[i] < y0) y0 = py[i]; if (py[i] > y1) y1 = py[i];
+      }
+      return { px, py, b: [x0, y0, x1, y1] };
+    });
+    for (const gl of g.glaciers) {
+      gl.rings = decode(gl.r); gl.r = null;
+      gl.b = gl.rings.reduce((a, r) => [Math.min(a[0], r.b[0]), Math.min(a[1], r.b[1]),
+                                        Math.max(a[2], r.b[2]), Math.max(a[3], r.b[3])],
+                             [1, 1, 0, 0]);
+      gl.w = [mercX(gl.c[0]), mercY(gl.c[1])];
+    }
+    g.pastRings = decode(g.pastRings);
+    // The ice does not move between frames, so its geometry is built once, in world
+    // coordinates, and the canvas transform carries it to the screen. Rebuilding
+    // 3,700 polygons sixty times a second would be work for nothing.
+    const toPath = rings => {
+      const path = new Path2D();
+      for (const r of rings) {
+        path.moveTo(r.px[0], r.py[0]);
+        for (let i = 1; i < r.px.length; i++) path.lineTo(r.px[i], r.py[i]);
+        path.closePath();
+      }
+      return path;
+    };
+    g.pathPast = toPath(g.pastRings);
+    g.pathNow = toPath(g.glaciers.flatMap(x => x.rings));
+    for (const x of g.glaciers) x.path = toPath(x.rings);
+    g.byId = new Map(g.length.map(l => [l.id, l]));
+    glaciers = g;
+    document.getElementById('modeIce').disabled = false;
+    if (wantMode === 'ice') { setMode('ice'); wantMode = null; }
+    document.getElementById('iceTotals').innerHTML =
+      `${g.past.count} bodies covered ${g.past.km2.toLocaleString('de-CH')} km&#178; in ${g.past.year}. ` +
+      `${g.now.count} cover ${g.now.km2.toLocaleString('de-CH')} km&#178; in ${g.now.year}. ` +
+      `<b>${(100 * (1 - g.now.km2 / g.past.km2)).toFixed(0)}&#8201;% of the area is gone.</b>`;
+  } catch (e) {
+    document.getElementById('iceTotals').textContent = 'Glacier layer failed to load: ' + e.message;
+  }
+}
+
+// The hash carries the view and the layer, so a link is a citation: this place,
+// this reading, this scale. #lon,lat,scale,layer
 function applyHash() {
-  const m = /^#(-?[\d.]+),(-?[\d.]+),([\d.]+)$/.exec(location.hash);
+  const only = /^#(flow|normal|temp|ice)$/.exec(location.hash);
+  if (only) { wantMode = only[1]; return false; }
+  const m = /^#(-?[\d.]+),(-?[\d.]+),([\d.]+)(?:,(\w+))?$/.exec(location.hash);
   if (!m) return false;
   resize();
   view.k = +m[3];
   view.x = W / 2 - view.k * mercX(+m[1]);
   view.y = H / 2 - view.k * mercY(+m[2]);
+  if (m[4] && LG[m[4]]) wantMode = m[4];
   return true;
 }
 function writeHash() {
   const lon = ((W / 2 - view.x) / view.k) * 360 - 180;
   const wy = (H / 2 - view.y) / view.k;
   const lat = (2 * Math.atan(Math.exp(Math.PI * (1 - 2 * wy))) - Math.PI / 2) * 180 / Math.PI;
-  history.replaceState(null, '', `#${lon.toFixed(4)},${lat.toFixed(4)},${Math.round(view.k)}`);
+  history.replaceState(null, '', `#${lon.toFixed(4)},${lat.toFixed(4)},${Math.round(view.k)},${mode}`);
 }
 
 // ---- live data --------------------------------------------------------------
@@ -211,6 +310,18 @@ function stampText() {
   const t = d.toLocaleString('de-CH', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
   const n = stations.filter(s => s.q !== null && s.q !== undefined).length;
   el.textContent = `${n} gauges, last reading ${t}`;
+
+  const withT = stations.filter(s => s.obs?.temp !== null && s.obs?.temp !== undefined);
+  const c = document.getElementById('tempCount');
+  if (!withT.length) { c.textContent = 'No temperature series in this read.'; return; }
+  const temps = withT.map(s => s.obs.temp).sort((a, b) => a - b);
+  const med = temps[temps.length >> 1];
+  const over = temps.filter(v => v >= 25).length;
+  const warm = temps.filter(v => v >= 20).length;
+  const top = withT.reduce((a, b) => (b.obs.temp > a.obs.temp ? b : a));
+  c.innerHTML = `${withT.length} gauges report temperature. Median ${med.toFixed(1)}&nbsp;&deg;C, ` +
+    `${warm} at or above 20&nbsp;&deg;C, <b>${over} at or above 25&nbsp;&deg;C</b>. ` +
+    `Warmest ${top.obs.temp.toFixed(1)}&nbsp;&deg;C at ${esc(top.name)}.`;
 }
 
 // ---- view -------------------------------------------------------------------
@@ -288,6 +399,29 @@ function draw(ts) {
   ctx.lineWidth = 1;
   ctx.stroke();
 
+  // the ice, under the water. Rivers thread out of it, which is the point.
+  if (mode === 'ice' && glaciers) {
+    ctx.save();
+    ctx.setTransform(dpr * view.k, 0, 0, dpr * view.k, dpr * view.x, dpr * view.y);
+    // 1850 first, in the low colour of the diverging ramp, then 2023 in white on
+    // top. What stays coloured is the ice that has gone.
+    ctx.fillStyle = 'rgba(200,129,60,0.34)';
+    ctx.fill(glaciers.pathPast, 'evenodd');
+    ctx.strokeStyle = 'rgba(200,129,60,0.55)';
+    ctx.lineWidth = 1 / view.k;
+    ctx.stroke(glaciers.pathPast);
+    ctx.fillStyle = '#dce9f8';
+    ctx.globalAlpha = 0.92;
+    ctx.fill(glaciers.pathNow, 'evenodd');
+    ctx.globalAlpha = 1;
+    if (hovered?.kind === 'glacier') {
+      ctx.strokeStyle = '#fab219';
+      ctx.lineWidth = 1.8 / view.k;
+      ctx.stroke(hovered.ref.path);
+    }
+    ctx.restore();
+  }
+
   const minU = minUpland();
   const margin = 60;
 
@@ -296,8 +430,8 @@ function draw(ts) {
     if (r.upland < minU) continue;
     if (!onScreen(r, margin)) continue;
     path(r);
-    if (r.basis === 'none') { ctx.strokeStyle = '#3a4450'; ctx.globalAlpha = 0.34; }
-    else { ctx.strokeStyle = rampColor(r.live); ctx.globalAlpha = r.est ? 0.72 : 1; }
+    const col = reachColor(r);
+    ctx.strokeStyle = col.c; ctx.globalAlpha = col.a;
     ctx.lineWidth = lineWidth(r.live);
     ctx.stroke();
   }
@@ -345,15 +479,20 @@ function draw(ts) {
       const x = sx(mercX(s.lon)), y = sy(mercY(s.lat));
       if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
       const live = s.q !== null && s.q !== undefined;
+      const t = s.obs?.temp;
+      const hasT = t !== null && t !== undefined;
       const d = s.obs?.danger ?? null;
-      const rad = hovered?.kind === 'station' && hovered.ref === s ? 6 : (live ? 3.4 : 2.4);
+      const hot = mode === 'temp' && hasT;
+      const rad = hovered?.kind === 'station' && hovered.ref === s ? 6
+        : hot ? 4.6 : (live ? 3.4 : 2.4);
       ctx.beginPath();
       ctx.arc(x, y, rad, 0, 6.2832);
-      ctx.fillStyle = '#0d0d0d';
-      ctx.globalAlpha = live ? 1 : 0.55;
+      if (hot) { ctx.fillStyle = tempColor(t); ctx.globalAlpha = 1; }
+      else { ctx.fillStyle = '#0d0d0d'; ctx.globalAlpha = mode === 'temp' ? 0.4 : (live ? 1 : 0.55); }
       ctx.fill();
       ctx.lineWidth = 1.5;
-      ctx.strokeStyle = d && d >= 2 ? STATUS[d] : (live ? '#cde2fb' : '#898781');
+      ctx.strokeStyle = hot ? (t >= 25 ? '#ffffff' : 'rgba(13,13,13,0.7)')
+        : d && d >= 2 ? STATUS[d] : (live ? '#cde2fb' : '#898781');
       ctx.stroke();
     }
   }
@@ -420,7 +559,40 @@ cv.addEventListener('wheel', e => {
   window.__hashT = setTimeout(writeHash, 350);
 }, { passive: false });
 
+// Even-odd crossing over every ring of the body, so a nunatak counts as a hole
+// and a hole is not the glacier.
+function inGlacier(g, wx, wy) {
+  if (wx < g.b[0] || wx > g.b[2] || wy < g.b[1] || wy > g.b[3]) return false;
+  let inside = false;
+  for (const r of g.rings) {
+    const n = r.px.length;
+    for (let i = 0, j = n - 1; i < n; j = i++) {
+      if ((r.py[i] > wy) !== (r.py[j] > wy) &&
+          wx < (r.px[j] - r.px[i]) * (wy - r.py[i]) / (r.py[j] - r.py[i]) + r.px[i]) inside = !inside;
+    }
+  }
+  return inside;
+}
+function pickGlacier(mx, my) {
+  if (!glaciers) return null;
+  const wx = (mx - view.x) / view.k, wy = (my - view.y) / view.k;
+  for (const g of glaciers.glaciers) if (inGlacier(g, wx, wy)) return g;
+  // Below a few square kilometres a body is smaller than the cursor at country
+  // view, so the nearest centre inside 9 px stands in for a hit.
+  let best = null, bd = 81;
+  for (const g of glaciers.glaciers) {
+    const dx = sx(g.w[0]) - mx, dy = sy(g.w[1]) - my;
+    const d = dx * dx + dy * dy;
+    if (d < bd) { bd = d; best = g; }
+  }
+  return best;
+}
+
 function pick(mx, my) {
+  if (mode === 'ice') {
+    const g = pickGlacier(mx, my);
+    if (g) { hovered = { kind: 'glacier', ref: g }; tip(mx, my); return; }
+  }
   const R2 = 100;
   let bestS = null, bd = R2;
   for (const s of stations) {
@@ -455,7 +627,12 @@ function fmtQ(q) {
 }
 function tip(mx, my) {
   if (!hovered) { tt.hidden = true; return; }
-  if (hovered.kind === 'station') {
+  if (hovered.kind === 'glacier') {
+    const g = hovered.ref;
+    tt.innerHTML = `<div class="tName">${esc(g.n || 'unnamed glacier ' + g.id)}</div>` +
+      `<div class="tVal">${g.a.toFixed(2)} km&#178; in ${g.y ?? glaciers.now.year}</div>` +
+      `<div class="tEst">${g.a0 !== undefined ? g.a0.toFixed(2) + ' km\u00b2 in 1850' : 'no 1850 body under this identifier'}</div>`;
+  } else if (hovered.kind === 'station') {
     const s = hovered.ref;
     tt.innerHTML = `<div class="tName">${esc(s.name)}</div>` +
       `<div class="tVal">${s.q !== null && s.q !== undefined ? fmtQ(s.q) + ' m³/s' : 'no discharge series'}</div>` +
@@ -483,6 +660,37 @@ function select(h) {
   const N = document.getElementById('panelNote');
   const row = (k, v, u) => `<dt>${k}</dt><dd>${v}${u ? `<span class="unit">${u}</span>` : ''}</dd>`;
 
+  const X = document.getElementById('panelExtra');
+  X.innerHTML = '';
+
+  if (h.kind === 'glacier') {
+    const g = h.ref;
+    T.textContent = g.n || 'Unnamed glacier ' + g.id;
+    let html = row(`Area ${g.y ?? glaciers.now.year}`, g.a.toFixed(3), 'km\u00b2');
+    if (g.a0 !== undefined) {
+      html += row('Area 1850', g.a0.toFixed(3), 'km\u00b2');
+      html += row('Area lost', (100 * (1 - g.a / g.a0)).toFixed(0), '%');
+    }
+    html += row('Length', g.l.toFixed(2), 'km');
+    if (g.mn) html += row('Lowest ice', g.mn, 'm');
+    if (g.mx) html += row('Highest ice', g.mx, 'm');
+    if (g.dl !== undefined) html += row('Tongue since first survey', g.dl.toLocaleString('de-CH'), 'm');
+    if (g.gn) html += row('First gauge downstream', esc(g.gn), '');
+    html += row('SGI identifier', esc(g.id), '');
+    B.innerHTML = html;
+
+    const ser = glaciers.byId.get(g.id);
+    if (ser) X.innerHTML = spark(ser);
+
+    N.innerHTML = `Outlines and areas from the Swiss Glacier Inventory, GLAMOS. ` +
+      (g.a0 !== undefined
+        ? `The 1850 figure is the body that carries the same identifier. Glaciers split as they shrink, so an identifier is a label, not a proof of one body.`
+        : `No 1850 body carries this identifier, so no pair is shown. That is a gap in the join, not a glacier that did not exist.`) +
+      (g.gn ? ` The gauge named is the first BAFU station downstream of the mapped reach nearest the ice. It is a spatial assignment, not a routing model.` : '');
+    panel.hidden = false;
+    return;
+  }
+
   if (h.kind === 'station') {
     const s = h.ref, o = s.obs ?? {};
     T.textContent = s.name;
@@ -494,6 +702,38 @@ function select(h) {
     if (o.danger) html += row('Flood level', `<span class="pill d${o.danger}">${o.danger}</span>`, '');
     html += row('Station', s.id, '');
     B.innerHTML = html;
+    if (o.temp !== null && o.temp !== undefined) {
+      // A reading is one sensor. The nearest gauges that also report temperature are
+      // the cheapest check there is. A whole basin is too coarse for this: the Rhine
+      // system holds an Alpine headwater and a lowland reach in one number. Five
+      // neighbours inside 40 km are close enough to share the weather.
+      const near = stations
+        .filter(x => x !== s && x.lon !== null && x.obs?.temp !== null && x.obs?.temp !== undefined)
+        .map(x => {
+          const dx = (x.lon - s.lon) * Math.cos(s.lat * Math.PI / 180), dy = x.lat - s.lat;
+          return { t: x.obs.temp, km: Math.sqrt(dx * dx + dy * dy) * 111 };
+        })
+        .filter(x => x.km <= 40)
+        .sort((a, b) => a.km - b.km)
+        .slice(0, 5);
+      let extra = '';
+      if (near.length >= 3) {
+        const kin = near.map(x => x.t).sort((a, b) => a - b);
+        const m = kin[kin.length >> 1];
+        const d = o.temp - m;
+        extra = `<p class="${Math.abs(d) >= 4 ? 'flag' : 'aside'}">The ${kin.length} nearest gauges that also
+          report temperature, all inside ${near.at(-1).km.toFixed(0)} km, read ${kin[0].toFixed(1)} to
+          ${kin.at(-1).toFixed(1)}&nbsp;&deg;C, median ${m.toFixed(1)}. This gauge is
+          ${d >= 0 ? '+' : ''}${d.toFixed(1)}&nbsp;&deg;C against them.` +
+          (Math.abs(d) >= 4 ? ' A gap that size is a question about the instrument before it is a question about the river.' : '') + '</p>';
+      }
+      if (o.temp >= 25) {
+        extra += `<p class="flag">At or above the 25&nbsp;&deg;C ceiling that GSchV Annex&nbsp;2 No.&nbsp;12(4)
+          sets for a watercourse whose temperature is altered by heat. The ceiling is tied to that
+          alteration, so this reading raises the question and does not settle it.</p>`;
+      }
+      document.getElementById('panelExtra').innerHTML = extra;
+    }
     N.innerHTML = `Measured by the Federal Office for the Environment. Reported in ${esc(s.unit ?? 'an unstated unit')}` +
       `${s.factor !== 1 ? ', converted to m³/s' : ''}. Snapped ${s.snapKm ?? '?'} km to the nearest river reach. ` +
       `The reading proves what the gauge measured, nothing further downstream.`;
@@ -513,6 +753,26 @@ function select(h) {
   }
   panel.hidden = false;
 }
+// A tongue measured every autumn since the 1880s. Cumulative metres, so the line
+// is where the ice front stands against where it stood at the first survey.
+function spark(ser) {
+  const w = 268, h = 62, pad = 3;
+  const xs = ser.obs.map(o => o[0]), ys = ser.obs.map(o => o[1]);
+  const x0 = xs[0], x1 = xs.at(-1);
+  const y0 = Math.min(0, ...ys), y1 = Math.max(0, ...ys);
+  const X = v => pad + (w - 2 * pad) * (v - x0) / Math.max(1, x1 - x0);
+  const Y = v => pad + (h - 2 * pad) * (1 - (v - y0) / Math.max(1, y1 - y0));
+  const d = ser.obs.map((o, i) => `${i ? 'L' : 'M'}${X(o[0]).toFixed(1)},${Y(o[1]).toFixed(1)}`).join('');
+  const zero = Y(0).toFixed(1);
+  return `<figure class="spark">
+    <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Cumulative length change ${x0} to ${x1}">
+      <line x1="0" y1="${zero}" x2="${w}" y2="${zero}" class="sparkZero"/>
+      <path d="${d}" class="sparkLine"/>
+    </svg>
+    <figcaption>Tongue position, ${x0} to ${x1}, ${ser.obs.length} surveys. GLAMOS length change.</figcaption>
+  </figure>`;
+}
+
 document.getElementById('panelClose').onclick = () => { panel.hidden = true; selected = null; };
 document.getElementById('refresh').onclick = refresh;
 document.getElementById('toggleStations').onchange = e => showStations = e.target.checked;
@@ -525,5 +785,66 @@ window.__diag = () => {
   for (const r of reaches) t[r.basis]++;
   return { reaches: reaches.length, ...t, gauges: stations.filter(s => s.q !== null && s.q !== undefined).length };
 };
+
+// ---- layers -----------------------------------------------------------------
+// One control, four readings of the same country. Switching a layer must never
+// change a number; it changes which number the colour carries.
+function setMode(m) {
+  if (m === 'ice' && !glaciers) return;
+  mode = m;
+  for (const b of document.querySelectorAll('#modes button')) b.classList.toggle('on', b.dataset.mode === m);
+  for (const [k, id] of Object.entries(LG)) document.getElementById(id).hidden = k !== m;
+  document.getElementById('legendTitle').textContent = LGTITLE[m];
+  if (selected && selected.kind === 'glacier' && m !== 'ice') { panel.hidden = true; selected = null; }
+}
+for (const b of document.querySelectorAll('#modes button')) b.onclick = () => setMode(b.dataset.mode);
+
+// ---- Art. 31(1) GSchG -------------------------------------------------------
+// The statute states a base figure at the foot of each band and a rate above it.
+// The rates are applied as written, not interpolated between the bases, because the
+// two do not always agree: the rate from 2500 l/s reaches 2497.5 at 10 000 l/s where
+// the statute states 2500. Each band therefore starts from its own stated base.
+//        [ceiling of band, base l/s, per this many l/s of Q347, add this many l/s]
+const RESIDUAL = [
+  [60, 50, 0, 0],
+  [160, 50, 10, 8],
+  [500, 130, 10, 4.4],
+  [2500, 280, 100, 31],
+  [10000, 900, 100, 21.3],
+  [60000, 2500, 1000, 150],
+];
+function minResidual(q) {
+  if (!isFinite(q) || q <= 0) return null;         // no permanent flow, Art. 4(i)
+  if (q >= 60000) return 10000;                    // the table stops here
+  let floor = 0;
+  for (const [ceil, base, per, add] of RESIDUAL) {
+    if (q <= ceil) return per ? base + ((q - floor) / per) * add : base;
+    floor = ceil;
+  }
+  return 10000;
+}
+const q347 = document.getElementById('q347');
+const q347out = document.getElementById('q347out');
+function calc() {
+  const q = parseFloat(q347.value);
+  const r = minResidual(q);
+  if (r === null) { q347out.innerHTML = 'Enter a Q<sub>347</sub> above zero. At zero there is no permanent flow and Art. 31 does not apply.'; return; }
+  const pct = (100 * r / q).toFixed(0);
+  q347out.innerHTML = `Minimum residual flow <b>${r.toLocaleString('de-CH', { maximumFractionDigits: 1 })} l/s</b>` +
+    ` (${(r / 1000).toFixed(3)} m&#179;/s), which is ${pct}&#8201;% of Q<sub>347</sub>.` +
+    (q > 60000 ? ' Q<sub>347</sub> is above 60 000 l/s, so the table is at its ceiling.' : '');
+}
+q347.addEventListener('input', calc);
+calc();
+
+const lawBox = document.getElementById('law');
+document.getElementById('openLaw').onclick = () => { lawBox.hidden = false; };
+document.getElementById('lawClose').onclick = () => { lawBox.hidden = true; };
+lawBox.addEventListener('click', e => { if (e.target === lawBox) lawBox.hidden = true; });
+window.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (!lawBox.hidden) lawBox.hidden = true;
+  else if (!panel.hidden) { panel.hidden = true; selected = null; }
+});
 
 load();

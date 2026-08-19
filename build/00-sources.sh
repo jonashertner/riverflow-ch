@@ -36,3 +36,35 @@ npx -y mapshaper ne_countries/ne_10m_admin_0_countries.shp -filter '"CHE"===ADM0
   -o "$D/border.json" format=geojson precision=0.00001
 
 echo "done. now run: node build/01-stations.mjs && node build/02-network.mjs && node build/03-context.mjs"
+
+# ---- glaciers ---------------------------------------------------------------
+# GLAMOS, the Swiss Glacier Monitoring Network. Every product carries a DOI.
+# Licence: CC BY 4.0 on the DOI index; the length-change file header adds
+# "scientific and non-commercial use". Both statements are reproduced on the page.
+G=/tmp/gl
+mkdir -p "$G"; cd "$G"
+for f in inventory/inventory_sgi1850_r1992 \
+         inventory/inventory_sgi2023_r2026 \
+         lengthchange/lengthchange_2025_r2025; do
+  n=$(basename $f)
+  [ -f "$n.zip" ] || curl -fL -o "$n.zip" "https://doi.glamos.ch/data/$f.zip"
+  mkdir -p "x/$n"; unzip -oq "$n.zip" -d "x/$n"
+done
+
+# The inventories are in CH1903+/LV95. mapshaper cannot read the Hotine oblique
+# Mercator out of the .prj, so the source frame is given explicitly.
+LV95='+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs'
+
+npx -y mapshaper x/inventory_sgi2023_r2026/SGI_2023_glaciers.shp \
+  -proj from="$LV95" wgs84 \
+  -filter-fields sgi-id,name,area_km2,length_km,masl_min,masl_max,year_acq \
+  -simplify 6% keep-shapes \
+  -o "$G/g2023.json" format=geojson precision=0.00001
+
+npx -y mapshaper x/inventory_sgi1850_r1992/SGI_1850.shp \
+  -proj from="$LV95" wgs84 \
+  -filter-fields SGI,Shape_Area \
+  -simplify 5% keep-shapes \
+  -o "$G/g1850.json" format=geojson precision=0.00001
+
+echo "glaciers ready. now run: node build/04-glaciers.mjs"
