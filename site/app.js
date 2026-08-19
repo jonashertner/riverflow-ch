@@ -24,9 +24,23 @@ const TEMP = ['#1d4f86', '#3d7fbc', '#79aad8', '#b9c8bb', '#e0c477', '#dd8f47', 
 let mode = 'flow';
 let wantMode = null;          // asked for in the hash, applied once its layer is ready
 let glaciers = null;          // {glaciers[], pastRings[], length[], now, past}
+let users = null;             // {hydro[], abstraction[], npp[], ara[]}, each point in world coords
+const useOn = { hydro: true, abstraction: true, npp: true, ara: true };
 
-const LG = { flow: 'lgFlow', normal: 'lgNormal', temp: 'lgTemp', ice: 'lgIce' };
-const LGTITLE = { flow: 'Discharge', normal: 'Against the long-term mean', temp: 'Water temperature', ice: 'Ice, 1850 and 2023' };
+const LG = { flow: 'lgFlow', normal: 'lgNormal', temp: 'lgTemp', ice: 'lgIce', use: 'lgUse' };
+const LGTITLE = { flow: 'Discharge', normal: 'Against the long-term mean', temp: 'Water temperature',
+                  ice: 'Ice, 1850 and 2023', use: 'Who takes the water' };
+
+// The use layer. A filled disc carries a quantity; an open ring carries a place and
+// nothing more. That is the whole grammar, and it is forced by the sources: of the
+// four federal registers only the hydropower statistic yields a discharge, and even
+// that one yields it by arithmetic rather than by measurement.
+const USE = {
+  hydro:       { c: '#f0b429', label: 'Hydropower plant' },
+  abstraction: { c: '#e07a5f', label: 'Abstraction, residual-flow register' },
+  npp:         { c: '#d03b3b', label: 'Nuclear power station' },
+  ara:         { c: '#6fae7f', label: 'Wastewater treatment plant' },
+};
 
 function stepColor(pal, t) {
   const u = Math.max(0, Math.min(1, t)) * (pal.length - 1);
@@ -76,6 +90,10 @@ const mercX = lon => (lon + 180) / 360;
 // ---- state ------------------------------------------------------------------
 const cv = document.getElementById('map');
 const ctx = cv.getContext('2d');
+const fcv = document.getElementById('flow');
+const fctx = fcv.getContext('2d');
+let dirty = true;                     // base map needs a redraw
+const invalidate = () => { dirty = true; clearFlow(); };
 const view = { k: 1, x: 0, y: 0 };          // k = pixels per world unit
 let dpr = 1, W = 0, H = 0, K0 = 0;   // K0 = the scale at which the whole country fits
 
@@ -88,6 +106,8 @@ let liveStamp = null;
 let hovered = null;        // {kind:'reach'|'station', ref}
 let selected = null;
 let motion = true, showStations = true;
+let particles = [], pool = [], poolWeight = 0, allocAt = 0;
+const REDUCED = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 let phase = 0;
 
 // ---- load -------------------------------------------------------------------
@@ -108,16 +128,23 @@ async function load() {
       x += r.x[i]; y += r.y[i];
       px[i] = mercX(x / P); py[i] = mercY(y / P);
     }
-    return { id: r.i, next: r.n, main: r.m, ord: r.o, upland: r.u, mean: r.d, px, py, live: r.d, est: true, basis: 'none' };
+    const cum = new Float64Array(n);
+    for (let i = 1; i < n; i++) {
+      const dx = px[i] - px[i - 1], dy = py[i] - py[i - 1];
+      cum[i] = cum[i - 1] + Math.hypot(dx, dy);
+    }
+    return { id: r.i, next: r.n, main: r.m, ord: r.o, upland: r.u, mean: r.d,
+             px, py, cum, len: cum[n - 1], live: r.d, est: true, basis: 'none' };
   });
   byId = new Map(reaches.map((r, i) => [r.id, i]));
   stations = st.stations;
   for (const s of stations) if (s.reach !== undefined) gaugeByReach.set(s.reach, s);
   fit();
   applyHash();
-  requestAnimationFrame(draw);
+  requestAnimationFrame(frame);
   if (wantMode && wantMode !== 'ice') { setMode(wantMode); wantMode = null; }
   loadIce();                 // 1.1 MB, so it must not hold up the first frame
+  loadUsers();
   await refresh();
 }
 
@@ -175,10 +202,100 @@ async function loadIce() {
   }
 }
 
+// Who takes the water. Four registers, loaded after the rivers because none of them
+// is needed to read a gauge. Every point is projected once, here, and the canvas
+// transform carries it to the screen.
+async function loadUsers() {
+  try {
+    const u = await fetch('data/users.json').then(r => r.json());
+    for (const k of Object.keys(USE)) {
+      for (const p of u[k]) { p.kind = k; p.wx = mercX(p.x); p.wy = mercY(p.y); }
+    }
+    users = u;
+    document.getElementById('modeUse').disabled = false;
+    if (wantMode === 'use') { setMode('use'); wantMode = null; }
+    const withQ = u.hydro.filter(h => h.q !== null).length;
+    document.getElementById('useCount').innerHTML =
+      `${u.abstraction.length.toLocaleString('de-CH')} abstractions, ${u.hydro.length} hydropower plants ` +
+      `(${withQ} with a derivable design discharge), ${u.npp.length} nuclear stations, ` +
+      `${u.ara.length} treatment plants.`;
+  } catch (e) {
+    document.getElementById('useCount').textContent = 'Use layer failed to load: ' + e.message;
+  }
+}
+
+// Radius in pixels. Hydropower goes by derived design discharge and treatment plants
+// by size in population equivalents, both on a log scale because water is
+// multiplicative. The two registers with no quantity get one fixed size, so that
+// nothing on the map can be read as a volume that is not one.
+function useRadius(p) {
+  if (p.kind === 'hydro') return p.q === null ? 2.2 : 2 + 2.6 * Math.log10(1 + p.q);
+  if (p.kind === 'ara') return p.e ? 1.6 + 1.5 * Math.log10(1 + p.e / 100) : 2.2;
+  if (p.kind === 'npp') return 7;
+  return 2.6;
+}
+const useHasQuantity = p => (p.kind === 'hydro' && p.q !== null) || (p.kind === 'ara' && !!p.e);
+
+function drawUsers() {
+  if (!users) return;
+  const z = Math.min(2.2, Math.max(0.85, Math.sqrt(zoom())));
+  for (const k of ['ara', 'abstraction', 'hydro', 'npp']) {
+    if (!useOn[k]) continue;
+    const col = USE[k].c;
+    for (const p of users[k]) {
+      const x = sx(p.wx), y = sy(p.wy);
+      if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
+      const on = hovered?.kind === 'use' && hovered.ref === p;
+      const r = useRadius(p) * z * (on ? 1.5 : 1);
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, 6.2832);
+      if (useHasQuantity(p)) {
+        ctx.globalAlpha = on ? 1 : 0.82;
+        ctx.fillStyle = col;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.lineWidth = 0.8;
+        ctx.strokeStyle = 'rgba(13,13,13,0.85)';
+        ctx.stroke();
+      } else {
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#0d0d0d';
+        ctx.fill();
+        ctx.lineWidth = on ? 2.2 : 1.4;
+        ctx.strokeStyle = col;
+        ctx.stroke();
+        // Four nuclear sites among three thousand points. A second ring, so that
+        // the eye finds them without the colour having to carry the whole load.
+        if (k === 'npp') {
+          ctx.beginPath();
+          ctx.arc(x, y, r * 0.5, 0, 6.2832);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+function pickUser(mx, my) {
+  if (!users) return null;
+  let best = null, bd = Infinity;
+  const z = Math.min(2.2, Math.max(0.85, Math.sqrt(zoom())));
+  for (const k of ['npp', 'hydro', 'abstraction', 'ara']) {
+    if (!useOn[k]) continue;
+    for (const p of users[k]) {
+      const dx = sx(p.wx) - mx, dy = sy(p.wy) - my;
+      const d = Math.hypot(dx, dy) - useRadius(p) * z;
+      if (d < 5 && d < bd) { bd = d; best = p; }
+    }
+  }
+  return best;
+}
+
 // The hash carries the view and the layer, so a link is a citation: this place,
 // this reading, this scale. #lon,lat,scale,layer
 function applyHash() {
-  const only = /^#(flow|normal|temp|ice)$/.exec(location.hash);
+  const only = /^#(flow|normal|temp|ice|use)$/.exec(location.hash);
   if (only) { wantMode = only[1]; return false; }
   const m = /^#(-?[\d.]+),(-?[\d.]+),([\d.]+)(?:,(\w+))?$/.exec(location.hash);
   if (!m) return false;
@@ -246,6 +363,7 @@ async function refresh() {
     liveStamp = newest;
     applyLive();
     stampText();
+    invalidate(); dirtyAlloc = true;
   } catch (e) {
     document.getElementById('stamp').textContent = 'Live read failed: ' + e.message + '. Showing long-term mean.';
   } finally {
@@ -341,8 +459,11 @@ function fit() {
 function resize() {
   dpr = Math.min(2, window.devicePixelRatio || 1);
   W = cv.clientWidth; H = cv.clientHeight;
-  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  for (const [c, x] of [[cv, ctx], [fcv, fctx]]) {
+    c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
+    x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  invalidate();
 }
 const sx = wx => wx * view.k + view.x;
 const sy = wy => wy * view.k + view.y;
@@ -365,10 +486,21 @@ function lineWidth(q) {
   return Math.max(0.5, w * s);
 }
 
-let __frames = 0, __t0 = 0;
-function draw(ts) {
-  if (!__t0) __t0 = ts || 0; __frames++;
-  if (motion) phase = (ts || 0) / 1000;
+let __frames = 0, __t0 = 0, __last = 0;
+
+// The base map and the current live on separate canvases. The base redraws only
+// when the view or the data changes; the current runs every frame over the top.
+function frame(ts) {
+  if (!__t0) __t0 = ts || 0;
+  __frames++;
+  const dt = Math.min(0.05, ((ts || 0) - __last) / 1000 || 0.016);
+  __last = ts || 0;
+  if (dirty) { drawBase(); dirty = false; }
+  if (motion && !REDUCED) flowStep(dt, ts || 0);
+  requestAnimationFrame(frame);
+}
+
+function drawBase() {
   ctx.fillStyle = '#0d0d0d';
   ctx.fillRect(0, 0, W, H);
   ctx.lineCap = 'round';
@@ -399,69 +531,22 @@ function draw(ts) {
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // the ice, under the water. Rivers thread out of it, which is the point.
-  if (mode === 'ice' && glaciers) {
-    ctx.save();
-    ctx.setTransform(dpr * view.k, 0, 0, dpr * view.k, dpr * view.x, dpr * view.y);
-    // 1850 first, in the low colour of the diverging ramp, then 2023 in white on
-    // top. What stays coloured is the ice that has gone.
-    ctx.fillStyle = 'rgba(200,129,60,0.34)';
-    ctx.fill(glaciers.pathPast, 'evenodd');
-    ctx.strokeStyle = 'rgba(200,129,60,0.55)';
-    ctx.lineWidth = 1 / view.k;
-    ctx.stroke(glaciers.pathPast);
-    ctx.fillStyle = '#dce9f8';
-    ctx.globalAlpha = 0.92;
-    ctx.fill(glaciers.pathNow, 'evenodd');
-    ctx.globalAlpha = 1;
-    if (hovered?.kind === 'glacier') {
-      ctx.strokeStyle = '#fab219';
-      ctx.lineWidth = 1.8 / view.k;
-      ctx.stroke(hovered.ref.path);
-    }
-    ctx.restore();
-  }
-
   const minU = minUpland();
   const margin = 60;
 
-  // pass 1: the body of the water
   for (const r of reaches) {
     if (r.upland < minU) continue;
     if (!onScreen(r, margin)) continue;
     path(r);
-    const col = reachColor(r);
-    ctx.strokeStyle = col.c; ctx.globalAlpha = col.a;
+    if (r.basis === 'none') { ctx.strokeStyle = '#3a4450'; ctx.globalAlpha = 0.34; }
+    else { ctx.strokeStyle = rampColor(r.live); ctx.globalAlpha = r.est ? 0.72 : 1; }
+    // Under the use layer the water is context, not the reading, so it is dimmed.
+    // It is dimmed, not removed: a plant means nothing without the river it stands on.
+    if (mode === 'use') ctx.globalAlpha *= 0.5;
     ctx.lineWidth = lineWidth(r.live);
     ctx.stroke();
   }
 
-  // pass 2: motion downstream. Vertex order is downstream, so a shrinking dash
-  // offset carries the glint with the current. Short glint, long gap: the river
-  // must keep its colour, so this pass stays thin and faint.
-  if (motion) {
-    ctx.lineCap = 'butt';
-    for (const r of reaches) {
-      if (r.basis === 'none') continue;
-      if (r.upland < Math.max(minU, 20)) continue;
-      if (!onScreen(r, margin)) continue;
-      const w = lineWidth(r.live);
-      if (w < 1.6) continue;
-      const glint = Math.max(9, w * 2.2);
-      const speed = 14 + 30 * Math.min(1, Math.log10(1 + r.live) / 3);
-      path(r);
-      ctx.strokeStyle = '#e8f2ff';
-      ctx.globalAlpha = r.est ? 0.07 : 0.20;
-      ctx.lineWidth = Math.min(w * 0.34, 2.4);
-      ctx.setLineDash([glint, glint * 5]);
-      ctx.lineDashOffset = -phase * speed * Math.max(0.5, Math.min(4, zoom()));
-      ctx.stroke();
-    }
-    ctx.setLineDash([]);
-    ctx.lineCap = 'round';
-  }
-
-  // pass 3: the hovered reach
   if (hovered?.kind === 'reach') {
     const r = hovered.ref;
     path(r);
@@ -471,35 +556,123 @@ function draw(ts) {
     ctx.stroke();
   }
 
-  // pass 4: gauges
-  if (showStations) {
+  if (mode === 'use') drawUsers();
+
+  if (showStations && mode !== 'use') {
     ctx.globalAlpha = 1;
     for (const s of stations) {
       if (s.lon === null) continue;
       const x = sx(mercX(s.lon)), y = sy(mercY(s.lat));
       if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
       const live = s.q !== null && s.q !== undefined;
-      const t = s.obs?.temp;
-      const hasT = t !== null && t !== undefined;
       const d = s.obs?.danger ?? null;
-      const hot = mode === 'temp' && hasT;
-      const rad = hovered?.kind === 'station' && hovered.ref === s ? 6
-        : hot ? 4.6 : (live ? 3.4 : 2.4);
+      const rad = hovered?.kind === 'station' && hovered.ref === s ? 6 : (live ? 3.4 : 2.4);
       ctx.beginPath();
       ctx.arc(x, y, rad, 0, 6.2832);
-      if (hot) { ctx.fillStyle = tempColor(t); ctx.globalAlpha = 1; }
-      else { ctx.fillStyle = '#0d0d0d'; ctx.globalAlpha = mode === 'temp' ? 0.4 : (live ? 1 : 0.55); }
+      ctx.fillStyle = '#0d0d0d';
+      ctx.globalAlpha = live ? 1 : 0.55;
       ctx.fill();
       ctx.lineWidth = 1.5;
-      ctx.strokeStyle = hot ? (t >= 25 ? '#ffffff' : 'rgba(13,13,13,0.7)')
-        : d && d >= 2 ? STATUS[d] : (live ? '#cde2fb' : '#898781');
+      ctx.strokeStyle = d && d >= 2 ? STATUS[d] : (live ? '#cde2fb' : '#898781');
       ctx.stroke();
     }
   }
-
   ctx.globalAlpha = 1;
-  requestAnimationFrame(draw);
 }
+
+// ---- the current ------------------------------------------------------------
+// Particles ride the reaches in vertex order, which is downstream, and cross into
+// NEXT_DOWN at the end of a reach. So a drop entering the Lonza leaves down the
+// Rhone. Speed follows discharge; the network does the routing.
+const PARTICLE_BUDGET = 3200;
+
+function clearFlow() { fctx.clearRect(0, 0, W, H); }
+
+function allocate() {
+  pool = []; poolWeight = 0;
+  const minU = minUpland();
+  for (let i = 0; i < reaches.length; i++) {
+    const r = reaches[i];
+    if (r.basis === 'none') continue;
+    if (r.upland < Math.max(minU, 8)) continue;
+    if (!onScreen(r, 40)) continue;
+    if (r.len <= 0) continue;
+    // weight by how much water and how much of it is on screen
+    const w = Math.pow(Math.max(r.live, 0.02), 0.32) * r.len * view.k;
+    pool.push({ i, w: poolWeight += w });
+  }
+  const n = pool.length ? PARTICLE_BUDGET : 0;
+  particles = new Array(n);
+  for (let k = 0; k < n; k++) particles[k] = spawn({}, true);
+}
+
+function pickReach() {
+  const t = Math.random() * poolWeight;
+  let lo = 0, hi = pool.length - 1;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (pool[m].w < t) lo = m + 1; else hi = m; }
+  return pool[lo].i;
+}
+
+function spawn(p, anywhere) {
+  p.r = pickReach();
+  p.t = anywhere ? Math.random() * reaches[p.r].len : 0;
+  p.age = 0;
+  return p;
+}
+
+// speed in world units per second: a log of discharge, so the Rhine outruns a brook
+// without the brook standing still
+function speedOf(r) { return (2.4e-5 + 5.2e-5 * Math.log10(1 + r.live)) * Math.min(3, Math.max(0.35, zoom())); }
+
+function posOn(r, t) {
+  const c = r.cum;
+  let lo = 0, hi = c.length - 1;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (c[m] < t) lo = m + 1; else hi = m; }
+  const i = Math.max(1, lo);
+  const seg = c[i] - c[i - 1] || 1;
+  const f = (t - c[i - 1]) / seg;
+  return [r.px[i - 1] + (r.px[i] - r.px[i - 1]) * f, r.py[i - 1] + (r.py[i] - r.py[i - 1]) * f];
+}
+
+function flowStep(dt, ts) {
+  if (ts - allocAt > 400 && dirtyAlloc) { allocate(); allocAt = ts; dirtyAlloc = false; }
+  if (!particles.length) return;
+
+  // fade the previous frame instead of clearing it: that is the trail
+  fctx.globalCompositeOperation = 'destination-out';
+  fctx.fillStyle = 'rgba(0,0,0,0.14)';
+  fctx.fillRect(0, 0, W, H);
+  fctx.globalCompositeOperation = 'source-over';
+
+  fctx.lineCap = 'round';
+  for (const p of particles) {
+    let r = reaches[p.r];
+    p.t += speedOf(r) * dt;
+    p.age += dt;
+    let guard = 0;
+    while (p.t > r.len && guard++ < 4) {
+      const ni = byId.get(r.next);
+      if (ni === undefined || reaches[ni].basis === 'none') { spawn(p, true); r = reaches[p.r]; break; }
+      p.t -= r.len; p.r = ni; r = reaches[ni];
+    }
+    if (p.age > 26) { spawn(p, true); r = reaches[p.r]; }
+
+    const [wx, wy] = posOn(r, Math.min(p.t, r.len));
+    const x = sx(wx), y = sy(wy);
+    if (x < -30 || y < -30 || x > W + 30 || y > H + 30) continue;
+    const w = lineWidth(r.live);
+    fctx.globalAlpha = (r.est ? 0.34 : 0.7) * Math.min(1, p.age * 3) * (mode === 'use' ? 0.22 : 1);
+    fctx.strokeStyle = '#eaf4ff';
+    fctx.lineWidth = Math.max(0.7, Math.min(2.6, w * 0.42));
+    const [bx, by] = posOn(r, Math.max(0, Math.min(p.t, r.len) - speedOf(r) * dt * 9));
+    fctx.beginPath();
+    fctx.moveTo(sx(bx), sy(by));
+    fctx.lineTo(x, y);
+    fctx.stroke();
+  }
+  fctx.globalAlpha = 1;
+}
+let dirtyAlloc = true;
 
 // HydroRIVERS is traced from a 15 arc-second grid, so its polylines carry the
 // staircase of the raster. Rounding the interior corners with a quadratic through
@@ -537,6 +710,7 @@ cv.addEventListener('pointermove', e => {
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
     if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
     view.x = drag.vx + dx; view.y = drag.vy + dy;
+    invalidate(); dirtyAlloc = true;
     return;
   }
   pick(e.clientX, e.clientY);
@@ -555,6 +729,7 @@ cv.addEventListener('wheel', e => {
   view.x = e.clientX - (e.clientX - view.x) * s;
   view.y = e.clientY - (e.clientY - view.y) * s;
   view.k = k2;
+  invalidate(); dirtyAlloc = true;
   clearTimeout(window.__hashT);
   window.__hashT = setTimeout(writeHash, 350);
 }, { passive: false });
@@ -593,15 +768,28 @@ function pick(mx, my) {
     const g = pickGlacier(mx, my);
     if (g) { hovered = { kind: 'glacier', ref: g }; tip(mx, my); return; }
   }
+  if (mode === 'use') {
+    const u = pickUser(mx, my);
+    if (u) {
+      if (hovered?.ref !== u) dirty = true;
+      hovered = { kind: 'use', ref: u }; tip(mx, my); return;
+    }
+    if (hovered?.kind === 'use') { hovered = null; dirty = true; }
+  }
+
   const R2 = 100;
   let bestS = null, bd = R2;
   for (const s of stations) {
+    if (mode === 'use') break;        // the gauges are not drawn under this layer
     if (s.lon === null) continue;
     const dx = sx(mercX(s.lon)) - mx, dy = sy(mercY(s.lat)) - my;
     const d = dx * dx + dy * dy;
     if (d < bd) { bd = d; bestS = s; }
   }
-  if (bestS) { hovered = { kind: 'station', ref: bestS }; tip(mx, my); return; }
+  if (bestS) {
+    if (hovered?.ref !== bestS) dirty = true;
+    hovered = { kind: 'station', ref: bestS }; tip(mx, my); return;
+  }
 
   let bestR = null, brd = 64;
   const minU = minUpland();
@@ -613,7 +801,9 @@ function pick(mx, my) {
       if (d < brd) { brd = d; bestR = r; }
     }
   }
+  const was = hovered?.ref;
   hovered = bestR ? { kind: 'reach', ref: bestR } : null;
+  if (hovered?.ref !== was) dirty = true;
   tip(mx, my);
 }
 
@@ -632,6 +822,16 @@ function tip(mx, my) {
     tt.innerHTML = `<div class="tName">${esc(g.n || 'unnamed glacier ' + g.id)}</div>` +
       `<div class="tVal">${g.a.toFixed(2)} km&#178; in ${g.y ?? glaciers.now.year}</div>` +
       `<div class="tEst">${g.a0 !== undefined ? g.a0.toFixed(2) + ' km\u00b2 in 1850' : 'no 1850 body under this identifier'}</div>`;
+  } else if (hovered.kind === 'use') {
+    const p = hovered.ref;
+    const line =
+      p.kind === 'hydro' ? (p.q !== null ? fmtQ(p.q) + ' m³/s at full load, derived' : 'no head in the register')
+      : p.kind === 'ara' ? (p.e ? p.e.toLocaleString('de-CH') + ' population equivalents' : 'size not stated')
+      : p.kind === 'npp' ? 'cooling water not in any federal dataset'
+      : 'no quantity in the register';
+    tt.innerHTML = `<div class="tName">${esc(p.n ?? ('Abstraction ' + (p.r ?? 'without a number')))}</div>` +
+      `<div class="tVal">${esc(line)}</div>` +
+      `<div class="tEst">${esc(USE[p.kind].label)}${p.w ? ' &#183; ' + esc(p.w) : ''}${p.v ? ' &#183; ' + esc(p.v) : ''}</div>`;
   } else if (hovered.kind === 'station') {
     const s = hovered.ref;
     tt.innerHTML = `<div class="tName">${esc(s.name)}</div>` +
@@ -687,6 +887,86 @@ function select(h) {
         ? `The 1850 figure is the body that carries the same identifier. Glaciers split as they shrink, so an identifier is a label, not a proof of one body.`
         : `No 1850 body carries this identifier, so no pair is shown. That is a gap in the join, not a glacier that did not exist.`) +
       (g.gn ? ` The gauge named is the first BAFU station downstream of the mapped reach nearest the ice. It is a spatial assignment, not a routing model.` : '');
+    panel.hidden = false;
+    return;
+  }
+
+  if (h.kind === 'use') {
+    const p = h.ref;
+    let html = '', note = '';
+    if (p.kind === 'hydro') {
+      T.textContent = p.n;
+      html += row('Place', esc(p.l || '\u2014') + (p.c ? ', ' + esc(p.c) : ''), '');
+      html += row('Type', esc(p.t), '');
+      if (p.s) html += row('Status', esc(p.s), '');
+      if (p.b) html += row('In service since', p.b, '');
+      if (p.h) html += row('Head', p.h.toLocaleString('de-CH'), 'm');
+      if (p.p) html += row('Turbine capacity', p.p.toLocaleString('de-CH'), 'MW');
+      if (p.e) html += row('Expected production', p.e.toLocaleString('de-CH'), 'GWh/a');
+      html += row('Design discharge, derived', p.q === null ? '\u2014' : fmtQ(p.q), 'm³/s');
+      note = p.q === null
+        ? `The register gives no head for this plant, so no discharge can be derived from it.`
+        : `<b>Derived, not measured.</b> WASTA gives capacity and head but no water quantity, so the
+           figure is P divided by \u03c1gH\u03b7, with \u03b7 taken at 0.85 for the whole machine. One check:
+           at Rheinfelden the arithmetic gives 1&#8201;621&nbsp;m³/s where the plant states it can take
+           1&#8201;500 at the same 100&nbsp;MW, so the method runs about eight per cent high there and 0.85
+           is a little generous for a low head. Treat every figure here as an order of magnitude with a
+           plausible first digit, and take the design discharge from the concession before you rely on it.` +
+          (p.t === 'Laufkraftwerk'
+            ? ` A run-of-river plant passes the water on: it uses the river without consuming it, and the
+               question it raises is the regime, not the volume.`
+            : ` This is a storage or pumped-storage plant. The water it turbines is released from a
+               reservoir and often comes from another catchment, so the figure does not describe an
+               abstraction from the reach beside it.`);
+    } else if (p.kind === 'abstraction') {
+      T.textContent = 'Abstraction ' + (p.r ?? 'without a number');
+      html += row('Watercourse', esc(p.w || '\u2014'), '');
+      html += row('Canton', esc(p.c || '\u2014'), '');
+      html += row('Quantity', 'not in the register', '');
+      if (p.r) html += row('Cantonal report',
+        `<a href="https://www.bafu-daten.ch/wasser/restwasser/data/data/er/de/${encodeURIComponent(p.r.replace(/-/g, ''))}.pdf" target="_blank" rel="noopener">${esc(p.r)} (PDF)</a>`, '');
+      note = `From the federal residual-flow map, the cantonal inventory of existing abstractions under
+        GSchG Art. 80 ff. It carries the place, the watercourse and, where the canton filed one, the
+        report. It carries no volume and no Q<sub>347</sub>, so the Art. 31 calculator cannot be run
+        off this point. <b>The federal data state stands at 1 January 2004.</b> A licence granted, changed
+        or restored since then is not in it.` +
+        (p.r ? ' The report is the cantonal assessment, and it is where the figures are.'
+             : ' This entry carries no report number, so no federal report is linked. That is a gap in the filing, not a finding that the abstraction is unlicensed.');
+    } else if (p.kind === 'npp') {
+      T.textContent = p.n;
+      html += row('Operator', esc(p.o || '\u2014'), '');
+      html += row('Cooling water', 'not published as open data', '');
+      note = `The federal dataset gives the site and the operator. It gives no cooling-water volume and
+        no thermal load, and neither figure is published in any open federal series. They sit in the
+        cantonal concession and in the operator's own environmental reporting. Cooling is where a heat
+        question meets a water question: GSchV Annex 2 No. 12(4) governs the alteration, and the
+        temperature layer of this map shows only what the gauges read.`;
+    } else {
+      T.textContent = p.n;
+      html += row('Place', esc(p.o || '\u2014') + (p.c ? ', ' + esc(p.c) : ''), '');
+      html += row('Receiving water', esc(p.v || '\u2014'), '');
+      if (p.e) html += row('Size', p.e.toLocaleString('de-CH'), 'population equivalents');
+      html += row('Effluent against the receiving water at Q<sub>347</sub>',
+                  p.q === null ? 'not stated' : p.q.toFixed(1), '%');
+      note = `The other direction: treated wastewater going back in. The figure is the plant's discharge
+        against the receiving water at Q<sub>347</sub>, its low-flow reference, so it is a ratio and not
+        a share of a whole: it passes 100 % where the plant puts in more than the brook carries at low
+        flow. <b>From a survey of 2011, federal data state 1 January 2014</b>, taken before the fourth
+        treatment stage was built out. A high ratio is not a breach of anything. It is the measure of how
+        little clean water is left to dilute with, and it is the condition under which every limit value
+        in Annex 2 of the Waters Protection Ordinance has to hold.`;
+      if (p.k === 'See') note += ` This plant discharges to a lake, so no low-flow ratio is given for it:
+        the reference is a flowing water and a lake is not one.`;
+      if (p.k === 'Versickern') note += ` This plant infiltrates to ground rather than to a watercourse,
+        so there is no receiving water to compare against. The question it raises is a groundwater
+        question.`;
+      if (p.q !== null && p.q > 100) note = `<span class="flag">At its low-flow reference this
+        watercourse carries less water than the plant discharges into it.</span> ` + note;
+      else if (p.q !== null && p.q >= 50) note = `<span class="flag">At low flow more than half of what
+        runs in this watercourse is treated wastewater.</span> ` + note;
+    }
+    B.innerHTML = html;
+    N.innerHTML = note;
     panel.hidden = false;
     return;
   }
@@ -775,9 +1055,12 @@ function spark(ser) {
 
 document.getElementById('panelClose').onclick = () => { panel.hidden = true; selected = null; };
 document.getElementById('refresh').onclick = refresh;
-document.getElementById('toggleStations').onchange = e => showStations = e.target.checked;
-document.getElementById('toggleMotion').onchange = e => motion = e.target.checked;
-window.addEventListener('resize', () => { resize(); });
+document.getElementById('toggleStations').onchange = e => { showStations = e.target.checked; dirty = true; };
+document.getElementById('toggleMotion').onchange = e => { motion = e.target.checked; if (!motion) clearFlow(); };
+for (const el of document.querySelectorAll('#lgUse input[data-use]')) {
+  el.onchange = () => { useOn[el.dataset.use] = el.checked; dirty = true; };
+}
+window.addEventListener('resize', () => { resize(); dirtyAlloc = true; });
 
 window.__fps = () => (__frames / Math.max(0.001, (performance.now() - __t0) / 1000)).toFixed(1);
 window.__diag = () => {
@@ -796,6 +1079,10 @@ function setMode(m) {
   for (const [k, id] of Object.entries(LG)) document.getElementById(id).hidden = k !== m;
   document.getElementById('legendTitle').textContent = LGTITLE[m];
   if (selected && selected.kind === 'glacier' && m !== 'ice') { panel.hidden = true; selected = null; }
+  if (selected && selected.kind === 'use' && m !== 'use') { panel.hidden = true; selected = null; }
+  if (hovered && ((hovered.kind === 'use') !== (m === 'use'))) hovered = null;
+  clearFlow();
+  dirty = true;
 }
 for (const b of document.querySelectorAll('#modes button')) b.onclick = () => setMode(b.dataset.mode);
 

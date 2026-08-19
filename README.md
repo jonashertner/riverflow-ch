@@ -18,7 +18,7 @@ in the browser. A view is written into the URL hash as `#lon,lat,scale,layer`, s
 a link is a citation: this place, this reading, this scale. `#ice` alone opens the
 glacier layer at the country view.
 
-## The four layers
+## The five layers
 
 | Layer | What the colour carries | Class of evidence |
 |---|---|---|
@@ -26,6 +26,7 @@ glacier layer at the country view.
 | Against normal | Discharge now divided by the long-term mean of the same reach | Ratio of a measurement to a modelled annual mean |
 | Temperature | Water temperature at the gauge, 0 to 25 °C | Measured, one sensor per point |
 | Ice | Glacier outlines, 1850 under 2023 | Measured by survey, 173 years apart |
+| Water use | Who takes the water out and who puts it back | Registered locations; one quantity, and that one derived |
 
 ## Rebuild the data
 
@@ -49,6 +50,10 @@ Only `site/data/*.json` is kept in the repository. The sources stay in `/tmp`.
 | Glacier outlines and areas, 1850 | GLAMOS, Swiss Glacier Inventory 1850, doi:10.18750/inventory.sgi1850.r1992 | CC BY 4.0 per the DOI index |
 | Glacier outlines and areas, 2023 | GLAMOS, Swiss Glacier Inventory 2023, doi:10.18750/inventory.sgi2023.r2026 | CC BY 4.0 per the DOI index |
 | Glacier tongue position, 1880 to 2025 | GLAMOS, Swiss Glacier Length Change, doi:10.18750/lengthchange.2025.r2025 | CC BY 4.0 per the DOI index; the file header adds "scientific and non-commercial use" |
+| Abstractions subject to residual flow | BAFU, Restwasserkarte Schweiz, `ch.bafu.wasser-entnahme`, federal data state 1.1.2004 | opendata.swiss, attribution |
+| Hydropower plants from 300 kW up | BFE, WASTA, `ch.bfe.statistik-wasserkraftanlagen`, statistic to 31.12.2025 | opendata.swiss, attribution |
+| Nuclear power stations | BFE, `ch.bfe.kernkraftwerke` | opendata.swiss, attribution |
+| Wastewater treatment plants, share of the receiving water at Q347 | BAFU, ARA database, `ch.bafu.gewaesserschutz-klaeranlagen_anteilq347`, survey 2011, federal data state 1.1.2014 | opendata.swiss, attribution |
 | Lakes, national border | Natural Earth 10m | public domain |
 | Statutory text | fedlex.admin.ch, consolidated German versions in force on 19 August 2026 | federal law |
 
@@ -81,6 +86,31 @@ Anyone putting this to commercial use should settle the point with GLAMOS first.
   the pair is shown, for 1,053 of the 1,299 bodies, and it is labelled an
   identifier match rather than a hydrological identity. The national totals,
   1,788.3 km² against 861.3 km², do not depend on the join.
+- **The use layer shows one quantity, and it is derived.** Of the four registers only
+  WASTA yields a discharge, and it yields it by arithmetic: Q = P/(ρgHη) with η at
+  0.85. At Rheinfelden that gives 1,621 m³/s where the plant states it can take 1,500
+  at the same 100 MW, so the method runs about eight per cent high there. A filled
+  disc on the map therefore carries a number; an open ring carries a place.
+- **The residual-flow register has no volumes and is old.** It is the cantonal
+  inventory under GSchG Art. 80 ff, and the federal data state is 1 January 2004. It
+  gives the point, the watercourse and, for 1,282 of the 1,488 entries, a link to the
+  cantonal report. 206 entries carry no number and so no report, four of them on the
+  Rhine at Basel. Q347 is not in it either, so the Art. 31 calculator still has to be
+  fed by hand.
+- **A run-of-river plant is not a consumer.** It passes the water on. A storage or
+  pumped-storage plant releases water that often came from another catchment. The
+  layer keeps the plant types apart for that reason, and no ratio of use to flow is
+  computed anywhere: dividing a derived design discharge by a live reading would
+  multiply an assumption by a routing error and land next to a finding of breach.
+- **Four registers are not all the users.** There is no federal open register of
+  drinking-water abstraction, of industrial abstraction (the Basel chemical works take
+  Rhine water under cantonal permits), of irrigation, or of snowmaking. Those figures
+  sit with the cantons and with the operators. The biggest single users of Swiss river
+  water that this map cannot show are therefore named here rather than left to be
+  inferred from an empty space.
+- **No cooling volume is published for the four nuclear sites.** The dataset gives the
+  site and the operator. Abstraction and thermal load sit in the cantonal concession
+  and in the operator's own environmental reporting.
 - **The gauge named under a glacier is a spatial assignment.** It is the first
   BAFU station downstream of the mapped reach nearest to the ice. It is not a
   routing model. It answers which gauge would see this water, and nothing finer.
@@ -154,3 +184,10 @@ them, so what stays coloured is the ice that has gone.
   speak to the same question with a different instrument.
 - **Better geometry.** swissTLM3D would remove the staircase inside Switzerland,
   at the cost of a second network that does not carry HydroRIVERS' topology.
+- **The 1,282 cantonal residual-flow reports.** They are PDFs and they hold the
+  figures the register omits: the abstracted quantity, Q347 and the residual flow
+  ordered. Read into a table, the abstraction points stop being places and become
+  quantities, and Art. 31 becomes a layer rather than a calculator. That is the single
+  largest step available from here, and it is the one with real work in it.
+- **The cantonal water-use registers.** Drinking water, industry, irrigation and
+  snowmaking are licensed cantonally. There is no national set to fetch.

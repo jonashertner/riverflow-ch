@@ -15,6 +15,7 @@
 <body class="viz-root">
 
 <canvas id="map"></canvas>
+<canvas id="flow"></canvas>
 
 <header id="titlebar">
   <h1>Water and ice in Switzerland</h1>
@@ -27,6 +28,7 @@
   <button type="button" data-mode="normal">Against normal</button>
   <button type="button" data-mode="temp">Temperature</button>
   <button type="button" data-mode="ice" id="modeIce" disabled>Ice</button>
+  <button type="button" data-mode="use" id="modeUse" disabled>Water use</button>
 </nav>
 
 <section id="legend" aria-label="Legend">
@@ -68,6 +70,25 @@
     <p class="lgNote">The 2023 bodies are drawn over the 1850 outlines. What stays in colour is
       the ice that has gone.</p>
     <p class="lgNote" id="iceTotals">&nbsp;</p>
+  </div>
+
+  <div class="lg" id="lgUse" hidden>
+    <ul class="notes useKeys">
+      <li><label><input type="checkbox" data-use="hydro" checked><span class="swatch useHydro"></span>Hydropower, sized by design discharge</label></li>
+      <li><label><input type="checkbox" data-use="abstraction" checked><span class="swatch useAbs"></span>Abstraction, residual-flow register</label></li>
+      <li><label><input type="checkbox" data-use="npp" checked><span class="swatch useNpp"></span>Nuclear station, cooling water</label></li>
+      <li><label><input type="checkbox" data-use="ara" checked><span class="swatch useAra"></span>Treatment plant, sized by population equivalents</label></li>
+    </ul>
+    <p class="lgNote"><b>A filled disc carries a quantity. An open ring carries a place and nothing
+      more.</b> Of the four federal registers only the hydropower statistic yields a discharge, and it
+      yields it by arithmetic, not by measurement: capacity divided by head. The residual-flow map holds
+      no volume at all, and no cooling volume for the four nuclear sites is published as open data.
+      Treatment plants carry a ratio instead: their discharge against the receiving water at
+      Q<sub>347</sub>. For 39 of them it is above 100&#8201;%, which is to say the brook at low flow
+      carries less than the plant puts into it.</p>
+    <p class="lgNote" id="useCount">&#160;</p>
+    <p class="lgNote">The rivers are dimmed under this layer. They are dimmed and not removed, because
+      a plant means nothing without the water it stands in. Nothing here is a finding of breach.</p>
   </div>
 
   <div class="controls">
@@ -151,6 +172,11 @@
   A reach past no gauge at all is grey and carries its long-term mean only. Nine stations report in litres per second and are converted.
   <strong>Ice</strong> GLAMOS, Swiss Glacier Inventory 1850 (doi:10.18750/inventory.sgi1850.r1992), Swiss Glacier Inventory 2023 (doi:10.18750/inventory.sgi2023.r2026)
   and Swiss Glacier Length Change (doi:10.18750/lengthchange.2025.r2025). The DOI index states CC BY 4.0; the length-change file header adds "scientific and non-commercial use". Both statements stand.
+  <strong>Water use</strong> BAFU Restwasserkarte Schweiz (ch.bafu.wasser-entnahme, federal data state 1.1.2004),
+  BFE WASTA statistics of hydropower plants from 300&nbsp;kW up (ch.bfe.statistik-wasserkraftanlagen, to 31.12.2025),
+  BFE nuclear power stations (ch.bfe.kernkraftwerke), BAFU treatment-plant database with the share of the receiving water at
+  Q<sub>347</sub> (ch.bafu.gewaesserschutz-klaeranlagen_anteilq347, survey 2011, federal data state 1.1.2014). All four through opendata.swiss, attribution required.
+  There is no federal open register of drinking-water, industrial, irrigation or snowmaking abstraction, so those users are absent from this map and not from the rivers.
   <strong>Context</strong> Natural Earth 10m. Measured and modelled water, not a forecast.</p>
 </footer>
 

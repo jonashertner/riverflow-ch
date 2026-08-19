@@ -68,3 +68,17 @@ npx -y mapshaper x/inventory_sgi1850_r1992/SGI_1850.shp \
   -o "$G/g1850.json" format=geojson precision=0.00001
 
 echo "glaciers ready. now run: node build/04-glaciers.mjs"
+
+# ---- water use --------------------------------------------------------------
+# WASTA, the federal statistic of hydropower plants (BFE). Plants from 300 kW up.
+# It carries capacity, head, expected production and a point, but no water
+# quantity, so the discharge on the map is derived. See build/05-users.mjs.
+W=/tmp/riv/wasta
+mkdir -p "$W"; cd "$W"
+[ -f wasta.zip ] || curl -fL -o wasta.zip \
+  "https://data.geo.admin.ch/ch.bfe.statistik-wasserkraftanlagen/statistik-wasserkraftanlagen/statistik-wasserkraftanlagen_2056.csv.zip"
+unzip -oq wasta.zip
+
+# The other three registers are points and come straight off the federal identify
+# API at build time, so nothing to download here.
+echo "water use ready. now run: node build/05-users.mjs"
