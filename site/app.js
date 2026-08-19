@@ -16,10 +16,13 @@ const STATUS = { 1: '#0ca30c', 2: '#fab219', 3: '#ec835a', 4: '#d03b3b', 5: '#d0
 
 // Against normal. One hue below the mean, one above, neutral at the mean. The
 // middle is grey on purpose: a river at its long-term mean is not news.
-const DIV = ['#7a3f19', '#a85f28', '#c8813c', '#dda86d', '#7f7d78', '#8fb6de', '#4d90cc', '#2a6cb0', '#123f77'];
-// Water temperature, 0 to 25 C. The last step is the status red, because 25 C is
-// where GSchV Annex 2 No. 12(4) puts the ceiling for a thermally altered river.
-const TEMP = ['#1d4f86', '#3d7fbc', '#79aad8', '#b9c8bb', '#e0c477', '#dd8f47', '#d03b3b'];
+const DIV = ['#7a3f19', '#a85f28', '#c8813c', '#dda86d', '#7f7d78', '#8fb6de', '#4d90cc', '#2a6cb0', '#184f95'];
+// Water temperature, 0 to 25 C. ONE hue, dark to light: a rising quantity, not a
+// set of categories. The old ramp ran blue-green-yellow-red, which reads as four
+// things. The 25 C ceiling of GSchV Annex 2 No. 12(4) is a status, not a value, so
+// it is drawn as a rim on the gauge and stated in words in the legend. It is never
+// carried by the ramp alone.
+const TEMP = ['#9a5518', '#c4731f', '#dd9436', '#eeb96a', '#f8d79c'];
 
 let mode = 'flow';
 let wantMode = null;          // asked for in the hash, applied once its layer is ready
@@ -55,11 +58,19 @@ const RESNAME = { vs: 'Valais', gr: 'Grisons', ti: 'Ticino', rest: 'the rest of 
 // nothing more. That is the whole grammar, and it is forced by the sources: of the
 // four federal registers only the hydropower statistic yields a discharge, and even
 // that one yields it by arithmetic rather than by measurement.
+// Two hues, not four. The axis that carries meaning is the direction of the
+// transaction, because that is what the law turns on: Art. 31 GSchG governs taking
+// water out, GSchV Annex 2 No. 12(4) governs putting heat in. Three or more hues
+// cannot clear the all-pairs colour-vision floors on this surface; two clear them
+// with room to spare (CVD dE 9.4, normal-vision dE 26.5). The register is therefore
+// carried by the form of the mark and by the label, never by colour alone.
+const USE_OUT = '#d95926';   // takes water out of the river
+const USE_IN  = '#199e70';   // puts water into the river
 const USE = {
-  hydro:       { c: '#f0b429', label: 'Hydropower plant' },
-  abstraction: { c: '#e07a5f', label: 'Abstraction, residual-flow register' },
-  npp:         { c: '#d03b3b', label: 'Nuclear power station' },
-  ara:         { c: '#6fae7f', label: 'Wastewater treatment plant' },
+  hydro:       { c: USE_OUT, label: 'Hydropower plant' },
+  abstraction: { c: USE_OUT, label: 'Abstraction, residual-flow register' },
+  npp:         { c: USE_OUT, label: 'Nuclear power station' },
+  ara:         { c: USE_IN,  label: 'Wastewater treatment plant' },
 };
 
 function stepColor(pal, t) {
@@ -163,6 +174,8 @@ async function load() {
   stations = st.stations;
   for (const s of stations) if (s.reach !== undefined) gaugeByReach.set(s.reach, s);
   fit();
+  updateEvidence();          // true from the first frame: before the live read every
+                             // reach carries its long-term mean and nothing more
   applyHash();
   requestAnimationFrame(frame);
   if (wantMode && setMode(wantMode)) wantMode = null;
@@ -393,6 +406,7 @@ async function refresh() {
     invalidate(); dirtyAlloc = true;
   } catch (e) {
     document.getElementById('stamp').textContent = 'Live read failed: ' + e.message + '. Showing long-term mean.';
+    updateEvidence();
   } finally {
     btn.disabled = false; btn.textContent = 'Refresh live data';
   }
@@ -445,6 +459,40 @@ function applyLive() {
     if (rr === null) { rr = seek(r, up); basis = rr === null ? null : 'upstream'; }
     if (rr === null) { r.live = r.mean; r.basis = 'none'; }
     else { r.live = r.mean * rr; r.basis = basis; }
+  }
+  updateEvidence();
+}
+
+// ---- the evidence bar -------------------------------------------------------
+// The page's one claim about itself: most of what is drawn is inference. The bar is
+// the drawing's own composition by class of evidence, counted, not asserted. It adds
+// no fact; it counts the facts already on the map.
+function updateEvidence() {
+  let measured = 0, estimated = 0, none = 0;
+  for (const r of reaches) {
+    if (r.basis === 'measured') measured++;
+    else if (r.basis === 'none') none++;
+    else estimated++;
+  }
+  const total = measured + estimated + none;
+  if (!total) return;
+  const bar = document.getElementById('evBar');
+  if (!bar) return;
+  const seg = bar.children;
+  seg[0].style.flex = measured;
+  seg[1].style.flex = estimated;
+  seg[2].style.flex = none;
+  const n = v => v.toLocaleString('de-CH');
+  document.getElementById('evNumMeasured').textContent = n(measured);
+  document.getElementById('evNumEstimated').textContent = n(estimated);
+  document.getElementById('evNumNone').textContent = n(none);
+  bar.setAttribute('aria-label',
+    `Of ${n(total)} reaches drawn, ${n(measured)} are measured at a gauge, ` +
+    `${n(estimated)} are estimated for the reach, and ${n(none)} have no basis today.`);
+  for (const [id, v] of [['evTdMeasured', measured], ['evTdEstimated', estimated],
+                         ['evTdNone', none], ['evTdTotal', total]]) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = n(v);
   }
 }
 
@@ -602,7 +650,7 @@ function drawBase() {
   if (hovered?.kind === 'reach') {
     const r = hovered.ref;
     path(r);
-    ctx.strokeStyle = '#fab219';
+    ctx.strokeStyle = '#cde2fb';
     ctx.globalAlpha = 0.95;
     ctx.lineWidth = lineWidth(r.live) + 1.6;
     ctx.stroke();
@@ -625,9 +673,36 @@ function drawBase() {
       if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
       const live = s.q !== null && s.q !== undefined;
       const d = s.obs?.danger ?? null;
-      const rad = hovered?.kind === 'station' && hovered.ref === s ? 6 : (live ? 3.4 : 2.4);
+      const on = hovered?.kind === 'station' && hovered.ref === s;
+
+      // Under the temperature layer the gauge carries the reading, so it is filled
+      // from the temperature ramp. A gauge with no temperature series is left hollow
+      // rather than coloured, because an absent reading is not a cold one. At or
+      // above 25 C the statutory ceiling applies, and that is a status: it gets its
+      // own rim, it is named in the legend, and it is never left to the ramp alone.
+      if (mode === 'temp') {
+        const t = s.obs?.temp;
+        const has = t !== null && t !== undefined;
+        ctx.beginPath();
+        ctx.arc(x, y, on ? 6.4 : (has ? 4.2 : 2.2), 0, 6.2832);
+        ctx.globalAlpha = 1;
+        if (has) {
+          ctx.fillStyle = tempColor(t);
+          ctx.fill();
+          ctx.lineWidth = t >= 25 ? 2 : 1;
+          ctx.strokeStyle = t >= 25 ? '#d03b3b' : 'rgba(13,13,13,0.8)';
+        } else {
+          ctx.fillStyle = '#0d0d0d';
+          ctx.globalAlpha = 0.5; ctx.fill(); ctx.globalAlpha = 0.7;
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = '#898781';
+        }
+        ctx.stroke();
+        continue;
+      }
+
       ctx.beginPath();
-      ctx.arc(x, y, rad, 0, 6.2832);
+      ctx.arc(x, y, on ? 6 : (live ? 3.4 : 2.4), 0, 6.2832);
       ctx.fillStyle = '#0d0d0d';
       ctx.globalAlpha = live ? 1 : 0.55;
       ctx.fill();
@@ -966,7 +1041,7 @@ function tip(mx, my) {
       `<div class="tEst">BAFU gauge ${esc(s.id)}</div>`;
   } else {
     const r = hovered.ref;
-    tt.innerHTML = `<div class="tName">${fmtQ(r.live)} m³/s</div>` +
+    tt.innerHTML = `<div class="tName num">${fmtQ(r.live)} m³/s</div>` +
       `<div class="tVal">catchment ${r.upland.toFixed(0)} km²</div>` +
       `<div class="tEst">${r.basis === 'measured' ? 'measured at a gauge'
         : r.basis === 'none' ? 'outside the gauged network, long-term mean only'
@@ -1275,6 +1350,9 @@ function setMode(m) {
   const btn = document.querySelector('#modes button[data-mode="' + m + '"]');
   if (!btn || btn.disabled) return false;
   mode = m;
+  // The sheets take their accent from the layer, so a checkbox or a focus ring in
+  // the legend is in the colour of the thing the legend is about.
+  document.body.dataset.layer = m;
   for (const b of document.querySelectorAll('#modes button')) b.classList.toggle('on', b.dataset.mode === m);
   for (const [k, id] of Object.entries(LG)) document.getElementById(id).hidden = k !== m;
   document.getElementById('legendTitle').textContent = LGTITLE[m];
@@ -2000,6 +2078,11 @@ const handleEl = document.getElementById('sheetHandle');
 
 function layoutSheet() {
   const root = document.documentElement;
+  // The title block grows and shrinks with the screen: the subtitle appears at
+  // 1500 px and the evidence bar only where there is room for it. So its height is
+  // measured rather than assumed, and the legend below is given what is left.
+  const tb = document.getElementById('titlebar').getBoundingClientRect();
+  root.style.setProperty('--title-h', Math.round(tb.bottom) + 'px');
   if (!isPhone()) {
     legendEl.style.transform = '';
     legendEl.classList.remove('collapsed');

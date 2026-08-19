@@ -299,19 +299,44 @@ rate. The gap is reproduced, not smoothed.
 
 Dark surface only, one full-bleed canvas, all furniture floating over it.
 
-**Two kinds of ink, never mixed.** Measured quantities are set in the sans face on
-the blue ramps with tabular figures. Statutory text and anything computed from a
-statute is set in a serif, in bone (`#d9cbb0`). The reader can tell at a glance
-whether a number came from an instrument or from a rule, which is the distinction
-the whole project turns on.
+**Three registers of type, one per kind of statement.** Prose is Archivo. Every
+measured figure is IBM Plex Mono with tabular figures, so a column of readings
+lines up and a number is never read as a word. Statutory text, and anything
+computed from a statute, is a serif in bone (`#d9cbb0`). The reader can tell at a
+glance whether a number came from an instrument or from a rule, which is the
+distinction the whole project turns on.
 
-Discharge is one hue stepped by lightness, so more water reads as brighter.
-Against-normal is a diverging ramp, warm below the mean and blue above, grey at
-it. Flood danger levels use the fixed status palette on the gauge rings, never on
-the water itself. The reservoir tint is its own teal ramp so a filling level is
-never mistaken for a discharge. In the ice layer the 1850 outlines are filled in
-warm ochre and the surveyed ice is drawn in white over them, so what stays
-coloured is the ice that has gone.
+**The evidence bar.** The title block carries the drawing's own composition by
+class of evidence — 171 measured, 5,004 estimated, 3,541 with no basis — counted
+from the reaches on every live read rather than written into the page as prose. It
+is the one claim the page makes about itself: most of what you see is inference.
+It appears where there is vertical room for it; the same figures are in the
+sources panel at every size.
+
+**Every colour was validated before it was used.** Discharge is one hue stepped by
+lightness, so more water reads as brighter. Against-normal is a diverging ramp,
+warm below the mean and blue above, grey at it — a river at its long-term mean is
+not news. Water temperature is a single hue, dark to light: the earlier ramp ran
+blue-green-yellow-red, which is a rainbow and reads as four categories rather than
+one rising quantity. Flood danger levels use the fixed status palette on the gauge
+rings, never on the water itself. The reservoir tint is its own teal ramp so a
+filling level is never mistaken for a discharge. In the ice layer the 1850 outlines
+are filled in warm ochre and the surveyed ice is drawn in white over them, so what
+stays coloured is the ice that has gone.
+
+**Water use is two hues, not four, and the axis is direction.** Taking water out
+is `#d95926` and putting it in is `#199e70`, because direction is what the law
+turns on: Art. 31 GSchG governs abstraction, GSchV Annex 2 No. 12(4) governs
+thermal load. Three or more hues cannot clear the all-pairs colour-vision floors on
+this surface; two clear them with room to spare (CVD ΔE 9.4, normal-vision ΔE
+26.5). Which of the four registers a mark belongs to is carried by the form of the
+mark instead — filled disc for a quantity, open ring for a place, a second ring for
+the four nuclear sites — which the map needed anyway.
+
+**A threshold is a status, not a value.** The 25 °C ceiling of GSchV Annex 2
+No. 12(4) is drawn as a rim on the gauge and named in words in the legend. It is
+never left to the ramp. A gauge with no temperature series is drawn hollow rather
+than cold: an absent reading is not a low one.
 
 **Four layout shapes.** Phone: a bottom sheet with three snap states, a
 horizontally scrollable layer switch, and the map fitted into the strip left
