@@ -35,10 +35,10 @@ let vintage = null;           // what every source is and how old it is
 const useOn = { hydro: true, abstraction: true, npp: true, ara: true };
 
 const LG = { flow: 'lgFlow', normal: 'lgNormal', temp: 'lgTemp', res: 'lgRes', ice: 'lgIce',
-             residual: 'lgResidual', use: 'lgUse' };
+             residual: 'lgResidual', use: 'lgUse', source: 'lgSource' };
 const LGTITLE = { flow: 'Discharge', normal: 'Against the long-term mean', temp: 'Water temperature',
                   res: 'Reservoirs', ice: 'Ice, five surveys', residual: 'Minimum residual flow',
-                  use: 'Who takes the water' };
+                  use: 'Who takes the water', source: 'Where the water comes from' };
 const MODES = Object.keys(LG);
 
 // Bone, not blue. A quantity the law states is not a quantity an instrument read,
@@ -48,7 +48,7 @@ const LAWINK = '#d9cbb0', LAWDIM = '#9c9282';
 // The layers where the water is context and not the reading. The current is
 // dimmed under them, never stopped: a river that froze the moment you asked a
 // question about a dam would be a worse lie than a river drawn faintly.
-const DIMWATER = new Set(['use', 'res', 'residual', 'ice']);
+const DIMWATER = new Set(['use', 'res', 'residual', 'ice', 'source']);
 // The reservoir regions of the BFE filling statistic, in the column order of the
 // weekly file. The statistic is published for these four and for nothing smaller.
 const RESREG = ['vs', 'gr', 'ti', 'rest'];
@@ -185,6 +185,8 @@ async function load() {
   loadReservoirs();
   loadResidual();
   loadVintage();
+  loadNames();
+  loadCantons();
   await refresh();
 }
 
@@ -608,6 +610,17 @@ function drawBase() {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
+  // Somebody else's rendering, if it was asked for, under everything this page
+  // draws itself. Requested here and drawn from cache: the request is what keeps
+  // the picture up with the view, the draw is what puts it on the plane.
+  if (ground && GROUND[ground]) { GROUND[ground].request(); GROUND[ground].draw(); }
+  if (mode === 'source') {
+    for (const k of ['catch', 'gw', 'zone']) {
+      if (!sourceOn[k]) continue;
+      SOURCE[k].request(); SOURCE[k].draw();
+    }
+  }
+
   // context: the border first, then the lakes. Neither carries data.
   ctx.beginPath();
   for (const ring of border) {
@@ -637,6 +650,7 @@ function drawBase() {
   const margin = 60;
 
   for (const r of reaches) {
+    if (liveOnly && r.basis !== 'measured') continue;
     if (r.upland < minU) continue;
     if (!onScreen(r, margin)) continue;
     path(r);
@@ -661,6 +675,7 @@ function drawBase() {
   if (mode === 'res' && reservoirs) drawDams();
   if (mode === 'residual' && residual) drawResidual();
   if (mode === 'use') drawUsers();
+  if (mode === 'source') drawSources();
 
   // The gauges belong to the layers the gauges answer. On a layer about dams, or
   // minimum flows, or ice, a hundred and ninety white rings are noise over the
@@ -669,6 +684,7 @@ function drawBase() {
     ctx.globalAlpha = 1;
     for (const s of stations) {
       if (s.lon === null) continue;
+      if (liveOnly && !isLive(s)) continue;
       const x = sx(mercX(s.lon)), y = sy(mercY(s.lat));
       if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
       const live = s.q !== null && s.q !== undefined;
@@ -712,6 +728,7 @@ function drawBase() {
     }
   }
   ctx.globalAlpha = 1;
+  drawNames();
 }
 
 // ---- the current ------------------------------------------------------------
@@ -727,7 +744,7 @@ function allocate() {
   const minU = minUpland();
   for (let i = 0; i < reaches.length; i++) {
     const r = reaches[i];
-    if (r.basis === 'none') continue;
+    if (liveOnly ? r.basis !== 'measured' : r.basis === 'none') continue;
     if (r.upland < Math.max(minU, 8)) continue;
     if (!onScreen(r, 40)) continue;
     if (r.len <= 0) continue;
@@ -1306,6 +1323,21 @@ document.getElementById('toggleMotion').onchange = e => {
 for (const el of document.querySelectorAll('#lgUse input[data-use]')) {
   el.onchange = () => { useOn[el.dataset.use] = el.checked; dirty = true; };
 }
+for (const el of document.querySelectorAll('#lgSource input[data-src]')) {
+  el.onchange = () => { sourceOn[el.dataset.src] = el.checked; dirty = true; };
+}
+document.getElementById('toggleNames').onchange = e => { showNames = e.target.checked; dirty = true; };
+// The ground is exclusive: a hillshade and a topographic sheet under each other
+// are two grounds, and the map ends up standing on neither.
+for (const el of document.querySelectorAll('input[name="ground"]')) {
+  el.onchange = () => {
+    if (!el.checked) return;
+    ground = el.value || null;
+    for (const g of Object.values(GROUND)) g.clear();
+    dirty = true;
+  };
+}
+document.getElementById('toggleLive').onchange = e => setLiveOnly(e.target.checked);
 // A phone fires resize on every address-bar nudge, so the layout is done at once
 // for the canvas, which must never be stretched, and again on a short trailing
 // timer for the sheet, whose height is only settled after the reflow.
@@ -1349,6 +1381,18 @@ function setMode(m) {
   // the difference so it can ask again when the data lands.
   const btn = document.querySelector('#modes button[data-mode="' + m + '"]');
   if (!btn || btn.disabled) return false;
+  // Live only means live only. Rather than silently doing nothing, the switch that
+  // caused the refusal says which register the layer rests on and how old it is.
+  if (liveOnly && ARCHIVAL[m]) {
+    const note = document.getElementById('liveNote');
+    if (note) {
+      note.innerHTML = `<b>Hidden while Live only is on.</b> The ${btn.textContent.toLowerCase()} layer ` +
+        `is drawn from ${ARCHIVAL[m]}. Turn Live only off to see it.`;
+      note.classList.add('flash');
+      setTimeout(() => note.classList.remove('flash'), 900);
+    }
+    return false;
+  }
   mode = m;
   // The sheets take their accent from the layer, so a checkbox or a focus ring in
   // the legend is in the colour of the thing the legend is about.
@@ -2058,6 +2102,21 @@ function renderVintage() {
       <div class="vNote">${esc(s.note)}</div>
     </div>`;
   }).join('');
+  // The water-sources legend prints its own layers' ages, because the whole point
+  // of that layer is where the water comes from and one of its three pictures is
+  // most of a decade old. Making the reader open the source table to find that out
+  // would be exactly the defect this page exists to correct.
+  const ages = document.getElementById('srcAges');
+  if (ages) {
+    const gw = vintage.sources.find(x => x.key === 'groundwater');
+    const ca = vintage.sources.find(x => x.key === 'catchments');
+    ages.innerHTML = `<b>How old the pictures are.</b> Groundwater bodies, Datenstand ` +
+      `<b class="num">${vintageOf('groundwater')}</b>` +
+      (gw?.ageDays ? ` &mdash; ${ageText(gw.ageDays)} old` : '') + `. Sub-catchments, Datenstand ` +
+      `<b class="num">${vintageOf('catchments')}</b>` +
+      (ca?.ageDays ? ` &mdash; ${ageText(ca.ageDays)}` : '') + `. Read from the federal legend ` +
+      `endpoints, not remembered here.`;
+  }
   const n = rows.filter(s => (s.ageDays ?? 0) > 1826).length;
   document.getElementById('vintageBuilt').innerHTML =
     `Data states read from the federal legend endpoints on ${fmtDate(vintage.built)}. ` +
@@ -2100,6 +2159,471 @@ handleEl.onclick = () => {
   layoutSheet();
 };
 
+
+/* ===========================================================================
+   THE GROUND, AND THE THINGS UNDER IT
+   Everything above this point is drawn from data the page holds. Everything in
+   this section is drawn by a federal server and arrives as a picture.
+
+   That is a real difference and the page keeps it visible. A WMS image is not
+   queryable, not dated in the picture, and not something this map can check: it
+   is somebody else's rendering, requested for the rectangle on screen. So none
+   of it is on by default, each layer says whose it is, and the water this map
+   computes is never drawn from one of these.
+
+   Mechanics. The map's own projection is Web Mercator, and both services answer
+   in EPSG:3857, so a GetMap for the current view needs no reprojection: the
+   image comes back in the frame the canvas is already in and is drawn into the
+   rectangle it was asked for. One request per layer covers the whole viewport
+   with a margin, and is renewed only when the view leaves that margin or the
+   scale moves far enough to matter.
+
+   Terms of use. swisstopo and the federal offices publish under the FSDI general
+   terms of use, free use with source attribution. geodienste.ch serves the
+   cantons' own data on the cantons' terms; the twenty-six that matter here are
+   all marked freely available. Both are named on the page.
+   =========================================================================== */
+
+const FSDI = 'https://wms.geo.admin.ch/';
+const GEODIENSTE = 'https://geodienste.ch/db/planerischer_gewaesserschutz_v1_2_0/deu';
+const HALF = 20037508.342789244;          // half the width of the Mercator world, in metres
+
+// world (0..1 Mercator) to EPSG:3857 metres
+const eastOf  = wx => (wx * 2 - 1) * HALF;
+const northOf = wy => (1 - wy * 2) * HALF;
+
+// A picture requested for a rectangle, redrawn from cache while the next one is
+// on the wire. `blend` and `alpha` are how a sheet of paper meant for white
+// becomes ground for a near-black plane; see the note on each layer below.
+function wmsLayer(spec) {
+  return {
+    spec,
+    img: null, box: null,          // what is currently drawable
+    want: null, loading: false,    // what has been asked for
+    fail: 0,
+    clear() { this.img = null; this.box = null; this.want = null; },
+    // the rectangle to ask for: the viewport with a margin, quantised so a small
+    // pan does not start a new request
+    need() {
+      const pad = 0.22;
+      const w = W / view.k, h = H / view.k;
+      const x0 = (0 - view.x) / view.k - w * pad, y0 = (0 - view.y) / view.k - h * pad;
+      const q = (w + h) / 40;
+      const snap = v => Math.round(v / q) * q;
+      return { x0: snap(x0), y0: snap(y0), x1: snap(x0 + w * (1 + 2 * pad)), y1: snap(y0 + h * (1 + 2 * pad)) };
+    },
+    covers() {
+      const b = this.box;
+      if (!b) return false;
+      const w = W / view.k, h = H / view.k;
+      const x0 = (0 - view.x) / view.k, y0 = (0 - view.y) / view.k;
+      // held only while the scale is close: a picture stretched much beyond the
+      // resolution it was drawn at stops being terrain and becomes mud
+      if (b.k > view.k * 1.9 || b.k < view.k / 1.9) return false;
+      return b.x0 <= x0 && b.y0 <= y0 && b.x1 >= x0 + w && b.y1 >= y0 + h;
+    },
+    request() {
+      if (this.loading || this.fail > 3) return;
+      const n = this.need();
+      if (this.want && this.want.x0 === n.x0 && this.want.y0 === n.y0 &&
+          this.want.x1 === n.x1 && this.want.y1 === n.y1 && this.box) return;
+      const px = Math.max(320, Math.min(2200, Math.round((n.x1 - n.x0) * view.k)));
+      const py = Math.max(200, Math.min(2200, Math.round((n.y1 - n.y0) * view.k)));
+      const u = new URL(this.spec.service);
+      u.search = new URLSearchParams({
+        SERVICE: 'WMS', VERSION: '1.3.0', REQUEST: 'GetMap',
+        LAYERS: this.spec.layers, STYLES: '', CRS: 'EPSG:3857',
+        // WMS 1.3.0 in a projected CRS takes the bbox as minx,miny,maxx,maxy, and
+        // Mercator north grows the opposite way from the canvas y axis, so the
+        // bottom of the screen is the minimum northing.
+        BBOX: [eastOf(n.x0), northOf(n.y1), eastOf(n.x1), northOf(n.y0)].join(','),
+        WIDTH: String(px), HEIGHT: String(py),
+        FORMAT: 'image/png', TRANSPARENT: 'true',
+      }).toString();
+      this.want = n;
+      this.loading = true;
+      const im = new Image();
+      im.onload = () => {
+        this.loading = false; this.fail = 0;
+        this.img = this.spec.filter ? treat(im, this.spec.filter) : im;
+        this.box = { ...n, k: view.k };
+        dirty = true;
+      };
+      im.onerror = () => { this.loading = false; this.fail++; this.want = null; };
+      im.src = u.toString();
+    },
+    draw() {
+      if (!this.img || !this.box) return;
+      const b = this.box;
+      ctx.save();
+      ctx.globalAlpha = this.spec.alpha;
+      if (this.spec.blend) ctx.globalCompositeOperation = this.spec.blend;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(this.img, sx(b.x0), sy(b.y0), (b.x1 - b.x0) * view.k, (b.y1 - b.y0) * view.k);
+      ctx.restore();
+    },
+  };
+}
+
+// Both federal sheets are drawn for white paper: dark ink on light ground. On this
+// plane they are turned inside out, so the paper goes black and the ink comes up
+// light. For the hillshade that inversion is what makes it usable at all — flat
+// ground, which is most of the picture, falls to the plane's own black and only
+// the slopes are left, so the terrain appears where there is terrain instead of as
+// a grey slab over the whole country. Nothing is ever read back off a canvas in
+// this file, so a picture from another origin can be composited freely.
+function treat(im, filter) {
+  const c = document.createElement('canvas');
+  c.width = im.naturalWidth; c.height = im.naturalHeight;
+  const g = c.getContext('2d');
+  if (!('filter' in g)) return im;
+  g.filter = filter;
+  g.drawImage(im, 0, 0);
+  return c;
+}
+
+// The two basemaps, both off unless asked for.
+//
+// Relief is a hillshade: mid grey where the ground is flat, dark in shadow, light
+// on a lit slope. Composited with `lighten` it can only add light, so the shadows
+// stay the plane's own black and the lit faces come up out of it. That is the one
+// way to put terrain under a dark map without lifting the whole background to grey
+// and taking the discharge ramp's contrast with it.
+const GROUND = {
+  relief: wmsLayer({ service: FSDI, layers: 'ch.swisstopo.swissalti3d-reliefschattierung',
+                     alpha: 0.42, blend: 'lighten', filter: 'invert(1) contrast(1.35)' }),
+  topo:   wmsLayer({ service: FSDI, layers: 'ch.swisstopo.pixelkarte-grau',
+                     alpha: 0.46, blend: 'lighten', filter: 'invert(1) saturate(0.3)' }),
+};
+let ground = null;
+
+/* ---------------------------------------------------------------------------
+   WHERE THE WATER COMES FROM
+   Four senses of the word source, from four different federal or cantonal
+   registers, each of which answers a different question:
+
+     groundwater   the bodies themselves, and the aquifers they sit in
+     headwaters    the top of the drawn network: every first-order reach
+     catchments    which ground drains to which water
+     drinking      the protection zones around a public abstraction
+
+   The first, third and fourth are pictures from a server. The second is this
+   map's own data and is drawn in this map's own ink, which is why it looks
+   different from the other three: it is the only one this page can vouch for.
+   --------------------------------------------------------------------------- */
+const SOURCE = {
+  // A ground tint and nothing louder. The federal rendering of the groundwater
+  // bodies covers the whole country in two strong flat colours, which at full
+  // strength turns the map into that picture with rivers on it. Held at a third it
+  // does what it is here to do: show where the water under the ground is, behind
+  // the water on top of it.
+  gw:    wmsLayer({ service: FSDI, layers: 'ch.bafu.grundwasserkoerper',
+                   alpha: 0.26, filter: 'saturate(0.4) brightness(0.85)' }),
+  catch: wmsLayer({ service: FSDI, layers: 'ch.bafu.wasser-teileinzugsgebiete_2',
+                    alpha: 0.34, filter: 'saturate(0.4)' }),
+  // S1 is the fenced ground at the wellhead, S2 the close protection zone, S3 the
+  // outer one. Only the zones IN FORCE are drawn. geodienste.ch also serves the
+  // planned ones, and a planned zone is not a legal constraint: drawing the two in
+  // one colour would put a restriction on the map that does not yet exist.
+  // Turned violet on purpose. geodienste.ch renders the three zones in three blues,
+  // which on a map whose whole subject is water in blue would read as more water.
+  // The rotation is uniform, so S1, S2 and S3 keep their distinctions from each
+  // other and lose only their resemblance to the rivers. Violet because it is the
+  // one part of the wheel this map has not spent: blue is discharge, teal is stored
+  // water, orange is a taking, bone is a figure from the statute, amber is heat. A
+  // protection zone is none of those and must not borrow any of their meanings. The
+  // legend swatch is the rotated colour, not the source's, so the key matches.
+  zone:  wmsLayer({ service: GEODIENSTE,
+                    layers: 'grundwasserschutzzone_s3_in_kraft,grundwasserschutzzone_s2_in_kraft,grundwasserschutzzone_s1_in_kraft',
+                    alpha: 0.8, filter: 'hue-rotate(95deg) saturate(1.35)' }),
+};
+// Two on, two off. The groundwater bodies and the sub-catchments both cover the
+// whole country in flat colour, and two national washes under each other is a
+// picture of nothing. They are one click away and the legend lists them first.
+const sourceOn = { gw: false, head: true, catch: false, zone: true };
+
+// Headwaters. ORD_STRA 1 in HydroRIVERS is a reach with nothing above it: the top
+// of the drawn network, where the water enters the surface. It is not the same as
+// a spring, and the legend says so. What it is, is the part of the network with no
+// gauge above it anywhere, which is the part no measurement can reach.
+function drawHeadwaters() {
+  const z = zoom();
+  const minU = minUpland();
+  ctx.save();
+  ctx.strokeStyle = '#4da8a2';
+  ctx.lineCap = 'round';
+  // The head of each reach is a point, and there are several thousand of them. At
+  // country view a point for every one is a texture rather than a fact, so the
+  // points wait until the scale can separate them and only the lines are drawn.
+  const heads = z > 2.6;
+  for (const r of reaches) {
+    if (r.ord !== 1 || r.upland < minU) continue;
+    if (!onScreen(r, 40)) continue;
+    path(r);
+    ctx.globalAlpha = 0.6;
+    ctx.lineWidth = Math.max(0.7, lineWidth(r.live));
+    ctx.stroke();
+    if (!heads) continue;
+    // vertex order is downstream, so the first vertex is the top of the reach
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.arc(sx(r.px[0]), sy(r.py[0]), Math.min(3, 1 + 0.35 * z), 0, 6.2832);
+    ctx.fillStyle = '#aeeae5';
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawSprings() {
+  if (!names || zoom() < 1.6) return;
+  ctx.save();
+  for (const s of names.springs) {
+    const x = sx(mercX(s.x)), y = sy(mercY(s.y));
+    if (x < -8 || y < -8 || x > W + 8 || y > H + 8) continue;
+    ctx.beginPath();
+    if (s.k === 'q') {                       // a spring: a filled point
+      ctx.arc(x, y, 3.4, 0, 6.2832);
+      ctx.fillStyle = '#aeeae5'; ctx.fill();
+      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(13,13,13,0.8)'; ctx.stroke();
+    } else {                                 // a waterfall: an open chevron
+      ctx.moveTo(x - 4, y - 3); ctx.lineTo(x, y + 3.5); ctx.lineTo(x + 4, y - 3);
+      ctx.lineWidth = 1.6; ctx.strokeStyle = '#aeeae5'; ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+function drawSources() {
+  if (sourceOn.head) drawHeadwaters();
+  drawSprings();
+}
+
+/* ---------------------------------------------------------------------------
+   THE NAMES
+   HydroRIVERS is anonymous; swissNAMES3D is a gazetteer. build/10-names.mjs
+   joins them and hands over an anchor, a rank and, where the join found a
+   channel, the direction of that channel. Everything below is placement.
+
+   Hydrography is set in italic. That is not decoration, it is the convention on
+   every topographic map printed in the last two centuries, and it is what lets a
+   reader tell the name of a river from the name of a town without being told.
+
+   Rank decides what is worth its ink at the current scale, and a greedy pass in
+   rank order decides what fits. No label is ever moved off its anchor to make it
+   fit: a name that does not fit is not drawn, because a name nudged 40 px is a
+   name in the wrong place.
+   --------------------------------------------------------------------------- */
+let names = null;
+let showNames = true;
+
+// Who has delivered the protection zones, and when. A national picture assembled
+// from twenty-six cantonal deliveries is as current as its oldest contributor, and
+// the picture itself does not say who that is, so the page does.
+async function loadCantons() {
+  try {
+    const c = await fetch('data/cantons.json').then(r => r.json());
+    const el = document.getElementById('srcCoverage');
+    if (!el) return;
+    const old = new Date(c.oldest), now = new Date();
+    const yrs = ((now - old) / 31557600000).toFixed(1);
+    el.innerHTML = `<b>Coverage.</b> All <b class="num">${c.covered}</b> cantons deliver this model to ` +
+      `geodienste.ch and all ${c.free} publish it freely. The delivery dates run from ` +
+      `<b class="num">${fmtDate(c.oldest)}</b> (${c.oldestCt}, ${yrs} years ago) to ` +
+      `<b class="num">${fmtDate(c.newest)}</b>, so the national picture is as old as ${c.oldestCt}, ` +
+      `not as new as its newest canton. Liechtenstein, which shares the service, delivers nothing here.`;
+  } catch (e) { /* the layer still draws; only the note about it is missing */ }
+}
+
+async function loadNames() {
+  try {
+    names = await fetch('data/names.json').then(r => r.json());
+    dirty = true;
+  } catch (e) { names = null; }
+}
+
+// Sorted once, the first time the ice layer wants a label.
+let __iceSorted = null;
+function iceByArea() {
+  if (!__iceSorted && glaciers) {
+    __iceSorted = glaciers.glaciers.filter(g => g.n).slice().sort((a, b) => b.a - a.a);
+  }
+  return __iceSorted ?? [];
+}
+
+function drawNames() {
+  if (!names || !showNames) return;
+  const z = zoom();
+  const boxes = [];
+  // Type is set in CSS pixels and the map is not: on a phone the country is 375 px
+  // wide and a 13 px name is a banner across a canton. The whole scale is tied to
+  // the width of the plane, with a floor so it never becomes unreadable.
+  const ts = Math.max(0.68, Math.min(1, W / 1100));
+  const fits = (x, y, w, h) => {
+    const a = x - w / 2 - 3, b = y - h / 2 - 2, c = x + w / 2 + 3, d = y + h / 2 + 2;
+    for (const q of boxes) if (a < q[2] && c > q[0] && b < q[3] && d > q[1]) return false;
+    boxes.push([a, b, c, d]);
+    return true;
+  };
+  // The furniture is claimed before any name is placed, so nothing is ever drawn
+  // under the legend or behind the title. A label hidden by a panel is worse than a
+  // label not drawn: it costs the reader a name AND spends the space that the next
+  // name down the ranking would have used.
+  for (const id of ['titlebar', 'legend', 'ribbon', 'panel', 'modes']) {
+    // offsetParent is null for a fixed-positioned element, which every panel here
+    // is, so visibility is taken from the rectangle and the computed display.
+    const el = document.getElementById(id);
+    if (!el || el.hidden || getComputedStyle(el).display === 'none') continue;
+    const b = el.getBoundingClientRect();
+    if (b.width && b.height) boxes.push([b.left - 6, b.top - 6, b.right + 6, b.bottom + 6]);
+  }
+
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(10,10,10,0.92)';
+
+  const label = (text, x, y, ang, size, fill, track) => {
+    ctx.font = `italic ${size}px Archivo, system-ui, sans-serif`;
+    const w = ctx.measureText(text).width + (track ? track * (text.length - 1) : 0);
+    // the box of a rotated label, taken as its bounding box: conservative, which
+    // is the right way round for collisions
+    const c = Math.abs(Math.cos(ang)), s = Math.abs(Math.sin(ang));
+    if (!fits(x, y, w * c + size * s, w * s + size * c)) return false;
+    ctx.save();
+    ctx.translate(x, y);
+    if (ang) ctx.rotate(ang);
+    ctx.lineWidth = Math.max(2.4, size * 0.34);
+    ctx.strokeText(text, 0, 0);
+    ctx.fillStyle = fill;
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
+    return true;
+  };
+
+  // Lakes first: a lake name owns the middle of a shape and a river name can go
+  // round it, never the other way about.
+  const lakeMin = 700 / Math.pow(z, 2.4);
+  let n = 0;
+  const lakeCap = W > 700 ? 26 : 7;
+  for (const l of names.lakes) {
+    if (n > lakeCap) break;
+    if (l.r < lakeMin && !(l.r === 0 && z > 7)) continue;
+    const x = sx(mercX(l.x)), y = sy(mercY(l.y));
+    if (x < 30 || y < 20 || x > W - 30 || y > H - 20) continue;
+    const size = ts * Math.max(10, Math.min(17, 9 + Math.log10(1 + l.r) * 2.4));
+    if (label(l.n, x, y, 0, size, 'rgba(174,214,244,0.92)')) n++;
+  }
+
+  // Glaciers, on the layer that is about them, and named from the ice file rather
+  // than from the gazetteer: GLAMOS attaches the name to the body itself, along
+  // with the body's area, so the name is on the right ice and the biggest ice gets
+  // the name first. There is no join here and so nothing for a join to get wrong.
+  if (mode === 'ice' && glaciers) {
+    const iceMin = 22 / Math.pow(z, 2.2);
+    for (const g of iceByArea()) {
+      if (n > 44 || g.a < iceMin) break;
+      const x = sx(g.w[0]), y = sy(g.w[1]);
+      if (x < 30 || y < 20 || x > W - 30 || y > H - 20) continue;
+      if (label(g.n, x, y, 0, ts * Math.max(10, Math.min(14, 8 + Math.log10(1 + g.a) * 3)),
+                'rgba(214,232,248,0.92)')) n++;
+    }
+  }
+
+  // Watercourses, largest first. The threshold is upstream area in km2 and it
+  // falls fast with the zoom, so the country view carries the Rhine and the Rhone
+  // and a valley view carries the brook the valley is named after.
+  //
+  // Two thresholds, because rank alone is not enough. The join that produced these
+  // ranks cannot tell a drainage canal running 200 m from the Rhone from the Rhone,
+  // so a handful of canals carry a trunk river's size. What saves the picture is
+  // that a stolen size is always stolen from a river that is standing right there:
+  // hold the labels apart by a fixed distance in pixels and the neighbourhood goes
+  // to whichever name in it ranks highest, which is the trunk. See the note in
+  // build/10-names.mjs for what this does not fix.
+  // Under Live only the network is gone, and a river name over blank ground would
+  // claim water this map is no longer drawing. Lakes keep their names: a lake is
+  // still on the screen, because it is geography rather than a reading.
+  const riverMin = liveOnly ? Infinity : 3000 / Math.pow(z, 2.3);
+  const cap = W > 1100 ? 34 : W > 700 ? 20 : 11;
+  const apart = Math.max(52, (150 - 16 * z) * ts);
+  const placed = [];
+  for (const r of names.rivers) {
+    if (n > cap) break;
+    if (r.r < riverMin) break;                 // the array is sorted by rank
+    const x = sx(mercX(r.x)), y = sy(mercY(r.y));
+    if (x < 40 || y < 16 || x > W - 40 || y > H - 16) continue;
+    let near = false;
+    for (const q of placed) if (Math.abs(q[0] - x) < apart && Math.abs(q[1] - y) < apart) { near = true; break; }
+    if (near) continue;
+    // upright: a name is read left to right whichever way its river runs
+    let a = r.a ?? 0;
+    if (a > Math.PI / 2) a -= Math.PI;
+    if (a < -Math.PI / 2) a += Math.PI;
+    const size = ts * Math.max(10, Math.min(15, 8.5 + Math.log10(1 + r.r) * 1.6));
+    if (label(r.n, x, y, a, size, 'rgba(157,197,244,0.9)')) { n++; placed.push([x, y]); }
+  }
+
+  // Named springs and waterfalls belong to the layer that asked for them.
+  if (mode === 'source' && z > 1.6) {
+    for (const s of names.springs) {
+      if (n > cap + 18) break;
+      const x = sx(mercX(s.x)), y = sy(mercY(s.y));
+      if (x < 40 || y < 16 || x > W - 40 || y > H - 16) continue;
+      if (label(s.n, x, y + 11, 0, ts * 10.5, 'rgba(174,234,229,0.9)')) n++;
+    }
+  }
+  ctx.restore();
+}
+
+/* ===========================================================================
+   LIVE ONLY
+   The page has always said, in the evidence bar and in the source table, that
+   most of what it draws is inference over registers that are years old. Saying
+   it is not the same as showing it. This switch strips the map back to what is
+   actually current: the reaches with a gauge on them, read minutes ago, and
+   nothing else. The rest of the network goes, the four archival layers go, and
+   what is left is the country as it is measured rather than as it is modelled.
+
+   It is meant to be uncomfortable. 171 reaches out of 8,716 survive it.
+   =========================================================================== */
+const ARCHIVAL = {
+  res:      'the BFE filling statistic and the dam register',
+  ice:      'the GLAMOS inventories, the newest surveyed in 2023',
+  residual: 'the Q347 register, surveyed around 2000',
+  use:      'four registers of water use, the newest from 2019',
+};
+let liveOnly = false;
+const isLive = s => (s.q !== null && s.q !== undefined) ||
+                    (s.obs?.temp !== null && s.obs?.temp !== undefined);
+
+function setLiveOnly(v) {
+  liveOnly = v;
+  document.body.classList.toggle('liveOnly', v);
+  for (const k of Object.keys(ARCHIVAL)) {
+    const b = document.querySelector('#modes button[data-mode="' + k + '"]');
+    if (!b) continue;
+    b.classList.toggle('archival', v);
+    b.title = v ? `Hidden while the map is showing live data only: this layer is ${ARCHIVAL[k]}.` : '';
+  }
+  // A layer built on a 2004 register cannot stay on the screen under a switch that
+  // says only live data is on the screen.
+  if (v && ARCHIVAL[mode]) setMode('flow');
+  const note = document.getElementById('liveNote');
+  if (note) {
+    let measured = 0;
+    for (const r of reaches) if (r.basis === 'measured') measured++;
+    const live = stations.filter(s => s.q !== null && s.q !== undefined).length;
+    note.innerHTML = v
+      ? `Showing <b class="num">${measured.toLocaleString('de-CH')}</b> reaches with a gauge on them and ` +
+        `<b class="num">${live}</b> gauges reporting a discharge. ` +
+        `<b class="num">${(reaches.length - measured).toLocaleString('de-CH')}</b> reaches and the four ` +
+        `archival layers are hidden, because nothing in them was measured today.`
+      : '';
+  }
+  dirtyAlloc = true;
+  invalidate();
+}
 
 // ---- go ---------------------------------------------------------------------
 layoutSheet();

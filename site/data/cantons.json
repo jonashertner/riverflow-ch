@@ -1,0 +1,197 @@
+{
+ "built": "2026-08-19",
+ "topic": "planerischer_gewaesserschutz",
+ "version": "1.2",
+ "service": "https://geodienste.ch/db/planerischer_gewaesserschutz_v1_2_0/deu",
+ "cantons": [
+  {
+   "ct": "NE",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2023-05-16",
+   "cycle": "Jährlich"
+  },
+  {
+   "ct": "GL",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2023-12-21",
+   "cycle": "Wenn Nötig"
+  },
+  {
+   "ct": "VD",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2024-05-22",
+   "cycle": "Unregelmässig"
+  },
+  {
+   "ct": "AR",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2024-10-08",
+   "cycle": "Wenn Nötig"
+  },
+  {
+   "ct": "UR",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2024-12-11",
+   "cycle": "Wenn Nötig"
+  },
+  {
+   "ct": "OW",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2025-04-28",
+   "cycle": "Wenn Nötig"
+  },
+  {
+   "ct": "NW",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2025-07-16",
+   "cycle": "Wenn Nötig"
+  },
+  {
+   "ct": "VS",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2025-09-08",
+   "cycle": "Wenn Nötig"
+  },
+  {
+   "ct": "LU",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2025-10-28",
+   "cycle": "Benutzerdefiniert"
+  },
+  {
+   "ct": "GE",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2025-12-01",
+   "cycle": "Unbekannt"
+  },
+  {
+   "ct": "AI",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2025-12-18",
+   "cycle": "Wenn Nötig"
+  },
+  {
+   "ct": "ZG",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2025-12-19",
+   "cycle": "Benutzerdefiniert"
+  },
+  {
+   "ct": "SZ",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-03-03",
+   "cycle": "Benutzerdefiniert"
+  },
+  {
+   "ct": "TG",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-03-16",
+   "cycle": "Unregelmässig"
+  },
+  {
+   "ct": "SH",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-03-29",
+   "cycle": "Wenn Nötig"
+  },
+  {
+   "ct": "AG",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-03-31",
+   "cycle": "Jährlich"
+  },
+  {
+   "ct": "GR",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-04-03",
+   "cycle": "Unregelmässig"
+  },
+  {
+   "ct": "BL",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-05-13",
+   "cycle": "Wenn Nötig"
+  },
+  {
+   "ct": "TI",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-07-13",
+   "cycle": "Benutzerdefiniert"
+  },
+  {
+   "ct": "SO",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-07-31",
+   "cycle": "Unbekannt"
+  },
+  {
+   "ct": "ZH",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-08-09",
+   "cycle": "Wöchentlich"
+  },
+  {
+   "ct": "BE",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-08-13",
+   "cycle": "Benutzerdefiniert"
+  },
+  {
+   "ct": "BS",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-08-15",
+   "cycle": "Benutzerdefiniert"
+  },
+  {
+   "ct": "FR",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-08-15",
+   "cycle": "Wöchentlich"
+  },
+  {
+   "ct": "JU",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-08-15",
+   "cycle": "Wöchentlich"
+  },
+  {
+   "ct": "SG",
+   "wms": "Frei erhältlich",
+   "full": true,
+   "updated": "2026-08-19",
+   "cycle": "Wenn Nötig"
+  }
+ ],
+ "free": 26,
+ "covered": 26,
+ "total": 26,
+ "oldest": "2023-05-16",
+ "oldestCt": "NE",
+ "newest": "2026-08-19",
+ "fl": "keine Daten / Bereitstellung"
+}

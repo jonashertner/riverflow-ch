@@ -112,6 +112,7 @@ body[data-layer="res"]      { --accent: var(--res-full); }
 body[data-layer="ice"]      { --accent: #dce9f8; }
 body[data-layer="residual"] { --accent: var(--law); }
 body[data-layer="use"]      { --accent: var(--use-out); }
+body[data-layer="source"]   { --accent: #7fd4d0; }
 
 /* A measured figure, anywhere it appears in prose. */
 .num { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink-2); }
@@ -322,6 +323,19 @@ button, input, select { font: inherit; }
                    box-shadow: inset 0 0 0 2px var(--use-out), inset 0 0 0 4px var(--surface-1),
                                inset 0 0 0 5px var(--use-out); }
 .swatch.useAra   { background: var(--use-in); }
+/* Where the water comes from. The one layer this map draws itself, the
+   headwaters, wears the map's own teal; the three that arrive as somebody else's
+   picture wear the wash they are actually drawn in, at the alpha they are drawn
+   at, so the legend is a sample of the screen rather than a promise about it. */
+.srcKeys .swatch { width: 14px; height: 10px; border-radius: 2px; }
+.swatch.srcGw    { background: rgba(90,140,190,0.62); border: 1px solid rgba(140,180,220,0.5); }
+.swatch.srcZone  { background: rgba(158,86,196,0.8); border: 1px solid rgba(190,130,220,0.7); }
+.swatch.srcCatch { background: rgba(150,150,150,0.30); border: 1px solid rgba(190,190,190,0.35); }
+.swatch.srcHead  { width: 22px; height: 3px; border-radius: 2px; background: #4da8a2; }
+.srcKeys li { display: block; }
+.srcKeys label { display: flex; align-items: center; gap: 0.45rem; cursor: pointer; padding: 3px 0; }
+.srcKeys input { margin: 0; accent-color: var(--accent); }
+
 .useKeys li { display: block; }
 .useKeys label { display: flex; align-items: center; gap: 0.45rem; cursor: pointer; padding: 3px 0; }
 .useKeys input { margin: 0; accent-color: var(--accent); }
@@ -351,6 +365,36 @@ button, input, select { font: inherit; }
   min-height: 22px;
 }
 .controls input { accent-color: var(--accent); margin: 0; }
+/* The ground is a choice of one, so it is radios laid on a line rather than a
+   column of checkboxes: three grounds stacked read as three things you can have. */
+.groundRow { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px;
+             margin-top: 8px; border-top: 0; padding-top: 0; }
+.groundRow label { margin-bottom: 0; }
+.ctlLabel { font-size: 10px; font-weight: 600; letter-spacing: 0.09em;
+            text-transform: uppercase; color: var(--ink-muted); }
+
+/* Live only. It removes 98 % of the map, so it does not sit in the same list as
+   the switch for the gauge dots: it gets a rule of its own and states what it
+   took away in the same breath. */
+.liveRow { margin-top: 10px; border-top: 1px solid var(--rule); padding-top: 10px; }
+.liveSwitch {
+  display: flex; align-items: center; gap: 7px; cursor: pointer;
+  font-size: 12px; font-weight: 600; color: var(--ink-2); min-height: 22px;
+}
+.liveSwitch input { accent-color: var(--ev-measured); margin: 0; }
+body.liveOnly .liveSwitch { color: var(--ev-measured); }
+body.liveOnly #liveNote { margin-top: 6px; }
+#liveNote:empty { display: none; }
+#liveNote.flash { color: var(--ev-measured); transition: color 120ms; }
+@media (prefers-reduced-motion: reduce) { #liveNote.flash { transition: none; } }
+/* A layer built on an old register is not disabled under Live only, it is struck
+   through: disabling it would hide the fact that the map has four of them. */
+#modes button.archival {
+  opacity: 0.42;
+  text-decoration: line-through;
+  text-decoration-color: var(--ev-none);
+  text-decoration-thickness: 1px;
+}
 
 .btnRow { display: grid; gap: 6px; margin-top: 10px; }
 .btnRow button {

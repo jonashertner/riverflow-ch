@@ -21,7 +21,7 @@ the URL hash as `#lon,lat,scale,layer`, so a link is a citation: this place, thi
 reading, this scale. A bare layer name works too — `#ice`, `#res`, `#residual`,
 `#use` — and opens that layer at the country view.
 
-## The seven layers
+## The eight layers
 
 | Layer | What the colour carries | Class of evidence |
 |---|---|---|
@@ -32,8 +32,9 @@ reading, this scale. A bare layer name works too — `#ice`, `#res`, `#residual`
 | Ice | Five glacier inventories, 1850 · 1931 · 1973 · 2010 · 2023, played in their real intervals | Measured by survey. Area, not volume |
 | Residual flow | Q<sub>347</sub> at 1,041 points and the minimum GSchG Art. 31(1) computes from it | Measured, station-derived or modelled — stated per point |
 | Water use | Who takes the water out and who puts it back | Registered locations; one quantity, and that one derived |
+| Water sources | Groundwater bodies, headwaters, sub-catchments, and the drinking-water protection zones in force | Three of the four are WMS images from a federal or cantonal server. Only the headwaters are this map's own data |
 
-Two of the seven run on a time ribbon: the reservoir layer plays 1,390 weekly
+Two of the eight run on a time ribbon: the reservoir layer plays 1,390 weekly
 readings from 3 January 2000 to the most recent week, and the ice layer plays the
 five surveys held in proportion to their own intervals — 81, 42, 37 and 13 years —
 so that 1850–1931 does not look as fast as 2010–2023.
@@ -50,14 +51,27 @@ node build/05-users.mjs           # abstractions, hydropower, nuclear, treatment
 node build/06-reservoirs.mjs      # dam register and the weekly filling series
 node build/07-residual.mjs        # Q347 and the Art. 31(1) minimum
 node build/09-icehistory.mjs      # the five dated inventories
+node build/10-names.mjs           # join swissNAMES3D to the network: names for the water
+node build/11-cantons.mjs         # who has delivered the protection zones, and when
 node build/08-vintage.mjs         # read every federal layer's Datenstand back
 ```
 
+`08` reads `site/data/cantons.json`, so `11` runs before it. `10` needs the
+swissNAMES3D CSV release in `/tmp/riv/names`:
+
+```bash
+mkdir -p /tmp/riv/names && cd /tmp/riv/names
+curl -fLO https://data.geo.admin.ch/ch.swisstopo.swissnames3d/swissnames3d_2026/swissnames3d_2026_2056.csv.zip
+unzip -oq swissnames3d_2026_2056.csv.zip
+```
+
 Only `site/data/*.json` is kept in the repository. The sources stay in `/tmp`.
-`06` and `08` take everything they need off the network, so they also run in CI:
-`.github/workflows/pages.yml` re-runs both every Monday and commits the result,
-which is what keeps the baked filling series and the vintage audit from going
-quietly stale.
+`06`, `11` and `08` take everything they need off the network, so they also run in
+CI: `.github/workflows/pages.yml` re-runs all three every Monday and commits the
+result, which is what keeps the baked filling series, the cantonal delivery dates
+and the vintage audit from going quietly stale. `10` is not in CI: swissNAMES3D is
+an annual release and a 32 MB download, so it is rebuilt by hand when swisstopo
+publishes a new year.
 
 ## How old is any of this, really
 
@@ -74,8 +88,12 @@ as stale.
 | Reservoir filling level (BFE) | 17.08.2026 | 2 days |
 | WASTA hydropower statistic (BFE) | 31.12.2025 | 231 days |
 | Glacier inventories and length change (GLAMOS) | 2026 release | 230 days |
+| swissNAMES3D, the names of the water (swisstopo) | 09.03.2026 | 163 days |
+| Sub-catchments, 2 km² (BAFU) | 01.06.2024 | 809 days |
 | Dams under federal supervision (BFE) | 28.11.2023 | 995 days |
+| Drinking-water protection zones (26 cantons via geodienste.ch) | 16.05.2023, the oldest cantonal delivery — NE | 1,191 days |
 | Lakes and border (Natural Earth) | 2022 | 1,571 days |
+| **Groundwater bodies (BAFU)** | 01.01.2017 | 3,517 days |
 | **Nuclear power stations (BFE)** | 20.12.2019 | 2,434 days |
 | **River network (HydroRIVERS v1.0)** | 2019 | 2,787 days |
 | **Treatment plants, share at Q347 (BAFU)** | 01.01.2014, survey 2011 | 4,613 days |
@@ -114,6 +132,11 @@ those two questions have drifted apart.
 | Nuclear power stations | BFE, `ch.bfe.kernkraftwerke`, data state 20.12.2019 | opendata.swiss, attribution |
 | Wastewater treatment plants, share of the receiving water at Q<sub>347</sub> | BAFU, `ch.bafu.gewaesserschutz-klaeranlagen_anteilq347`, survey 2011, federal data state 1.1.2014 | opendata.swiss, attribution |
 | Lakes, national border | Natural Earth 10m | public domain |
+| Names of watercourses, lakes, glaciers, springs and waterfalls | swisstopo, swissNAMES3D 2026, `swissnames3d_2026_2056.csv` | open data, free use with source attribution |
+| Groundwater bodies | BAFU, `ch.bafu.grundwasserkoerper`, WMS, federal data state 1.1.2017 | FSDI general terms of use |
+| Sub-catchments of Switzerland, 2 km² | BAFU, `ch.bafu.wasser-teileinzugsgebiete_2`, WMS, federal data state 1.6.2024 | FSDI general terms of use |
+| Drinking-water protection zones S1–S3, in force | the 26 cantons, harmonised to MGDM 130.1/131.1/132.1 and served by geodienste.ch, `planerischer_gewaesserschutz_v1_2_0` | per canton; all 26 currently publish this model freely |
+| Relief shading, grey national map (optional ground) | swisstopo, `ch.swisstopo.swissalti3d-reliefschattierung`, `ch.swisstopo.pixelkarte-grau`, WMS | FSDI general terms of use |
 | Statutory text | fedlex.admin.ch, consolidated German versions in force on 19 August 2026 | federal law |
 
 The two GLAMOS licence statements do not agree. Both are shown on the page.
@@ -220,6 +243,136 @@ Anyone putting this to commercial use should settle the point with GLAMOS first.
   BFE region. That step is exact. What is inexact is in the source, not here:
   BFE's fourth region is everything outside Valais, Grisons and Ticino, so it pools
   the Bernese Oberland with the Jura.
+
+## Pictures, and things that are data
+
+Everything on this map that carries a reading is data the page holds: it can be
+queried, it can be dated, it can be checked. Three of the four things on the water
+sources layer, and both optional basemaps, are not. They are WMS images —
+somebody else's rendering, requested for the rectangle on screen and drawn under
+the water. That is a real difference and the page keeps it visible: none of them
+is on by default, each says whose it is, they are drawn softer than the water, and
+the legend states in its first line that they are pictures.
+
+The mechanics are simpler than they look, because of one lucky fact: this map's
+own projection is Web Mercator, and both `wms.geo.admin.ch` and `geodienste.ch`
+answer in `EPSG:3857`. So a `GetMap` for the current view needs no reprojection at
+all — the image comes back in the frame the canvas is already in, and is drawn
+into the rectangle it was asked for. One request per layer covers the viewport
+with a 22 % margin, renewed only when the view leaves that margin or the scale
+moves by a factor of 1.9.
+
+Three of them are re-coloured, and each change is a decision rather than a
+default:
+
+- **The hillshade is inverted.** `swissalti3d-reliefschattierung` is drawn for
+  white paper, where flat ground is a light tone. Composited straight onto a
+  near-black plane it lifts the whole country to a grey slab and takes the
+  discharge ramp's contrast with it — the first attempt did exactly that. Inverted
+  and composited with `lighten`, flat ground falls back to the plane's own black
+  and only the slopes are left, so terrain appears where there is terrain.
+- **The grey national map is inverted too**, for the same reason: paper goes
+  black, ink and place names come up light. That layer is there for one job — to
+  find a specific site on the ground — and it does it well.
+- **The protection zones are rotated to violet.** geodienste.ch renders S1, S2 and
+  S3 in three blues, which on a map whose whole subject is water in blue reads as
+  more water. The rotation is uniform, so the three zones keep their distinctions
+  from each other and lose only their resemblance to the rivers. Violet because it
+  is the one part of the wheel this map has not spent: blue is discharge, teal is
+  stored water, orange is a taking, bone is a figure from the statute, amber is
+  heat.
+
+Nothing in this file ever reads pixels back off a canvas, which is what makes all
+of this safe to do with cross-origin images.
+
+### The protection zones have no single date
+
+There is no federal layer for drinking-water protection zones. The zones are
+cantonal, and what exists is geodienste.ch, a joint service of the cantons and
+swisstopo that aggregates twenty-six cantonal deliveries of the minimal geodata
+model *Planerischer Gewässerschutz* (MGDM 130.1, 131.1, 132.1) into one national
+WMS. All twenty-six deliver, all twenty-six publish it freely, and all twenty-six
+report full cantonal coverage.
+
+But a national picture assembled from twenty-six deliveries is exactly as current
+as the canton that delivered last, and the picture does not say who that is. So
+`build/11-cantons.mjs` reads every canton's delivery date from the service's own
+register and the page states the **oldest**, with the canton named: at the last
+build, Neuchâtel on 16 May 2023. The newest was the same day as the build.
+
+Only the zones **in force** are drawn. The service also carries planned zones and
+future zones, and a planned zone is not a legal constraint — drawing the two in
+one colour would put a restriction on the map that does not exist yet.
+
+## The names, and where the join fails
+
+HydroRIVERS is anonymous. It carries an ID, an upstream area and a modelled mean
+discharge, and no name for anything. The names come from swissNAMES3D, swisstopo's
+gazetteer of the official geographical names, and `build/10-names.mjs` joins the
+two: 7,826 watercourse anchors, 1,555 lakes, 760 glaciers, 86 named springs and
+157 named waterfalls.
+
+swissNAMES3D gives a name and an anchor point per *placement*, not a named
+geometry — the Rhine appears six times along its course, the Aare sixteen. Each
+anchor is snapped to the nearest drawn reach, which gives it the two things a bare
+point lacks: the size of the water it names, so the map can decide at which zoom
+the name is worth its ink, and the local direction of the channel, so the name can
+be set along the water rather than across it. Hydrography is set in italic, which
+is not decoration but the convention on every topographic map printed in the last
+two centuries.
+
+Three numbers in that script were fought over, and all three are stated in the
+code with the evidence that fixed them:
+
+- **The snap radius is 500 m**, and it is the one number here that was tuned
+  rather than derived. The two sources are drawn at different scales:
+  swissNAMES3D is placed against 1:25,000, HydroRIVERS is a global product
+  generalised far coarser. Measured against rivers whose size is known, the gap
+  runs from 85 m on the Rhine at Schaffhausen through 254 m on the Ticino to
+  1,097 m on the Reuss. Tighten it to 300 m and the Limmat, the Emme and the
+  Sarine vanish without a word. Widen it to 1,200 m and the Äpelööbächlein comes
+  out the fifth largest watercourse in Switzerland.
+- **A name is ranked by its largest anchor, within a cluster.** Largest, because
+  an anchor is placed wherever the label fits and only the top of a name's range
+  says what the river is. Clustered at 25 km, because fourteen different brooks in
+  this country are called Dorfbach and they are not one river.
+- **A cluster of fewer than three placements takes its smallest reading instead.**
+  A cluster the national mapping agency wrote three or more times along a course
+  has enough of its own evidence for the largest to be corroborated; one written
+  twice has nothing to check itself against. This is what stops the Erzbach, whose
+  second placement fell 131 m from the Aare, from claiming 10,706 km².
+
+**What it still gets wrong, and this is not fixable at this scale.** A canal
+running alongside a big river within about 200 m cannot be told from it in a
+network generalised this coarsely. The Rothkanal beside the Aare takes 9,917 km²
+and the Aalte Rii 13,726, and they are drawn as though they were trunk rivers.
+Roughly three names in 1,244 are affected. What saves the picture rather than the
+data is that a stolen size is always stolen from a river standing right there, so
+holding the labels a fixed distance apart in pixels gives the neighbourhood to
+whichever name in it ranks highest — which is the trunk.
+
+Names for water this map does not draw are dropped, not floated: HydroRIVERS is
+clipped at 5 km² of upstream area, so 4,987 gazetteer anchors belong to brooks
+with no line here, and a name over empty ground is a worse answer than no name.
+
+## Live data only
+
+The evidence bar and the source table have always said, in numbers, that most of
+what this page draws is inference over registers that are years old. Saying it is
+not the same as showing it.
+
+**Live data only** strips the map back to what is actually current: the reaches
+with a gauge on them, read minutes ago, and nothing else. The other 8,545 reaches
+go. The particles stop running on estimated water. The four archival layers —
+reservoirs, ice, residual flow, water use — are struck through in the switch and
+cannot be selected, because a layer built on a 2004 register cannot stay on a
+screen that says only live data is on it. River names go too: under this switch a
+name over blank ground would claim water the map is no longer drawing.
+
+The lakes and the border stay. They are geography, not a reading, and the mode is
+about currency, not about erasing the country.
+
+171 reaches out of 8,716 survive it. It is meant to be uncomfortable.
 
 ## The legal layer
 

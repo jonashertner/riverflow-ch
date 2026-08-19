@@ -128,6 +128,51 @@ const SOURCES = [
     note: 'Traced from a 15 arc-second grid, so its lines carry the staircase of the raster. The long-term mean it carries is a model output, not a gauge reading.',
   },
   {
+    key: 'names', layer: null,
+    name: 'Names of the watercourses, lakes, glaciers and springs',
+    holder: 'swisstopo, swissNAMES3D 2026', cls: 'register', cadence: 'annual', live: false,
+    url: 'https://data.geo.admin.ch/ch.swisstopo.swissnames3d/',
+    licence: 'Open data, free use with source attribution',
+    fixed: '2026-03-09',
+    note: 'A gazetteer of name placements, not of named geometries. Each anchor is joined to the nearest drawn reach, which is what gives a name its rank and its angle. The join fails predictably where a canal runs within 200 m of a trunk river: build/10-names.mjs names the cases it gets wrong rather than hiding them.',
+  },
+  {
+    key: 'groundwater', layer: 'ch.bafu.grundwasserkoerper',
+    name: 'Groundwater bodies',
+    holder: 'BAFU', cls: 'register', cadence: 'irregular', live: false,
+    url: 'https://www.geocat.ch/',
+    licence: 'FSDI general terms of use, free use with source attribution',
+    fixed: null,
+    note: 'Drawn as a WMS image, not held as data. The page cannot query it, cannot check it, and reads its date from the same legend endpoint as every other federal layer.',
+  },
+  {
+    key: 'catchments', layer: 'ch.bafu.wasser-teileinzugsgebiete_2',
+    name: 'Sub-catchments of Switzerland, 2 km2',
+    holder: 'BAFU', cls: 'register', cadence: 'irregular', live: false,
+    url: 'https://www.geocat.ch/',
+    licence: 'FSDI general terms of use, free use with source attribution',
+    fixed: null,
+    note: 'Drawn as a WMS image. Which ground drains to which water; it carries no quantity.',
+  },
+  {
+    key: 'zones', layer: null,
+    name: 'Drinking-water protection zones S1 to S3, in force',
+    holder: 'the 26 cantons via geodienste.ch', cls: 'register', cadence: 'per canton, see the layer', live: false,
+    url: 'https://geodienste.ch/services/planerischer_gewaesserschutz',
+    licence: 'per canton; all 26 currently publish this model freely',
+    fixed: null,   // filled from cantons.json: a national picture is as old as its oldest canton
+    note: 'There is no federal layer. This is 26 cantonal deliveries of the minimal geodata model Planerischer Gewaesserschutz aggregated into one service, so it has no single data state: the date given is the OLDEST cantonal delivery, because that is how old the picture actually is.',
+  },
+  {
+    key: 'basemap', layer: 'ch.swisstopo.pixelkarte-grau',
+    name: 'Relief shading and the grey national map, optional ground',
+    holder: 'swisstopo', cls: 'context', cadence: 'periodic', live: false,
+    url: 'https://docs.geo.admin.ch/visualize-data/wms.html',
+    licence: 'FSDI general terms of use, free use with source attribution',
+    fixed: null,
+    note: 'Both are off unless asked for and neither carries a reading. They are here so a site can be found on the ground, not so anything can be measured from them.',
+  },
+  {
     key: 'context', layer: null,
     name: 'Lakes and the national border',
     holder: 'Natural Earth 10m', cls: 'context', cadence: 'static', live: false,
@@ -149,12 +194,24 @@ try {
 } catch { /* reservoirs not built yet; the field stays null and the page says so */ }
 
 const sources = [];
+// The protection zones have no data state of their own. A national picture made of
+// 26 cantonal deliveries is exactly as current as the canton that delivered last,
+// so that is the date, and the canton is named with it.
+let zoneOldest = null, zoneCt = null;
+try {
+  const c = JSON.parse(await fs.readFile(new URL('../site/data/cantons.json', import.meta.url), 'utf8'));
+  zoneOldest = c.oldest; zoneCt = c.oldestCt;
+} catch { /* run build/11-cantons.mjs first; until then the layer says "unstated" */ }
+
 for (const s of SOURCES) {
   let ds = s.fixed ?? null;
   if (s.layer) ds = await datenstand(s.layer);
   if (s.key === 'reservoirFill') ds = fillLatest;
+  if (s.key === 'zones') ds = zoneOldest;
   sources.push({
-    key: s.key, name: s.name, holder: s.holder, cls: s.cls, cadence: s.cadence,
+    key: s.key,
+    name: s.key === 'zones' && zoneCt ? `${s.name} (oldest delivery: ${zoneCt})` : s.name,
+    holder: s.holder, cls: s.cls, cadence: s.cadence,
     live: !!s.live, url: s.url, licence: s.licence, note: s.note,
     layer: s.layer, datenstand: ds,
     ageDays: ds ? days(ds) : null,

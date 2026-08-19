@@ -64,6 +64,10 @@
     <button type="button" data-mode="residual" id="modeResidual" disabled>Residual flow</button>
     <button type="button" data-mode="use" id="modeUse" disabled>Water use</button>
   </div>
+  <div class="modeGroup" role="group" aria-label="Where water comes from">
+    <span class="modeGroupLabel">Source</span>
+    <button type="button" data-mode="source">Water sources</button>
+  </div>
 </nav>
 
 <section id="legend" aria-label="Legend">
@@ -183,9 +187,45 @@
     <p class="lgNote" id="useCount">&#160;</p>
   </div>
 
+
+  <div class="lg" id="lgSource" hidden>
+    <ul class="notes srcKeys">
+      <li><label><input type="checkbox" data-src="gw"><span class="swatch srcGw"></span>Groundwater bodies</label></li>
+      <li><label><input type="checkbox" data-src="head" checked><span class="swatch srcHead"></span>Headwaters, the top of the drawn network</label></li>
+      <li><label><input type="checkbox" data-src="zone" checked><span class="swatch srcZone"></span>Drinking-water protection zones S1&ndash;S3, in force</label></li>
+      <li><label><input type="checkbox" data-src="catch"><span class="swatch srcCatch"></span>Sub-catchments</label></li>
+    </ul>
+    <p class="lgNote"><b>Three of these four are pictures, not data.</b> The groundwater bodies, the
+      protection zones and the catchments are drawn by a federal or cantonal server for the rectangle on
+      screen and arrive as an image: this map cannot query them, date them from the picture, or check
+      them. The headwaters are the exception, and are drawn in this map&rsquo;s own ink.</p>
+    <p class="lgNote"><b>A headwater is not a spring.</b> It is a reach with nothing above it, clipped at
+      5&nbsp;km&#178; of upstream area &mdash; the top of the network as this map draws it, and the part of
+      the country with no gauge anywhere above it. The named springs and waterfalls that appear from zoom
+      are swissNAMES3D&rsquo;s 86 and 157 <em>named</em> ones, not a count of Switzerland&rsquo;s springs.</p>
+    <p class="lgNote"><b>Only zones in force are drawn.</b> geodienste.ch serves planned and future zones
+      too; a planned zone is not yet a legal constraint. S1 is the fenced ground at the wellhead, S2 the
+      close zone, S3 the outer one &mdash; Art.&nbsp;20 GSchG, GSchV Annex&nbsp;4 No.&nbsp;1. They are
+      measured in hectares, so at country view they are smaller than a pixel: zoom past a canton before
+      expecting to see any.</p>
+    <p class="lgNote" id="srcAges">&nbsp;</p>
+    <p class="lgNote" id="srcCoverage">&nbsp;</p>
+  </div>
+
   <div class="controls">
     <label><input type="checkbox" id="toggleStations" checked> Gauging stations</label>
     <label><input type="checkbox" id="toggleMotion" checked> Motion</label>
+    <label><input type="checkbox" id="toggleNames" checked> Names</label>
+  </div>
+  <div class="controls groundRow" role="radiogroup" aria-label="Ground">
+    <span class="ctlLabel">Ground</span>
+    <label><input type="radio" name="ground" value="" checked> None</label>
+    <label><input type="radio" name="ground" value="relief"> Relief</label>
+    <label><input type="radio" name="ground" value="topo"> Grey topo</label>
+  </div>
+  <div class="liveRow">
+    <label class="liveSwitch"><input type="checkbox" id="toggleLive"> Live data only</label>
+    <p class="lgNote" id="liveNote"></p>
   </div>
   <div class="btnRow">
     <button id="refresh" type="button">Refresh live data</button>
