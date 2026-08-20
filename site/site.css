@@ -1,0 +1,460 @@
+/* The pages.
+ *
+ * The map is an instrument and it is dressed as one: everything floats, nothing
+ * scrolls, and the reader's attention belongs to the drawing. These pages are the
+ * opposite kind of object. They are an argument about the drawing — where every
+ * figure came from, how old it is, what it can be made to bear in a legal file —
+ * and an argument is read, in a column, from the top.
+ *
+ * So the type registers swap roles. On the map the grotesque leads and the serif
+ * appears only where a statute is quoted. Here the serif leads: the pages are
+ * about text, so they wear the face this project gives to text, and the moment
+ * you leave the map you can feel that you have moved from reading an instrument
+ * to reading an account of one. The palette does not change at all. Nothing about
+ * a page is allowed to look like a different website.
+ *
+ * Layout is one column, one rail, and no framework:
+ *   phone     the column, and the contents list folds into a disclosure
+ *   tablet    the same column, wider margins
+ *   desktop   a sticky contents rail beside the column
+ *   wide      the pair stays centred; the page never spreads to fill a 4K screen,
+ *             because a 200-character line is not a reading experience
+ */
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body.page {
+  min-height: 100%;
+  /* Every heading is a scroll target, and a sticky bar would land on top of it. */
+  scroll-padding-top: 84px;
+}
+body.page { overflow-x: hidden; }
+
+/* Each page takes a key colour from its own subject, exactly as each layer of the
+   map does. Sources is the one page with no single subject colour: it is about
+   age, and age has two states there, live and stale, both already in the palette. */
+body[data-page="method"]  { --accent: var(--ev-estimated); }
+body[data-page="sources"] { --accent: var(--seq-300); }
+body[data-page="law"]     { --accent: var(--law); }
+body[data-page="about"]   { --accent: var(--seq-300); }
+
+/* ---- the bar ----
+   Wordmark, and the four places this site goes. It is the same on every page and
+   on the map, so a reader never has to look for it twice. */
+.siteHead {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px 20px; flex-wrap: wrap;
+  padding: 10px clamp(16px, 4vw, 40px);
+  background: color-mix(in srgb, var(--plane) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--hairline);
+}
+.brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  color: var(--ink); text-decoration: none; font-weight: 600;
+  font-size: 14px; letter-spacing: -0.01em; white-space: nowrap;
+}
+.brand:hover { color: var(--ink); }
+.mark { flex: none; display: block; }
+/* The mark is the map's own grammar in miniature: a sliver of light water, the
+   measured body, and the block that stands for what nobody has gauged. Because it
+   is made of the same tokens as the map, it reverses with the surface. */
+.mark .mA { fill: var(--seq-200); }
+.mark .mB { fill: var(--seq-400); }
+.mark .mC { fill: var(--ev-none); }
+.brandName { overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 560px) { .brandLong { display: none; } }
+@media (min-width: 561px) { .brandShort { display: none; } }
+
+.siteNav { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 2px; margin-left: auto; }
+.siteNav a {
+  color: var(--ink-muted); text-decoration: none;
+  font-size: 12.5px; padding: 7px 10px; border-radius: 6px;
+  transition: background 120ms, color 120ms;
+}
+.siteNav a:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.siteNav a[aria-current="page"] { color: var(--ink); background: color-mix(in srgb, var(--ink) 10%, transparent); }
+.siteNav a.toMap { color: var(--accent); }
+@media (max-width: 560px) {
+  .siteHead { padding: 7px clamp(14px, 4vw, 40px); gap: 8px 16px; }
+  .siteNav a { font-size: 12px; padding: 6px 8px; }
+}
+
+/* ---- the column ---- */
+.docWrap {
+  display: grid; justify-content: center;
+  gap: clamp(28px, 4vw, 72px);
+  grid-template-columns: min(46rem, 100%);
+  padding: clamp(28px, 5vw, 64px) clamp(16px, 4vw, 40px) 96px;
+}
+@media (min-width: 1080px) {
+  .docWrap { grid-template-columns: 216px min(44rem, calc(100% - 300px)); }
+}
+.doc { min-width: 0; }
+
+.docHead { margin-bottom: clamp(28px, 4vw, 44px); }
+.eyebrow {
+  margin: 0 0 14px; font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+}
+.doc h1 {
+  margin: 0; font-family: var(--serif); font-weight: 600;
+  font-size: clamp(30px, 5.2vw, 48px); line-height: 1.08;
+  letter-spacing: -0.015em; color: var(--ink);
+  text-wrap: balance;
+}
+.lede {
+  margin: 18px 0 0; font-size: clamp(16.5px, 1.5vw, 19px); line-height: 1.6;
+  color: var(--ink-2);
+}
+.lede b { color: var(--ink); font-weight: 600; }
+.dateline {
+  margin: 22px 0 0; padding-top: 14px; border-top: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.6; color: var(--ink-muted);
+}
+.dateline b { color: var(--ink-2); font-weight: 400; }
+
+/* ---- prose ---- */
+.doc section { margin-top: clamp(40px, 5vw, 64px); scroll-margin-top: 84px; }
+.doc h2 {
+  margin: 0 0 16px; font-family: var(--serif); font-weight: 600;
+  font-size: clamp(21px, 2.3vw, 28px); line-height: 1.2; letter-spacing: -0.01em;
+  color: var(--ink); text-wrap: balance;
+}
+/* The law page argues in a real order — the floor, how it moves, when it applies —
+   so its sections are numbered. Nothing else on this site is, because nothing else
+   is a sequence. */
+.doc h2 .secNo {
+  display: inline-block; min-width: 1.6em; margin-left: -1.9em; padding-right: 0.3em;
+  font-family: var(--mono); font-size: 0.5em; font-weight: 500;
+  vertical-align: 0.55em; color: var(--accent); letter-spacing: 0.02em;
+}
+@media (max-width: 640px) {
+  .doc h2 .secNo { margin-left: 0; display: block; margin-bottom: 4px; font-size: 11px; vertical-align: 0; }
+}
+.doc h2 .cite {
+  display: block; margin-top: 6px; font-family: var(--mono); font-size: 11px;
+  font-weight: 400; letter-spacing: 0.08em; color: var(--ink-muted);
+}
+.doc h3 {
+  margin: 32px 0 10px; font-size: 15px; font-weight: 600; letter-spacing: 0.005em;
+  color: var(--ink);
+}
+.doc p, .doc li {
+  font-size: clamp(15.5px, 1.15vw, 17px); line-height: 1.68; color: var(--ink-2);
+}
+.doc p { margin: 0 0 16px; }
+.doc ul, .doc ol { margin: 0 0 18px; padding-left: 22px; }
+.doc li { margin-bottom: 8px; }
+.doc li::marker { color: var(--ink-muted); }
+.doc b, .doc strong { color: var(--ink); font-weight: 600; }
+.doc a { color: var(--seq-200); text-underline-offset: 2px; text-decoration-thickness: 1px; }
+.doc a:hover { color: var(--seq-100); }
+.doc code {
+  font-family: var(--mono); font-size: 0.88em; color: var(--ink-2);
+  background: color-mix(in srgb, var(--ink) 5%, transparent); padding: 1px 5px; border-radius: 4px;
+}
+.doc hr { border: 0; border-top: 1px solid var(--rule); margin: 40px 0; }
+.fine { font-size: 14px !important; line-height: 1.62; color: var(--ink-muted) !important; }
+.fine b { color: var(--ink-2) !important; }
+
+/* Three kinds of set-off statement, the same three the map uses: an aside, a gap
+   in the evidence, and a quotation from a text that binds. */
+.aside, .flag, .statute {
+  margin: 22px 0; padding: 14px 16px; border-radius: 8px;
+  font-size: 14.5px !important; line-height: 1.6;
+}
+.aside  { background: color-mix(in srgb, var(--ink) 4%, transparent); border: 1px solid var(--hairline); color: var(--ink-muted) !important; }
+.flag   { background: color-mix(in srgb, var(--critical) 12%, transparent); border: 1px solid color-mix(in srgb, var(--critical) 32%, transparent); color: var(--ink-2) !important; }
+.statute {
+  background: var(--law-bg); border: 1px solid var(--law-line);
+  color: var(--law) !important; font-family: var(--serif);
+}
+.aside b, .flag b { color: var(--ink) !important; }
+.statute b { color: var(--law-hi) !important; }
+
+.doc blockquote {
+  margin: 22px 0; padding: 4px 0 4px 20px;
+  border-left: 2px solid var(--law-line);
+  font-family: var(--serif); font-size: 16px !important; line-height: 1.62;
+  color: var(--law); font-style: normal;
+}
+.doc blockquote p { font: inherit; color: inherit; margin: 0 0 10px; }
+.doc blockquote p:last-child { margin: 0; }
+.qSrc {
+  display: block; margin-top: 10px; font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.06em; color: var(--law-dim);
+}
+
+/* ---- tables ---- */
+.tWrap { overflow-x: auto; margin: 22px 0; -webkit-overflow-scrolling: touch; }
+.doc table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 460px; }
+.doc th, .doc td {
+  text-align: left; padding: 10px 12px 10px 0; vertical-align: top;
+  border-bottom: 1px solid var(--rule);
+}
+.doc th {
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-muted); border-bottom-color: var(--ink-muted);
+}
+.doc td { color: var(--ink-2); line-height: 1.5; }
+.doc td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ---- the contents rail ----
+   Sticky on a desktop, a disclosure on a phone. It is the same list either way. */
+.toc { font-size: 13px; }
+.toc .tocTitle {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink-muted);
+}
+.toc ol { list-style: none; margin: 12px 0 0; padding: 0; }
+.toc li { margin: 0; }
+.toc a {
+  display: block; padding: 5px 0 5px 13px; margin-left: -1px;
+  border-left: 1px solid var(--rule);
+  color: var(--ink-muted); text-decoration: none; line-height: 1.4;
+  font-size: 13px;
+  transition: color 120ms, border-color 120ms;
+}
+.toc a:hover { color: var(--ink-2); border-left-color: var(--ink-muted); }
+.toc a[aria-current="true"] { color: var(--ink); border-left-color: var(--accent); }
+
+@media (min-width: 1080px) {
+  .toc { position: sticky; top: 84px; align-self: start; order: -1; max-height: calc(100vh - 120px); overflow-y: auto; }
+  .toc summary { display: none; }
+  .toc[open] .tocTitle, .toc .tocTitle { display: block; }
+}
+@media (max-width: 1079px) {
+  .toc { border: 1px solid var(--hairline); border-radius: 8px; padding: 0; background: var(--surface-2); }
+  /* The disclosure carries the word; the standalone label above the list is the
+     desktop rail's and would otherwise print it a second time. */
+  .toc > .tocTitle { display: none; }
+  .toc summary {
+    list-style: none; cursor: pointer; padding: 12px 14px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .toc summary::-webkit-details-marker { display: none; }
+  .toc summary::after { content: '+'; color: var(--ink-muted); font-family: var(--mono); }
+  .toc[open] summary::after { content: '–'; }
+  .toc ol { margin: 0; padding: 0 14px 12px; }
+  .toc a { border-left: 0; padding: 7px 0; }
+}
+
+/* ---- the vintage spine ----
+   The one graphic on this site that is not the map, and the only one it needs.
+   Every source is a bar that starts at its own data state and runs to today, all
+   on one axis. A federal geoportal will draw you a register from 2000 and a
+   reading from ten minutes ago in the same crisp style; this is that difference,
+   at the length it actually is. */
+.spine { list-style: none; margin: 26px 0 0; padding: 0; }
+.spineAxis {
+  position: relative; height: 16px;
+  margin-left: var(--nameW, 0); margin-right: var(--ageW, 0);
+  border-bottom: 1px solid var(--rule);
+}
+.spineAxis span {
+  position: absolute; top: 0; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 10px; color: var(--ink-muted);
+}
+.spineAxis i { position: absolute; top: 12px; width: 1px; height: 5px; background: var(--rule); }
+.spineRow {
+  display: grid; grid-template-columns: 1fr; gap: 3px;
+  padding: 9px 0; border-bottom: 1px solid var(--rule);
+}
+.spineName { font-size: 13px; color: var(--ink-2); line-height: 1.35; }
+.spineName b { color: var(--ink); font-weight: 500; }
+.spineTrack { position: relative; height: 8px; background: color-mix(in srgb, var(--ink) 4.5%, transparent); border-radius: 4px; }
+.spineTrack i {
+  position: absolute; top: 0; bottom: 0; left: var(--a); right: var(--b);
+  background: var(--seq-500); border-radius: 4px; min-width: 3px;
+}
+.spineRow.isStale .spineTrack i { background: var(--serious); }
+.spineRow.isLive .spineTrack i { background: var(--ev-measured); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ev-measured) 18%, transparent); }
+.spineAge {
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-size: 11.5px; color: var(--ink-muted);
+}
+.spineRow.isStale .spineAge { color: var(--serious); }
+.spineRow.isLive .spineAge { color: var(--ev-measured); }
+@media (min-width: 700px) {
+  .spineRow { grid-template-columns: 15.5rem 1fr 6.5rem; align-items: center; gap: 0 16px; }
+  .spineAxis { --nameW: calc(15.5rem + 16px); --ageW: calc(6.5rem + 16px); }
+  .spineAge { text-align: right; }
+}
+
+/* ---- the cantonal strip ----
+   Twenty-six deliveries on one axis, because the national picture of the
+   protection zones is as old as its oldest canton and no single date says so. */
+.strip { display: flex; flex-wrap: wrap; gap: 4px; margin: 20px 0 10px; padding: 0; list-style: none; }
+.strip li {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.02em;
+  padding: 4px 6px; border-radius: 4px; color: var(--ink-muted);
+  background: color-mix(in srgb, var(--ink) 4%, transparent); border: 1px solid var(--hairline);
+  white-space: nowrap;
+}
+.strip li b { color: var(--ink-2); font-weight: 500; }
+.strip li.old { border-color: color-mix(in srgb, var(--serious) 40%, transparent); color: var(--serious); }
+.strip li.old b { color: var(--serious); }
+
+/* ---- the Art. 31 calculator ---- */
+.calc {
+  margin: 24px 0; padding: 16px; border-radius: 8px;
+  background: var(--law-bg); border: 1px solid var(--law-line);
+}
+.calc label { display: block; font-size: 12px; color: var(--law-dim); margin-bottom: 8px; }
+.calc input {
+  width: 12ch; background: color-mix(in srgb, var(--plane) 55%, transparent); color: var(--law);
+  border: 1px solid var(--law-line); border-radius: 6px; padding: 8px 10px;
+  font-family: var(--mono); font-size: 15px;
+}
+.calc output {
+  display: block; margin-top: 12px; font-family: var(--serif);
+  font-size: 15.5px; line-height: 1.55; color: var(--law-dim);
+}
+.calc output b { color: var(--law-hi); font-variant-numeric: tabular-nums; }
+
+/* ---- the evidence bar, on a page rather than on the plane ---- */
+.evPage { margin: 26px 0; }
+.evPage .evBar { display: flex; gap: 3px; height: 12px; }
+.evPage .evBar span { display: block; border-radius: 2px; min-width: 3px; }
+.evPage .evKeys { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 12px 0 0; padding: 0; }
+.evPage .evKeys li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); margin: 0; }
+.evPage .evKeys i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+
+/* ---- the citation block ---- */
+.cite-box {
+  margin: 22px 0; padding: 16px; border-radius: 8px;
+  background: var(--surface-2); border: 1px solid var(--hairline);
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--ink-2);
+}
+
+/* ---- what a page ends with ---- */
+.siteFoot {
+  border-top: 1px solid var(--hairline);
+  padding: 28px clamp(16px, 4vw, 40px) calc(40px + env(safe-area-inset-bottom, 0px));
+  font-size: 12.5px; line-height: 1.6; color: var(--ink-muted);
+}
+.siteFootIn { max-width: 62rem; margin: 0 auto; display: grid; gap: 14px; }
+.siteFoot a { color: var(--ink-2); }
+.footLinks { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.footLinks a { text-decoration: none; }
+.footLinks a:hover { color: var(--ink); text-decoration: underline; }
+
+/* The one control on a page that is not a link: back to the instrument. */
+.toMapBig {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: 8px; padding: 12px 18px; border-radius: 8px;
+  border: 1px solid var(--hairline); background: color-mix(in srgb, var(--ink) 4%, transparent);
+  color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 500;
+}
+.toMapBig:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.toMapBig .mark { margin: 0; }
+
+/* ---- the four sea basins ----
+   The one place on this site where the whole country is drawn as a single quantity.
+   A stacked band says what four separate bars cannot: that these are parts of one
+   territory, and that the parts are unequal. Segments are ordered largest first and
+   take the discharge ramp in that order, so visual weight and number agree.
+
+   Nothing is written inside the band. Three rows share one set of flex proportions
+   instead: the band, the share, and the frontier. That keeps every label on the page
+   ground, where it is legible on either surface, and it lets the whole figure hold
+   together down to a 360-pixel screen without a single media query for the geometry. */
+.bFig { margin: 26px 0 8px; }
+.bRow { display: flex; width: 100%; gap: 2px; }
+.bRow > * { min-width: 0; }
+.bBand { height: 38px; border-radius: 6px; overflow: hidden; }
+.bBand span { display: block; height: 100%; border-radius: 3px; }
+/* The ramp runs least-ink-first on both surfaces, so the largest share takes the
+   step with the most ink and the smallest the least. On the near-black plane that
+   makes the biggest basin the lightest block; on paper it makes it the darkest. In
+   both cases weight on the screen and size of the number agree. */
+.bBand .s1 { background: var(--seq-200); }
+.bBand .s2 { background: var(--seq-400); }
+.bBand .s3 { background: var(--seq-500); }
+.bBand .s4 { background: var(--seq-600); }
+/* The key. Names and numbers live here rather than on the band, because the
+   smallest segment is four per cent of the measure and no type fits in it. Order
+   and colour are the band's, so the two read as one figure. It wraps, which is why
+   the whole thing survives a 360-pixel screen without a media query. */
+.bKey { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 0; padding: 0; list-style: none; }
+.bKey li {
+  display: flex; align-items: baseline; gap: 7px;
+  font-size: 13px; color: var(--ink-muted); line-height: 1.4;
+}
+.bKey i { flex: none; width: 10px; height: 10px; border-radius: 2px; transform: translateY(1px); }
+.bKey i.s1 { background: var(--seq-200); }
+.bKey i.s2 { background: var(--seq-400); }
+.bKey i.s3 { background: var(--seq-500); }
+.bKey i.s4 { background: var(--seq-600); }
+.bKey b { color: var(--ink); font-weight: 500; }
+.bKey em { font-style: normal; font-size: 11.5px; color: var(--ev-measured); }
+.bKey em.unmeasured { color: var(--serious); }
+.bKey span {
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-size: 12px; color: var(--ink-2);
+}
+
+/* The frontier. A filled mark where a Swiss gauge stands on the border and measures
+   the water leaving; a hollow one where none does. It is the evidence bar's own
+   distinction, asked of a different question. */
+.bFront { margin-top: 9px; }
+.bFront span { position: relative; height: 20px; }
+.bFront span::before {
+  content: ''; position: absolute; top: 0; left: 50%; width: 1px; height: 7px; background: var(--rule);
+}
+.bFront span::after {
+  content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  width: 9px; height: 9px; border-radius: 50%; box-sizing: border-box;
+  background: var(--ev-measured); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ev-measured) 18%, transparent);
+}
+/* The gap reads in the same amber the spine uses for a stale source, because it is
+   the same kind of statement: not a wrong number, an absent one. --ev-none is built
+   to be quiet on both surfaces, which is right on the map and wrong for a mark that
+   has to be found. */
+.bFront span.unmeasured::after {
+  background: transparent; border: 1.5px solid var(--serious); box-shadow: none;
+}
+
+/* A derivation: two primary figures, an operator, a result. Set in the measured
+   register throughout, because every line of it is a measured figure. */
+.derive {
+  margin: 22px 0; padding: 14px 16px; border-radius: 8px;
+  background: color-mix(in srgb, var(--ink) 4%, transparent); border: 1px solid var(--hairline);
+  font-family: var(--mono); font-size: 13px; line-height: 1.8;
+  color: var(--ink-muted); overflow-x: auto;
+}
+.derive b { color: var(--ink); font-weight: 500; }
+.derive .res { color: var(--ev-measured); }
+.derive cite {
+  display: block; margin-top: 12px; font-style: normal;
+  font-size: 11px; line-height: 1.55; letter-spacing: 0.03em;
+}
+
+/* The ice, by the sea it melts towards. Two lengths per basin on one shared axis:
+   what stood in 1850 above what is left. The axis is shared across all four rows, so
+   the Rhone's ice draws longer than the Rhine's because it is larger. */
+.ice { list-style: none; margin: 22px 0 0; padding: 0; }
+.iceRow {
+  display: grid; grid-template-columns: 1fr; gap: 5px;
+  padding: 10px 0; border-bottom: 1px solid var(--rule);
+}
+.iceName { font-size: 13px; color: var(--ink-2); line-height: 1.35; }
+.iceName b { color: var(--ink); font-weight: 500; }
+.iceTrack { position: relative; height: 17px; }
+.iceTrack i, .iceTrack u {
+  position: absolute; left: 0; height: 7px; border-radius: 3.5px; min-width: 2px;
+}
+.iceTrack i { top: 0; background: rgb(var(--ice-past-rgb)); }
+.iceTrack u { top: 10px; background: var(--ice); }
+.iceLoss { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 11.5px; color: var(--ink-muted); }
+@media (min-width: 700px) {
+  .iceRow { grid-template-columns: 10.5rem 1fr 5rem; align-items: center; gap: 0 14px; }
+  .iceLoss { text-align: right; }
+}
+
+/* The live reading in the basin table: the water leaving the country right now,
+   against the long-term mean at the same gauge. */
+.liveQ { color: var(--ev-measured); }
+.liveQ.pending { color: var(--ink-muted); }

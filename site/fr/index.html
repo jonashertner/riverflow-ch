@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="fr" data-root="../">
+<head>
+<meta charset="utf-8">
+<!-- user-scalable is deliberately NOT disabled. The canvas takes its own gestures
+     through touch-action:none, so pinching the page still works for anyone who
+     needs the text bigger. A map is not a reason to break zoom. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>L’eau et la glace en Suisse — une base mesurée</title>
+<meta name="description" content="Le débit en direct des cours d’eau suisses depuis le réseau de mesure de la Confédération, la température de l’eau face au plafond légal, le remplissage des retenues face à 26 ans de sa propre série, et la surface glaciaire suisse à travers cinq inventaires datés. Chaque chiffre porte sa source, sa classe de preuve et son âge.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/fr/">
+<link rel="alternate" hreflang="en" href="../">
+<link rel="alternate" hreflang="de" href="../de/">
+<link rel="alternate" hreflang="fr" href="./">
+<link rel="alternate" hreflang="it" href="../it/">
+<link rel="alternate" hreflang="rm" href="../rm/">
+<link rel="alternate" hreflang="x-default" href="../">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="L’eau et la glace en Suisse">
+<meta property="og:description" content="Les cours d’eau suisses, en direct. Les retenues face à 26 ans de leur propre série. Les glaciers à travers cinq inventaires datés. Une base mesurée pour le travail juridique sur le climat.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../style.css">
+<script src="../i18n.js"></script>
+<script src="../i18n-data.js"></script>
+<script src="../i18n-map.js"></script>
+<script src="../theme.js"></script>
+</head>
+<body class="viz-root" data-layer="flow">
+
+<canvas id="map"></canvas>
+<canvas id="flow"></canvas>
+
+<a class="skip" href="#modes">Aller aux commandes des couches</a>
+
+<header id="titlebar">
+  <h1>L’eau et la glace en Suisse</h1>
+  <p class="sub">Cours d’eau lus en direct depuis les stations de la Confédération. Glace à travers cinq relevés. Retenues face à leur propre série.</p>
+  <p class="stamp" id="stamp">Chargement&#8230;</p>
+
+  <!-- The page's one claim about itself, drawn rather than asserted. -->
+  <div id="evidence">
+    <p class="evLabel">Ce qui est dessiné, par classe de preuve</p>
+    <div class="evBar" id="evBar" role="img" aria-label="Composition du dessin par classe de preuve">
+      <span class="evMeasured" style="flex:0"></span>
+      <span class="evEstimated" style="flex:1"></span>
+      <span class="evNone" style="flex:0"></span>
+    </div>
+    <ul class="evKeys">
+      <li><i class="evMeasured"></i>Mesuré à une station<b id="evNumMeasured">&mdash;</b></li>
+      <li><i class="evEstimated"></i>Estimé pour le tronçon<b id="evNumEstimated">&mdash;</b></li>
+      <li><i class="evNone"></i>Sans base aujourd’hui<b id="evNumNone">&mdash;</b></li>
+    </ul>
+  </div>
+
+  <!-- First visit only. The map answers when it is pointed at, and nothing on a
+       still screen says so. -->
+  <p class="hint" id="hint" hidden>Pointez l’eau pour la lire. <a href="method.html#reading">Comment lire cette carte</a></p>
+
+  <nav id="siteNav" aria-label="Site">
+    <a href="method.html">Méthode</a>
+    <a href="sources.html">Sources</a>
+    <a href="law.html">Droit</a>
+    <a href="about.html">À propos</a>
+    <span class="langs" data-langswitch></span>
+    <button type="button" class="themeBtn" title="Nuit. Passer au jour." aria-label="Nuit. Passer au jour.">
+      <svg class="tIconNight" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z"/></svg>
+      <svg class="tIconDay" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="3.1"/><path d="M8 1.4v1.5M8 13v1.5M14.5 8H13M3 8H1.5M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1M12.6 12.6l-1.1-1.1M4.5 4.5 3.4 3.4"/></svg>
+      <svg class="tIconAuto" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="8" cy="8" r="5.7"/><path d="M8 2.3a5.7 5.7 0 0 1 0 11.4Z" fill="currentColor" stroke="none"/></svg>
+    </button>
+  </nav>
+</header>
+
+<nav id="modes" aria-label="Couche">
+  <div class="modeGroup" role="group" aria-label="L’eau maintenant">
+    <span class="modeGroupLabel">Maintenant</span>
+    <button type="button" data-mode="flow" class="on">Débit</button>
+    <button type="button" data-mode="normal">Face à la normale</button>
+    <button type="button" data-mode="temp">Température</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="L’eau stockée">
+    <span class="modeGroupLabel">Stockée</span>
+    <button type="button" data-mode="res" id="modeRes" disabled>Retenues</button>
+    <button type="button" data-mode="ice" id="modeIce" disabled>Glace</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="L’eau et le droit">
+    <span class="modeGroupLabel">Droit</span>
+    <button type="button" data-mode="residual" id="modeResidual" disabled>Débit résiduel</button>
+    <button type="button" data-mode="use" id="modeUse" disabled>Usages de l’eau</button>
+    <button type="button" data-mode="wet" id="modeWet" disabled>Zones humides</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="D’où vient l’eau">
+    <span class="modeGroupLabel">Origine</span>
+    <button type="button" data-mode="source">Ressources en eau</button>
+  </div>
+</nav>
+
+<section id="legend" aria-label="Légende">
+  <button id="sheetHandle" type="button" aria-expanded="false" aria-controls="legendBody"><span class="grip" aria-hidden="true"></span> <span class="sheetTitle" id="sheetTitle">Débit</span></button>
+
+  <div id="legendBody">
+  <h2 id="legendTitle">Débit</h2>
+
+  <div class="lg" id="lgFlow">
+    <div class="ramp ramp-seq"></div>
+    <div class="rampLabels"><span>0,1</span><span>1</span><span>10</span><span>100</span><span>1000 m&#179;/s</span></div>
+    <ul class="notes">
+      <li><span class="swatch measured"></span>Mesuré à une station</li>
+      <li><span class="swatch estimated"></span>Estimé pour le tronçon</li>
+      <li><span class="swatch nobasis"></span>Hors du réseau mesuré</li>
+    </ul>
+  </div>
+
+  <div class="lg" id="lgNormal" hidden>
+    <div class="ramp ramp-div"></div>
+    <div class="rampLabels"><span>25%</span><span>50%</span><span>100%</span><span>200%</span><span>400%</span></div>
+    <p class="lgNote">Le débit actuel face à la moyenne de longue durée du même tronçon. La moyenne est un chiffre annuel : une valeur estivale inférieure à 100&nbsp;% tient donc en partie à la saison et pas seulement à l’année. À lire comme un rapport, non comme un indice de sécheresse.</p>
+    <p class="lgNote">La moyenne est HydroRIVERS <span class="num">DIS_AV_CMS</span> : modélisée, et non la statistique fédérale. <b>Non citable.</b></p>
+  </div>
+
+  <div class="lg" id="lgTemp" hidden>
+    <div class="ramp ramp-temp"></div>
+    <div class="rampLabels"><span>0</span><span>10</span><span>20</span><span>25&nbsp;&deg;C</span></div>
+    <p class="threshold"><i></i>À partir de 25&nbsp;&deg;C, le plafond de l’OEaux annexe&nbsp;2 ch.&nbsp;12 al.&nbsp;4</p>
+    <p class="lgNote" id="tempCount">&nbsp;</p>
+    <p class="lgNote">Un disque plein est une station avec une série de température, et il est rempli depuis l’échelle. Un anneau vide est une station qui n’en a pas : une mesure absente n’est pas une mesure froide. Sous cette couche, les cours d’eau gardent la couleur de leur débit, atténuée, parce que la température se mesure à la station et nulle part ailleurs.</p>
+    <p class="lgNote">Une mesure, c’est un capteur. Ouvrez une station et comparez-la aux plus proches avant de vous y fier.</p>
+  </div>
+
+  <div class="lg" id="lgRes" hidden>
+    <ul class="notes">
+      <li><span class="swatch resFull"></span>Barrage, dimensionné par le volume retenu à pleine retenue</li>
+      <li><span class="swatch resFlood"></span>Construit pour la rétention des crues, non pour l’électricité</li>
+    </ul>
+    <div class="ramp ramp-res"></div>
+    <div class="rampLabels"><span>vide</span><span>moitié</span><span>plein</span></div>
+    <p class="lgNote">La teinte est le niveau de remplissage de la <b>région</b> du barrage dans la semaine où se trouve la tête de lecture : tous les barrages d’une région bougent donc comme un seul corps. Lancez la lecture pour parcourir vingt-six ans.</p>
+    <p class="lgNote" id="resTotals">&nbsp;</p>
+    <p class="lgNote"><b>Deux registres, et ils ne décrivent pas les mêmes objets.</b> Les barrages sont des ouvrages, avec le volume que chaque retenue contient à pleine retenue. Le taux de remplissage est un chiffre hebdomadaire en GWh &mdash; électricité stockée, non eau stockée &mdash; et il est publié pour quatre régions, non pour 225 barrages. Cette couche peut donc dire ce qu’une retenue contient à pleine retenue, et elle peut dire à quel point la région est remplie cette semaine. <b>Elle ne peut pas dire à quel point la Grande Dixence est remplie aujourd’hui.</b> Personne ne le publie.</p>
+    <p class="lgNote" id="resRank">&nbsp;</p>
+  </div>
+
+  <div class="lg" id="lgIce" hidden>
+    <ul class="notes">
+      <li><span class="swatch ice1850"></span>Glace en 1850</li>
+      <li><span class="swatch ice2023"></span>Glace en 2023</li>
+    </ul>
+    <p class="lgNote">Les corps de 2023 sont dessinés par-dessus les contours de 1850. Ce qui reste en couleur est la glace disparue. Lancez la lecture pour parcourir les cinq relevés datés dans leurs intervalles réels.</p>
+    <p class="lgNote" id="iceTotals">&nbsp;</p>
+    <p class="lgNote"><b>Il s’agit de surface, non de volume.</b> Les deux n’ont pas évolué ensemble : ces dernières décennies, la glace s’est amincie plus vite qu’elle n’a reculé en plan, car un glacier perd son épaisseur sur toute sa surface avant de perdre son contour. Les chiffres de surface donnés ici sont mesurés. Les chiffres de volume sont cités et proviennent de travaux distincts, par des méthodes distinctes.</p>
+  </div>
+
+  <div class="lg" id="lgResidual" hidden>
+    <ul class="notes">
+      <li><span class="swatch resiMeas"></span>Q<sub>347</sub> tiré de séries mesurées</li>
+      <li><span class="swatch resiMod"></span>Q<sub>347</sub> modélisé &mdash; une estimation grossière</li>
+    </ul>
+    <p class="lgNote" id="residualCount">&nbsp;</p>
+    <p class="lgNote"><b>Ce que la loi exigerait, non ce que quelqu’un doit aujourd’hui.</b> L’art. 31 al. 1 LEaux fixe un minimum qui doit rester dans le lit là où de l’eau est prélevée. Le chiffre découle du Q<sub>347</sub>, et l’OFEV publie le Q<sub>347</sub> en 1 041 points : le minimum peut donc être calculé et cartographié au lieu d’être saisi à la main. Mais la règle ne mord que sur un prélèvement <b>nouveau</b>, et sur un prélèvement existant seulement lorsque sa concession expire et doit être renouvelée. Un prélèvement déjà en cours relève à la place du régime d’assainissement des art.&nbsp;80&nbsp;ss.</p>
+    <p class="lgNote"><b>État des données au 1<sup>er</sup> janvier 2000.</b> C’est le fait le plus étrange de cette couche, et le plus utile. L’art.&nbsp;4 let. h définit le Q<sub>347</sub> comme une moyenne décennale, et la décennie de ce fichier est celle sur laquelle les déterminations ont été faites &mdash; pour la question « qu’exigeait-on », le chiffre ancien est donc le bon. Pour la question « combien d’eau ce ruisseau porte-t-il une année sèche », il décrit une hydrologie qui a changé depuis.</p>
+  </div>
+
+  <div class="lg" id="lgUse" hidden>
+    <p class="useDir">Prélève de l’eau</p>
+    <ul class="notes useKeys">
+      <li><label><input type="checkbox" data-use="hydro" checked><span class="swatch useHydro"></span>Force hydraulique, dimensionnée par le débit d’équipement</label></li>
+      <li><label><input type="checkbox" data-use="abstraction" checked><span class="swatch useAbs"></span>Prélèvement, carte des débits résiduels</label></li>
+      <li><label><input type="checkbox" data-use="npp" checked><span class="swatch useNpp"></span>Centrale nucléaire, eau de refroidissement</label></li>
+    </ul>
+    <p class="useDir">Restitue de l’eau</p>
+    <ul class="notes useKeys">
+      <li><label><input type="checkbox" data-use="ara" checked><span class="swatch useAra"></span>Station d’épuration, dimensionnée par équivalents-habitants</label></li>
+    </ul>
+    <p class="lgNote">Deux couleurs, parce que le droit se noue sur la direction : l’art.&nbsp;31 LEaux régit le prélèvement d’eau, l’OEaux annexe&nbsp;2 ch.&nbsp;12 al.&nbsp;4 régit l’apport de chaleur. À quel registre appartient un signe, c’est sa forme qui le dit, non une troisième et une quatrième couleur.</p>
+    <p class="lgNote"><b>Un disque plein porte une quantité. Un anneau ouvert porte un lieu et rien de plus.</b> Des quatre registres fédéraux, seule la statistique de la force hydraulique livre un débit, et elle le livre par calcul, non par mesure : puissance divisée par hauteur de chute. La carte des débits résiduels ne contient aucun volume, et aucun volume de refroidissement des sites nucléaires n’est publié en données ouvertes. Les stations d’épuration portent à la place un rapport : leur rejet face au cours d’eau récepteur au Q<sub>347</sub>. Pour 39 d’entre elles il dépasse 100&#8201;%, autrement dit le ruisseau aux basses eaux porte moins que ce que la station y déverse.</p>
+    <p class="lgNote" id="useCount">&#160;</p>
+  </div>
+
+
+  <div class="lg" id="lgWet" hidden>
+    <ul class="notes wetKeys" id="wetTotals"></ul>
+    <p class="lgNote" id="wetCount">&nbsp;</p>
+    <p class="lgNote"><b>Le registre de l’eau est protégé par ordonnance, celui de la Constitution par la Constitution.</b> Les zones alluviales et les sites de reproduction de batraciens énoncent l’eau comme but de protection : ils sont donc dessinés dans la teinte de l’eau. Les hauts-marais, les bas-marais et les sites marécageux relèvent de l’art.&nbsp;78 al.&nbsp;5&nbsp;Cst., l’article de Rothenthurm, qui interdit de construire et de modifier le terrain, hormis pour la protection des marais eux-mêmes et la poursuite de leur exploitation agricole &mdash; sans pesée d’intérêts à perdre ; ils portent donc l’encre que porte ici toute grandeur légale. <a href="method.html#wetlands">Comment cela est dessiné</a>.</p>
+    <p class="lgNote"><b>Les âges contredisent les buts.</b> L’inventaire des batraciens a été révisé il y a quelques mois ; celui des zones alluviales, dont le but de protection est une quantité d’eau, porte un état des données fédéral de novembre 2017 &mdash; et l’inventaire où se trouve Rothenthurm aussi. <a href="sources.html#table">Chaque date</a>.</p>
+  </div>
+
+  <div class="lg" id="lgSource" hidden>
+    <ul class="notes srcKeys">
+      <li><label><input type="checkbox" data-src="gw"><span class="swatch srcGw"></span>Corps d’eaux souterraines</label></li>
+      <li><label><input type="checkbox" data-src="head" checked><span class="swatch srcHead"></span>Têtes de bassin, le sommet du réseau dessiné</label></li>
+      <li><label><input type="checkbox" data-src="zone" checked><span class="swatch srcZone"></span>Zones de protection des eaux souterraines S1&ndash;S3, en force</label></li>
+      <li><label><input type="checkbox" data-src="catch"><span class="swatch srcCatch"></span>Sous-bassins versants</label></li>
+    </ul>
+    <p class="lgNote"><b>Trois de ces quatre couches sont des images, non des données.</b> Les corps d’eaux souterraines, les zones de protection et les bassins versants sont dessinés par un serveur fédéral ou cantonal pour le rectangle affiché et arrivent comme image : cette carte ne peut ni les interroger, ni les dater d’après l’image, ni les vérifier. Les têtes de bassin font exception et sont dessinées dans l’encre propre de cette carte.</p>
+    <p class="lgNote"><b>Une tête de bassin n’est pas une source.</b> C’est un tronçon au-dessus duquel il n’y a rien, coupé à 5&nbsp;km&#178; de surface amont &mdash; le sommet du réseau tel que cette carte le dessine, et la part du pays au-dessus de laquelle aucune station ne se trouve. Les sources et cascades qui apparaissent au zoom sont les 86 et 157 <em>nommées</em> de swissNAMES3D, non un décompte des sources suisses.</p>
+    <p class="lgNote"><b>Seules les zones en force sont dessinées.</b> geodienste.ch sert aussi les zones planifiées et futures ; une zone planifiée n’est pas encore une contrainte juridique. S1 est le terrain clôturé au captage, S2 la zone rapprochée, S3 la zone éloignée &mdash; art.&nbsp;20 LEaux, OEaux annexe&nbsp;4 ch.&nbsp;1. Elles se mesurent en hectares : à l’échelle du pays elles sont donc plus petites qu’un pixel ; zoomez au-delà d’un canton avant d’en attendre une.</p>
+    <p class="lgNote" id="srcAges">&nbsp;</p>
+    <p class="lgNote" id="srcCoverage">&nbsp;</p>
+  </div>
+
+  <div class="controls">
+    <label><input type="checkbox" id="toggleStations" checked> Stations de mesure</label>
+    <label><input type="checkbox" id="toggleMotion" checked> Mouvement</label>
+    <label><input type="checkbox" id="togglePlaces" checked> Noms de lieux</label>
+  </div>
+  <div class="controls groundRow" role="radiogroup" aria-label="Fond">
+    <span class="ctlLabel">Fond</span>
+    <label><input type="radio" name="ground" value="" checked> Aucun</label>
+    <label><input type="radio" name="ground" value="relief"> Relief</label>
+    <label><input type="radio" name="ground" value="topo"> Carte grise</label>
+  </div>
+  <div class="liveRow">
+    <label class="liveSwitch"><input type="checkbox" id="toggleLive"> Données en direct seulement</label>
+    <p class="lgNote" id="liveNote"></p>
+  </div>
+  <div class="btnRow">
+    <button id="refresh" type="button">Relire les données en direct</button>
+    <a class="btnLaw" href="law.html">Les points d’accroche juridiques</a>
+    <a class="btnLaw" href="sources.html">Les sources et leur âge</a>
+  </div>
+  </div>
+</section>
+
+<!-- The time ribbon. It is empty on the layers that describe only now, and it
+     carries the record on the layers that describe a change. -->
+<section id="ribbon" hidden aria-label="Temps">
+  <div class="ribbonHead">
+    <button id="play" type="button" aria-label="Lecture">
+      <svg viewBox="0 0 12 14" aria-hidden="true" width="11" height="13"><path d="M1 1l10 6-10 6z"/></svg>
+      <span id="playLabel">Lecture</span>
+    </button>
+    <h2 id="ribbonTitle">&nbsp;</h2>
+    <output id="ribbonRead">&nbsp;</output>
+  </div>
+  <canvas id="ribbonCv"></canvas>
+  <input id="scrub" type="range" min="0" max="1000" value="1000" step="1" aria-label="Parcourir le temps">
+  <p class="ribbonNote" id="ribbonNote">&nbsp;</p>
+</section>
+
+<aside id="panel" hidden>
+  <button id="panelClose" type="button" aria-label="Fermer">&times;</button>
+  <h2 id="panelTitle"></h2>
+  <dl id="panelBody"></dl>
+  <div id="panelExtra"></div>
+  <p class="panelNote" id="panelNote"></p>
+</aside>
+
+<div id="tooltip" role="status" hidden></div>
+
+<footer id="credits">
+  <p><strong>Cours d’eau</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), tronçons dont le bassin atteint 5&nbsp;km&#178; ou plus, portant le débit en direct du réseau de mesure de l’OFEV via LINDAS. <strong>Glace</strong> GLAMOS, cinq inventaires datés. <strong>Retenues</strong> OFEN. <strong>Débits résiduels et usages de l’eau</strong> OFEV et OFEN. <strong>Noms</strong> swissNAMES3D, swisstopo. Chaque source, sa licence et son état des données figurent sur la <a href="sources.html">page des sources</a>. De l’eau mesurée et modélisée, non une prévision.</p>
+</footer>
+
+<script src="../fmt.js"></script>
+<script src="../gschg31.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

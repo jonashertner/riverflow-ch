@@ -29,12 +29,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Rebuild the reservoir series, the cantonal dates and the vintage audit
+      - name: Rebuild the reservoir series, the cantonal dates, the wetland inventories and the vintage audit
         id: build
         continue-on-error: true
         run: |
           node build/06-reservoirs.mjs
           node build/11-cantons.mjs
+          node build/12-wetlands.mjs
           node build/08-vintage.mjs
       - name: Commit if anything moved
         if: steps.build.outcome == 'success'

@@ -21,7 +21,7 @@ the URL hash as `#lon,lat,scale,layer`, so a link is a citation: this place, thi
 reading, this scale. A bare layer name works too — `#ice`, `#res`, `#residual`,
 `#use` — and opens that layer at the country view.
 
-## The eight layers
+## The nine layers
 
 | Layer | What the colour carries | Class of evidence |
 |---|---|---|
@@ -32,9 +32,10 @@ reading, this scale. A bare layer name works too — `#ice`, `#res`, `#residual`
 | Ice | Five glacier inventories, 1850 · 1931 · 1973 · 2010 · 2023, played in their real intervals | Measured by survey. Area, not volume |
 | Residual flow | Q<sub>347</sub> at 1,041 points and the minimum GSchG Art. 31(1) computes from it | Measured, station-derived or modelled — stated per point |
 | Water use | Who takes the water out and who puts it back | Registered locations; one quantity, and that one derived |
+| Wetlands | The five federal inventories of protected wetland: 3,211 objects, drawn in the water's hue where the ordinance's aim is water and in the statute's bone where Art. 78(5) BV holds the ground | Registers of legal objects. Every object carries its number and its federal object sheet |
 | Water sources | Groundwater bodies, headwaters, sub-catchments, and the drinking-water protection zones in force | Three of the four are WMS images from a federal or cantonal server. Only the headwaters are this map's own data |
 
-Two of the eight run on a time ribbon: the reservoir layer plays 1,390 weekly
+Two of the nine run on a time ribbon: the reservoir layer plays 1,390 weekly
 readings from 3 January 2000 to the most recent week, and the ice layer plays the
 five surveys held in proportion to their own intervals — 81, 42, 37 and 13 years —
 so that 1850–1931 does not look as fast as 2010–2023.
@@ -53,10 +54,13 @@ node build/07-residual.mjs        # Q347 and the Art. 31(1) minimum
 node build/09-icehistory.mjs      # the five dated inventories
 node build/10-names.mjs           # join swissNAMES3D to the network: names for the water
 node build/11-cantons.mjs         # who has delivered the protection zones, and when
+node build/12-wetlands.mjs        # five inventories of protected wetland, joined to the reaches
+node build/13-basins.mjs          # the four sea basins: shares, frontier gauges, ice by basin
 node build/08-vintage.mjs         # read every federal layer's Datenstand back
 ```
 
-`08` reads `site/data/cantons.json`, so `11` runs before it. `10` needs the
+`08` reads `site/data/cantons.json`, so `11` runs before it. `13` reads `01`–`04`
+and nothing off the network, so it is rerun when they are and not on a clock. `10` needs the
 swissNAMES3D CSV release in `/tmp/riv/names`:
 
 ```bash
@@ -66,9 +70,9 @@ unzip -oq swissnames3d_2026_2056.csv.zip
 ```
 
 Only `site/data/*.json` is kept in the repository. The sources stay in `/tmp`.
-`06`, `11` and `08` take everything they need off the network, so they also run in
-CI: `.github/workflows/pages.yml` re-runs all three every Monday and commits the
-result, which is what keeps the baked filling series, the cantonal delivery dates
+`06`, `11`, `12` and `08` take everything they need off the network, so they also
+run in CI: `.github/workflows/pages.yml` re-runs all four every Monday and commits
+the result, which is what keeps the baked filling series, the cantonal delivery dates
 and the vintage audit from going quietly stale. `10` is not in CI: swissNAMES3D is
 an annual release and a 32 MB download, so it is rebuilt by hand when swisstopo
 publishes a new year.
@@ -133,6 +137,11 @@ those two questions have drifted apart.
 | Wastewater treatment plants, share of the receiving water at Q<sub>347</sub> | BAFU, `ch.bafu.gewaesserschutz-klaeranlagen_anteilq347`, survey 2011, federal data state 1.1.2014 | opendata.swiss, attribution |
 | Lakes, national border | Natural Earth 10m | public domain |
 | Names of watercourses, lakes, glaciers, springs and waterfalls | swisstopo, swissNAMES3D 2026, `swissnames3d_2026_2056.csv` | open data, free use with source attribution |
+| Alluvial zones of national importance | BAFU, `ch.bafu.bundesinventare-auen`, federal data state 1.11.2017 | opendata.swiss, attribution |
+| Raised and transitional bogs of national importance | BAFU, `ch.bafu.bundesinventare-hochmoore`, federal data state 1.12.2025 | opendata.swiss, attribution |
+| Fens of national importance | BAFU, `ch.bafu.bundesinventare-flachmoore`, federal data state 1.12.2025 | opendata.swiss, attribution |
+| Amphibian spawning sites of national importance | BAFU, `ch.bafu.bundesinventare-amphibien`, federal data state 20.5.2026 | opendata.swiss, attribution |
+| Mire landscapes of national importance | BAFU, `ch.bafu.bundesinventare-moorlandschaften`, federal data state 1.11.2017 | opendata.swiss, attribution |
 | Groundwater bodies | BAFU, `ch.bafu.grundwasserkoerper`, WMS, federal data state 1.1.2017 | FSDI general terms of use |
 | Sub-catchments of Switzerland, 2 km² | BAFU, `ch.bafu.wasser-teileinzugsgebiete_2`, WMS, federal data state 1.6.2024 | FSDI general terms of use |
 | Drinking-water protection zones S1–S3, in force | the 26 cantons, harmonised to MGDM 130.1/131.1/132.1 and served by geodienste.ch, `planerischer_gewaesserschutz_v1_2_0` | per canton; all 26 currently publish this model freely |
@@ -336,20 +345,43 @@ code with the evidence that fixed them:
   an anchor is placed wherever the label fits and only the top of a name's range
   says what the river is. Clustered at 25 km, because fourteen different brooks in
   this country are called Dorfbach and they are not one river.
+- **A name is carried along its own channel**, because the anchors alone name only
+  1,691 of 8,716 reaches and a reader pointing between two placements would be told
+  nothing about a river they can plainly see is the Aare. The rule is the one rivers
+  are actually named by: the majority partner keeps the name. Downstream the name
+  runs while the reach it came from still supplies at least half of what flows
+  below; upstream it follows the branch carrying most of the water. That carries the
+  count to 3,433 reaches.
 - **A cluster of fewer than three placements takes its smallest reading instead.**
   A cluster the national mapping agency wrote three or more times along a course
   has enough of its own evidence for the largest to be corroborated; one written
   twice has nothing to check itself against. This is what stops the Erzbach, whose
   second placement fell 131 m from the Aare, from claiming 10,706 km².
 
-**What it still gets wrong, and this is not fixable at this scale.** A canal
-running alongside a big river within about 200 m cannot be told from it in a
-network generalised this coarsely. The Rothkanal beside the Aare takes 9,917 km²
-and the Aalte Rii 13,726, and they are drawn as though they were trunk rivers.
-Roughly three names in 1,244 are affected. What saves the picture rather than the
-data is that a stolen size is always stolen from a river standing right there, so
-holding the labels a fixed distance apart in pixels gives the neighbourhood to
-whichever name in it ranks highest — which is the trunk.
+**Where the snap fails, and how the map answers it.** A canal running alongside a
+big river within about 200 m cannot be told from it in a network generalised this
+coarsely. On the snap's own evidence the Rothkanal beside the Aare takes 9,917 km²
+and the Aalte Rii 13,726, and both are trunk rivers. Nothing in the join can fix
+that: within 500 m of the Aare's line the register has also written the Erzbach and
+a Dorfbach, and no Aare label falls near enough to argue with them. Corroboration
+cannot break the tie either — the gazetteer writes the Rhine six times in the whole
+country and the Töss once.
+
+The correction is made where the reaches are actually named, in `indexNames()` in
+`site/app.js`, by reading the register's own vocabulary as a size class. A *Bach*
+is a brook, a *Riale* a mountain brook, a *Kanal* a cut channel, an *Aalte Rii* and
+a *Vieux Rhône* courses the river has left. None of them drains four figures of
+country, so a name that declares itself small is refused a reach above 500 km² and
+the reach is left for the trunk's own name to be carried onto. Before the refusal
+the Aare's trunk read *Aalte Rii* and the Ticino read *Riale Pian Perdasc* over 57
+reaches; after it the Rhine runs 165 reaches, the Rhône 91, the Ticino 76 and the
+Aare 70, and 99 % of the large Swiss reaches carry a name.
+
+It costs two canals that genuinely carry a trunk — the Nidau-Büren-Kanal and the
+Hagneck-Kanal, both cut for the Jura water correction — which now read as the Aare.
+That is the water's own name and not a falsehood, only less local than the register
+could have been. About two dozen reaches around Sierre and in the Lötschental still
+carry a neighbour's name, because neither the words nor the network separates them.
 
 Names for water this map does not draw are dropped, not floated: HydroRIVERS is
 clipped at 5 km² of upstream area, so 4,987 gazetteer anchors belong to brooks
@@ -373,6 +405,61 @@ The lakes and the border stay. They are geography, not a reading, and the mode i
 about currency, not about erasing the country.
 
 171 reaches out of 8,716 survive it. It is meant to be uncomfortable.
+
+## One country, four seas
+
+`build/13-basins.mjs` derives where Swiss water goes rather than quoting it, and
+`about.html#europe` is the section that reads the result.
+
+Every reach in HydroRIVERS carries `MAIN_RIV`, the id of the most downstream reach
+of its river system. Grouping the Swiss extract by that field gives the systems;
+identifying each system by the reach its water leaves the country through gives the
+four European sea basins. The share of the country in each is then measured: a
+1 km grid over the border polygon, every cell assigned to the basin of the nearest
+mapped channel through a 0.02° vertex hash.
+
+| Sea | Via | Derived | BAFU | Last Swiss gauge | km to border |
+|---|---|---|---|---|---|
+| North Sea | Rhine | 67.24 % | 67 % | Basel, Rheinhalle | 0.3 |
+| Mediterranean | Rhône | 18.90 % | 18 % | Chancy, Aux Ripes | 0.1 |
+| Adriatic | Ticino/Po, Rom/Adige | 9.64 % | 9.3 % | Bellinzona | **8.7** |
+| Black Sea | Inn/Danube | 4.21 % | 4.4 % | Martina, Sclamischot | 0.5 |
+
+The four derived shares sum to 99.99 %. The four federal shares sum to 98.7 %,
+because the Adige basin in Val Müstair sits outside them. 41,128 cells of 1 km²
+fall inside a simplified border of 41,140 km², against the official 41,291 km²:
+0.4 % is lost to the simplification of the ring.
+
+Two findings came out of it, and neither is in the federal figures:
+
+- **The Ticino leaves the country ungauged.** The largest gauge in the Adriatic
+  basin is Bellinzona, 8.7 km short of the border and above Lago Maggiore. The only
+  Swiss gauge at that frontier is Ponte Tresa, on the Tresa, at 23.5 m³/s.
+- **The Inn's frontier gauge does not measure the Inn.** Martina, Sclamischot
+  stands 0.5 km from the border and inside the reach the Engadine scheme diverts.
+  In the seven days to 19.08.2026 it published 3.78–13.34 m³/s and read *below*
+  Tarasp upstream of it. The map's own use layer names the diversion: Pradella,
+  288 MW, 72 m³/s design flow, and Martina, 80 MW, 88 m³/s.
+
+The Swiss share of the Rhine is derived at both ends: 1,031.4 m³/s modelled at
+Basel over 2,290 m³/s measured at Rees (IKSR, *International koordinierter
+Bewirtschaftungsplan 2022–2027*, Teil A, März 2022, Tabelle 1) = 45 %, from 27,656
+of the basin's ~200,000 km², about 14 %. One term of the two is modelled, so it is
+a check on BAFU's published 45 % and not a source.
+
+The glaciers are sorted by the same rule, each body by its own centroid:
+
+| Basin | 1850 | 2023 | lost |
+|---|---|---|---|
+| Mediterranean | 954.8 km² | 525.4 km² | −45 % |
+| North Sea | 616.1 km² | 257.4 km² | −58 % |
+| Black Sea | 139.5 km² | 33.6 km² | −76 % |
+| Adriatic | 97.7 km² | 44.9 km² | −54 % |
+
+The 2023 areas are the inventory's own and sum exactly to its published
+861.3 km². The 1850 areas are measured here by the shoelace and sum to
+1,808.1 km² against the published 1,788.3 km², 1.1 % high, because a hole inside
+an outline is counted as ice. The page prints both numbers and the discrepancy.
 
 ## The legal layer
 
@@ -407,6 +494,62 @@ provisions:
 A datum on this map is a fact about a river, a reservoir or a glacier. It is not a
 finding of breach. The step from one to the other needs the concession, the licence
 and the site, and it is the lawyer's step, not the map's.
+
+## Protected wetland
+
+Five federal inventories, and they are on a water map for a reason that is not that
+they are damp. Each ordinance states its protection aim in terms of water, and two
+of them state it as a quantity.
+
+| Inventory | Objects | km² | Basis | Federal data state |
+|---|---|---|---|---|
+| Alluvial zones | 326 | 278.5 | Auenverordnung, SR 451.31 | 01.11.2017 |
+| Raised and transitional bogs | 552 | 56.7 | SR 451.32, and BV Art. 78(5) | 01.12.2025 |
+| Fens | 1,371 | 228.1 | SR 451.33, and BV Art. 78(5) | 01.12.2025 |
+| Amphibian spawning sites | 873 | 222.3 | SR 451.34 | 20.05.2026 |
+| Mire landscapes | 89 | 875 | SR 451.35, and BV Art. 78(5) | 01.11.2017 |
+
+The inventories overlap — a fen sits inside a mire landscape, an alluvial zone
+inside both — so these areas must not be added up. Each is the federal
+`shape_area` attribute, not something measured off the simplified outline drawn
+here.
+
+**Two protections, drawn as two.** Alluvial zones and amphibian spawning sites are
+protected by ordinance and both aims are stated in terms of water, so they are drawn
+in the water's own pale hue. Bogs, fens and mire landscapes are drawn in the bone
+every statutory quantity on this map wears, because **BV Art. 78(5)** protects them
+outright: no installations may be built and the ground may not be altered, with no
+balancing test to lose. It is the article the Rothenthurm initiative wrote into the
+Constitution in 1987, and Rothenthurm is object number 1 of the mire-landscape
+inventory — on this map, under that number. Mire landscapes are drawn as an outline
+and never filled: they are containers, and a fill would bury the bogs inside them.
+
+**Where the two legal layers land on the same water.** 415 of the 8,716 reaches run
+through an alluvial zone of national importance. On those reaches Auenverordnung
+Art. 4 requires the natural dynamics of the water and sediment regime to be
+preserved, and GSchG Art. 31 puts a floor under the quantity left in the bed where
+water is taken. The residual-flow layer draws the second; this one draws where the
+first also applies, and the reach's own readout says so under any layer. No federal
+product joins them, because they are two products.
+
+A reach counts as running through a zone when a vertex of its line falls inside the
+boundary. That is coarse and it is the right coarseness: the network is generalised
+to about 100 m, so a finer test would answer a question the geometry cannot support.
+It locates the overlap; it does not measure it.
+
+**What is drawn.** Outlines are simplified to 45 m. Objects with no ring above 1.5 ha
+have no outline at any zoom this map reaches and are drawn as a ring instead — a
+third of the raised-bog inventory is like this, because the ordinance protects
+patches of a few hundred square metres and a map that dropped them would be saying
+they are not there. At country view the smallest objects wait for the zoom that can
+tell them apart. Every one of the 3,211 objects carries its number and a link to its
+**federal object sheet**, the PDF holding the protection aim and the boundary
+description; parcels filed under one number are shown as one object, because the
+number is the unit the ordinance uses.
+
+**The ages disagree with the aims.** The amphibian inventory carries a data state of
+May 2026. The alluvial-zone inventory — the one whose protection aim is a quantity
+of water — carries November 2017, and so does the inventory holding Rothenthurm.
 
 ## Traps found in the source data
 

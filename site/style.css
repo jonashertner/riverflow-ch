@@ -1,18 +1,8 @@
-/* Water and ice in Switzerland.
+/* The map.
  *
- * The page has exactly two kinds of ink and they never mix.
- *
- *   MEASURED INK is the data ramps — one blue hue stepped by lightness for
- *   discharge, a diverging ramp for anomaly, a thermal ramp for temperature. It
- *   is set in the sans face with tabular figures. It says what an instrument read.
- *
- *   STATUTORY INK is bone, --law, and it is set in a serif. It says what a text
- *   requires. A minimum residual flow is not a measurement and must never be able
- *   to be mistaken for one at a glance, so it does not get to wear the colour of
- *   one.
- *
- * That distinction is the whole design. Everything else is kept quiet so that it
- * stays legible.
+ * The two kinds of ink, the palette and the type registers are in tokens.css,
+ * which every page on this site loads. This file is the instrument: the canvases,
+ * the furniture that floats over them, and the four shapes that furniture takes.
  *
  * Layout runs on four shapes, not on a grid framework:
  *   phone     the map, a compact header, and one bottom sheet that snaps
@@ -21,129 +11,17 @@
  *   wide      a reading column on the right, so nothing floats in a sea of black
  */
 
-:root {
-  color-scheme: dark;
-
-  --surface-1:   #1a1a19;
-  --surface-2:   #131312;
-  --plane:       #0d0d0d;
-  --ink:         #ffffff;
-  --ink-2:       #c3c2b7;
-  --ink-muted:   #898781;
-  --hairline:    rgba(255,255,255,0.10);
-  --rule:        #2c2c2a;
-
-  /* measured ink: one hue, ordered by lightness, so more water reads brighter */
-  --seq-700: #0d366b;
-  --seq-600: #184f95;
-  --seq-500: #256abf;
-  --seq-450: #2a78d6;
-  --seq-400: #3987e5;
-  --seq-300: #6da7ec;
-  --seq-200: #9ec5f4;
-  --seq-100: #cde2fb;
-
-  /* statutory ink. Bone, not blue: a figure the law states is not a reading. */
-  --law:      #d9cbb0;
-  --law-dim:  #9c9282;
-  --law-bg:   rgba(217,203,176,0.10);
-  --law-line: rgba(217,203,176,0.32);
-
-  --good:     #0ca30c;
-  --warning:  #fab219;
-  --serious:  #ec835a;
-  --critical: #d03b3b;
-
-  /* Water use. Two hues, because the legally meaningful axis is direction:
-     Art. 31 GSchG governs taking water out, GSchV Annex 2 No. 12(4) putting heat in.
-     Validated dark/all-pairs: CVD dE 9.4, normal-vision dE 26.5, both above the
-     floor. Three or more hues cannot clear the all-pairs floors here, so which
-     register a mark belongs to is carried by its form, not by a fourth colour. */
-  --use-out: #d95926;
-  --use-in:  #199e70;
-
-  /* Temperature. Single hue, brighter is warmer. Validated dark/ordinal. The old
-     ramp ran blue-green-yellow-red, which is a rainbow and reads as four
-     categories rather than one rising quantity. */
-  --temp-5: #f8d79c; --temp-4: #eeb96a; --temp-3: #dd9436; --temp-2: #c4731f; --temp-1: #9a5518;
-
-  /* Evidence classes. Ordinal, one hue, plus a neutral for absence.
-     Validated dark/ordinal: monotone L, gaps >= 0.06, dark end 2.15:1. */
-  --ev-measured:  #9ec5f4;
-  --ev-estimated: #3987e5;
-  --ev-none:      #3a4450;
-
-  --res-full:  #7fd4d0;
-  --res-flood: #8f9bb3;
-
-  /* The active layer keys the sheets: a checkbox or a focus ring in the legend is
-     in the colour of the thing the legend is about. Set from setMode(). */
-  --accent: var(--seq-400);
-
-  /* fluid spine. One step at 360 px, another at 2560, linear in between. */
-  --pad:   clamp(10px, 1.6vw, 24px);
-  --gap:   clamp(6px, 0.7vw, 12px);
-  --r:     10px;
-  --sheet-h: 0px;                    /* set by script on phones */
-  --title-h: 96px;                   /* measured by script: the title block's foot */
-  --safe-b: env(safe-area-inset-bottom, 0px);
-  --safe-l: env(safe-area-inset-left, 0px);
-  --safe-r: env(safe-area-inset-right, 0px);
-
-  --fs-base: 14px;
-  --panel-w: 300px;
-  --legend-w: 268px;
-
-  /* Three registers of type, one per kind of statement. Prose is Archivo, a
-     grotesque with enough width to stay legible at 11 px on a dark plane. Every
-     measured figure is IBM Plex Mono with tabular figures, so a column of readings
-     lines up and a number never has to be read as a word. The statute gets a
-     serif: it is the cheapest way to make a quotation from a text look like a
-     quotation from a text and not like another data field. */
-  --sans: Archivo, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --serif: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
-}
-
 /* The active layer keys the accent. */
-body[data-layer="normal"]   { --accent: #c8813c; }
+body[data-layer="normal"]   { --accent: var(--div-3); }
 body[data-layer="temp"]     { --accent: var(--temp-3); }
 body[data-layer="res"]      { --accent: var(--res-full); }
-body[data-layer="ice"]      { --accent: #dce9f8; }
+body[data-layer="ice"]      { --accent: var(--ice); }
 body[data-layer="residual"] { --accent: var(--law); }
 body[data-layer="use"]      { --accent: var(--use-out); }
-body[data-layer="source"]   { --accent: #7fd4d0; }
+body[data-layer="source"]   { --accent: var(--res-full); }
 
-/* A measured figure, anywhere it appears in prose. */
-.num { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink-2); }
-
-* { box-sizing: border-box; }
-
-html, body {
-  margin: 0; height: 100%;
-  background: var(--plane);
-  color: var(--ink);
-  font: var(--fs-base)/1.45 var(--sans);
-  overflow: hidden;
-  -webkit-font-smoothing: antialiased;
-  overscroll-behavior: none;
-}
-
-button, input, select { font: inherit; }
-
-:where(button, input, [tabindex]):focus-visible {
-  outline: 2px solid var(--seq-300);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-.skip {
-  position: fixed; top: -60px; left: 12px; z-index: 100;
-  background: var(--surface-1); color: var(--ink);
-  padding: 8px 14px; border-radius: 6px; border: 1px solid var(--hairline);
-  text-decoration: none;
-}
-.skip:focus { top: 12px; }
+/* The map is one screen and never scrolls; the pages do. */
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 
 /* ---- the two canvases ----
    The base map redraws only when the view or the data changes. The current runs
@@ -168,7 +46,7 @@ button, input, select { font: inherit; }
   position: fixed; top: var(--pad); left: calc(var(--pad) + var(--safe-l));
   max-width: min(340px, 34vw);
   pointer-events: none; z-index: 6;
-  background: linear-gradient(to right, rgba(13,13,13,0.9), rgba(13,13,13,0.62) 70%, rgba(13,13,13,0));
+  background: linear-gradient(to right, color-mix(in srgb, var(--plane) 90%, transparent), color-mix(in srgb, var(--plane) 62%, transparent) 70%, color-mix(in srgb, var(--plane) 0%, transparent));
   padding: 10px 40px 12px 12px; margin: -10px 0 0 -12px; border-radius: 8px;
 }
 #titlebar h1 {
@@ -195,9 +73,6 @@ button, input, select { font: inherit; }
 .evBar span { display: block; border-radius: 1px; min-width: 2px; }
 .evBar span:first-child { border-radius: 4px 1px 1px 4px; }
 .evBar span:last-child  { border-radius: 1px 4px 4px 1px; }
-.evMeasured  { background: var(--ev-measured); }
-.evEstimated { background: var(--ev-estimated); }
-.evNone      { background: var(--ev-none); }
 .evKeys { list-style: none; margin: 9px 0 0; padding: 0; }
 .evKeys li {
   display: flex; align-items: baseline; gap: 7px;
@@ -209,14 +84,33 @@ button, input, select { font: inherit; }
   font-family: var(--mono); font-variant-numeric: tabular-nums;
 }
 
-/* the table the bar stands for, so identity is never colour alone */
-.evTable { width: 100%; border-collapse: collapse; margin: 10px 0 4px; font-size: 12px; }
-.evTable th, .evTable td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); }
-.evTable th { color: var(--ink-muted); font-weight: 500; font-size: 10.5px;
-              letter-spacing: 0.07em; text-transform: uppercase; }
-.evTable td:last-child, .evTable th:last-child { text-align: right; }
-.evTable tbody tr:last-child td { border-top: 1px solid var(--ink-muted); border-bottom: 0; }
-.evTable td:last-child { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+/* ---- where the site goes ----
+   The masthead already carries the identity, the currency and the composition of
+   the drawing. The four places this site goes belong with them: a reader who wants
+   to know where a number came from should not have to hunt for the door. */
+#siteNav {
+  display: flex; flex-wrap: wrap; gap: 2px;
+  margin-top: 11px; padding-top: 9px; border-top: 1px solid var(--rule);
+  pointer-events: auto;
+}
+#siteNav a {
+  color: var(--ink-muted); text-decoration: none; font-size: 11.5px;
+  padding: 5px 7px; border-radius: 5px; white-space: nowrap;
+  transition: color 120ms, background 120ms;
+}
+#siteNav a:first-child { margin-left: -7px; }
+#siteNav a:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, transparent); }
+
+/* Shown once, then never again. The map answers when it is pointed at, and
+   nothing on a still screen says so. */
+.hint {
+  margin: 10px 0 0; font-size: 11.5px; line-height: 1.45;
+  color: var(--ink-2); pointer-events: auto;
+  transition: opacity 500ms;
+}
+.hint.gone { opacity: 0; }
+.hint a { color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor; }
+
 #titlebar .stamp {
   margin: 9px 0 0; color: var(--ink-muted); font-size: 11.5px;
   font-family: var(--mono); font-variant-numeric: tabular-nums;
@@ -246,8 +140,8 @@ button, input, select { font: inherit; }
   padding: 7px 11px; cursor: pointer; white-space: nowrap;
   transition: background 120ms, color 120ms;
 }
-#modes button:hover:not(:disabled) { color: var(--ink); background: rgba(255,255,255,0.06); }
-#modes button.on { background: rgba(255,255,255,0.11); color: var(--ink); }
+#modes button:hover:not(:disabled) { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
+#modes button.on { background: color-mix(in srgb, var(--ink) 11%, transparent); color: var(--ink); }
 #modes button:disabled { opacity: 0.32; cursor: default; }
 
 /* ---- legend ---- */
@@ -279,12 +173,12 @@ button, input, select { font: inherit; }
    purpose — a river at its long-term mean is not news. */
 .ramp-div {
   background: linear-gradient(90deg,
-    #7a3f19 0%, #a85f28 15%, #c8813c 28%, #dda86d 40%,
-    #7f7d78 50%, #8fb6de 60%, #4d90cc 72%, #2a6cb0 86%, #123f77 100%);
+    var(--div-1) 0%, var(--div-2) 15%, var(--div-3) 28%, var(--div-4) 40%,
+    var(--div-5) 50%, var(--div-6) 60%, var(--div-7) 72%, var(--div-8) 86%, var(--div-9) 100%);
 }
 .ramp-res {
   background: linear-gradient(90deg,
-    #22333d 0%, #2b5560 20%, #377f81 40%, #4da8a2 60%, #7fd4d0 80%, #aeeae5 100%);
+    var(--res-1) 0%, var(--res-2) 20%, var(--res-3) 40%, var(--res-4) 60%, var(--res-5) 80%, var(--res-6) 100%);
 }
 .ramp-temp {
   background: linear-gradient(90deg,
@@ -300,14 +194,30 @@ button, input, select { font: inherit; }
 .swatch { width: 22px; height: 3px; border-radius: 2px; flex: none; }
 .swatch.measured  { background: var(--seq-200); }
 .swatch.estimated { background: var(--seq-200); opacity: 0.6; }
-.swatch.nobasis   { background: #2a3340; }
-.swatch.ice1850 { background: rgba(200,129,60,0.42); height: 8px; border: 1px solid rgba(200,129,60,0.7); }
-.swatch.ice2023 { background: #dce9f8; height: 8px; }
+.swatch.nobasis   { background: var(--ev-none-dim); }
+.swatch.ice1850 { background: rgba(var(--ice-past-rgb),0.42); height: 8px; border: 1px solid rgba(var(--ice-past-rgb),0.7); }
+.swatch.ice2023 { background: var(--ice); height: 8px; }
 .swatch.resFull  { width: 10px; height: 10px; border-radius: 50%; background: var(--res-full); }
 .swatch.resFlood { width: 10px; height: 10px; border-radius: 50%; background: var(--res-flood); }
 /* statutory swatches wear the bone, because they mark a computed legal minimum */
 .swatch.resiMeas { width: 10px; height: 10px; border-radius: 50%; background: var(--law); }
 .swatch.resiMod  { width: 10px; height: 10px; border-radius: 50%; background: transparent; box-shadow: inset 0 0 0 1.5px var(--law-dim); }
+
+/* The wetland inventories. Two registers, and the swatch has to carry which: an
+   area in the water's hue is protected by an ordinance whose aim is stated as water,
+   an area in bone is protected by Art. 78(5) BV outright. Mire landscapes are the
+   outline with no fill, exactly as they are drawn on the plane. */
+.wetKeys li { align-items: baseline; }
+.wetKeys .swatch { width: 12px; height: 12px; border-radius: 2px; }
+.swatch.wet_auen  { background: rgba(var(--wet-key-rgb),0.30); box-shadow: inset 0 0 0 1px rgba(var(--wet-key-rgb),0.75); }
+.swatch.wet_amphi { background: rgba(var(--wet-key-rgb),0.14); box-shadow: inset 0 0 0 1px rgba(var(--wet-key-rgb),0.55); }
+.swatch.wet_hoch  { background: rgba(var(--law-rgb),0.34); box-shadow: inset 0 0 0 1px rgba(var(--law-rgb),0.8); }
+.swatch.wet_flach { background: rgba(var(--law-rgb),0.18); box-shadow: inset 0 0 0 1px rgba(var(--law-rgb),0.58); }
+.swatch.wet_moorl { background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--law-rgb),0.5); }
+/* Count and area sit right, in the mono, because they are measured figures. */
+.wetKeys li i { margin-left: auto; font-style: normal; font-family: var(--mono);
+                font-size: 10px; color: var(--ink-muted); white-space: nowrap; }
+.wetKeys li i .wetKm { margin-left: 8px; color: var(--ink-2); }
 
 .lgNote { margin: 9px 0 0; font-size: 11px; line-height: 1.5; color: var(--ink-muted); }
 .lgNote b { color: var(--ink-2); font-weight: 600; }
@@ -328,10 +238,14 @@ button, input, select { font: inherit; }
    picture wear the wash they are actually drawn in, at the alpha they are drawn
    at, so the legend is a sample of the screen rather than a promise about it. */
 .srcKeys .swatch { width: 14px; height: 10px; border-radius: 2px; }
+/* These three key a picture this map does not draw: they are federal and cantonal
+   WMS tiles, rendered on a server that has never heard of this page and returns the
+   same pixels on either surface. A swatch that moved with the theme would stop
+   matching the thing it is a key to, so these three alone are written literally. */
 .swatch.srcGw    { background: rgba(90,140,190,0.62); border: 1px solid rgba(140,180,220,0.5); }
 .swatch.srcZone  { background: rgba(158,86,196,0.8); border: 1px solid rgba(190,130,220,0.7); }
 .swatch.srcCatch { background: rgba(150,150,150,0.30); border: 1px solid rgba(190,190,190,0.35); }
-.swatch.srcHead  { width: 22px; height: 3px; border-radius: 2px; background: #4da8a2; }
+.swatch.srcHead  { width: 22px; height: 3px; border-radius: 2px; background: var(--res-mid); }
 .srcKeys li { display: block; }
 .srcKeys label { display: flex; align-items: center; gap: 0.45rem; cursor: pointer; padding: 3px 0; }
 .srcKeys input { margin: 0; accent-color: var(--accent); }
@@ -350,7 +264,7 @@ button, input, select { font: inherit; }
 .threshold {
   display: flex; align-items: center; gap: 6px;
   margin: 10px 0 0; padding: 5px 8px; border-radius: 3px;
-  background: rgba(208,59,59,0.13); border: 1px solid rgba(208,59,59,0.34);
+  background: color-mix(in srgb, var(--critical) 13%, transparent); border: 1px solid color-mix(in srgb, var(--critical) 34%, transparent);
   font-size: 11px; line-height: 1.35; color: var(--ink-2);
 }
 .threshold i {
@@ -397,17 +311,19 @@ body.liveOnly #liveNote { margin-top: 6px; }
 }
 
 .btnRow { display: grid; gap: 6px; margin-top: 10px; }
-.btnRow button {
-  width: 100%; padding: 8px 10px; min-height: 34px;
+.btnRow button, .btnRow a {
+  display: block; width: 100%; padding: 8px 10px; min-height: 34px;
   background: transparent; color: var(--ink-2);
   border: 1px solid var(--hairline); border-radius: 6px;
-  font-size: 12px; cursor: pointer; text-align: center;
+  font-size: 12px; cursor: pointer; text-align: center; text-decoration: none;
   transition: background 120ms, color 120ms;
 }
-.btnRow button:hover { background: rgba(255,255,255,0.06); color: var(--ink); }
+.btnRow button:hover, .btnRow a:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); }
 .btnRow button:disabled { opacity: 0.5; cursor: default; }
-#openLaw, #openSources { color: var(--law-dim); border-color: var(--law-line); }
-#openLaw:hover, #openSources:hover { background: var(--law-bg); color: var(--law); }
+/* The two that leave for a page about the law wear the statutory ink, so that the
+   destination is legible before the click. */
+.btnLaw { color: var(--law-dim) !important; border-color: var(--law-line) !important; }
+.btnLaw:hover { background: var(--law-bg) !important; color: var(--law) !important; }
 
 /* ---- the time ribbon ----
    The signature of the page. On the layers that describe only now it is not
@@ -444,11 +360,11 @@ body.liveOnly #liveNote { margin-top: 6px; }
 }
 #play {
   display: inline-flex; align-items: center; gap: 6px; flex: none;
-  background: rgba(255,255,255,0.07); color: var(--ink-2);
+  background: color-mix(in srgb, var(--ink) 7%, transparent); color: var(--ink-2);
   border: 1px solid var(--hairline); border-radius: 6px;
   padding: 5px 10px; min-height: 28px; cursor: pointer; font-size: 11.5px;
 }
-#play:hover { background: rgba(255,255,255,0.12); color: var(--ink); }
+#play:hover { background: color-mix(in srgb, var(--ink) 12%, transparent); color: var(--ink); }
 #play svg { fill: currentColor; }
 #play:disabled { opacity: 0.45; cursor: default; }
 #ribbonCv { display: block; width: 100%; height: 74px; margin-top: 8px; }
@@ -461,11 +377,11 @@ body.liveOnly #liveNote { margin-top: 6px; }
 #scrub::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none;
   width: 14px; height: 14px; border-radius: 50%; margin-top: -6px;
-  background: var(--ink); border: 0; box-shadow: 0 0 0 3px rgba(13,13,13,0.8);
+  background: var(--ink); border: 0; box-shadow: 0 0 0 3px rgba(var(--halo-rgb),0.8);
 }
 #scrub::-moz-range-thumb {
   width: 14px; height: 14px; border-radius: 50%;
-  background: var(--ink); border: 0; box-shadow: 0 0 0 3px rgba(13,13,13,0.8);
+  background: var(--ink); border: 0; box-shadow: 0 0 0 3px rgba(var(--halo-rgb),0.8);
 }
 .ribbonNote { margin: 4px 0 0; font-size: 10.5px; line-height: 1.45; color: var(--ink-muted); }
 .ribbonNote b { color: var(--ink-2); }
@@ -482,13 +398,13 @@ body.liveOnly #liveNote { margin-top: 6px; }
   overflow-y: auto; overscroll-behavior: contain;
 }
 #panel h2 { margin: 0 26px 12px 0; font-size: 15px; font-weight: 600; line-height: 1.25; }
-#panelClose, .modalClose {
+#panelClose {
   position: absolute; top: 10px; right: 10px;
   background: none; border: 0; color: var(--ink-muted);
   font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 9px;
   min-width: 34px; min-height: 34px;
 }
-#panelClose:hover, .modalClose:hover { color: var(--ink); }
+#panelClose:hover { color: var(--ink); }
 #panel dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; }
 #panel dt { color: var(--ink-muted); font-size: 12px; }
 #panel dd {
@@ -496,6 +412,8 @@ body.liveOnly #liveNote { margin-top: 6px; }
   font-family: var(--mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
 }
 #panel dd .unit { color: var(--ink-muted); font-size: 11px; margin-left: 3px; font-family: var(--sans); }
+/* a row whose value is a word rather than a quantity */
+#panel dd.plain { font-family: var(--sans); font-variant-numeric: normal; font-size: 12.5px; color: var(--ink-2); }
 #panel a { color: var(--seq-200); }
 /* a row that states a legal quantity wears the statutory ink */
 #panel dd.statutory { color: var(--law); font-family: var(--serif); }
@@ -510,10 +428,10 @@ body.liveOnly #liveNote { margin-top: 6px; }
   display: inline-block; padding: 1px 7px; border-radius: 10px;
   font-size: 11px; font-weight: 600;
 }
-.pill.d1 { background: rgba(12,163,12,0.18);  color: var(--good); }
-.pill.d2 { background: rgba(250,178,25,0.18); color: var(--warning); }
-.pill.d3 { background: rgba(236,131,90,0.20); color: var(--serious); }
-.pill.d4, .pill.d5 { background: rgba(208,59,59,0.22); color: var(--critical); }
+.pill.d1 { background: color-mix(in srgb, var(--good) 18%, transparent);  color: var(--good); }
+.pill.d2 { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
+.pill.d3 { background: color-mix(in srgb, var(--serious) 20%, transparent); color: var(--serious); }
+.pill.d4, .pill.d5 { background: color-mix(in srgb, var(--critical) 22%, transparent); color: var(--critical); }
 
 .aside, .flag, .statute {
   /* declared block so they read the same whether the panel emits a <p> or drops
@@ -522,14 +440,14 @@ body.liveOnly #liveNote { margin-top: 6px; }
   margin: 12px 0 0; padding: 8px 10px; border-radius: 6px;
   font-size: 11px; line-height: 1.5;
 }
-.aside { background: rgba(255,255,255,0.04); border: 1px solid var(--hairline); color: var(--ink-muted); }
-.flag  { background: rgba(208,59,59,0.14); border: 1px solid rgba(208,59,59,0.35); color: var(--ink-2); }
+.aside { background: color-mix(in srgb, var(--ink) 4%, transparent); border: 1px solid var(--hairline); color: var(--ink-muted); }
+.flag  { background: color-mix(in srgb, var(--critical) 14%, transparent); border: 1px solid color-mix(in srgb, var(--critical) 35%, transparent); color: var(--ink-2); }
 /* a block that carries a statutory consequence, in the statutory ink */
 .statute {
   background: var(--law-bg); border: 1px solid var(--law-line);
   color: var(--law); font-family: var(--serif); font-size: 11.5px;
 }
-.statute b { color: #f0e6d4; }
+.statute b { color: var(--law-hi); }
 
 /* ---- the tongue sparkline ---- */
 .spark { margin: 12px 0 0; }
@@ -544,12 +462,16 @@ body.liveOnly #liveNote { margin-top: 6px; }
   background: color-mix(in srgb, var(--surface-1) 95%, transparent);
   border: 1px solid var(--hairline); border-radius: 7px;
   padding: 7px 10px; font-size: 12px; max-width: 240px;
-  box-shadow: 0 4px 22px rgba(0,0,0,0.55);
+  box-shadow: var(--shadow);
 }
 #tooltip .tName { font-weight: 600; }
 #tooltip .tName.num { color: var(--ink); }
 #tooltip .tVal { color: var(--ink-2); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+#tooltip .tVal i { color: var(--ink-muted); font-style: normal; margin: 0 5px; }
 #tooltip .tEst { color: var(--ink-muted); font-size: 11px; }
+/* Rhein, Le Rhin, Rein and Reno are one river. The other names it has are shown
+   rather than chosen between, in the face the map uses for a name on the water. */
+#tooltip .tAlt { color: var(--ink-muted); font-size: 11px; font-style: italic; margin-top: 2px; }
 #tooltip .tLaw { color: var(--law); font-family: var(--serif); font-size: 11.5px; }
 
 /* ---- credits ---- */
@@ -558,89 +480,13 @@ body.liveOnly #liveNote { margin-top: 6px; }
   max-width: 430px; z-index: 5;
   font-size: 10.5px; line-height: 1.55; color: var(--ink-muted);
   text-align: right; pointer-events: none;
-  background: linear-gradient(to left, rgba(13,13,13,0.88), rgba(13,13,13,0.74) 70%, rgba(13,13,13,0));
+  background: linear-gradient(to left, color-mix(in srgb, var(--plane) 88%, transparent), color-mix(in srgb, var(--plane) 74%, transparent) 70%, color-mix(in srgb, var(--plane) 0%, transparent));
   padding: 10px 12px 10px 40px; border-radius: 8px;
 }
 body.hasRibbon #credits { display: none; }
 #credits p { margin: 0; }
 #credits strong { color: var(--ink-2); font-weight: 600; }
 #credits em { color: var(--law-dim); font-style: normal; }
-
-/* ---- modals ---- */
-.modal[hidden] { display: none; }
-.modal {
-  position: fixed; inset: 0; z-index: 40;
-  background: rgba(6,6,6,0.74); backdrop-filter: blur(4px);
-  display: flex; align-items: flex-start; justify-content: center;
-  padding: 5vh var(--pad); overflow: auto; overscroll-behavior: contain;
-}
-.modalBox {
-  position: relative; width: min(720px, 100%);
-  background: var(--surface-1); border: 1px solid var(--hairline);
-  border-radius: 12px; padding: 26px clamp(18px, 3vw, 30px) 30px;
-  margin-bottom: 5vh;
-}
-.modalBox h2 { margin: 0 34px 10px 0; font-size: clamp(17px, 1.5vw, 20px); font-weight: 600; }
-.modalBox h3 {
-  margin: 26px 0 6px; font-size: 13px; font-weight: 600; color: var(--ink);
-  border-top: 1px solid var(--rule); padding-top: 16px;
-}
-.modalBox h3 span { float: right; color: var(--ink-muted); font-weight: 400; font-size: 11px; }
-.modalBox p { margin: 0 0 8px; font-size: 13px; line-height: 1.6; color: var(--ink-2); }
-.lawLead { color: var(--ink-2); }
-.lawFine { font-size: 11.5px; line-height: 1.62; color: var(--ink-muted); }
-.lawFine b { color: var(--ink-2); }
-/* the quoted statute, in the serif, in the statutory ink */
-.modalBox blockquote {
-  margin: 8px 0 10px; padding: 11px 15px;
-  border-left: 2px solid var(--law-line); background: var(--law-bg);
-  font-family: var(--serif); font-size: 13px; line-height: 1.65; color: var(--law);
-}
-.calc {
-  margin: 12px 0; padding: 12px 14px; border-radius: 8px;
-  background: var(--law-bg); border: 1px solid var(--law-line);
-}
-.calc label { display: block; font-size: 11px; color: var(--law-dim); margin-bottom: 6px; }
-.calc input {
-  width: 160px; max-width: 100%; padding: 8px 9px;
-  font-family: var(--mono); font-variant-numeric: tabular-nums;
-  background: var(--plane); color: var(--ink);
-  border: 1px solid var(--hairline); border-radius: 6px;
-}
-.calc output {
-  display: block; margin-top: 10px; font-size: 13px; color: var(--law);
-  font-family: var(--serif); line-height: 1.6;
-}
-.calc output b { color: #f4ead8; font-variant-numeric: tabular-nums; }
-
-/* ---- the vintage table ----
-   Sorted oldest first, because the oldest source is the one that decides what the
-   map can be used for. */
-#vintageTable { margin: 14px 0 6px; }
-.vRow {
-  display: grid; grid-template-columns: 1fr auto; gap: 2px 14px;
-  padding: 10px 0; border-top: 1px solid var(--rule);
-}
-.vRow:first-child { border-top: 0; }
-.vName { font-size: 12.5px; color: var(--ink); }
-.vHolder { font-size: 11px; color: var(--ink-muted); }
-.vAge {
-  font-size: 12px; text-align: right; white-space: nowrap;
-  font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink-2);
-}
-.vAge b { display: block; font-size: 11px; font-weight: 400; color: var(--ink-muted); }
-.vRow.isLive .vAge { color: var(--seq-200); }
-.vRow.isStale .vAge { color: var(--serious); }
-.vBar { grid-column: 1 / -1; height: 2px; background: var(--rule); border-radius: 1px; overflow: hidden; margin-top: 4px; }
-.vBar i { display: block; height: 100%; background: var(--seq-400); }
-.vRow.isStale .vBar i { background: var(--serious); }
-.vRow.isLive .vBar i { background: var(--seq-200); }
-.vNote { grid-column: 1 / -1; font-size: 11px; line-height: 1.5; color: var(--ink-muted); margin-top: 5px; }
-.vCls {
-  display: inline-block; font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase;
-  border: 1px solid var(--hairline); border-radius: 3px; padding: 1px 5px; margin-left: 6px;
-  color: var(--ink-muted); vertical-align: 1px;
-}
 
 /* ============================================================
    Tablet and below: the panel narrows, the credits go.
@@ -689,7 +535,7 @@ body.hasRibbon #credits { display: none; }
   #titlebar {
     top: 0; left: 0; right: 0; max-width: none; padding: 10px 12px 12px;
     margin: 0; border-radius: 0;
-    background: linear-gradient(to bottom, rgba(13,13,13,0.94), rgba(13,13,13,0.7) 60%, rgba(13,13,13,0));
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--plane) 94%, transparent), color-mix(in srgb, var(--plane) 70%, transparent) 60%, color-mix(in srgb, var(--plane) 0%, transparent));
     padding-left: calc(12px + var(--safe-l));
   }
   #titlebar h1 { font-size: 16px; }
@@ -698,7 +544,9 @@ body.hasRibbon #credits { display: none; }
   /* the layer switcher scrolls horizontally rather than wrapping or shrinking
      below a usable tap target */
   #modes {
-    top: 58px; bottom: auto; left: 0; right: 0; transform: none;
+    /* --title-h is the measured foot of the masthead, so the switch follows it
+       whether or not the title wrapped and whether or not the prompt is shown. */
+    top: var(--title-h); bottom: auto; left: 0; right: 0; transform: none;
     max-width: none; border-radius: 0; border-left: 0; border-right: 0;
     overflow-x: auto; scrollbar-width: none;
     padding: 4px calc(8px + var(--safe-l)) 4px calc(8px + var(--safe-r));
@@ -738,7 +586,7 @@ body.hasRibbon #credits { display: none; }
   #legend h2 { display: none; }             /* the handle carries the title */
   .btnRow { grid-template-columns: 1fr 1fr; }
   .btnRow button:first-child { grid-column: 1 / -1; }
-  .btnRow button { min-height: 42px; }
+  .btnRow button, .btnRow a { min-height: 42px; line-height: 26px; }
   .controls label { min-height: 32px; }
 
   /* the panel becomes a second sheet, over the first */
@@ -772,12 +620,6 @@ body.hasRibbon #credits { display: none; }
   }
   .ribbonNote { display: none; }
 
-  .modal { padding: 0; align-items: stretch; }
-  .modalBox {
-    width: 100%; border-radius: 0; border: 0; margin: 0;
-    padding: 22px 16px calc(40px + var(--safe-b));
-    min-height: 100%;
-  }
   #tooltip { display: none; }               /* a finger has no hover */
 }
 

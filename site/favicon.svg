@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The mark is the page's one claim about itself, at 32 px: what is drawn, by
+       class of evidence. Measured 2.4 %, estimated 57.5 %, no basis 40.1 %. The
+       sliver on the left is the whole of what this country measures. -->
+  <rect width="32" height="32" rx="7" fill="#0d0d0d"/>
+  <g>
+    <rect x="5" y="11" width="1.4" height="10" rx="0.7" fill="#9ec5f4"/>
+    <rect x="7.6" y="11" width="11.6" height="10" rx="1.2" fill="#3987e5"/>
+    <rect x="20.4" y="11" width="6.6" height="10" rx="1.2" fill="#3a4450"/>
+  </g>
+</svg>

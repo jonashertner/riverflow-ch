@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="de" data-root="../">
+<head>
+<meta charset="utf-8">
+<!-- user-scalable is deliberately NOT disabled. The canvas takes its own gestures
+     through touch-action:none, so pinching the page still works for anyone who
+     needs the text bigger. A map is not a reason to break zoom. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wasser und Eis in der Schweiz — eine gemessene Grundlage</title>
+<meta name="description" content="Live-Abfluss in Schweizer Fliessgewässern aus dem Messnetz des Bundes, Wassertemperatur gegen die gesetzliche Obergrenze, Speicherfüllung gegen 26 Jahre der eigenen Reihe und Schweizer Gletscherfläche über fünf datierte Inventare. Jede Zahl trägt ihre Quelle, ihre Beweisklasse und ihr Alter.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/de/">
+<link rel="alternate" hreflang="en" href="../">
+<link rel="alternate" hreflang="de" href="./">
+<link rel="alternate" hreflang="fr" href="../fr/">
+<link rel="alternate" hreflang="it" href="../it/">
+<link rel="alternate" hreflang="rm" href="../rm/">
+<link rel="alternate" hreflang="x-default" href="../">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Wasser und Eis in der Schweiz">
+<meta property="og:description" content="Schweizer Fliessgewässer, live. Speicherseen gegen 26 Jahre der eigenen Reihe. Gletscher über fünf datierte Inventare. Eine gemessene Grundlage für die juristische Arbeit am Klima.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../style.css">
+<script src="../i18n.js"></script>
+<script src="../i18n-data.js"></script>
+<script src="../i18n-map.js"></script>
+<script src="../theme.js"></script>
+</head>
+<body class="viz-root" data-layer="flow">
+
+<canvas id="map"></canvas>
+<canvas id="flow"></canvas>
+
+<a class="skip" href="#modes">Direkt zur Ebenensteuerung</a>
+
+<header id="titlebar">
+  <h1>Wasser und Eis in der Schweiz</h1>
+  <p class="sub">Flüsse live aus den Messstellen des Bundes gelesen. Eis über fünf Aufnahmen. Speicherseen gegen die eigene Reihe.</p>
+  <p class="stamp" id="stamp">Wird geladen&#8230;</p>
+
+  <!-- The page's one claim about itself, drawn rather than asserted. -->
+  <div id="evidence">
+    <p class="evLabel">Was gezeichnet ist, nach Beweisklasse</p>
+    <div class="evBar" id="evBar" role="img" aria-label="Zusammensetzung der Zeichnung nach Beweisklasse">
+      <span class="evMeasured" style="flex:0"></span>
+      <span class="evEstimated" style="flex:1"></span>
+      <span class="evNone" style="flex:0"></span>
+    </div>
+    <ul class="evKeys">
+      <li><i class="evMeasured"></i>An einer Messstelle gemessen<b id="evNumMeasured">&mdash;</b></li>
+      <li><i class="evEstimated"></i>Für den Abschnitt geschätzt<b id="evNumEstimated">&mdash;</b></li>
+      <li><i class="evNone"></i>Heute ohne Grundlage<b id="evNumNone">&mdash;</b></li>
+    </ul>
+  </div>
+
+  <!-- First visit only. The map answers when it is pointed at, and nothing on a
+       still screen says so. -->
+  <p class="hint" id="hint" hidden>Auf das Wasser zeigen, um es zu lesen. <a href="method.html#reading">Wie diese Karte zu lesen ist</a></p>
+
+  <nav id="siteNav" aria-label="Website">
+    <a href="method.html">Methode</a>
+    <a href="sources.html">Quellen</a>
+    <a href="law.html">Recht</a>
+    <a href="about.html">Über</a>
+    <span class="langs" data-langswitch></span>
+    <button type="button" class="themeBtn" title="Nacht. Auf Tag umschalten." aria-label="Nacht. Auf Tag umschalten.">
+      <svg class="tIconNight" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z"/></svg>
+      <svg class="tIconDay" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="3.1"/><path d="M8 1.4v1.5M8 13v1.5M14.5 8H13M3 8H1.5M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1M12.6 12.6l-1.1-1.1M4.5 4.5 3.4 3.4"/></svg>
+      <svg class="tIconAuto" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="8" cy="8" r="5.7"/><path d="M8 2.3a5.7 5.7 0 0 1 0 11.4Z" fill="currentColor" stroke="none"/></svg>
+    </button>
+  </nav>
+</header>
+
+<nav id="modes" aria-label="Ebene">
+  <div class="modeGroup" role="group" aria-label="Wasser jetzt">
+    <span class="modeGroupLabel">Jetzt</span>
+    <button type="button" data-mode="flow" class="on">Abfluss</button>
+    <button type="button" data-mode="normal">Gegen normal</button>
+    <button type="button" data-mode="temp">Temperatur</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Gespeichertes Wasser">
+    <span class="modeGroupLabel">Gespeichert</span>
+    <button type="button" data-mode="res" id="modeRes" disabled>Speicherseen</button>
+    <button type="button" data-mode="ice" id="modeIce" disabled>Eis</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Wasser und Recht">
+    <span class="modeGroupLabel">Recht</span>
+    <button type="button" data-mode="residual" id="modeResidual" disabled>Restwasser</button>
+    <button type="button" data-mode="use" id="modeUse" disabled>Wassernutzung</button>
+    <button type="button" data-mode="wet" id="modeWet" disabled>Feuchtgebiete</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Woher das Wasser kommt">
+    <span class="modeGroupLabel">Herkunft</span>
+    <button type="button" data-mode="source">Wasservorkommen</button>
+  </div>
+</nav>
+
+<section id="legend" aria-label="Legende">
+  <button id="sheetHandle" type="button" aria-expanded="false" aria-controls="legendBody"><span class="grip" aria-hidden="true"></span> <span class="sheetTitle" id="sheetTitle">Abfluss</span></button>
+
+  <div id="legendBody">
+  <h2 id="legendTitle">Abfluss</h2>
+
+  <div class="lg" id="lgFlow">
+    <div class="ramp ramp-seq"></div>
+    <div class="rampLabels"><span>0.1</span><span>1</span><span>10</span><span>100</span><span>1000 m&#179;/s</span></div>
+    <ul class="notes">
+      <li><span class="swatch measured"></span>An einer Messstelle gemessen</li>
+      <li><span class="swatch estimated"></span>Für den Abschnitt geschätzt</li>
+      <li><span class="swatch nobasis"></span>Ausserhalb des gemessenen Netzes</li>
+    </ul>
+  </div>
+
+  <div class="lg" id="lgNormal" hidden>
+    <div class="ramp ramp-div"></div>
+    <div class="rampLabels"><span>25%</span><span>50%</span><span>100%</span><span>200%</span><span>400%</span></div>
+    <p class="lgNote">Der Abfluss jetzt gegen das langjährige Mittel desselben Abschnitts. Das Mittel ist ein Jahreswert; ein Sommerwert unter 100&nbsp;% ist deshalb zum Teil die Jahreszeit und nicht nur das Jahr. Als Verhältnis zu lesen, nicht als Trockenheitsindex.</p>
+    <p class="lgNote">Das Mittel ist HydroRIVERS <span class="num">DIS_AV_CMS</span>: modelliert und nicht die Bundesstatistik. <b>Nicht zitierfähig.</b></p>
+  </div>
+
+  <div class="lg" id="lgTemp" hidden>
+    <div class="ramp ramp-temp"></div>
+    <div class="rampLabels"><span>0</span><span>10</span><span>20</span><span>25&nbsp;&deg;C</span></div>
+    <p class="threshold"><i></i>Ab 25&nbsp;&deg;C, der Obergrenze nach GSchV Anhang&nbsp;2 Ziff.&nbsp;12 Abs.&nbsp;4</p>
+    <p class="lgNote" id="tempCount">&nbsp;</p>
+    <p class="lgNote">Eine gefüllte Scheibe ist eine Messstelle mit Temperaturreihe, gefüllt aus der Farbskala. Ein leerer Ring ist eine Messstelle ohne solche: eine fehlende Messung ist keine kalte. Die Flüsse behalten unter dieser Ebene ihre Abflussfarbe, gedämpft, denn die Temperatur wird an der Messstelle gemessen und nirgends sonst.</p>
+    <p class="lgNote">Eine Messung ist ein Sensor. Öffnen Sie eine Messstelle und halten Sie sie gegen die nächstgelegenen, bevor Sie sich darauf stützen.</p>
+  </div>
+
+  <div class="lg" id="lgRes" hidden>
+    <ul class="notes">
+      <li><span class="swatch resFull"></span>Sperre, in der Grösse des Volumens bei Vollstau</li>
+      <li><span class="swatch resFlood"></span>Für den Hochwasserrückhalt gebaut, nicht für Strom</li>
+    </ul>
+    <div class="ramp ramp-res"></div>
+    <div class="rampLabels"><span>leer</span><span>halb</span><span>voll</span></div>
+    <p class="lgNote">Der Farbton ist der Füllungsgrad der <b>Region</b> der Anlage in der Woche am Abspielkopf; jede Anlage einer Region bewegt sich deshalb als ein Körper. Abspielen lässt sechsundzwanzig Jahre davon laufen.</p>
+    <p class="lgNote" id="resTotals">&nbsp;</p>
+    <p class="lgNote"><b>Zwei Register, und sie beschreiben nicht dieselben Gegenstände.</b> Die Sperren sind Bauwerke, mit dem Volumen, das jeder Speicher bei Vollstau fasst. Der Füllungsgrad ist ein Wochenwert in GWh &mdash; gespeicherter Strom, nicht gespeichertes Wasser &mdash; und er wird für vier Regionen publiziert, nicht für 225 Sperren. Diese Ebene kann also sagen, was ein Speicher bei Vollstau fasst, und sie kann sagen, wie voll die Region in dieser Woche ist. <b>Sie kann nicht sagen, wie voll die Grande Dixence heute ist.</b> Das publiziert niemand.</p>
+    <p class="lgNote" id="resRank">&nbsp;</p>
+  </div>
+
+  <div class="lg" id="lgIce" hidden>
+    <ul class="notes">
+      <li><span class="swatch ice1850"></span>Eis im Jahr 1850</li>
+      <li><span class="swatch ice2023"></span>Eis im Jahr 2023</li>
+    </ul>
+    <p class="lgNote">Die Körper von 2023 sind über die Umrisse von 1850 gezeichnet. Was farbig bleibt, ist das Eis, das verschwunden ist. Abspielen lässt die fünf datierten Aufnahmen in ihren wirklichen Abständen laufen.</p>
+    <p class="lgNote" id="iceTotals">&nbsp;</p>
+    <p class="lgNote"><b>Dies ist Fläche, nicht Volumen.</b> Die beiden haben sich nicht gleich bewegt: in den letzten Jahrzehnten wurde das Eis schneller dünner, als es im Grundriss schrumpfte, denn ein Gletscher verliert Mächtigkeit über seine ganze Fläche, bevor er seinen Umriss verliert. Die Flächenzahlen hier sind gemessen. Die Volumenzahlen sind zitiert und stammen aus eigenen Arbeiten mit eigenen Methoden.</p>
+  </div>
+
+  <div class="lg" id="lgResidual" hidden>
+    <ul class="notes">
+      <li><span class="swatch resiMeas"></span>Q<sub>347</sub> aus Messreihen</li>
+      <li><span class="swatch resiMod"></span>Q<sub>347</sub> modelliert &mdash; eine grobe Schätzung</li>
+    </ul>
+    <p class="lgNote" id="residualCount">&nbsp;</p>
+    <p class="lgNote"><b>Was das Gesetz verlangen würde, nicht was heute jemand schuldet.</b> Art. 31 Abs. 1 GSchG setzt eine Mindestmenge, die bei einer Wasserentnahme im Bett bleiben muss. Die Zahl folgt aus dem Q<sub>347</sub>, und das BAFU publiziert Q<sub>347</sub> an 1'041 Stellen; die Mindestmenge lässt sich deshalb rechnen und kartieren statt eintippen. Die Regel greift aber nur bei einer <b>neuen</b> Entnahme und bei einer bestehenden erst, wenn ihre Konzession abläuft und erneuert werden muss. Eine bereits laufende Entnahme untersteht stattdessen der Sanierungsordnung von Art.&nbsp;80&nbsp;ff.</p>
+    <p class="lgNote"><b>Datenstand 1. Januar 2000.</b> Das ist die merkwürdigste Tatsache dieser Ebene und die nützlichste. Art.&nbsp;4 Bst. h definiert das Q<sub>347</sub> als Zehnjahresmittel, und das Jahrzehnt in dieser Datei ist jenes, auf dem die Festlegungen beruhen &mdash; für die Frage «was war verlangt» ist die alte Zahl deshalb die richtige. Für die Frage «wie viel Wasser führt dieser Bach in einem trockenen Jahr» beschreibt sie eine Hydrologie, die sich seither verändert hat.</p>
+  </div>
+
+  <div class="lg" id="lgUse" hidden>
+    <p class="useDir">Entnimmt Wasser</p>
+    <ul class="notes useKeys">
+      <li><label><input type="checkbox" data-use="hydro" checked><span class="swatch useHydro"></span>Wasserkraft, in der Grösse der Ausbauwassermenge</label></li>
+      <li><label><input type="checkbox" data-use="abstraction" checked><span class="swatch useAbs"></span>Wasserentnahme, Restwasserkarte</label></li>
+      <li><label><input type="checkbox" data-use="npp" checked><span class="swatch useNpp"></span>Kernkraftwerk, Kühlwasser</label></li>
+    </ul>
+    <p class="useDir">Gibt Wasser ab</p>
+    <ul class="notes useKeys">
+      <li><label><input type="checkbox" data-use="ara" checked><span class="swatch useAra"></span>Kläranlage, in der Grösse der Einwohnerwerte</label></li>
+    </ul>
+    <p class="lgNote">Zwei Farben, weil das Recht an der Richtung ansetzt: Art.&nbsp;31 GSchG regelt die Entnahme von Wasser, GSchV Anhang&nbsp;2 Ziff.&nbsp;12 Abs.&nbsp;4 den Eintrag von Wärme. Zu welchem Register ein Zeichen gehört, sagt seine Form, nicht eine dritte und vierte Farbe.</p>
+    <p class="lgNote"><b>Eine gefüllte Scheibe trägt eine Menge. Ein offener Ring trägt einen Ort und sonst nichts.</b> Von den vier Bundesregistern liefert nur die Wasserkraftstatistik eine Wassermenge, und sie liefert sie durch Rechnung, nicht durch Messung: Leistung geteilt durch Fallhöhe. Die Restwasserkarte enthält überhaupt kein Volumen, und für die Kernanlagen ist kein Kühlwasservolumen als Open Data publiziert. Kläranlagen tragen stattdessen ein Verhältnis: ihre Einleitmenge gegen das Gewässer bei Q<sub>347</sub>. Bei 39 von ihnen liegt es über 100&#8201;%, das heisst der Bach führt bei Niedrigwasser weniger, als die Anlage einleitet.</p>
+    <p class="lgNote" id="useCount">&#160;</p>
+  </div>
+
+
+  <div class="lg" id="lgWet" hidden>
+    <ul class="notes wetKeys" id="wetTotals"></ul>
+    <p class="lgNote" id="wetCount">&nbsp;</p>
+    <p class="lgNote"><b>Das Wasserregister ist durch Verordnung geschützt, das verfassungsmässige durch die Verfassung.</b> Auengebiete und Amphibienlaichgebiete nennen als Schutzziel das Wasser und sind deshalb im Farbton des Wassers gezeichnet. Hoch- und Flachmoore sowie Moorlandschaften stehen unter Art.&nbsp;78 Abs.&nbsp;5&nbsp;BV, dem Rothenthurm-Artikel, der das Bauen und jede Veränderung des Bodens verbietet, ausgenommen zum Schutz der Moore selbst und zu ihrer bisherigen landwirtschaftlichen Nutzung &mdash; ohne Interessenabwägung, die verloren gehen könnte; sie tragen deshalb die Tinte, die hier jede gesetzliche Grösse trägt. <a href="method.html#wetlands">Wie das gezeichnet ist</a>.</p>
+    <p class="lgNote"><b>Die Alter widersprechen den Schutzzielen.</b> Das Amphibieninventar wurde vor Monaten nachgeführt; das Auenschutzinventar, dessen Schutzziel eine Wassermenge ist, trägt einen Datenstand des Bundes von November 2017 &mdash; und dasselbe gilt für das Inventar, in dem Rothenthurm liegt. <a href="sources.html#table">Jedes Datum</a>.</p>
+  </div>
+
+  <div class="lg" id="lgSource" hidden>
+    <ul class="notes srcKeys">
+      <li><label><input type="checkbox" data-src="gw"><span class="swatch srcGw"></span>Grundwasserkörper</label></li>
+      <li><label><input type="checkbox" data-src="head" checked><span class="swatch srcHead"></span>Oberläufe, das obere Ende des gezeichneten Netzes</label></li>
+      <li><label><input type="checkbox" data-src="zone" checked><span class="swatch srcZone"></span>Grundwasserschutzzonen S1&ndash;S3, rechtskräftig</label></li>
+      <li><label><input type="checkbox" data-src="catch"><span class="swatch srcCatch"></span>Teileinzugsgebiete</label></li>
+    </ul>
+    <p class="lgNote"><b>Drei dieser vier sind Bilder, keine Daten.</b> Die Grundwasserkörper, die Schutzzonen und die Einzugsgebiete werden von einem Server des Bundes oder eines Kantons für das Rechteck auf dem Bildschirm gezeichnet und kommen als Bild an: diese Karte kann sie nicht abfragen, aus dem Bild nicht datieren und nicht prüfen. Die Oberläufe sind die Ausnahme und in der eigenen Tinte dieser Karte gezeichnet.</p>
+    <p class="lgNote"><b>Ein Oberlauf ist keine Quelle.</b> Er ist ein Abschnitt, über dem nichts mehr liegt, abgeschnitten bei 5&nbsp;km&#178; Einzugsfläche &mdash; das obere Ende des Netzes, wie diese Karte es zeichnet, und jener Teil des Landes, über dem nirgends eine Messstelle steht. Die Quellen und Wasserfälle, die beim Zoomen erscheinen, sind die 86 und 157 <em>benannten</em> aus swissNAMES3D, keine Zählung der Schweizer Quellen.</p>
+    <p class="lgNote"><b>Gezeichnet sind nur rechtskräftige Zonen.</b> geodienste.ch liefert auch geplante und künftige Zonen; eine geplante Zone ist noch keine rechtliche Schranke. S1 ist der eingezäunte Fassungsbereich, S2 die engere, S3 die weitere Schutzzone &mdash; Art.&nbsp;20 GSchG, GSchV Anhang&nbsp;4 Ziff.&nbsp;1. Sie messen Hektaren; in der Landesansicht sind sie deshalb kleiner als ein Pixel: zoomen Sie über einen Kanton hinaus, bevor Sie eine erwarten.</p>
+    <p class="lgNote" id="srcAges">&nbsp;</p>
+    <p class="lgNote" id="srcCoverage">&nbsp;</p>
+  </div>
+
+  <div class="controls">
+    <label><input type="checkbox" id="toggleStations" checked> Messstellen</label>
+    <label><input type="checkbox" id="toggleMotion" checked> Bewegung</label>
+    <label><input type="checkbox" id="togglePlaces" checked> Ortsnamen</label>
+  </div>
+  <div class="controls groundRow" role="radiogroup" aria-label="Untergrund">
+    <span class="ctlLabel">Untergrund</span>
+    <label><input type="radio" name="ground" value="" checked> Keiner</label>
+    <label><input type="radio" name="ground" value="relief"> Relief</label>
+    <label><input type="radio" name="ground" value="topo"> Graue Landeskarte</label>
+  </div>
+  <div class="liveRow">
+    <label class="liveSwitch"><input type="checkbox" id="toggleLive"> Nur Livedaten</label>
+    <p class="lgNote" id="liveNote"></p>
+  </div>
+  <div class="btnRow">
+    <button id="refresh" type="button">Livedaten neu lesen</button>
+    <a class="btnLaw" href="law.html">Die rechtlichen Anknüpfungspunkte</a>
+    <a class="btnLaw" href="sources.html">Quellen und ihr Alter</a>
+  </div>
+  </div>
+</section>
+
+<!-- The time ribbon. It is empty on the layers that describe only now, and it
+     carries the record on the layers that describe a change. -->
+<section id="ribbon" hidden aria-label="Zeit">
+  <div class="ribbonHead">
+    <button id="play" type="button" aria-label="Abspielen">
+      <svg viewBox="0 0 12 14" aria-hidden="true" width="11" height="13"><path d="M1 1l10 6-10 6z"/></svg>
+      <span id="playLabel">Abspielen</span>
+    </button>
+    <h2 id="ribbonTitle">&nbsp;</h2>
+    <output id="ribbonRead">&nbsp;</output>
+  </div>
+  <canvas id="ribbonCv"></canvas>
+  <input id="scrub" type="range" min="0" max="1000" value="1000" step="1" aria-label="Durch die Zeit ziehen">
+  <p class="ribbonNote" id="ribbonNote">&nbsp;</p>
+</section>
+
+<aside id="panel" hidden>
+  <button id="panelClose" type="button" aria-label="Schliessen">&times;</button>
+  <h2 id="panelTitle"></h2>
+  <dl id="panelBody"></dl>
+  <div id="panelExtra"></div>
+  <p class="panelNote" id="panelNote"></p>
+</aside>
+
+<div id="tooltip" role="status" hidden></div>
+
+<footer id="credits">
+  <p><strong>Flüsse</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), Abschnitte mit einem Einzugsgebiet ab 5&nbsp;km&#178;, die den Live-Abfluss aus dem BAFU-Messnetz über LINDAS tragen. <strong>Eis</strong> GLAMOS, fünf datierte Inventare. <strong>Speicherseen</strong> BFE. <strong>Restwasser und Wassernutzung</strong> BAFU und BFE. <strong>Namen</strong> swissNAMES3D, swisstopo. Jede Quelle, ihre Lizenz und ihr Datenstand stehen auf der <a href="sources.html">Quellenseite</a>. Gemessenes und modelliertes Wasser, keine Prognose.</p>
+</footer>
+
+<script src="../fmt.js"></script>
+<script src="../gschg31.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

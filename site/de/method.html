@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="de" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wie diese Karte gemacht ist und wie sie zu lesen ist — Wasser und Eis in der Schweiz</title>
+<meta name="description" content="Jede Ebene der Schweizer Wasser- und Eiskarte, die Verknüpfung dahinter, die Beweisklasse, zu der sie gehört, und die Stelle, an der jede Kette reisst. Samt Anleitung, wie die Karte selbst zu lesen ist.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/de/method.html">
+<link rel="alternate" hreflang="en" href="../method.html">
+<link rel="alternate" hreflang="de" href="method.html">
+<link rel="alternate" hreflang="fr" href="../fr/method.html">
+<link rel="alternate" hreflang="it" href="../it/method.html">
+<link rel="alternate" hreflang="rm" href="../rm/method.html">
+<link rel="alternate" hreflang="x-default" href="../method.html">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Wie diese Karte gemacht ist und wie sie zu lesen ist — Wasser und Eis in der Schweiz">
+<meta property="og:description" content="Jede Ebene der Schweizer Wasser- und Eiskarte, die Verknüpfung dahinter, die Beweisklasse, zu der sie gehört, und die Stelle, an der jede Kette reisst. Samt Anleitung, wie die Karte selbst zu lesen ist.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../site.css">
+<script src="../i18n.js"></script>
+<script src="../i18n-data.js"></script>
+<script src="../theme.js"></script>
+</head>
+<body class="page" data-page="method">
+
+<a class="skip" href="#main">Direkt zum Text</a>
+
+<header class="siteHead">
+  <a class="brand" href="./">
+    <svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg>
+    <span class="brandName"><span class="brandLong">Wasser und Eis in der Schweiz</span><span class="brandShort">Wasser &amp; Eis</span></span>
+  </a>
+  <nav class="siteNav" aria-label="Website">
+    <a href="./" class="toMap">Karte</a>
+    <a href="method.html" aria-current="page">Methode</a>
+    <a href="sources.html">Quellen</a>
+    <a href="law.html">Recht</a>
+    <a href="about.html">Über</a>
+    <span class="langs" data-langswitch></span>
+    <button type="button" class="themeBtn" title="Nacht. Auf Tag umschalten." aria-label="Nacht. Auf Tag umschalten.">
+      <svg class="tIconNight" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z"/></svg>
+      <svg class="tIconDay" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="3.1"/><path d="M8 1.4v1.5M8 13v1.5M14.5 8H13M3 8H1.5M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1M12.6 12.6l-1.1-1.1M4.5 4.5 3.4 3.4"/></svg>
+      <svg class="tIconAuto" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="8" cy="8" r="5.7"/><path d="M8 2.3a5.7 5.7 0 0 1 0 11.4Z" fill="currentColor" stroke="none"/></svg>
+    </button>
+  </nav>
+</header>
+
+<div class="docWrap">
+  <details class="toc" open>
+    <summary><span class="tocTitle">Inhalt</span></summary>
+    <span class="tocTitle">Inhalt</span>
+    <ol>
+      <li><a href="#reading">Die Karte lesen</a></li>
+      <li><a href="#network">Das Netz</a></li>
+      <li><a href="#basins">Wohin das Wasser geht</a></li>
+      <li><a href="#live">Die Live-Abfrage</a></li>
+      <li><a href="#evidence">Drei Beweisklassen</a></li>
+      <li><a href="#estimate">Einen Abschnitt schätzen</a></li>
+      <li><a href="#names">Die Namen</a></li>
+      <li><a href="#ice">Das Eis</a></li>
+      <li><a href="#reservoirs">Die Speicherseen</a></li>
+      <li><a href="#wetlands">Geschützte Feuchtgebiete</a></li>
+      <li><a href="#pictures">Bilder und Daten</a></li>
+      <li><a href="#limits">Was sie nicht kann</a></li>
+      <li><a href="#build">Wie sie neu gebaut wird</a></li>
+    </ol>
+  </details>
+
+  <article class="doc" id="main">
+    <header class="docHead">
+      <p class="eyebrow">Methode</p>
+      <h1>Wie diese Karte gemacht ist und wie sie zu lesen ist</h1>
+      <p class="lede">Jede Zahl auf dieser Karte steht am Ende einer Kette: ein Bundesregister, eine Verknüpfung, eine Projektion, ein Schluss. Diese Seite geht jede Kette in der Reihenfolge ab, in der die Karte sie abgeht, und nennt <b>die Stelle, an der jede reisst</b>.</p>
+      <p class="dateline">Geschrieben zum Build vom <b>19.08.2026</b>. Als strukturell bezeichnete Zahlen sind aus den Datendateien selbst gezählt und ändern sich nur, wenn eine Quelle neu gebaut wird.</p>
+    </header>
+
+    <section id="reading">
+      <h2>Die Karte lesen</h2>
+      <p>Die Karte zeichnet ein Land auf acht Arten. Die Ebenen sind nach der Frage gruppiert, die sie beantworten, und nicht nach der Stelle, die sie publiziert &mdash; denn die Frage ist das, womit eine Leserin ankommt.</p>
+      <div class="tWrap"><table>
+        <thead><tr><th scope="col">Ebene</th><th scope="col">Die Frage, die sie beantwortet</th><th scope="col">Woraus sie gezeichnet ist</th></tr></thead>
+        <tbody>
+          <tr><td><b>Abfluss</b></td><td>Wie viel Wasser bewegt sich gerade jetzt?</td><td>236 Messstellen des Bundes, alle zehn Minuten gelesen, übertragen auf 8'716 Abschnitte</td></tr>
+          <tr><td><b>Gegen normal</b></td><td>Ist das viel oder wenig für diesen Fluss?</td><td>Heute gegen ein modelliertes langjähriges Mittel. Nicht zitierfähig, und die Ebene sagt es</td></tr>
+          <tr><td><b>Temperatur</b></td><td>Wo steht die Obergrenze von 25&nbsp;°C im Spiel?</td><td>Die Messstellen mit Thermometer, gegen GSchV Anhang&nbsp;2 Ziff.&nbsp;12 Abs.&nbsp;4</td></tr>
+          <tr><td><b>Speicherseen</b></td><td>Wie viel Wasser wird zurückgehalten, und wie voll ist es?</td><td>225 Stauanlagen unter Bundesaufsicht und eine wöchentliche Füllungsreihe seit 2000</td></tr>
+          <tr><td><b>Eis</b></td><td>Was hat das Eis verloren, und wie schnell?</td><td>Fünf datierte Gletscherinventare, 1850 bis 2023</td></tr>
+          <tr><td><b>Restwasser</b></td><td>Was würde das Gesetz in diesem Bett verlangen?</td><td>1'041 publizierte Q<sub>347</sub>-Stellen, mit der berechneten Mindestmenge nach Art.&nbsp;31 Abs.&nbsp;1</td></tr>
+          <tr><td><b>Wassernutzung</b></td><td>Wer entnimmt Wasser, und wer trägt Wärme ein?</td><td>Vier Bundesregister: Wasserkraft, Wasserentnahmen, Kernanlagen, Abwasserreinigungsanlagen</td></tr>
+          <tr><td><b>Wasservorkommen</b></td><td>Woher kommt das Wasser?</td><td>Grundwasserkörper, Oberläufe, Teileinzugsgebiete und die rechtskräftigen Schutzzonen</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Zeigen, und was zurückkommt</h3>
+      <p>Zeigen Sie auf ein Gewässer, und die Karte nennt es und sagt, was es führt, samt der Beweisklasse, zu der diese Zahl gehört. Ein Klick oder ein Tippen öffnet die vollständige Lesung: den Abfluss, das langjährige Mittel, den Anteil daran, das Einzugsgebiet oberhalb und einen Satz, der in klaren Worten sagt, worauf die Zahl beruht. Scrollen oder Zusammenziehen zoomt, Ziehen verschiebt. Die Adresszeile behält Ebene und Ausschnitt; ein Link auf einen Fluss ist deshalb ein Link auf diesen Fluss.</p>
+      <p>Die Namen leben am Zeiger und nicht auf der Fläche. Eine Beschriftung auf einer Karte muss <em>irgendwo</em> stehen, und jeder Ort, an den sie kann, ist schon vergeben: über dem Wasser verdeckt sie das Wasser, neben dem Wasser liegt sie im nächsten Kanton, weiter weg landet sie unter der Legende. Den Namen stattdessen an die Lesung zu hängen kostet nichts, kollidiert mit nichts und hat den Vorzug, dass der Name, den Sie erhalten, der Name des Abschnitts ist, nach dem Sie gefragt haben. Seen und Gletscher behalten ihre Namen auf der Fläche, denn ein Seename sitzt in einer Form, die ihm gehört, und tritt mit nichts in Wettbewerb.</p>
+
+      <h3>Die Zeit und der Schalter, der die Karte zurückschält</h3>
+      <p>Zwei Ebenen beschreiben eine Veränderung statt eines Zustands, und sie erhalten ein Zeitband: die Speicherseen laufen sechsundzwanzig Jahre wöchentlicher Füllung, das Eis läuft fünf Aufnahmen in ihren wirklichen Abständen von 81, 42, 37 und 13 Jahren. Abspielen drücken oder den Regler ziehen.</p>
+      <p><b>Nur Livedaten</b> ist der Schalter, den man kennen sollte. Er entfernt alles, was heute nicht gemessen wird: die vier archivischen Ebenen verschwinden, und mit ihnen die 8'545 Abschnitte, deren Zahl ein Schluss ist. Übrig bleiben 171 Abschnitte und die Messstellen, die darüber berichten. Das soll unbequem sein, und es ist das ehrlichste Bild auf dieser Website.</p>
+    </section>
+
+    <section id="network">
+      <h2>Das Netz</h2>
+      <p>Die Flusslinien sind HydroRIVERS v1.0, das Gewässernetz von HydroSHEDS, zugeschnitten auf die Schweiz und auf Abschnitte mit einem Einzugsgebiet ab 5&nbsp;km². Es bleiben <span class="num">8'716</span> Abschnitte, jeder mit einer Kennung, dem unmittelbar unterhalb liegenden Abschnitt, einer Strahler-Ordnung, einer Einzugsfläche oberhalb und einem modellierten langjährigen mittleren Abfluss.</p>
+      <p><b>Es ist eine modellierte Geometrie und nicht die Gewässerebene des Bundes.</b> HydroRIVERS ist ein globales Produkt, hergeleitet aus einem digitalen Höhenmodell, und es ist weit gröber verallgemeinert als eine Schweizer Landeskarte: Ein einzelner Abschnitt kann eine Schleife abschneiden, die der wirkliche Fluss zieht, und zwei Gerinne im Abstand von 200&nbsp;m können eine Linie sein. Im Landesmassstab ist das unsichtbar. Im Talmassstab ist es der Grund, weshalb eine Linie nicht genau dort liegt, wo das Wasser liegt, und es ist der Grund, weshalb die unten beschriebene Namensverknüpfung die Fehlerart hat, die sie hat.</p>
+      <p>Die Karte ist in Web Mercator gezeichnet, der Projektion, in der auch die WMS-Dienste des Bundes antworten; der wahlweise Relief- und der graue Landeskarten-Untergrund sowie die vier Herkunftsüberlagerungen brauchen deshalb keine Umprojektion: Das Rechteck auf dem Bildschirm wird in den Koordinaten verlangt, in denen es ohnehin schon liegt.</p>
+    </section>
+
+    <section id="basins">
+      <h2>Wohin das Wasser geht</h2>
+      <p>Jeder Abschnitt in HydroRIVERS führt <code>MAIN_RIV</code>, die Kennung des untersten Abschnitts seines Flusssystems. Gruppiert man den Schweizer Auszug nach diesem Feld, erhält man die Flusssysteme; bestimmt man jedes System über den Abschnitt, durch den sein Wasser das Land verlässt, erhält man die vier europäischen Meereseinzugsgebiete. Nichts an den Einzugsgebieten ist zitiert: Sie fallen aus einem Feld, das das Netz ohnehin mitführt.</p>
+      <p>Der Anteil des Landes an jedem wird danach gemessen und nicht von einer Bundesseite übernommen. Über das Grenzpolygon wird ein Kilometerraster gelegt, jede Zelle, deren Mittelpunkt darin fällt, wird über einen Stützpunkt-Hash von 0.02° dem Einzugsgebiet des nächstgelegenen kartierten Gerinnes zugewiesen, und die Zellen werden gezählt. Das ergibt <span class="num">41'128</span> Zellen in einer vereinfachten Grenze von <span class="num">41'140</span> km², gegenüber den amtlichen <span class="num">41'291</span> km²: <b>0.4&nbsp;% gehen durch die Vereinfachung des Grenzrings verloren</b>, und die Anteile sind Anteile an dem, was das Raster gefunden hat, und nicht an der amtlichen Fläche.</p>
+      <p>Die letzte Schweizer Messstelle jedes Einzugsgebiets ist jene mit dem grössten modellierten Mittel, und ihr Abstand zur Grenze wird stumpf gegen die 749 Stützpunkte des Grenzrings gemessen. Dieser Abstand ist der Zweck der Übung: Er zeigt, dass es am Ticino überhaupt keine Grenzmessstelle gibt, und die Nutzungsebene der Karte selbst zeigt, dass es am Inn eine gibt und dass sie in einem abgeleiteten Abschnitt steht.</p>
+      <div class="aside">Die vier hergeleiteten Anteile summieren sich auf <b>99.99&nbsp;%</b>. Die vier Bundesanteile summieren sich auf <b>98.7&nbsp;%</b>, weil das Etsch-Einzugsgebiet im Val Müstair ausserhalb liegt. Die Herleitung ist nicht genauer als die Bundeszahlen; sie ist vollständiger, und sie sagt, welche Zellen sie nicht zuordnen konnte.</div>
+      <p>Die Gletscher werden nach derselben Regel sortiert. Jeder Körper des Inventars 2023 und jeder Umriss des Inventars 1850 wird über seinen eigenen Schwerpunkt einem Einzugsgebiet zugewiesen. Die Flächen von 2023 sind die des Inventars selbst und summieren sich genau auf dessen publizierte Gesamtzahl; die Flächen von 1850 sind hier mit der Trapezformel aus den Umrissen gemessen und summieren sich <b>1.1&nbsp;% zu hoch</b>, weil ein Loch innerhalb eines Umrisses als Eis gezählt wird. Beide Zahlen und die Abweichung stehen auf der Seite, die sie verwendet.</p>
+      <p class="fine">Das Ergebnis ist <code>site/data/basins.json</code>, und es wird vom <a href="about.html#europe">Eingangsabschnitt der Über-Seite</a> gelesen.</p>
+    </section>
+
+    <section id="live">
+      <h2>Die Live-Abfrage</h2>
+      <p>Abfluss, Wasserstand und Wassertemperatur stammen aus dem Messnetz des Bundesamts für Umwelt, abgefragt über LINDAS, den Linked-Data-Dienst des Bundes, mit einer einzigen SPARQL-Anfrage gegen den Graphen <code>&lt;https://lindas.admin.ch/foen/hydro&gt;</code>. Die Bundesreihe wird rund alle zehn Minuten nachgeführt, und die Seite liest sie auf Verlangen neu.</p>
+      <p>Die Antwort enthält <span class="num">236</span> Messstellen. <span class="num">229</span> davon lassen sich einem Gewässerabschnitt zuordnen, und sie landen auf <span class="num">208</span> verschiedenen Abschnitten, weil mehr als eine Messstelle auf derselben modellierten Linie liegen kann.</p>
+      <div class="flag"><b>Eine Falle, und sie liegt in den Bundesdaten.</b> LINDAS publiziert je Messstelle ein Kennzeichen, das angibt, ob die Abflussreihe in Litern pro Sekunde geführt wird. Auf jeder der 190 Zeilen, die es tragen, ist das Kennzeichen falsch. Die Einheit wird stattdessen aus der beobachteten Reihe und ihrer angegebenen Einheit aufgelöst, und der Umrechnungsfaktor jeder Messstelle steht in deren eigenem Feld, damit man die Rechnung prüfen kann, statt ihr zu vertrauen.</div>
+    </section>
+
+    <section id="evidence">
+      <h2>Drei Beweisklassen</h2>
+      <p>Das ist die Behauptung, die die Karte über sich selbst aufstellt, und sie ist der Grund, weshalb es dieses Projekt überhaupt gibt: <b>Das meiste, was Sie sehen, ist Schluss.</b> Jeder Abschnitt auf dem Bildschirm gehört genau einer von drei Klassen an, und der Balken oben auf der Karte zählt sie bei jeder Live-Abfrage aus der Zeichnung selbst; er kann sich deshalb nicht von dem entfernen, was auf dem Bildschirm steht.</p>
+      <div class="evPage">
+        <div class="evBar" role="img" aria-label="208 Abschnitte gemessen, 5'010 geschätzt, 3'498 ohne Grundlage">
+          <span class="evMeasured" style="flex:208"></span>
+          <span class="evEstimated" style="flex:5010"></span>
+          <span class="evNone" style="flex:3498"></span>
+        </div>
+        <ul class="evKeys">
+          <li><i class="evMeasured"></i>Gemessen &mdash; <span class="num">208</span> (2.4&#8201;%)</li>
+          <li><i class="evEstimated"></i>Geschätzt &mdash; <span class="num">5'010</span> (57.5&#8201;%)</li>
+          <li><i class="evNone"></i>Ohne Grundlage &mdash; <span class="num">3'498</span> (40.1&#8201;%)</li>
+        </ul>
+      </div>
+      <p class="fine">Das sind die <b>strukturellen</b> Zahlen: wie sich das Netz teilt, sobald man fragt, welche Abschnitte überhaupt je eine gemessene Zahl tragen könnten. Die Livezahlen auf der Karte liegen in der ersten Klasse tiefer, meist um 171, weil nicht jede Messstelle in jedem Augenblick einen Abfluss meldet. Der Unterschied zwischen beiden ist selbst wissenswert.</p>
+      <div class="tWrap"><table>
+        <thead><tr><th scope="col">Klasse</th><th scope="col">Was die Zahl ist</th><th scope="col">Was sie trägt</th></tr></thead>
+        <tbody>
+          <tr><td><b>Gemessen</b></td><td>Auf diesem Abschnitt steht eine Messstelle; die Zahl ist von ihr gelesen.</td><td>Eine Messung, an diesem Punkt, in dieser Minute. Nichts weiter unterhalb.</td></tr>
+          <tr><td><b>Geschätzt</b></td><td>Das langjährige Mittel des Abschnitts, skaliert danach, wie weit die nächste Messstelle von ihrem eigenen Mittel absteht.</td><td>Ein Hinweis auf Richtung und Grössenordnung. Keine Zahl für eine Rechtsschrift.</td></tr>
+          <tr><td><b>Ohne Grundlage</b></td><td>Keine Messstelle unterhalb und keine oberhalb. Das langjährige Mittel und sonst nichts.</td><td>Nichts über heute. Der Abschnitt wird als unbekannt gezeichnet und nicht geraten.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="estimate">
+      <h2>Einen Abschnitt schätzen</h2>
+      <p>Ein ungemessener Abschnitt erhält seine Zahl in einem Schritt, und der Schritt ist mit Absicht grob, weil eine grobe Regel, die sich in einem Satz sagen lässt, leichter zu bestreiten ist als eine feine, die sich nicht sagen lässt.</p>
+      <p>Jede Messstelle ergibt eine <em>Abweichung</em>: was sie jetzt anzeigt, geteilt durch ihr eigenes langjähriges Mittel. Ein Abschnitt ohne Messstelle nimmt die Abweichung <b>des ersten gemessenen Abschnitts unterhalb</b> von ihm, weil das jenes Wasser ist, das er gleich sein wird, und multipliziert sein eigenes langjähriges Mittel damit. Geht das nicht, nimmt er die Abweichung des grössten gemessenen Flusses oberhalb. Geht beides nicht, hat er keine Grundlage und wird als solcher gezeichnet.</p>
+      <div class="aside">Das hier verwendete langjährige Mittel ist HydroRIVERS <code>DIS_AV_CMS</code>, das <b>modelliert</b> ist und nicht die Bundesstatistik. Jede Zahl, die davon abhängt — die Schätzung und die ganze Ebene <em>Gegen normal</em> —, erbt das. Die Ebene sagt es auf ihrer eigenen Vorderseite, und die Worte lauten <b>nicht zitierfähig</b>.</div>
+    </section>
+
+    <section id="names">
+      <h2>Die Namen</h2>
+      <p>HydroRIVERS ist namenlos. Es führt eine Kennung, eine Fläche und einen Abfluss und überhaupt keinen Namen. Die Namen stammen aus swissNAMES3D, dem amtlichen Namenverzeichnis von swisstopo, Ausgabe 2026, und sie werden über die Nähe mit dem Netz verknüpft.</p>
+      <p>Das Verzeichnis gibt je Setzung einen Namen und einen Ankerpunkt, keine benannte Geometrie: Der Rhein erscheint sechsmal entlang seines Laufs, die Aare sechzehnmal. Das ist eine Beschriftungsdatei, und sie wird als solche verwendet. Jeder Anker wird auf den nächstgelegenen Abschnitt gezogen; das gibt ihm zwei Dinge, die ihm fehlen &mdash; wie viel Land an der Stelle vorbei entwässert, an der der Name geschrieben steht, damit die Karte weiss, wie gross das Gewässer ist, und die örtliche Richtung des Gerinnes.</p>
+      <h3>Drei Zahlen, und jede davon ist eingestellt</h3>
+      <p>Nichts in diesem Projekt hat sich stärker gewehrt, und die drei Zahlen, die es entscheiden, sind es wert, genannt zu werden, weil jede von ihnen ein Kompromiss ist und keine Tatsache.</p>
+      <ul>
+        <li><b>500&nbsp;m Fangradius.</b> Die beiden Quellen sind in verschiedenen Massstäben gezeichnet, und der wirkliche Abstand reicht von 85&nbsp;m am Rhein bei Schaffhausen über 254&nbsp;m am Ticino bis zu 1'097&nbsp;m an der Reuss. Verengt man ihn auf 300&nbsp;m, verschwinden Limmat, Emme und Saane lautlos. Weitet man ihn auf 1'200&nbsp;m, kommt das Äpelööbächlein als fünftgrösstes Fliessgewässer der Schweiz heraus.</li>
+        <li><b>25&nbsp;km Gruppierung.</b> Vierzehn verschiedene Bäche in diesem Land heissen Dorfbach und sind nicht ein Fluss; Anker mit gleichem Namen werden deshalb nach Nähe gruppiert, und jede Gruppe wird für sich gewertet.</li>
+        <li><b>Drei Setzungen, bevor einer Gruppe geglaubt wird.</b> Eine Gruppe von drei oder mehr nimmt den grössten Abschnitt, den einer ihrer Anker erreicht hat; eine Gruppe von einem oder zwei nimmt den kleinsten. Das hindert den Erzbach, zweimal neben der Aare geschrieben, daran, auf die Kraft einer einzigen Setzung hin, die 131&nbsp;m neben dem Hauptstrang fiel, 10'706&nbsp;km² für sich zu beanspruchen.</li>
+      </ul>
+      <h3>Einen Namen entlang seines eigenen Wassers tragen</h3>
+      <p>Die Anker allein benennen 1'691 von 8'716 Abschnitten; eine Leserin, die zwischen zwei Setzungen zeigt, erführe deshalb nichts über einen Fluss, von dem sie klar sieht, dass es die Aare ist. Jeder Name wird darum entlang seines eigenen Gerinnes weitergetragen, nach der Regel, nach der Flüsse tatsächlich benannt werden: <b>Der Mehrheitspartner behält den Namen</b>. Flussabwärts läuft er, solange der Abschnitt, aus dem er kommt, noch mindestens die Hälfte dessen liefert, was unterhalb fliesst, und hört am Zusammenfluss auf, an dem er das nicht mehr tut. Flussaufwärts folgt er dem Ast mit dem meisten Wasser und hört auf, wenn nur noch ein Zufluss von weniger als der halben Grösse bleibt. Die Namen werden vom grössten an verarbeitet, und ein schon erhobener Anspruch wird nie überschrieben. Damit steigt die Zahl auf <span class="num">3'433</span> Abschnitte.</p>
+      <h3>Einem Bach den Rhein verweigern</h3>
+      <p>Ein Kanal, der rund 200&nbsp;m neben einem Hauptstrang verläuft, lässt sich in einem so grob verallgemeinerten Netz nicht von diesem Fluss unterscheiden, und der Fang hat nichts zu wägen: Innerhalb von 500&nbsp;m um die Aare hat das Verzeichnis auch den Rothkanal, den Erzbach und einen Dorfbach geschrieben, und keine Aare-Beschriftung liegt nahe genug, um dagegenzuhalten. Auch Bestätigung entscheidet es nicht &mdash; das Verzeichnis schreibt den Rhein im ganzen Land sechsmal und die Töss einmal.</p>
+      <p>Entschieden wird es durch den Wortschatz des Verzeichnisses selbst. Ein <i>Bach</i> ist ein Bach, ein <i>Riale</i> ein Bergbach, ein <i>Kanal</i> ein gestochenes Gerinne, ein <i>Aalte Rii</i> und ein <i>Vieux Rhône</i> sind Läufe, die der Fluss verlassen hat. Keiner von ihnen entwässert vierstellig viel Land. Einem Namen, der sich selbst als klein bezeichnet, wird ein Abschnitt über 500&nbsp;km² deshalb <b>verweigert</b>, und der Abschnitt bleibt für den Namen des Hauptstrangs frei, der auf ihn getragen wird.</p>
+      <div class="aside"><b>Was das behoben hat.</b> Vor der Verweigerung las sich der Hauptstrang der Aare als <i>Aalte Rii</i>, der Ticino über 57 Abschnitte als <i>Riale Pian Perdasc</i>, und den Lauf der Rhone hielt ein halbes Dutzend Seitenkanäle. Danach läuft der Rhein über 165 Abschnitte, die Rhone über 91, der Ticino über 76 und die Aare über 70. Von den grossen Schweizer Abschnitten &mdash; über 1'000&nbsp;km² und innerhalb des gemessenen Netzes &mdash; tragen jetzt <span class="num">99&nbsp;%</span> einen Namen.</div>
+      <div class="flag"><b>Was es kostet und was noch falsch bleibt.</b> Zwei Kanäle, die wirklich einen Hauptstrang führen, der Nidau-Büren-Kanal und der Hagneck-Kanal, beide für die Juragewässerkorrektion gestochen, lesen sich nun als Aare. Das ist der eigene Name des Wassers und keine Unwahrheit, nur weniger ortsgenau, als es das Verzeichnis hätte sein können. Und rund zwei Dutzend Abschnitte um Siders und im Lötschental tragen weiterhin den Namen eines Nachbarn, weil weder die Worte noch das Netz sie trennen. Sie werden hier genannt statt stillschweigend berichtigt.</div>
+    </section>
+
+    <section id="ice">
+      <h2>Das Eis</h2>
+      <p>Fünf datierte Inventare von GLAMOS &mdash; 1850, 1931, 1973, 2010 und 2023 &mdash; wobei die Körper von 2023 über die Umrisse von 1850 gezeichnet sind; farbig bleibt deshalb das Eis, das fort ist. Die Zungenlinie im Feld eines Gletschers ist die Schweizer Gletscherlängenänderungs-Reihe, jeden Herbst seit den 1880er-Jahren gemessen.</p>
+      <div class="aside"><b>Das ist Fläche, nicht Volumen, und beide haben sich nicht gleich bewegt.</b> In den letzten Jahrzehnten wurde das Eis schneller dünner, als es im Grundriss schrumpfte, denn ein Gletscher verliert Mächtigkeit über seine ganze Oberfläche, bevor er seinen Umriss verliert. Die Flächenzahlen auf dieser Karte sind gemessen. Jede genannte Volumenzahl ist zitiert und stammt aus getrennter Arbeit mit getrennten Methoden.</div>
+      <p class="fine">Fünf Aufnahmen zwischen 1850 und 2023 sind fünf verschiedene Instrumente: eine Messtischaufnahme, eine luftbildphotogrammetrische und eine mit Laserscanning aus der Luft sind nicht dieselbe Messung, und die älteren Umrisse tragen die Unsicherheit ihres eigenen Jahrhunderts. Wofür die Reihe ein starker Beweis ist, ist eine Zustandsänderung, ihr Ausmass und ihr Zeitpunkt.</p>
+    </section>
+
+    <section id="reservoirs">
+      <h2>Die Speicherseen</h2>
+      <p>Zwei Bundesregister, und sie beschreiben nicht dieselben Gegenstände. Beide zu halten, ohne dass eines die Autorität des anderen borgt, ist die ganze Schwierigkeit dieser Ebene.</p>
+      <ul>
+        <li>Die <b>Stauanlagen</b> sind Bauwerke: 225 davon unter Bundesaufsicht, jede mit dem Volumen, das ihr Speicher bei Vollfüllung fasst. Das ist eine feste Eigenschaft und wird als solche gezeichnet, über die Fläche.</li>
+        <li>Der <b>Füllungsgrad</b> ist eine Wochenzahl in Gigawattstunden &mdash; gespeicherter Strom, nicht gespeichertes Wasser &mdash; publiziert für vier Regionen und für nichts Kleineres, seit dem 3. Januar 2000.</li>
+      </ul>
+      <div class="flag">Die Ebene kann deshalb sagen, was ein Speicher bei Vollfüllung fasst, und sie kann sagen, wie voll eine Region in dieser Woche ist. <b>Sie kann nicht sagen, wie voll die Grande Dixence heute ist.</b> Das publiziert niemand. Die Tönung einer Scheibe ist der Stand ihrer Region, auf jede Anlage dieser Region gleich angewendet, und die Legende sagt es auf ihrer eigenen Vorderseite.</div>
+    </section>
+
+    <section id="wetlands">
+      <h2>Geschützte Feuchtgebiete</h2>
+      <p>Fünf Bundesinventare, und sie stehen aus einem Grund auf einer Wasserkarte, der nicht der ist, dass sie feucht sind. Jede Verordnung fasst ihr Schutzziel in Begriffen des Wassers. Die <b>Auenverordnung</b> verlangt, dass die natürliche Dynamik des Wasser- und Geschiebehaushalts erhalten bleibt &mdash; eine Pflicht darüber, wie viel Wasser wann durchgeht. Ein Moor stirbt, wenn der Wasserspiegel sinkt. Das sind Orte, an denen eine Wassermenge bereits Gegenstand einer Bundespflicht ist, gezeichnet auf derselben Fläche wie die Menge selbst.</p>
+      <div class="tWrap"><table>
+        <thead><tr><th>Inventar</th><th>Objekte</th><th class="num">km²</th><th>Schutz</th></tr></thead>
+        <tbody>
+          <tr><td>Auengebiete</td><td class="num">326</td><td class="num">278.5</td>
+              <td>Auenverordnung, SR 451.31</td></tr>
+          <tr><td>Hoch- und Übergangsmoore</td><td class="num">552</td><td class="num">56.7</td>
+              <td>SR 451.32 und Art. 78 Abs. 5 BV</td></tr>
+          <tr><td>Flachmoore</td><td class="num">1'371</td><td class="num">228.1</td>
+              <td>SR 451.33 und Art. 78 Abs. 5 BV</td></tr>
+          <tr><td>Amphibienlaichgebiete</td><td class="num">873</td><td class="num">222.3</td>
+              <td>SR 451.34</td></tr>
+          <tr><td>Moorlandschaften</td><td class="num">89</td><td class="num">875</td>
+              <td>SR 451.35 und Art. 78 Abs. 5 BV</td></tr>
+        </tbody>
+      </table></div>
+      <p class="fine">Die Inventare überlagern einander &mdash; ein Flachmoor liegt in einer Moorlandschaft, ein Auengebiet in beiden &mdash;, diese Flächen dürfen deshalb nicht addiert werden. Jede ist das Bundesattribut <code>shape_area</code> des betreffenden Inventars und nicht etwas, das am vereinfachten Umriss dieser Karte gemessen wäre.</p>
+
+      <h3>Zwei Schutzarten, als zwei gezeichnet</h3>
+      <p>Auengebiete und Amphibienlaichgebiete sind durch Verordnung geschützt, und beide Ziele sind in Begriffen des Wassers gefasst; sie sind deshalb im eigenen blassen Ton des Wassers gezeichnet. Hochmoore, Flachmoore und Moorlandschaften sind in der Tinte gezeichnet, die jede gesetzliche Menge auf dieser Karte trägt &mdash; Bein auf der Nachtfläche, Sepia auf der Tagfläche, so oder so eine warme Erde gegen einen kühlen Grund &mdash;, weil sie von etwas Stärkerem als einer Verordnung gehalten werden.</p>
+      <div class="statute"><b>Art. 78 Abs. 5 der Bundesverfassung.</b> Moore und Moorlandschaften von besonderer Schönheit und gesamtschweizerischer Bedeutung sind unbedingt geschützt: Es dürfen weder Anlagen gebaut noch Bodenveränderungen vorgenommen werden; ausgenommen sind Einrichtungen, die dem Schutz oder der bisherigen landwirtschaftlichen Nutzung der Moore und Moorlandschaften dienen. Anders als bei fast jedem Schutz im schweizerischen Umweltrecht gibt es hier keine Interessenabwägung, die verloren gehen könnte. Der Artikel ist jener, den die Rothenthurm-Initiative 1987 in die Verfassung geschrieben hat, und Rothenthurm ist Objekt Nummer 1 des Moorlandschaftsinventars &mdash; auf dieser Karte, unter dieser Nummer.</div>
+      <p>Moorlandschaften sind als Umriss gezeichnet und nie gefüllt. Sie sind Behälter, 875 km² davon, und eine Füllung würde die Moore begraben, um die sie gezeichnet sind.</p>
+
+      <h3>Wo die beiden Ebenen auf dasselbe Wasser fallen</h3>
+      <div class="flag"><b>415 der 8'716 Abschnitte dieser Karte verlaufen durch ein Auengebiet von nationaler Bedeutung.</b> Auf diesen Abschnitten treffen zwei Pflichten aufeinander: Art. 4 der Auenverordnung verlangt, dass die natürliche Dynamik des Wasserhaushalts erhalten bleibt, und Art. 31 GSchG legt einen Boden unter die Menge, die bei einer Wasserentnahme im Bett verbleibt. Die Restwasserebene zeichnet die zweite. Diese zeichnet, wo auch die erste gilt. Wer einen solchen Abschnitt überfährt, erfährt es in dessen eigener Lesung, welche Ebene auch immer eingeschaltet ist.</div>
+      <p class="fine">Ein Abschnitt gilt als durch ein Gebiet verlaufend, wenn ein Stützpunkt seiner Linie innerhalb der Gebietsgrenze liegt. Das ist ein grober Test und es ist die richtige Grobheit: Das Netz ist auf rund hundert Meter verallgemeinert, ein feinerer Test beantwortete deshalb eine Frage, die die Geometrie nicht trägt. Er ortet die Überlagerung; er misst sie nicht.</p>
+
+      <h3>Was gezeichnet wird und was auf den Zoom wartet</h3>
+      <p>Umrisse sind auf 45 m vereinfacht. Objekte unter rund 1.5 ha haben in keinem Zoom, den diese Karte erreicht, einen Umriss und werden stattdessen als Ring gezeichnet &mdash; ein Drittel des Hochmoorinventars ist so, weil die Verordnung Flecken von einigen hundert Quadratmetern schützt und eine Karte, die sie weglässt, sagen würde, sie seien nicht da. In der Landesansicht warten die kleinsten Objekte: neunhundert Ringe über dem Mittelland sind eine Textur und keine Tatsache. Zoomen Sie hinein, und jedes Objekt jedes Inventars steht auf dem Bildschirm.</p>
+      <p>Jedes Objekt trägt seine Nummer und einen Link auf sein <b>Bundesobjektblatt</b>, das PDF mit dem Schutzziel und der Grenzbeschreibung. Die Nummer und nicht der Name ist die Einheit, mit der die Verordnung und jede Verfügung arbeiten; das Feld gibt ihr deshalb dasselbe Gewicht wie dem Namen. Teilflächen unter einer Nummer sind als ein Objekt gezeigt.</p>
+
+      <div class="aside"><b>Die Alter widersprechen den Zielen.</b> Das Amphibieninventar trägt einen Datenstand des Bundes von Mai 2026. Das Auengebietsinventar &mdash; jenes, dessen Schutzziel eine Wassermenge ist &mdash; trägt November 2017, und ebenso das Moorlandschaftsinventar, das Rothenthurm enthält. Beide stehen mit allen anderen Daten auf der <a href="sources.html#table">Quellenseite</a>.</div>
+    </section>
+
+    <section id="pictures">
+      <h2>Bilder und Dinge, die Daten sind</h2>
+      <p>Drei der vier Überlagerungen der Wasservorkommen-Ebene und beide wahlweisen Untergründe werden von einem Server des Bundes oder eines Kantons für das Rechteck auf dem Bildschirm gezeichnet und kommen als Bild an. Diese Karte kann sie nicht abfragen, aus dem Bild nicht datieren und nicht prüfen. Sie kann sie nur richtig platzieren und sagen, was sie sind.</p>
+      <p>Die Oberläufe sind die Ausnahme: Sie sind Abschnitte erster Ordnung des eigenen Netzes dieser Karte, in der eigenen Tinte dieser Karte gezeichnet. Und <b>ein Oberlauf ist keine Quelle.</b> Er ist ein Abschnitt, über dem nichts liegt, abgeschnitten bei 5&nbsp;km² Fläche oberhalb &mdash; das obere Ende des Netzes, wie diese Karte es zeichnet, und jener Teil des Landes, über dem nirgends eine Messstelle steht.</p>
+      <p class="fine">Die Schummerung ist auf jeder Fläche anders verrechnet, und der Unterschied ist keine Verzierung. Das Relief von swissALTI3D ist für weisses Papier gezeichnet: mittelgrau, wo das Gelände flach ist, und das ist der grösste Teil des Bildes. Auf der Tagfläche bleibt es, wie es gezeichnet ist, und wird in die Seite multipliziert; es kann deshalb nur Licht wegnehmen, und das flache Gelände zeichnet sich kaum auf dem Papier ab. Auf der Nachtfläche ist es invertiert und mit <span class="num">lighten</span> verrechnet; es kann deshalb nur Licht hinzufügen: Flaches Gelände fällt auf das eigene Schwarz der Fläche zurück, und übrig bleiben nur die beleuchteten Hänge. Unverändert daraufgelegt, machte es das Land so oder so zu einer grauen Platte und nähme den Kontrast der Abflussrampe gleich mit.</p>
+    </section>
+
+    <section id="limits">
+      <h2>Was diese Karte nicht kann</h2>
+      <p>Das Nützlichste, was sie für ein Dossier tut, ist enger und verlässlicher als ein Beweis: Sie sagt Ihnen, welches Register alt ist, welche Menge niemand publiziert und auf welchem Abschnitt die Frage tatsächlich liegt. Hier ist die andere Seite davon.</p>
+      <ul>
+        <li><b>Sie kann Ihnen das Ablaufdatum einer Konzession nicht sagen.</b> Bei einer bestehenden Entnahme ist dieses Datum und nicht der heutige Tag das massgebende. Es steht in der Konzession, und kein offener Bundesdatensatz führt es.</li>
+        <li><b>Sie kann Ihnen die Kühlwassermenge oder die Wärmelast eines Kernkraftwerks nicht sagen.</b> Kein offener Bundesdatensatz publiziert das eine oder das andere. Diese Zahlen stehen in der kantonalen Konzession und in der Berichterstattung der Betreiber selbst.</li>
+        <li><b>Sie kann Ihnen nicht sagen, wie voll ein einzelner benannter Speichersee ist.</b> Siehe oben.</li>
+        <li><b>Sie kann keine Kausalität begründen.</b> Die Gletscherinventare und die Speicherreihe sind starke Beweise für eine Zustandsänderung. Sie sind für sich allein kein Beweis dafür, dass eine bestimmte Partei sie verursacht hat. Die Zurechnung ist eine eigene Frage und braucht eigene Quellen.</li>
+        <li><b>Sie kann keine Verletzung feststellen.</b> Eine Angabe hier ist eine Tatsache über einen Fluss. Der Schritt zur Feststellung ist Sache der Juristin, und er braucht die Konzession, die Bewilligung und den Ort.</li>
+      </ul>
+    </section>
+
+    <section id="build">
+      <h2>Wie sie neu gebaut wird</h2>
+      <p>Die Daten werden von einer nummerierten Folge von Skripten ohne Abhängigkeiten ausser Node gebacken, von denen jedes eine Datei nach <code>site/data</code> schreibt. Die Nummerierung ist eine wirkliche Reihenfolge: Spätere Schritte lesen, was frühere geschrieben haben.</p>
+      <div class="tWrap"><table>
+        <thead><tr><th scope="col">Schritt</th><th scope="col">Was er baut</th><th scope="col">Wann er läuft</th></tr></thead>
+        <tbody>
+          <tr><td class="n">00</td><td>Holt die Quellarchive des Bundes</td><td>von Hand</td></tr>
+          <tr><td class="n">01</td><td>Die Messstellen samt Auflösung ihrer Einheiten</td><td>von Hand</td></tr>
+          <tr><td class="n">02</td><td>Das Gewässernetz</td><td>von Hand</td></tr>
+          <tr><td class="n">03</td><td>Seen und Landesgrenze</td><td>von Hand</td></tr>
+          <tr><td class="n">04</td><td>Die Gletscherinventare</td><td>von Hand</td></tr>
+          <tr><td class="n">05</td><td>Die vier Register der Wassernutzung</td><td>von Hand</td></tr>
+          <tr><td class="n">06</td><td>Die wöchentliche Speicherfüllungsreihe</td><td><b>wöchentlich</b></td></tr>
+          <tr><td class="n">07</td><td>Q<sub>347</sub> und die Mindestmenge nach Art.&nbsp;31 Abs.&nbsp;1</td><td>von Hand</td></tr>
+          <tr><td class="n">08</td><td>Die Altersprüfung: der Datenstand jeder Quelle</td><td><b>wöchentlich</b></td></tr>
+          <tr><td class="n">09</td><td>Gletscherlängenänderung</td><td>von Hand</td></tr>
+          <tr><td class="n">10</td><td>Die Namen, mit dem Netz verknüpft</td><td>von Hand</td></tr>
+          <tr><td class="n">11</td><td>Die sechsundzwanzig kantonalen Lieferdaten</td><td><b>wöchentlich</b></td></tr>
+          <tr><td class="n">12</td><td>Die fünf Bundesinventare geschützter Feuchtgebiete</td><td><b>wöchentlich</b></td></tr>
+          <tr><td class="n">13</td><td>Die vier Meereseinzugsgebiete, ihre Anteile, Messstellen und ihr Eis</td><td>von Hand</td></tr>
+        </tbody>
+      </table></div>
+      <p class="fine">Vier Schritte laufen jeden Montag in der kontinuierlichen Integration, und ihre Ausgabe wird eingecheckt; so bleibt das Repository und nicht bloss die Auslieferung der Nachweis. Schritt 11 muss vor Schritt 8 laufen, weil das Alter der Schutzzonen die älteste kantonale Lieferung ist und Schritt 8 sie liest. Schritt 10 ist mit Absicht nicht automatisiert: swissNAMES3D ist eine Jahresausgabe von rund 32&nbsp;MB und wird von Hand neu gebaut, wenn eine neue erscheint. Schritt 13 liest nur die Schritte 01 bis 04 und ist deterministisch; er wird deshalb neu gebaut, wenn diese es werden, und nicht nach der Uhr.</p>
+    </section>
+
+    <p><a class="toMapBig" href="./"><svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg> Zurück zur Karte</a></p>
+  </article>
+</div>
+
+<footer class="siteFoot">
+  <div class="siteFootIn">
+    <p><b>Wasser und Eis in der Schweiz.</b> Live-Abfluss, Wasserstand und Temperatur aus dem BAFU-Messnetz über LINDAS. Flüsse HydroRIVERS v1.0 (HydroSHEDS, WWF). Eis GLAMOS. Speicherseen und Wasserkraft BFE. Restwasser, Wasserentnahmen und Abwasserreinigungsanlagen BAFU. Namen swissNAMES3D (swisstopo). Schutzzonen, die sechsundzwanzig Kantone über geodienste.ch. Jede Quelle, ihre Lizenz und ihr Datenstand stehen auf der <a href="sources.html">Quellenseite</a>.</p>
+    <p>Gemessenes und modelliertes Wasser, keine Prognose. Ein Datum hier ist eine Tatsache über einen Fluss, einen Speicher oder einen Gletscher; es ist keine Feststellung einer Rechtsverletzung, und nichts auf dieser Website ist Rechtsberatung.</p>
+    <div class="footLinks"><a href="./">Die Karte</a> <a href="method.html">Methode</a> <a href="sources.html">Quellen</a> <a href="law.html">Recht</a> <a href="about.html">Über</a> <a href="https://github.com/jonashertner/riverflow-ch">Quellcode</a></div>
+  </div>
+</footer>
+
+<script src="../fmt.js"></script>
+<script src="../gschg31.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

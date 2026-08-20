@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="it" data-root="../">
+<head>
+<meta charset="utf-8">
+<!-- user-scalable is deliberately NOT disabled. The canvas takes its own gestures
+     through touch-action:none, so pinching the page still works for anyone who
+     needs the text bigger. A map is not a reason to break zoom. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Acqua e ghiaccio in Svizzera — una base misurata</title>
+<meta name="description" content="La portata in diretta dei corsi d’acqua svizzeri dalla rete di misurazione della Confederazione, la temperatura dell’acqua contro il limite legale, il riempimento dei bacini di accumulazione contro 26 anni della propria serie e la superficie glaciale svizzera attraverso cinque inventari datati. Ogni cifra porta la sua fonte, la sua classe di prova e la sua età.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/it/">
+<link rel="alternate" hreflang="en" href="../">
+<link rel="alternate" hreflang="de" href="../de/">
+<link rel="alternate" hreflang="fr" href="../fr/">
+<link rel="alternate" hreflang="it" href="./">
+<link rel="alternate" hreflang="rm" href="../rm/">
+<link rel="alternate" hreflang="x-default" href="../">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Acqua e ghiaccio in Svizzera">
+<meta property="og:description" content="I corsi d’acqua svizzeri, in diretta. I bacini di accumulazione contro 26 anni della propria serie. I ghiacciai attraverso cinque inventari datati. Una base misurata per il lavoro giuridico sul clima.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../style.css">
+<script src="../i18n.js"></script>
+<script src="../i18n-data.js"></script>
+<script src="../i18n-map.js"></script>
+<script src="../theme.js"></script>
+</head>
+<body class="viz-root" data-layer="flow">
+
+<canvas id="map"></canvas>
+<canvas id="flow"></canvas>
+
+<a class="skip" href="#modes">Vai ai comandi dei livelli</a>
+
+<header id="titlebar">
+  <h1>Acqua e ghiaccio in Svizzera</h1>
+  <p class="sub">Corsi d’acqua letti in diretta dalle stazioni della Confederazione. Ghiaccio attraverso cinque rilievi. Bacini di accumulazione contro la propria serie.</p>
+  <p class="stamp" id="stamp">Caricamento&#8230;</p>
+
+  <!-- The page's one claim about itself, drawn rather than asserted. -->
+  <div id="evidence">
+    <p class="evLabel">Che cosa è disegnato, per classe di prova</p>
+    <div class="evBar" id="evBar" role="img" aria-label="Composizione del disegno per classe di prova">
+      <span class="evMeasured" style="flex:0"></span>
+      <span class="evEstimated" style="flex:1"></span>
+      <span class="evNone" style="flex:0"></span>
+    </div>
+    <ul class="evKeys">
+      <li><i class="evMeasured"></i>Misurato a una stazione<b id="evNumMeasured">&mdash;</b></li>
+      <li><i class="evEstimated"></i>Stimato per il tratto<b id="evNumEstimated">&mdash;</b></li>
+      <li><i class="evNone"></i>Oggi senza base<b id="evNumNone">&mdash;</b></li>
+    </ul>
+  </div>
+
+  <!-- First visit only. The map answers when it is pointed at, and nothing on a
+       still screen says so. -->
+  <p class="hint" id="hint" hidden>Punta sull’acqua per leggerla. <a href="method.html#reading">Come leggere questa carta</a></p>
+
+  <nav id="siteNav" aria-label="Sito">
+    <a href="method.html">Metodo</a>
+    <a href="sources.html">Fonti</a>
+    <a href="law.html">Diritto</a>
+    <a href="about.html">Informazioni</a>
+    <span class="langs" data-langswitch></span>
+    <button type="button" class="themeBtn" title="Notte. Passare al giorno." aria-label="Notte. Passare al giorno.">
+      <svg class="tIconNight" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z"/></svg>
+      <svg class="tIconDay" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="3.1"/><path d="M8 1.4v1.5M8 13v1.5M14.5 8H13M3 8H1.5M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1M12.6 12.6l-1.1-1.1M4.5 4.5 3.4 3.4"/></svg>
+      <svg class="tIconAuto" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="8" cy="8" r="5.7"/><path d="M8 2.3a5.7 5.7 0 0 1 0 11.4Z" fill="currentColor" stroke="none"/></svg>
+    </button>
+  </nav>
+</header>
+
+<nav id="modes" aria-label="Livello">
+  <div class="modeGroup" role="group" aria-label="L’acqua adesso">
+    <span class="modeGroupLabel">Adesso</span>
+    <button type="button" data-mode="flow" class="on">Portata</button>
+    <button type="button" data-mode="normal">Contro la norma</button>
+    <button type="button" data-mode="temp">Temperatura</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Acqua immagazzinata">
+    <span class="modeGroupLabel">Immagazzinata</span>
+    <button type="button" data-mode="res" id="modeRes" disabled>Bacini</button>
+    <button type="button" data-mode="ice" id="modeIce" disabled>Ghiaccio</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Acqua e diritto">
+    <span class="modeGroupLabel">Diritto</span>
+    <button type="button" data-mode="residual" id="modeResidual" disabled>Deflusso residuale</button>
+    <button type="button" data-mode="use" id="modeUse" disabled>Usi dell’acqua</button>
+    <button type="button" data-mode="wet" id="modeWet" disabled>Zone umide</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Da dove viene l’acqua">
+    <span class="modeGroupLabel">Origine</span>
+    <button type="button" data-mode="source">Risorse idriche</button>
+  </div>
+</nav>
+
+<section id="legend" aria-label="Legenda">
+  <button id="sheetHandle" type="button" aria-expanded="false" aria-controls="legendBody"><span class="grip" aria-hidden="true"></span> <span class="sheetTitle" id="sheetTitle">Portata</span></button>
+
+  <div id="legendBody">
+  <h2 id="legendTitle">Portata</h2>
+
+  <div class="lg" id="lgFlow">
+    <div class="ramp ramp-seq"></div>
+    <div class="rampLabels"><span>0.1</span><span>1</span><span>10</span><span>100</span><span>1000 m&#179;/s</span></div>
+    <ul class="notes">
+      <li><span class="swatch measured"></span>Misurato a una stazione</li>
+      <li><span class="swatch estimated"></span>Stimato per il tratto</li>
+      <li><span class="swatch nobasis"></span>Fuori dalla rete misurata</li>
+    </ul>
+  </div>
+
+  <div class="lg" id="lgNormal" hidden>
+    <div class="ramp ramp-div"></div>
+    <div class="rampLabels"><span>25%</span><span>50%</span><span>100%</span><span>200%</span><span>400%</span></div>
+    <p class="lgNote">La portata adesso contro la media di lungo periodo dello stesso tratto. La media è una cifra annuale: un valore estivo sotto il 100&nbsp;% è quindi in parte la stagione e non solo l’anno. Da leggere come un rapporto, non come un indice di siccità.</p>
+    <p class="lgNote">La media è HydroRIVERS <span class="num">DIS_AV_CMS</span>: modellata, e non la statistica federale. <b>Non citabile.</b></p>
+  </div>
+
+  <div class="lg" id="lgTemp" hidden>
+    <div class="ramp ramp-temp"></div>
+    <div class="rampLabels"><span>0</span><span>10</span><span>20</span><span>25&nbsp;&deg;C</span></div>
+    <p class="threshold"><i></i>A partire da 25&nbsp;&deg;C, il limite dell’OPAc allegato&nbsp;2 n.&nbsp;12 cpv.&nbsp;4</p>
+    <p class="lgNote" id="tempCount">&nbsp;</p>
+    <p class="lgNote">Un disco pieno è una stazione con una serie di temperatura, ed è riempito dalla scala. Un anello vuoto è una stazione che non ne ha: una misura assente non è una misura fredda. Sotto questo livello i corsi d’acqua mantengono il colore della loro portata, attenuato, perché la temperatura si misura alla stazione e in nessun altro luogo.</p>
+    <p class="lgNote">Una misura è un sensore. Apra una stazione e la confronti con quelle vicine prima di farvi affidamento.</p>
+  </div>
+
+  <div class="lg" id="lgRes" hidden>
+    <ul class="notes">
+      <li><span class="swatch resFull"></span>Sbarramento, dimensionato sul volume trattenuto a invaso pieno</li>
+      <li><span class="swatch resFlood"></span>Costruito per la ritenzione delle piene, non per l’elettricità</li>
+    </ul>
+    <div class="ramp ramp-res"></div>
+    <div class="rampLabels"><span>vuoto</span><span>metà</span><span>pieno</span></div>
+    <p class="lgNote">La tinta è il grado di riempimento della <b>regione</b> dello sbarramento nella settimana in cui si trova la testina: ogni sbarramento di una regione si muove quindi come un corpo solo. Avvii la riproduzione per percorrere ventisei anni.</p>
+    <p class="lgNote" id="resTotals">&nbsp;</p>
+    <p class="lgNote"><b>Due registri, e non descrivono gli stessi oggetti.</b> Gli sbarramenti sono opere, con il volume che ogni invaso contiene a invaso pieno. Il grado di riempimento è una cifra settimanale in GWh &mdash; elettricità immagazzinata, non acqua immagazzinata &mdash; ed è pubblicato per quattro regioni, non per 225 sbarramenti. Questo livello può quindi dire che cosa contiene un invaso a pieno carico e può dire quanto è pieno la regione questa settimana. <b>Non può dire quanto è piena la Grande Dixence oggi.</b> Nessuno lo pubblica.</p>
+    <p class="lgNote" id="resRank">&nbsp;</p>
+  </div>
+
+  <div class="lg" id="lgIce" hidden>
+    <ul class="notes">
+      <li><span class="swatch ice1850"></span>Ghiaccio nel 1850</li>
+      <li><span class="swatch ice2023"></span>Ghiaccio nel 2023</li>
+    </ul>
+    <p class="lgNote">I corpi del 2023 sono disegnati sopra i contorni del 1850. Ciò che resta colorato è il ghiaccio scomparso. Avvii la riproduzione per percorrere i cinque rilievi datati nei loro intervalli reali.</p>
+    <p class="lgNote" id="iceTotals">&nbsp;</p>
+    <p class="lgNote"><b>Questa è superficie, non volume.</b> Le due non si sono mosse insieme: negli ultimi decenni il ghiaccio si è assottigliato più in fretta di quanto si sia ritirato in pianta, perché un ghiacciaio perde spessore su tutta la sua superficie prima di perdere il proprio contorno. Le cifre di superficie qui sono misurate. Le cifre di volume sono citate e provengono da lavori distinti, con metodi distinti.</p>
+  </div>
+
+  <div class="lg" id="lgResidual" hidden>
+    <ul class="notes">
+      <li><span class="swatch resiMeas"></span>Q<sub>347</sub> da serie misurate</li>
+      <li><span class="swatch resiMod"></span>Q<sub>347</sub> modellato &mdash; una stima grossolana</li>
+    </ul>
+    <p class="lgNote" id="residualCount">&nbsp;</p>
+    <p class="lgNote"><b>Ciò che la legge esigerebbe, non ciò che oggi qualcuno deve.</b> L’art. 31 cpv. 1 LPAc fissa un minimo che deve restare nell’alveo dove l’acqua viene prelevata. La cifra discende dal Q<sub>347</sub>, e l’UFAM pubblica il Q<sub>347</sub> in 1041 punti: il minimo può quindi essere calcolato e cartografato invece che digitato. La regola morde però solo su un prelievo <b>nuovo</b>, e su uno esistente soltanto quando la sua concessione scade e dev’essere rinnovata. Un prelievo già in corso soggiace invece al regime di risanamento degli art.&nbsp;80&nbsp;segg.</p>
+    <p class="lgNote"><b>Stato dei dati 1° gennaio 2000.</b> È il fatto più strano di questo livello, e il più utile. L’art.&nbsp;4 lett. h definisce il Q<sub>347</sub> come una media decennale, e il decennio di questo file è quello su cui le determinazioni sono state fatte &mdash; per la domanda «che cosa era richiesto» la cifra vecchia è dunque quella giusta. Per la domanda «quanta acqua porta questo ruscello in un anno secco» essa descrive un’idrologia che da allora è cambiata.</p>
+  </div>
+
+  <div class="lg" id="lgUse" hidden>
+    <p class="useDir">Preleva acqua</p>
+    <ul class="notes useKeys">
+      <li><label><input type="checkbox" data-use="hydro" checked><span class="swatch useHydro"></span>Forza idrica, dimensionata sulla portata di dimensionamento</label></li>
+      <li><label><input type="checkbox" data-use="abstraction" checked><span class="swatch useAbs"></span>Prelievo, carta dei deflussi residuali</label></li>
+      <li><label><input type="checkbox" data-use="npp" checked><span class="swatch useNpp"></span>Centrale nucleare, acqua di raffreddamento</label></li>
+    </ul>
+    <p class="useDir">Restituisce acqua</p>
+    <ul class="notes useKeys">
+      <li><label><input type="checkbox" data-use="ara" checked><span class="swatch useAra"></span>Impianto di depurazione, dimensionato sugli abitanti equivalenti</label></li>
+    </ul>
+    <p class="lgNote">Due colori, perché il diritto si annoda sulla direzione: l’art.&nbsp;31 LPAc regola il prelievo d’acqua, l’OPAc allegato&nbsp;2 n.&nbsp;12 cpv.&nbsp;4 regola l’immissione di calore. A quale registro appartenga un segno lo dice la sua forma, non un terzo e un quarto colore.</p>
+    <p class="lgNote"><b>Un disco pieno porta una quantità. Un anello aperto porta un luogo e nulla di più.</b> Dei quattro registri federali solo la statistica della forza idrica fornisce una portata, e la fornisce per calcolo, non per misura: potenza divisa per salto. La carta dei deflussi residuali non contiene alcun volume, e per i siti nucleari nessun volume di raffreddamento è pubblicato come dato aperto. Gli impianti di depurazione portano invece un rapporto: il loro scarico contro il corso d’acqua ricevente al Q<sub>347</sub>. Per 39 di essi supera il 100&#8201;%, vale a dire che il ruscello in magra porta meno di quanto l’impianto vi immette.</p>
+    <p class="lgNote" id="useCount">&#160;</p>
+  </div>
+
+
+  <div class="lg" id="lgWet" hidden>
+    <ul class="notes wetKeys" id="wetTotals"></ul>
+    <p class="lgNote" id="wetCount">&nbsp;</p>
+    <p class="lgNote"><b>Il registro dell’acqua è protetto da un’ordinanza, quello costituzionale dalla Costituzione.</b> Le zone golenali e i siti di riproduzione degli anfibi indicano l’acqua come scopo di protezione: sono perciò disegnati nella tinta dell’acqua. Le torbiere alte, le torbiere basse e i paesaggi palustri sono retti dall’art.&nbsp;78 cpv.&nbsp;5&nbsp;Cost., l’articolo di Rothenthurm, che vieta di costruire e di alterare il terreno, eccettuato quanto serve alla protezione delle paludi stesse e alla loro utilizzazione agricola già esistente &mdash; senza ponderazione d’interessi da perdere; portano perciò l’inchiostro che qui porta ogni grandezza legale. <a href="method.html#wetlands">Come è disegnato</a>.</p>
+    <p class="lgNote"><b>Le età contraddicono gli scopi.</b> L’inventario degli anfibi è stato riveduto pochi mesi fa; quello delle zone golenali, il cui scopo di protezione è una quantità d’acqua, porta uno stato dei dati federale del novembre 2017 &mdash; e così pure l’inventario in cui si trova Rothenthurm. <a href="sources.html#table">Ogni data</a>.</p>
+  </div>
+
+  <div class="lg" id="lgSource" hidden>
+    <ul class="notes srcKeys">
+      <li><label><input type="checkbox" data-src="gw"><span class="swatch srcGw"></span>Corpi d’acqua sotterranea</label></li>
+      <li><label><input type="checkbox" data-src="head" checked><span class="swatch srcHead"></span>Tratti sorgentizi, la sommità della rete disegnata</label></li>
+      <li><label><input type="checkbox" data-src="zone" checked><span class="swatch srcZone"></span>Zone di protezione delle acque sotterranee S1&ndash;S3, in vigore</label></li>
+      <li><label><input type="checkbox" data-src="catch"><span class="swatch srcCatch"></span>Sottobacini</label></li>
+    </ul>
+    <p class="lgNote"><b>Tre di questi quattro livelli sono immagini, non dati.</b> I corpi d’acqua sotterranea, le zone di protezione e i bacini sono disegnati da un server federale o cantonale per il rettangolo sullo schermo e arrivano come immagine: questa carta non può interrogarli, non può datarli dall’immagine e non può verificarli. I tratti sorgentizi fanno eccezione e sono disegnati con l’inchiostro proprio di questa carta.</p>
+    <p class="lgNote"><b>Un tratto sorgentizio non è una sorgente.</b> È un tratto sopra il quale non vi è nulla, tagliato a 5&nbsp;km&#178; di superficie a monte &mdash; la sommità della rete così come questa carta la disegna, e la parte del Paese sopra la quale non sta alcuna stazione. Le sorgenti e le cascate che compaiono con lo zoom sono le 86 e 157 <em>denominate</em> di swissNAMES3D, non un conteggio delle sorgenti svizzere.</p>
+    <p class="lgNote"><b>Sono disegnate solo le zone in vigore.</b> geodienste.ch serve anche zone pianificate e future; una zona pianificata non è ancora un vincolo giuridico. S1 è il terreno recintato attorno alla captazione, S2 la zona ravvicinata, S3 quella distante &mdash; art.&nbsp;20 LPAc, OPAc allegato&nbsp;4 n.&nbsp;1. Si misurano in ettari: alla scala del Paese sono perciò più piccole di un pixel; ingrandisca oltre un cantone prima di aspettarsene una.</p>
+    <p class="lgNote" id="srcAges">&nbsp;</p>
+    <p class="lgNote" id="srcCoverage">&nbsp;</p>
+  </div>
+
+  <div class="controls">
+    <label><input type="checkbox" id="toggleStations" checked> Stazioni di misurazione</label>
+    <label><input type="checkbox" id="toggleMotion" checked> Movimento</label>
+    <label><input type="checkbox" id="togglePlaces" checked> Nomi di luogo</label>
+  </div>
+  <div class="controls groundRow" role="radiogroup" aria-label="Sfondo">
+    <span class="ctlLabel">Sfondo</span>
+    <label><input type="radio" name="ground" value="" checked> Nessuno</label>
+    <label><input type="radio" name="ground" value="relief"> Rilievo</label>
+    <label><input type="radio" name="ground" value="topo"> Carta grigia</label>
+  </div>
+  <div class="liveRow">
+    <label class="liveSwitch"><input type="checkbox" id="toggleLive"> Solo dati in diretta</label>
+    <p class="lgNote" id="liveNote"></p>
+  </div>
+  <div class="btnRow">
+    <button id="refresh" type="button">Rileggere i dati in diretta</button>
+    <a class="btnLaw" href="law.html">Gli agganci giuridici</a>
+    <a class="btnLaw" href="sources.html">Le fonti e la loro età</a>
+  </div>
+  </div>
+</section>
+
+<!-- The time ribbon. It is empty on the layers that describe only now, and it
+     carries the record on the layers that describe a change. -->
+<section id="ribbon" hidden aria-label="Tempo">
+  <div class="ribbonHead">
+    <button id="play" type="button" aria-label="Riproduci">
+      <svg viewBox="0 0 12 14" aria-hidden="true" width="11" height="13"><path d="M1 1l10 6-10 6z"/></svg>
+      <span id="playLabel">Riproduci</span>
+    </button>
+    <h2 id="ribbonTitle">&nbsp;</h2>
+    <output id="ribbonRead">&nbsp;</output>
+  </div>
+  <canvas id="ribbonCv"></canvas>
+  <input id="scrub" type="range" min="0" max="1000" value="1000" step="1" aria-label="Scorrere nel tempo">
+  <p class="ribbonNote" id="ribbonNote">&nbsp;</p>
+</section>
+
+<aside id="panel" hidden>
+  <button id="panelClose" type="button" aria-label="Chiudi">&times;</button>
+  <h2 id="panelTitle"></h2>
+  <dl id="panelBody"></dl>
+  <div id="panelExtra"></div>
+  <p class="panelNote" id="panelNote"></p>
+</aside>
+
+<div id="tooltip" role="status" hidden></div>
+
+<footer id="credits">
+  <p><strong>Corsi d’acqua</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), tratti con un bacino di 5&nbsp;km&#178; o più, che portano la portata in diretta dalla rete di misurazione dell’UFAM attraverso LINDAS. <strong>Ghiaccio</strong> GLAMOS, cinque inventari datati. <strong>Bacini</strong> UFE. <strong>Deflussi residuali e usi dell’acqua</strong> UFAM e UFE. <strong>Nomi</strong> swissNAMES3D, swisstopo. Ogni fonte, la sua licenza e il suo stato dei dati figurano nella <a href="sources.html">pagina delle fonti</a>. Acqua misurata e modellata, non una previsione.</p>
+</footer>
+
+<script src="../fmt.js"></script>
+<script src="../gschg31.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

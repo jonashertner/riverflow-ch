@@ -90,7 +90,7 @@ function minResidual(q) {
   if (q >= 60000) return 10000;                  // the table stops here
   let floor = 0;
   for (const [ceil, base, per, add] of RESIDUAL) {
-    if (q <= ceil) return per ? base + ((q - floor) / per) * add : base;
+    if (q < ceil) return per ? base + ((q - floor) / per) * add : base;
     floor = ceil;
   }
   return 10000;

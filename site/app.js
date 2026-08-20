@@ -11,18 +11,57 @@
 
 const ENDPOINT = 'https://lindas.admin.ch/query';
 
-const SEQ = ['#0d366b', '#184f95', '#256abf', '#2a78d6', '#3987e5', '#6da7ec', '#9ec5f4', '#cde2fb'];
-const STATUS = { 1: '#0ca30c', 2: '#fab219', 3: '#ec835a', 4: '#d03b3b', 5: '#d03b3b' };
+/* ---- the palette -----------------------------------------------------------
+ * Every colour this canvas paints with is read from tokens.css and none of them is
+ * written here. Two reasons. The map and the furniture floating over it then
+ * cannot disagree about what "measured" looks like; and the second surface — day,
+ * on chart paper instead of the near-black plane — becomes a change to one
+ * stylesheet rather than to sixty literals scattered through a drawing routine.
+ *
+ * Every ordered ramp is held least-ink first. On night that is darkest first,
+ * because more water is more light. On day it is lightest first, because on paper
+ * more water is more ink. Nothing below this block needs to know which surface it
+ * is on: it asks for step 0 and gets the quiet end either way.
+ */
+const PAL = {};
+const CAMEL = k => k.replace(/-(\w)/g, (_, c) => c.toUpperCase());
+const SCALARS = ['plane', 'ink', 'ink-2', 'ink-muted', 'halo', 'trail', 'hi', 'flow',
+                 'law', 'law-dim', 'law-hi', 'ev-measured', 'ev-estimated', 'ev-none',
+                 'ev-none-dim', 'lake', 'lake-line', 'ice', 'res-full', 'res-mid',
+                 'res-hi', 'res-head', 'res-flood', 'use-out', 'use-in',
+                 'good', 'warning', 'serious', 'critical'];
+const TRIPLETS = ['plane-rgb', 'ink-rgb', 'halo-rgb', 'law-rgb', 'wet-water-rgb',
+                  'ice-past-rgb', 'label-water', 'label-ice', 'label-res'];
+function readPalette() {
+  const cs = getComputedStyle(document.documentElement);
+  const v = n => cs.getPropertyValue('--' + n).trim();
+  // Discharge: one hue stepped by lightness, quiet end first.
+  PAL.seq  = [700, 600, 500, 450, 400, 300, 200, 100].map(k => v('seq-' + k));
+  // Against normal: one hue below the mean, one above, neutral at the mean. The
+  // middle is quiet on purpose, because a river at its long-term mean is not news.
+  PAL.div  = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(k => v('div-' + k));
+  // Water temperature, 0 to 25 C. ONE hue. The old ramp ran blue-green-yellow-red,
+  // which reads as four categories rather than one rising quantity. The 25 C
+  // ceiling of GSchV Annex 2 No. 12(4) is a status and not a value, so it is drawn
+  // as a rim on the gauge and stated in words in the legend, never by the ramp.
+  PAL.temp = [1, 2, 3, 4, 5].map(k => v('temp-' + k));
+  PAL.res  = [1, 2, 3, 4, 5, 6].map(k => v('res-' + k));
+  for (const k of SCALARS)  PAL[CAMEL(k)] = v(k);
+  for (const k of TRIPLETS) PAL[CAMEL(k)] = v(k);
+  // The danger levels BAFU publishes. Level 5 is not a fifth colour but level 4's,
+  // because past that point the difference stops being one of degree.
+  PAL.status = { 1: PAL.good, 2: PAL.warning, 3: PAL.serious, 4: PAL.critical, 5: PAL.critical };
+}
+readPalette();
 
-// Against normal. One hue below the mean, one above, neutral at the mean. The
-// middle is grey on purpose: a river at its long-term mean is not news.
-const DIV = ['#7a3f19', '#a85f28', '#c8813c', '#dda86d', '#7f7d78', '#8fb6de', '#4d90cc', '#2a6cb0', '#184f95'];
-// Water temperature, 0 to 25 C. ONE hue, dark to light: a rising quantity, not a
-// set of categories. The old ramp ran blue-green-yellow-red, which reads as four
-// things. The 25 C ceiling of GSchV Annex 2 No. 12(4) is a status, not a value, so
-// it is drawn as a rim on the gauge and stated in words in the legend. It is never
-// carried by the ramp alone.
-const TEMP = ['#9a5518', '#c4731f', '#dd9436', '#eeb96a', '#f8d79c'];
+// Alpha over one of the palette's own hexes, for a mark that has to sit on what is
+// behind it rather than knock it out.
+function alpha(hex, a) {
+  const p = [1, 3, 5].map(k => parseInt(hex.substr(k, 2), 16));
+  return `rgba(${p[0]},${p[1]},${p[2]},${a})`;
+}
+const halo = a => `rgba(${PAL.haloRgb},${a})`;   // the knockout under a bright mark
+const ink  = a => `rgba(${PAL.inkRgb},${a})`;
 
 let mode = 'flow';
 let wantMode = null;          // asked for in the hash, applied once its layer is ready
@@ -35,24 +74,25 @@ let vintage = null;           // what every source is and how old it is
 const useOn = { hydro: true, abstraction: true, npp: true, ara: true };
 
 const LG = { flow: 'lgFlow', normal: 'lgNormal', temp: 'lgTemp', res: 'lgRes', ice: 'lgIce',
-             residual: 'lgResidual', use: 'lgUse', source: 'lgSource' };
-const LGTITLE = { flow: 'Discharge', normal: 'Against the long-term mean', temp: 'Water temperature',
-                  res: 'Reservoirs', ice: 'Ice, five surveys', residual: 'Minimum residual flow',
-                  use: 'Who takes the water', source: 'Where the water comes from' };
+             residual: 'lgResidual', use: 'lgUse', wet: 'lgWet', source: 'lgSource' };
+// Read once, at load, from the catalogue in i18n-map.js. The language of a page
+// does not change without a reload, so neither does this table.
+const LGTITLE = Object.fromEntries(Object.keys(LG).map(k =>
+  [k, T('m.lg' + k[0].toUpperCase() + k.slice(1))]));
 const MODES = Object.keys(LG);
 
-// Bone, not blue. A quantity the law states is not a quantity an instrument read,
-// and the two must not be able to be confused at a glance. Every statutory figure
-// on this map wears this colour and a serif; no measurement ever does.
-const LAWINK = '#d9cbb0', LAWDIM = '#9c9282';
+// Bone on the night plane, sepia on the day one. Either way a warm earth against a
+// cool ground, because a quantity the law states is not a quantity an instrument
+// read and the two must not be confusable at a glance. Every statutory figure on
+// this map wears --law and a serif; no measurement ever does.
 // The layers where the water is context and not the reading. The current is
 // dimmed under them, never stopped: a river that froze the moment you asked a
 // question about a dam would be a worse lie than a river drawn faintly.
-const DIMWATER = new Set(['use', 'res', 'residual', 'ice', 'source']);
+const DIMWATER = new Set(['use', 'res', 'residual', 'ice', 'wet', 'source']);
 // The reservoir regions of the BFE filling statistic, in the column order of the
 // weekly file. The statistic is published for these four and for nothing smaller.
 const RESREG = ['vs', 'gr', 'ti', 'rest'];
-const RESNAME = { vs: 'Valais', gr: 'Grisons', ti: 'Ticino', rest: 'the rest of Switzerland' };
+const RESNAME = { vs: T('m.regVs'), gr: T('m.regGr'), ti: T('m.regTi'), rest: T('m.regRest') };
 
 // The use layer. A filled disc carries a quantity; an open ring carries a place and
 // nothing more. That is the whole grammar, and it is forced by the sources: of the
@@ -64,14 +104,13 @@ const RESNAME = { vs: 'Valais', gr: 'Grisons', ti: 'Ticino', rest: 'the rest of 
 // cannot clear the all-pairs colour-vision floors on this surface; two clear them
 // with room to spare (CVD dE 9.4, normal-vision dE 26.5). The register is therefore
 // carried by the form of the mark and by the label, never by colour alone.
-const USE_OUT = '#d95926';   // takes water out of the river
-const USE_IN  = '#199e70';   // puts water into the river
 const USE = {
-  hydro:       { c: USE_OUT, label: 'Hydropower plant' },
-  abstraction: { c: USE_OUT, label: 'Abstraction, residual-flow register' },
-  npp:         { c: USE_OUT, label: 'Nuclear power station' },
-  ara:         { c: USE_IN,  label: 'Wastewater treatment plant' },
+  hydro:       { reg: 'out', label: T('m.useHydro') },
+  abstraction: { reg: 'out', label: T('m.useAbs') },
+  npp:         { reg: 'out', label: T('m.useNpp') },
+  ara:         { reg: 'in',  label: T('m.useAra') },
 };
+const usePaint = k => (USE[k].reg === 'out' ? PAL.useOut : PAL.useIn);
 
 function stepColor(pal, t) {
   const u = Math.max(0, Math.min(1, t)) * (pal.length - 1);
@@ -80,22 +119,22 @@ function stepColor(pal, t) {
 }
 // ratio 1 sits in the middle; the scale is symmetric in log2 out to a quarter and
 // four times the mean, because water is multiplicative and the eye is not.
-const divColor = ratio => stepColor(DIV, 0.5 + Math.log2(Math.max(ratio, 1e-3)) / 4);
-const tempColor = c => stepColor(TEMP, c / 25);
+const divColor = ratio => stepColor(PAL.div, 0.5 + Math.log2(Math.max(ratio, 1e-3)) / 4);
+const tempColor = c => stepColor(PAL.temp, c / 25);
 
 function reachColor(r) {
   // Under the three register layers the water is context, not the reading. It is
   // dimmed and not removed: a dam, an abstraction or a minimum flow means nothing
   // without the river it is a fact about.
   if (mode === 'ice' || mode === 'temp' || mode === 'res' || mode === 'residual') {
-    if (r.basis === 'none') return { c: '#2b3138', a: 0.26 };
+    if (r.basis === 'none') return { c: PAL.evNoneDim, a: 0.26 };
     return { c: rampColor(r.live), a: r.est ? 0.30 : 0.46 };
   }
   if (mode === 'normal') {
-    if (r.basis === 'none' || !r.mean) return { c: '#3a4450', a: 0.30 };
+    if (r.basis === 'none' || !r.mean) return { c: PAL.evNone, a: 0.30 };
     return { c: divColor(r.live / r.mean), a: r.est ? 0.72 : 1 };
   }
-  if (r.basis === 'none') return { c: '#3a4450', a: 0.34 };
+  if (r.basis === 'none') return { c: PAL.evNone, a: 0.34 };
   return { c: rampColor(r.live), a: r.est ? 0.72 : 1 };
 }
 
@@ -104,8 +143,8 @@ function reachColor(r) {
 const QMIN = Math.log10(0.05), QMAX = Math.log10(2000);
 function rampColor(q) {
   const t = Math.max(0, Math.min(1, (Math.log10(Math.max(q, 0.05)) - QMIN) / (QMAX - QMIN)));
-  const i = t * (SEQ.length - 1);
-  const a = SEQ[Math.floor(i)], b = SEQ[Math.min(SEQ.length - 1, Math.ceil(i))];
+  const i = t * (PAL.seq.length - 1);
+  const a = PAL.seq[Math.floor(i)], b = PAL.seq[Math.min(PAL.seq.length - 1, Math.ceil(i))];
   return mix(a, b, i - Math.floor(i));
 }
 function mix(a, b, t) {
@@ -147,9 +186,9 @@ let phase = 0;
 // ---- load -------------------------------------------------------------------
 async function load() {
   const [net, st, cx] = await Promise.all([
-    fetch('data/network.json').then(r => r.json()),
-    fetch('data/stations.json').then(r => r.json()),
-    fetch('data/context.json').then(r => r.json()),
+    fetch(ROOT + 'data/network.json').then(r => r.json()),
+    fetch(ROOT + 'data/stations.json').then(r => r.json()),
+    fetch(ROOT + 'data/context.json').then(r => r.json()),
   ]);
   lakes = cx.lakes.map(l => ({ n: l.n, r: l.r.map(([lon, lat]) => [mercX(lon), mercY(lat)]) }));
   border = cx.border.map(p => p.map(([lon, lat]) => [mercX(lon), mercY(lat)]));
@@ -184,6 +223,7 @@ async function load() {
   loadUsers();
   loadReservoirs();
   loadResidual();
+  loadWetlands();
   loadVintage();
   loadNames();
   loadCantons();
@@ -194,7 +234,7 @@ async function load() {
 // because a layer that is not loaded must not look like a layer that is empty.
 async function loadIce() {
   try {
-    const g = await fetch('data/glaciers.json').then(r => r.json());
+    const g = await fetch(ROOT + 'data/glaciers.json').then(r => r.json());
     const P = g.p;
     const decode = rings => rings.map(([xs, ys]) => {
       const n = xs.length;
@@ -235,12 +275,13 @@ async function loadIce() {
     glaciers = g;
     document.getElementById('modeIce').disabled = false;
     if (wantMode === 'ice' && setMode('ice')) wantMode = null;
-    document.getElementById('iceTotals').innerHTML =
-      `${g.past.count} bodies covered ${g.past.km2.toLocaleString('de-CH')} km&#178; in ${g.past.year}. ` +
-      `${g.now.count} cover ${g.now.km2.toLocaleString('de-CH')} km&#178; in ${g.now.year}. ` +
-      `<b>${(100 * (1 - g.now.km2 / g.past.km2)).toFixed(0)}&#8201;% of the area is gone.</b>`;
+    document.getElementById('iceTotals').innerHTML = T('m.iceTotals', {
+      pc: g.past.count, pk: nf(g.past.km2), py: g.past.year,
+      nc: g.now.count, nk: nf(g.now.km2), ny: g.now.year,
+      lost: nf(100 * (1 - g.now.km2 / g.past.km2)),
+    });
   } catch (e) {
-    document.getElementById('iceTotals').textContent = 'Glacier layer failed to load: ' + e.message;
+    document.getElementById('iceTotals').textContent = T('m.failIce', { e: e.message });
   }
 }
 
@@ -249,20 +290,25 @@ async function loadIce() {
 // transform carries it to the screen.
 async function loadUsers() {
   try {
-    const u = await fetch('data/users.json').then(r => r.json());
+    const u = await fetch(ROOT + 'data/users.json').then(r => r.json());
     for (const k of Object.keys(USE)) {
       for (const p of u[k]) { p.kind = k; p.wx = mercX(p.x); p.wy = mercY(p.y); }
     }
+    // The words a register puts next to a plant — its type, its operating state —
+    // are translated once here rather than at each of the four places that print
+    // them. A word with no translation on file survives as the register wrote it.
+    for (const p of u.hydro) { p.t = D(p.t); p.s = D(p.s); }
+    for (const p of u.npp) { p.st = D(p.st); p.fix = D(p.fix); }
     users = u;
     document.getElementById('modeUse').disabled = false;
     if (wantMode === 'use' && setMode('use')) wantMode = null;
     const withQ = u.hydro.filter(h => h.q !== null).length;
-    document.getElementById('useCount').innerHTML =
-      `${u.abstraction.length.toLocaleString('de-CH')} abstractions, ${u.hydro.length} hydropower plants ` +
-      `(${withQ} with a derivable design discharge), ${u.npp.length} nuclear stations, ` +
-      `${u.ara.length} treatment plants.`;
+    document.getElementById('useCount').innerHTML = T('m.useCount', {
+      ab: nf(u.abstraction.length), hy: u.hydro.length, q: withQ,
+      np: u.npp.length, ar: u.ara.length,
+    });
   } catch (e) {
-    document.getElementById('useCount').textContent = 'Use layer failed to load: ' + e.message;
+    document.getElementById('useCount').textContent = T('m.failUse', { e: e.message });
   }
 }
 
@@ -283,7 +329,7 @@ function drawUsers() {
   const z = Math.min(2.2, Math.max(0.85, Math.sqrt(zoom())));
   for (const k of ['ara', 'abstraction', 'hydro', 'npp']) {
     if (!useOn[k]) continue;
-    const col = USE[k].c;
+    const col = usePaint(k);
     for (const p of users[k]) {
       const x = sx(p.wx), y = sy(p.wy);
       if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
@@ -297,11 +343,11 @@ function drawUsers() {
         ctx.fill();
         ctx.globalAlpha = 1;
         ctx.lineWidth = 0.8;
-        ctx.strokeStyle = 'rgba(13,13,13,0.85)';
+        ctx.strokeStyle = halo(0.85);
         ctx.stroke();
       } else {
         ctx.globalAlpha = 1;
-        ctx.fillStyle = '#0d0d0d';
+        ctx.fillStyle = PAL.plane;
         ctx.fill();
         ctx.lineWidth = on ? 2.2 : 1.4;
         ctx.strokeStyle = col;
@@ -372,7 +418,7 @@ WHERE {
 
 async function refresh() {
   const btn = document.getElementById('refresh');
-  btn.disabled = true; btn.textContent = 'Reading gauges…';
+  btn.disabled = true; btn.textContent = T('m.reading');
   try {
     const r = await fetch(ENDPOINT, {
       method: 'POST',
@@ -407,10 +453,10 @@ async function refresh() {
     stampText();
     invalidate(); dirtyAlloc = true;
   } catch (e) {
-    document.getElementById('stamp').textContent = 'Live read failed: ' + e.message + '. Showing long-term mean.';
+    document.getElementById('stamp').textContent = T('m.liveFail', { e: e.message });
     updateEvidence();
   } finally {
-    btn.disabled = false; btn.textContent = 'Refresh live data';
+    btn.disabled = false; btn.textContent = T('m.refresh');
   }
 }
 
@@ -484,39 +530,34 @@ function updateEvidence() {
   seg[0].style.flex = measured;
   seg[1].style.flex = estimated;
   seg[2].style.flex = none;
-  const n = v => v.toLocaleString('de-CH');
-  document.getElementById('evNumMeasured').textContent = n(measured);
-  document.getElementById('evNumEstimated').textContent = n(estimated);
-  document.getElementById('evNumNone').textContent = n(none);
-  bar.setAttribute('aria-label',
-    `Of ${n(total)} reaches drawn, ${n(measured)} are measured at a gauge, ` +
-    `${n(estimated)} are estimated for the reach, and ${n(none)} have no basis today.`);
-  for (const [id, v] of [['evTdMeasured', measured], ['evTdEstimated', estimated],
-                         ['evTdNone', none], ['evTdTotal', total]]) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = n(v);
-  }
+  document.getElementById('evNumMeasured').textContent = nf(measured);
+  document.getElementById('evNumEstimated').textContent = nf(estimated);
+  document.getElementById('evNumNone').textContent = nf(none);
+  bar.setAttribute('aria-label', T('m.evLabel', {
+    total: nf(total), measured: nf(measured), estimated: nf(estimated), none: nf(none),
+  }));
 }
 
 function stampText() {
   const el = document.getElementById('stamp');
-  if (!liveStamp) { el.textContent = 'Long-term mean discharge (no live read).'; return; }
+  if (!liveStamp) { el.textContent = T('m.noLive'); return; }
   const d = new Date(liveStamp);
-  const t = d.toLocaleString('de-CH', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const t = fmtStamp(d);
   const n = stations.filter(s => s.q !== null && s.q !== undefined).length;
-  el.textContent = `${n} gauges, last reading ${t}`;
+  el.textContent = T('m.stamp', { n, t });
 
   const withT = stations.filter(s => s.obs?.temp !== null && s.obs?.temp !== undefined);
   const c = document.getElementById('tempCount');
-  if (!withT.length) { c.textContent = 'No temperature series in this read.'; return; }
+  if (!withT.length) { c.textContent = T('m.noTemp'); return; }
   const temps = withT.map(s => s.obs.temp).sort((a, b) => a - b);
   const med = temps[temps.length >> 1];
   const over = temps.filter(v => v >= 25).length;
   const warm = temps.filter(v => v >= 20).length;
   const top = withT.reduce((a, b) => (b.obs.temp > a.obs.temp ? b : a));
-  c.innerHTML = `${withT.length} gauges report temperature. Median ${med.toFixed(1)}&nbsp;&deg;C, ` +
-    `${warm} at or above 20&nbsp;&deg;C, <b>${over} at or above 25&nbsp;&deg;C</b>. ` +
-    `Warmest ${top.obs.temp.toFixed(1)}&nbsp;&deg;C at ${esc(top.name)}.`;
+  c.innerHTML = T('m.tempCount', {
+    n: withT.length, med: nfd(med, 1), warm, over,
+    top: nfd(top.obs.temp, 1), where: esc(top.name),
+  });
 }
 
 // ---- view -------------------------------------------------------------------
@@ -605,7 +646,7 @@ function frame(ts) {
 }
 
 function drawBase() {
-  ctx.fillStyle = '#0d0d0d';
+  ctx.fillStyle = PAL.plane;
   ctx.fillRect(0, 0, W, H);
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
@@ -628,9 +669,9 @@ function drawBase() {
     for (let i = 1; i < ring.length; i++) ctx.lineTo(sx(ring[i][0]), sy(ring[i][1]));
     ctx.closePath();
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.022)';
+  ctx.fillStyle = ink(0.022);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.13)';
+  ctx.strokeStyle = ink(0.13);
   ctx.lineWidth = 1;
   ctx.stroke();
 
@@ -640,9 +681,9 @@ function drawBase() {
     for (let i = 1; i < l.r.length; i++) ctx.lineTo(sx(l.r[i][0]), sy(l.r[i][1]));
     ctx.closePath();
   }
-  ctx.fillStyle = '#16294a';
+  ctx.fillStyle = PAL.lake;
   ctx.fill();
-  ctx.strokeStyle = 'rgba(157,197,244,0.20)';
+  ctx.strokeStyle = PAL.lakeLine;
   ctx.lineWidth = 1;
   ctx.stroke();
 
@@ -664,7 +705,7 @@ function drawBase() {
   if (hovered?.kind === 'reach') {
     const r = hovered.ref;
     path(r);
-    ctx.strokeStyle = '#cde2fb';
+    ctx.strokeStyle = PAL.hi;
     ctx.globalAlpha = 0.95;
     ctx.lineWidth = lineWidth(r.live) + 1.6;
     ctx.stroke();
@@ -674,6 +715,7 @@ function drawBase() {
   if (mode === 'ice' && glaciers) drawIce();
   if (mode === 'res' && reservoirs) drawDams();
   if (mode === 'residual' && residual) drawResidual();
+  if (mode === 'wet' && wetlands) drawWetlands();
   if (mode === 'use') drawUsers();
   if (mode === 'source') drawSources();
 
@@ -706,12 +748,12 @@ function drawBase() {
           ctx.fillStyle = tempColor(t);
           ctx.fill();
           ctx.lineWidth = t >= 25 ? 2 : 1;
-          ctx.strokeStyle = t >= 25 ? '#d03b3b' : 'rgba(13,13,13,0.8)';
+          ctx.strokeStyle = t >= 25 ? PAL.critical : halo(0.8);
         } else {
-          ctx.fillStyle = '#0d0d0d';
+          ctx.fillStyle = PAL.plane;
           ctx.globalAlpha = 0.5; ctx.fill(); ctx.globalAlpha = 0.7;
           ctx.lineWidth = 1;
-          ctx.strokeStyle = '#898781';
+          ctx.strokeStyle = PAL.inkMuted;
         }
         ctx.stroke();
         continue;
@@ -719,16 +761,16 @@ function drawBase() {
 
       ctx.beginPath();
       ctx.arc(x, y, on ? 6 : (live ? 3.4 : 2.4), 0, 6.2832);
-      ctx.fillStyle = '#0d0d0d';
+      ctx.fillStyle = PAL.plane;
       ctx.globalAlpha = live ? 1 : 0.55;
       ctx.fill();
       ctx.lineWidth = 1.5;
-      ctx.strokeStyle = d && d >= 2 ? STATUS[d] : (live ? '#cde2fb' : '#898781');
+      ctx.strokeStyle = d && d >= 2 ? PAL.status[d] : (live ? PAL.hi : PAL.inkMuted);
       ctx.stroke();
     }
   }
   ctx.globalAlpha = 1;
-  drawNames();
+  drawPlaces();
 }
 
 // ---- the current ------------------------------------------------------------
@@ -791,7 +833,7 @@ function flowStep(dt, ts) {
 
   // fade the previous frame instead of clearing it: that is the trail
   fctx.globalCompositeOperation = 'destination-out';
-  fctx.fillStyle = 'rgba(0,0,0,0.14)';
+  fctx.fillStyle = PAL.trail;
   fctx.fillRect(0, 0, W, H);
   fctx.globalCompositeOperation = 'source-over';
 
@@ -815,7 +857,7 @@ function flowStep(dt, ts) {
     fctx.globalAlpha = (r.est ? 0.34 : 0.7) * Math.min(1, p.age * 3) * (DIMWATER.has(mode) ? 0.2 : 1);
     // Under the against-normal layer the current itself carries the anomaly: a
     // reach running below its mean sends brown water down, a reach in spate blue.
-    fctx.strokeStyle = mode === 'normal' && r.mean ? divColor(r.live / r.mean) : '#eaf4ff';
+    fctx.strokeStyle = mode === 'normal' && r.mean ? divColor(r.live / r.mean) : PAL.flow;
     fctx.lineWidth = Math.max(0.7, Math.min(2.6, w * 0.42));
     const [bx, by] = posOn(r, Math.max(0, Math.min(p.t, r.len) - speedOf(r) * dt * 9));
     fctx.beginPath();
@@ -968,6 +1010,12 @@ function pick(mx, my) {
     hovered = p ? { kind: 'residual', ref: p } : null;
     tip(mx, my); return;
   }
+  if (mode === 'wet' && wetlands) {
+    const o = pickWetland(mx, my);
+    if (hovered?.ref !== o) dirty = true;
+    if (o) { hovered = { kind: 'wetland', ref: o }; tip(mx, my); return; }
+    if (hovered?.kind === 'wetland') hovered = null;
+  }
   if (mode === 'ice') {
     const g = pickGlacier(mx, my);
     if (hovered?.ref !== g) dirty = true;
@@ -1016,10 +1064,9 @@ function pick(mx, my) {
 const tt = document.getElementById('tooltip');
 function fmtQ(q) {
   if (q === null || q === undefined) return '—';
-  if (q >= 100) return q.toFixed(0);
-  if (q >= 10) return q.toFixed(1);
-  if (q >= 1) return q.toFixed(2);
-  return q.toFixed(3);
+  // Significant digits fall as the figure rises, and the separators are the
+  // reader's: 1'042.5 in German, 1 042,5 in French, 1042.5 in Italian.
+  return nfd(q, q >= 100 ? 0 : q >= 10 ? 1 : q >= 1 ? 2 : 3);
 }
 function tip(mx, my) {
   if (!hovered) { tt.hidden = true; return; }
@@ -1028,53 +1075,66 @@ function tip(mx, my) {
     const lv = resLevels(resWeekIndex());
     const fl = isPowerDam(d) ? lv[d.g] : null;
     tt.innerHTML = `<div class="tName">${esc(d.n)}</div>` +
-      `<div class="tVal">${d.v.toLocaleString('de-CH')} mio m&#179; when full</div>` +
+      `<div class="tVal">${T('m.tipDamFull', { v: nf(d.v) })}</div>` +
       `<div class="tEst">${fl === null ? esc(d.a)
-        : RESNAME[d.g] + ' ' + (100 * fl).toFixed(0) + ' % on ' + fmtDate(lv.d)}</div>`;
+        : T('m.tipDamLevel', { region: RESNAME[d.g], pct: nf(100 * fl), d: fmtDate(lv.d) })}</div>`;
   } else if (hovered.kind === 'residual') {
     const p = hovered.ref;
-    tt.innerHTML = `<div class="tName">${esc(p.w || 'unnamed watercourse')}${p.pl ? ', ' + esc(p.pl) : ''}</div>` +
+    tt.innerHTML = `<div class="tName">${esc(p.w || T('m.unnamedWater'))}${p.pl ? ', ' + esc(p.pl) : ''}</div>` +
       `<div class="tVal">Q<sub>347</sub> ${p.q === null ? '—' : esc(lps(p.q))}</div>` +
-      `<div class="tLaw">Art. 31(1) minimum ${esc(lps(p.min))}</div>`;
+      `<div class="tLaw">${T('m.tipMin', { v: esc(lps(p.min)) })}</div>`;
   } else if (hovered.kind === 'glacier') {
     const g = hovered.ref;
-    tt.innerHTML = `<div class="tName">${esc(g.n || 'unnamed glacier ' + g.id)}</div>` +
-      `<div class="tVal">${g.a.toFixed(2)} km&#178; in ${g.y ?? glaciers.now.year}</div>` +
-      `<div class="tEst">${g.a0 !== undefined ? g.a0.toFixed(2) + ' km\u00b2 in 1850' : 'no 1850 body under this identifier'}</div>`;
+    tt.innerHTML = `<div class="tName">${g.n ? esc(g.n) : T('m.unnamedGlacier', { id: esc(g.id) })}</div>` +
+      `<div class="tVal">${T('m.tipIceNow', { a: nfd(g.a, 2), y: g.y ?? glaciers.now.year })}</div>` +
+      `<div class="tEst">${g.a0 !== undefined ? T('m.tipIcePast', { a: nfd(g.a0, 2) }) : T('m.noPastBody')}</div>`;
   } else if (hovered.kind === 'use') {
     const p = hovered.ref;
     const line =
-      p.kind === 'hydro' ? (p.q !== null ? fmtQ(p.q) + ' m³/s at full load, derived' : 'no head in the register')
-      : p.kind === 'ara' ? (p.e ? p.e.toLocaleString('de-CH') + ' population equivalents' : 'size not stated')
-      : p.kind === 'npp' ? 'cooling water not in any federal dataset'
-      : 'no quantity in the register';
-    tt.innerHTML = `<div class="tName">${esc(p.n ?? ('Abstraction ' + (p.r ?? 'without a number')))}</div>` +
+      p.kind === 'hydro' ? (p.q !== null ? T('m.atFullLoad', { q: fmtQ(p.q) }) : T('m.noHead'))
+      : p.kind === 'ara' ? (p.e ? T('m.pe', { n: nf(p.e) }) : T('m.sizeNotStated'))
+      : p.kind === 'npp' ? T('m.nppCooling')
+      : T('m.noQuantity');
+    tt.innerHTML = `<div class="tName">${p.n ? esc(p.n) : T('m.abstraction', { r: esc(p.r ?? T('m.withoutNumber')) })}</div>` +
       `<div class="tVal">${esc(line)}</div>` +
       `<div class="tEst">${esc(USE[p.kind].label)}${p.w ? ' &#183; ' + esc(p.w) : ''}${p.v ? ' &#183; ' + esc(p.v) : ''}</div>`;
+  } else if (hovered.kind === 'wetland') {
+    const o = hovered.ref;
+    const c = WETCLASS[o.k], inv = wetlands.inventories[o.k];
+    tt.innerHTML = `<div class="tName">${esc(o.n || c.label + ' ' + o.num)}</div>` +
+      `<div class="tVal">${o.a >= 0.01 ? nfd(o.a, 2) + ' km²' : nf(Math.round(o.a * 1e6 / 1e4) / 100, 2) + ' ha'}` +
+      `<i>·</i>${T('m.no', { n: esc(o.num) })}</div>` +
+      `<div class="tLaw">${esc(c.label)}, ${esc(inv.sr)}</div>` +
+      (o.t ? `<div class="tAlt">${esc(o.t)}</div>` : '');
   } else if (hovered.kind === 'station') {
     const s = hovered.ref;
     tt.innerHTML = `<div class="tName">${esc(s.name)}</div>` +
-      `<div class="tVal">${s.q !== null && s.q !== undefined ? fmtQ(s.q) + ' m³/s' : 'no discharge series'}</div>` +
-      `<div class="tEst">BAFU gauge ${esc(s.id)}</div>`;
+      `<div class="tVal">${s.q !== null && s.q !== undefined ? fmtQ(s.q) + ' m³/s' : T('m.noDischargeSeries')}</div>` +
+      `<div class="tEst">${T('m.bafuGauge', { id: esc(s.id) })}</div>`;
   } else {
     const r = hovered.ref;
-    tt.innerHTML = `<div class="tName num">${fmtQ(r.live)} m³/s</div>` +
-      `<div class="tVal">catchment ${r.upland.toFixed(0)} km²</div>` +
-      `<div class="tEst">${r.basis === 'measured' ? 'measured at a gauge'
-        : r.basis === 'none' ? 'outside the gauged network, long-term mean only'
-        : 'estimated from the ' + r.basis + ' gauge'}</div>`;
+    const nm = nameOf(r);
+    tt.innerHTML =
+      `<div class="tName">${nm ? esc(nm.n) : T('m.riverReach')}</div>` +
+      `<div class="tVal">${T('m.tipReach', { q: fmtQ(r.live), km: nf(Math.round(r.upland)) })}</div>` +
+      `<div class="tEst">${r.basis === 'measured' ? T('m.basisMeasured')
+        : r.basis === 'none' ? T('m.basisNone')
+        : T('m.basisFrom', { g: esc(r.basis) })}</div>` +
+      (nm && nm.alt.length ? `<div class="tAlt">${esc(nm.alt.join(' · '))}</div>` : '') +
+      (alluvialByReach.has(r.id)
+        ? `<div class="tLaw">${T('m.runsThrough', { z: esc(alluvialByReach.get(r.id).n) ||
+            T('m.no', { n: esc(alluvialByReach.get(r.id).num) }) })}</div>` : '');
   }
   tt.hidden = false;
   tt.style.left = Math.min(mx + 14, window.innerWidth - 250) + 'px';
   tt.style.top = Math.min(my + 14, window.innerHeight - 90) + 'px';
 }
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 const panel = document.getElementById('panel');
 function select(h) {
   selected = h;
   if (!h) { panel.hidden = true; return; }
-  const T = document.getElementById('panelTitle');
+  const titleEl = document.getElementById('panelTitle');
   const B = document.getElementById('panelBody');
   const N = document.getElementById('panelNote');
   const row = (k, v, u) => `<dt>${k}</dt><dd>${v}${u ? `<span class="unit">${u}</span>` : ''}</dd>`;
@@ -1082,33 +1142,31 @@ function select(h) {
   const X = document.getElementById('panelExtra');
   X.innerHTML = '';
 
-  if (h.kind === 'dam') { panelDam(h.ref, T, B, N, X); panel.hidden = false; return; }
-  if (h.kind === 'residual') { panelResidual(h.ref, T, B, N, X); panel.hidden = false; return; }
+  if (h.kind === 'dam') { panelDam(h.ref, titleEl, B, N, X); panel.hidden = false; return; }
+  if (h.kind === 'residual') { panelResidual(h.ref, titleEl, B, N, X); panel.hidden = false; return; }
+  if (h.kind === 'wetland') { panelWetland(h.ref, titleEl, B, N, X); panel.hidden = false; return; }
 
   if (h.kind === 'glacier') {
     const g = h.ref;
-    T.textContent = g.n || 'Unnamed glacier ' + g.id;
-    let html = row(`Area ${g.y ?? glaciers.now.year}`, g.a.toFixed(3), 'km\u00b2');
+    titleEl.textContent = g.n || T('m.UnnamedGlacier', { id: g.id });
+    let html = row(T('m.gArea', { y: g.y ?? glaciers.now.year }), nfd(g.a, 3), 'km\u00b2');
     if (g.a0 !== undefined) {
-      html += row('Area 1850', g.a0.toFixed(3), 'km\u00b2');
-      html += row('Area lost', (100 * (1 - g.a / g.a0)).toFixed(0), '%');
+      html += row(T('m.gArea1850'), nfd(g.a0, 3), 'km\u00b2');
+      html += row(T('m.gLost'), nf(100 * (1 - g.a / g.a0)), '%');
     }
-    html += row('Length', g.l.toFixed(2), 'km');
-    if (g.mn) html += row('Lowest ice', g.mn, 'm');
-    if (g.mx) html += row('Highest ice', g.mx, 'm');
-    if (g.dl !== undefined) html += row('Tongue since first survey', g.dl.toLocaleString('de-CH'), 'm');
-    if (g.gn) html += row('First gauge downstream', esc(g.gn), '');
-    html += row('SGI identifier', esc(g.id), '');
+    html += row(T('m.gLength'), nfd(g.l, 2), 'km');
+    if (g.mn) html += row(T('m.gLow'), nf(g.mn), 'm');
+    if (g.mx) html += row(T('m.gHigh'), nf(g.mx), 'm');
+    if (g.dl !== undefined) html += row(T('m.gTongue'), nf(g.dl), 'm');
+    if (g.gn) html += row(T('m.gGauge'), esc(g.gn), '');
+    html += row(T('m.gId'), esc(g.id), '');
     B.innerHTML = html;
 
     const ser = glaciers.byId.get(g.id);
     if (ser) X.innerHTML = spark(ser);
 
-    N.innerHTML = `Outlines and areas from the Swiss Glacier Inventory, GLAMOS. ` +
-      (g.a0 !== undefined
-        ? `The 1850 figure is the body that carries the same identifier. Glaciers split as they shrink, so an identifier is a label, not a proof of one body.`
-        : `No 1850 body carries this identifier, so no pair is shown. That is a gap in the join, not a glacier that did not exist.`) +
-      (g.gn ? ` The gauge named is the first BAFU station downstream of the mapped reach nearest the ice. It is a spatial assignment, not a routing model.` : '');
+    N.innerHTML = T('m.gNote') + T(g.a0 !== undefined ? 'm.gNotePair' : 'm.gNoteGap') +
+      (g.gn ? T('m.gNoteGauge') : '');
     panel.hidden = false;
     return;
   }
@@ -1117,106 +1175,62 @@ function select(h) {
     const p = h.ref;
     let html = '', note = '';
     if (p.kind === 'hydro') {
-      T.textContent = p.n;
-      html += row('Place', esc(p.l || '\u2014') + (p.c ? ', ' + esc(p.c) : ''), '');
-      html += row('Type', esc(p.t), '');
-      if (p.s) html += row('Status', esc(p.s), '');
-      if (p.b) html += row('In service since', p.b, '');
-      if (p.h) html += row('Head', p.h.toLocaleString('de-CH'), 'm');
-      if (p.p) html += row('Turbine capacity', p.p.toLocaleString('de-CH'), 'MW');
-      if (p.e) html += row('Expected production', p.e.toLocaleString('de-CH'), 'GWh/a');
-      html += row('Design discharge, derived', p.q === null ? '\u2014' : fmtQ(p.q), 'm³/s');
-      note = p.q === null
-        ? `The register gives no head for this plant, so no discharge can be derived from it.`
-        : `<b>Derived, not measured.</b> WASTA gives capacity and head but no water quantity, so the
-           figure is P divided by \u03c1gH\u03b7, with \u03b7 taken at 0.85 for the whole machine. One check:
-           at Rheinfelden the arithmetic gives 1&#8201;621&nbsp;m³/s where the plant states it can take
-           1&#8201;500 at the same 100&nbsp;MW, so the method runs about eight per cent high there and 0.85
-           is a little generous for a low head. Treat every figure here as an order of magnitude with a
-           plausible first digit, and take the design discharge from the concession before you rely on it.` +
-          (p.t === 'Laufkraftwerk'
-            ? ` A run-of-river plant passes the water on: it uses the river without consuming it, and the
-               question it raises is the regime, not the volume.`
-            : ` This is a storage or pumped-storage plant. The water it turbines is released from a
-               reservoir and often comes from another catchment, so the figure does not describe an
-               abstraction from the reach beside it.`);
+      titleEl.textContent = p.n;
+      html += row(T('m.uPlace'), esc(p.l || '\u2014') + (p.c ? ', ' + esc(p.c) : ''), '');
+      html += row(T('m.uType'), esc(p.t), '');
+      if (p.s) html += row(T('m.uStatus'), esc(p.s), '');
+      if (p.b) html += row(T('m.uSince'), p.b, '');
+      if (p.h) html += row(T('m.uHead'), nf(p.h), 'm');
+      if (p.p) html += row(T('m.uPower'), nf(p.p), 'MW');
+      if (p.e) html += row(T('m.uProd'), nf(p.e), 'GWh/a');
+      html += row(T('m.uDesignQ'), p.q === null ? '\u2014' : fmtQ(p.q), 'm³/s');
+      note = p.q === null ? T('m.uHydroNoHead')
+        : T('m.uHydroDerived') + T(p.t === 'Laufkraftwerk' ? 'm.uRunOfRiver' : 'm.uStorage');
     } else if (p.kind === 'abstraction') {
-      T.textContent = 'Abstraction ' + (p.r ?? 'without a number');
-      html += row('Watercourse', esc(p.w || '\u2014'), '');
-      html += row('Canton', esc(p.c || '\u2014'), '');
-      html += row('Quantity', 'not in the register', '');
-      if (p.r) html += row('Cantonal report',
-        `<a href="https://www.bafu-daten.ch/wasser/restwasser/data/data/er/de/${encodeURIComponent(p.r.replace(/-/g, ''))}.pdf" target="_blank" rel="noopener">${esc(p.r)} (PDF)</a>`, '');
-      note = `From the federal residual-flow map, the cantonal inventory of existing abstractions under
-        GSchG Art. 80 ff. It carries the place, the watercourse and, where the canton filed one, the
-        report. It carries no volume and no Q<sub>347</sub>, so the Art. 31 calculator cannot be run
-        off this point. <b>The federal data state stands at 1 January 2004.</b> A licence granted, changed
-        or restored since then is not in it.` +
-        (p.r ? ' The report is the cantonal assessment, and it is where the figures are.'
-             : ' This entry carries no report number, so no federal report is linked. That is a gap in the filing, not a finding that the abstraction is unlicensed.');
+      titleEl.textContent = T('m.abstraction', { r: p.r ?? T('m.withoutNumber') });
+      html += row(T('m.uWater'), esc(p.w || '\u2014'), '');
+      html += row(T('m.uCanton'), esc(p.c || '\u2014'), '');
+      html += row(T('m.uQuantity'), T('m.uNotInReg'), '');
+      if (p.r) html += row(T('m.uReport'),
+        `<a href="https://www.bafu-daten.ch/wasser/restwasser/data/data/er/de/${encodeURIComponent(p.r.replace(/-/g, ''))}.pdf" target="_blank" rel="noopener">${T('m.uPdf', { r: esc(p.r) })}</a>`, '');
+      note = T('m.uAbsNote') + T(p.r ? 'm.uAbsHasReport' : 'm.uAbsNoReport');
       // The register carries no quantity at all, so on its own it can never reach
       // Art. 31. The nearest published Q347 is the only bridge there is, and it is
       // worth building as long as the panel keeps saying that it is a bridge.
       if (p.q347) {
         const mr = minResidual(p.q347);
-        X.innerHTML = `<p class="statute">The nearest point where BAFU publishes Q<sub>347</sub> lies
-          ${p.q347km.toFixed(2)} km away${p.q347same
-            ? ' and the two records name the same watercourse'
-            : ', and the two records do not name the same watercourse'}.
-          There Q<sub>347</sub> is ${esc(lps(p.q347))}, so Art.&nbsp;31(1) would put the minimum at
-          <b>${esc(lps(mr))}</b>. That figure belongs to that point and not to this abstraction, and it
-          would bind only a new or renewed licence.</p>`;
+        X.innerHTML = `<p class="statute">${T('m.uAbsBridge', {
+          km: nfd(p.q347km, 2),
+          same: T(p.q347same ? 'm.uAbsSame' : 'm.uAbsDiff'),
+          q: esc(lps(p.q347)), min: esc(lps(mr)),
+        })}</p>`;
       }
     } else if (p.kind === 'npp') {
-      T.textContent = p.n;
-      html += row('Operator', esc(p.o || '\u2014'), '');
-      html += row('Status', esc(p.st ?? 'as the register has it'), '');
-      if (p.since) html += row('Since', fmtDate(p.since), '');
-      html += row('Cooling water', 'not published as open data', '');
+      titleEl.textContent = p.n;
+      html += row(T('m.uOperator'), esc(p.o || '\u2014'), '');
+      html += row(T('m.uStatus'), esc(p.st ?? T('m.uAsRegister')), '');
+      if (p.since) html += row(T('m.uSince2'), fmtDate(p.since), '');
+      html += row(T('m.uCooling'), T('m.uNotOpen'), '');
       // The register still lists Muehleberg as a power station and its data state is
       // the day Muehleberg shut down. Correcting it openly, with the source, is the
       // only way to use the register without repeating its mistake.
       if (p.fix) {
-        X.innerHTML = `<p class="aside"><b>The federal register is out of date here, and this page
-          corrects it.</b> ${esc(p.fix)}` +
-          (p.fixSrc ? ` <a href="${esc(p.fixSrc)}" target="_blank" rel="noopener">Operator's statement</a>.` : '') +
-          ` The register's own data state is ${vintageOf('npp')} &mdash; which is to say the register was
-          last refreshed on the day this station was switched off, and has carried it as operating ever
-          since.</p>`;
+        X.innerHTML = `<p class="aside">${T('m.uNppFix', { fix: esc(p.fix) })}` +
+          (p.fixSrc ? ` <a href="${esc(p.fixSrc)}" target="_blank" rel="noopener">${T('m.uNppStatement')}</a>.` : '') +
+          T('m.uNppVintage', { v: vintageOf('npp') }) + `</p>`;
       }
-      note = `The federal dataset gives the site and the operator. It gives no cooling-water volume and
-        no thermal load, and neither figure is published in any open federal series. They sit in the
-        cantonal concession and in the operator's own environmental reporting.` +
-        `<span class="statute">Cooling is where a heat question meets a water question, and the ordinance
-        answers it with an exemption. GSchV Annex&nbsp;3.3 No.&nbsp;21(4)(b) holds once-through cooling to
-        3&nbsp;°C of warming, 1.5&nbsp;°C in the trout region, and a 25&nbsp;°C ceiling &mdash; then adds
-        that above 25&nbsp;°C the authority may allow an exception where the warming is at most
-        0.01&nbsp;°C per discharge <b>or the discharge comes from an existing nuclear power station</b>.
-        The general rule for thermally altered rivers is Annex&nbsp;2 No.&nbsp;12(4). This site sits under
-        both.</span>`;
+      note = T('m.uNppNote') + `<span class="statute">${T('m.uNppStatute')}</span>`;
     } else {
-      T.textContent = p.n;
-      html += row('Place', esc(p.o || '\u2014') + (p.c ? ', ' + esc(p.c) : ''), '');
-      html += row('Receiving water', esc(p.v || '\u2014'), '');
-      if (p.e) html += row('Size', p.e.toLocaleString('de-CH'), 'population equivalents');
-      html += row('Effluent against the receiving water at Q<sub>347</sub>',
-                  p.q === null ? 'not stated' : p.q.toFixed(1), '%');
-      note = `The other direction: treated wastewater going back in. The figure is the plant's discharge
-        against the receiving water at Q<sub>347</sub>, its low-flow reference, so it is a ratio and not
-        a share of a whole: it passes 100 % where the plant puts in more than the brook carries at low
-        flow. <b>From a survey of 2011, federal data state 1 January 2014</b>, taken before the fourth
-        treatment stage was built out. A high ratio is not a breach of anything. It is the measure of how
-        little clean water is left to dilute with, and it is the condition under which every limit value
-        in Annex 2 of the Waters Protection Ordinance has to hold.`;
-      if (p.k === 'See') note += ` This plant discharges to a lake, so no low-flow ratio is given for it:
-        the reference is a flowing water and a lake is not one.`;
-      if (p.k === 'Versickern') note += ` This plant infiltrates to ground rather than to a watercourse,
-        so there is no receiving water to compare against. The question it raises is a groundwater
-        question.`;
-      if (p.q !== null && p.q > 100) note = `<span class="flag">At its low-flow reference this
-        watercourse carries less water than the plant discharges into it.</span> ` + note;
-      else if (p.q !== null && p.q >= 50) note = `<span class="flag">At low flow more than half of what
-        runs in this watercourse is treated wastewater.</span> ` + note;
+      titleEl.textContent = p.n;
+      html += row(T('m.uPlace'), esc(p.o || '\u2014') + (p.c ? ', ' + esc(p.c) : ''), '');
+      html += row(T('m.uReceiving'), esc(p.v || '\u2014'), '');
+      if (p.e) html += row(T('m.uSize'), nf(p.e), T('m.uPeUnit'));
+      html += row(T('m.uEffluent'), p.q === null ? T('m.uNotStated') : nfd(p.q, 1), '%');
+      note = T('m.uAraNote');
+      if (p.k === 'See') note += T('m.uAraLake');
+      if (p.k === 'Versickern') note += T('m.uAraGround');
+      if (p.q !== null && p.q > 100) note = `<span class="flag">${T('m.uAraOver100')}</span> ` + note;
+      else if (p.q !== null && p.q >= 50) note = `<span class="flag">${T('m.uAraOver50')}</span> ` + note;
     }
     B.innerHTML = html;
     N.innerHTML = note;
@@ -1226,14 +1240,14 @@ function select(h) {
 
   if (h.kind === 'station') {
     const s = h.ref, o = s.obs ?? {};
-    T.textContent = s.name;
-    let html = row('Discharge', fmtQ(s.q), 'm³/s');
-    if (s.meanQ) html += row('Long-term mean', fmtQ(s.meanQ), 'm³/s');
-    if (s.q !== null && s.q !== undefined && s.meanQ) html += row('Share of mean', (100 * s.q / s.meanQ).toFixed(0), '%');
-    if (o.level !== null && o.level !== undefined) html += row('Water level', o.level.toFixed(2), 'm');
-    if (o.temp !== null && o.temp !== undefined) html += row('Temperature', o.temp.toFixed(1), '°C');
-    if (o.danger) html += row('Flood level', `<span class="pill d${o.danger}">${o.danger}</span>`, '');
-    html += row('Station', s.id, '');
+    titleEl.textContent = s.name;
+    let html = row(T('m.sDischarge'), fmtQ(s.q), 'm³/s');
+    if (s.meanQ) html += row(T('m.sMean'), fmtQ(s.meanQ), 'm³/s');
+    if (s.q !== null && s.q !== undefined && s.meanQ) html += row(T('m.sShare'), nf(100 * s.q / s.meanQ), '%');
+    if (o.level !== null && o.level !== undefined) html += row(T('m.sLevel'), nfd(o.level, 2), 'm');
+    if (o.temp !== null && o.temp !== undefined) html += row(T('m.sTemp'), nfd(o.temp, 1), '°C');
+    if (o.danger) html += row(T('m.sDanger'), `<span class="pill d${o.danger}">${o.danger}</span>`, '');
+    html += row(T('m.sStation'), s.id, '');
     B.innerHTML = html;
     if (o.temp !== null && o.temp !== undefined) {
       // A reading is one sensor. The nearest gauges that also report temperature are
@@ -1254,39 +1268,56 @@ function select(h) {
         const kin = near.map(x => x.t).sort((a, b) => a - b);
         const m = kin[kin.length >> 1];
         const d = o.temp - m;
-        extra = `<p class="${Math.abs(d) >= 4 ? 'flag' : 'aside'}">The ${kin.length} nearest gauges that also
-          report temperature, all inside ${near.at(-1).km.toFixed(0)} km, read ${kin[0].toFixed(1)} to
-          ${kin.at(-1).toFixed(1)}&nbsp;&deg;C, median ${m.toFixed(1)}. This gauge is
-          ${d >= 0 ? '+' : ''}${d.toFixed(1)}&nbsp;&deg;C against them.` +
-          (Math.abs(d) >= 4 ? ' A gap that size is a question about the instrument before it is a question about the river.' : '') + '</p>';
+        extra = `<p class="${Math.abs(d) >= 4 ? 'flag' : 'aside'}">${T('m.sNeighbours', {
+          k: kin.length, km: nf(near.at(-1).km), lo: nfd(kin[0], 1), hi: nfd(kin.at(-1), 1),
+          med: nfd(m, 1), d: (d >= 0 ? '+' : '\u2212') + nfd(Math.abs(d), 1),
+        })}${Math.abs(d) >= 4 ? T('m.sInstrument') : ''}</p>`;
       }
       if (o.temp >= 25) {
-        extra += `<p class="flag">At or above the 25&nbsp;&deg;C ceiling that GSchV Annex&nbsp;2 No.&nbsp;12(4)
-          sets for a watercourse whose temperature is altered by heat. The ceiling is tied to that
-          alteration, so this reading raises the question and does not settle it.</p>` +
-          `<p class="statute">If the heat here comes from once-through cooling, the ceiling is not the end
-          of the analysis: GSchV Annex&nbsp;3.3 No.&nbsp;21(4)(b) lets the authority allow an exception
-          above 25&nbsp;&deg;C where the warming is at most 0.01&nbsp;&deg;C per discharge, or where the
-          discharge comes from an existing nuclear power station.</p>`;
+        extra += `<p class="flag">${T('m.sOverCeiling')}</p>` +
+          `<p class="statute">${T('m.sCoolingException')}</p>`;
       }
       document.getElementById('panelExtra').innerHTML = extra;
     }
-    N.innerHTML = `Measured by the Federal Office for the Environment. Reported in ${esc(s.unit ?? 'an unstated unit')}` +
-      `${s.factor !== 1 ? ', converted to m³/s' : ''}. Snapped ${s.snapKm ?? '?'} km to the nearest river reach. ` +
-      `The reading proves what the gauge measured, nothing further downstream.`;
+    N.innerHTML = T('m.sNote', {
+      unit: esc(s.unit ?? T('m.sUnstated')),
+      conv: s.factor !== 1 ? T('m.sConverted') : '',
+      km: s.snapKm === undefined || s.snapKm === null ? '?' : nfd(s.snapKm, 2),
+    });
   } else {
     const r = h.ref;
-    T.textContent = r.est ? 'River reach (estimated)' : 'River reach (gauged)';
-    let html = row('Discharge now', fmtQ(r.live), 'm³/s');
-    html += row('Long-term mean', fmtQ(r.mean), 'm³/s');
-    html += row('Share of mean', r.mean ? (100 * r.live / r.mean).toFixed(0) : '—', '%');
-    html += row('Upstream catchment', r.upland.toFixed(0), 'km²');
-    html += row('Strahler order', r.ord, '');
+    const nm = nameOf(r);
+    titleEl.textContent = nm ? nm.n : T(r.est ? 'm.rEstimated' : 'm.rGauged');
+    let html = nm && nm.alt.length
+      ? `<dt>${T('m.rAlsoCalled')}</dt><dd class="plain">${esc(nm.alt.join(', '))}</dd>` : '';
+    html += row(T('m.rNow'), fmtQ(r.live), 'm³/s');
+    html += row(T('m.sMean'), fmtQ(r.mean), 'm³/s');
+    html += row(T('m.sShare'), r.mean ? nf(100 * r.live / r.mean) : '—', '%');
+    html += row(T('m.rUpland'), nf(Math.round(r.upland)), 'km²');
+    html += row(T('m.rOrder'), r.ord, '');
+    // Where the reach runs through an alluvial zone, that is a second duty on the
+    // same water, and it belongs next to the discharge and not in another layer.
+    const az = alluvialByReach.get(r.id);
+    if (az) html += `<dt>${T('m.rAlluvial')}</dt><dd class="plain">${esc(az.n) || T('m.no', { n: esc(az.num) })}</dd>`;
     B.innerHTML = html;
-    N.textContent =
-      r.basis === 'measured' ? 'A gauge sits on this reach, so the figure is measured.'
-      : r.basis === 'none' ? 'This reach drains away from the Swiss gauging network and no gauge stands above it either. The figure is the long-term mean of the reach and nothing more. It says nothing about today.'
-      : `No gauge on this reach. The figure is the long-term mean of the reach, scaled by how far the nearest gauge ${r.basis} stands from its own mean. It is a modelled number, not a measurement.`;
+    const basis =
+      r.basis === 'measured' ? T('m.rBasisMeasured')
+      : r.basis === 'none' ? T('m.rBasisNone')
+      : T('m.rBasisFrom', { g: esc(r.basis) });
+    if (az) {
+      X.innerHTML = `<p class="statute">${T('m.rAlluvialNote', {
+        z: esc(az.n) || T('m.no', { n: esc(az.num) }),
+        sr: esc(wetlands.inventories.auen.sr),
+      })}</p>`;
+    }
+    // Where the name came from, when there is one. The gazetteer places a label
+    // and not a river, so a name carried along the channel from the nearest
+    // placement is a different kind of claim from a name written on this reach,
+    // and the panel says which it is rather than letting both look the same.
+    N.innerHTML = basis + (nm
+      ? T('m.rNamed', { y: names?.published?.slice(0, 4) ?? '2026' }) +
+        T(nm.carried ? 'm.rCarried' : 'm.rPlaced')
+      : T('m.rUnnamed'));
   }
   panel.hidden = false;
 }
@@ -1302,11 +1333,11 @@ function spark(ser) {
   const d = ser.obs.map((o, i) => `${i ? 'L' : 'M'}${X(o[0]).toFixed(1)},${Y(o[1]).toFixed(1)}`).join('');
   const zero = Y(0).toFixed(1);
   return `<figure class="spark">
-    <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Cumulative length change ${x0} to ${x1}">
+    <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(T('m.sparkAria', { a: x0, b: x1 }))}">
       <line x1="0" y1="${zero}" x2="${w}" y2="${zero}" class="sparkZero"/>
       <path d="${d}" class="sparkLine"/>
     </svg>
-    <figcaption>Tongue position, ${x0} to ${x1}, ${ser.obs.length} surveys. GLAMOS length change.</figcaption>
+    <figcaption>${T('m.sparkCap', { a: x0, b: x1, n: nf(ser.obs.length) })}</figcaption>
   </figure>`;
 }
 
@@ -1326,7 +1357,7 @@ for (const el of document.querySelectorAll('#lgUse input[data-use]')) {
 for (const el of document.querySelectorAll('#lgSource input[data-src]')) {
   el.onchange = () => { sourceOn[el.dataset.src] = el.checked; dirty = true; };
 }
-document.getElementById('toggleNames').onchange = e => { showNames = e.target.checked; dirty = true; };
+document.getElementById('togglePlaces').onchange = e => { showPlaces = e.target.checked; dirty = true; };
 // The ground is exclusive: a hillshade and a topographic sheet under each other
 // are two grounds, and the map ends up standing on neither.
 for (const el of document.querySelectorAll('input[name="ground"]')) {
@@ -1386,8 +1417,7 @@ function setMode(m) {
   if (liveOnly && ARCHIVAL[m]) {
     const note = document.getElementById('liveNote');
     if (note) {
-      note.innerHTML = `<b>Hidden while Live only is on.</b> The ${btn.textContent.toLowerCase()} layer ` +
-        `is drawn from ${ARCHIVAL[m]}. Turn Live only off to see it.`;
+      note.innerHTML = T('m.liveOnlyHidden', { layer: btn.textContent.toLowerCase(), src: ARCHIVAL[m] });
       note.classList.add('flash');
       setTimeout(() => note.classList.remove('flash'), 900);
     }
@@ -1421,52 +1451,10 @@ for (const b of document.querySelectorAll('#modes button')) b.onclick = () => se
 
 // ---- Art. 31(1) GSchG -------------------------------------------------------
 // The statute states a base figure at the foot of each band and a rate above it.
-// The rates are applied as written, not interpolated between the bases, because the
-// two do not always agree: the rate from 2500 l/s reaches 2497.5 at 10 000 l/s where
-// the statute states 2500. Each band therefore starts from its own stated base.
-//        [ceiling of band, base l/s, per this many l/s of Q347, add this many l/s]
-const RESIDUAL = [
-  [60, 50, 0, 0],
-  [160, 50, 10, 8],
-  [500, 130, 10, 4.4],
-  [2500, 280, 100, 31],
-  [10000, 900, 100, 21.3],
-  [60000, 2500, 1000, 150],
-];
-function minResidual(q) {
-  if (!isFinite(q) || q <= 0) return null;         // no permanent flow, Art. 4(i)
-  if (q >= 60000) return 10000;                    // the table stops here
-  let floor = 0;
-  for (const [ceil, base, per, add] of RESIDUAL) {
-    if (q <= ceil) return per ? base + ((q - floor) / per) * add : base;
-    floor = ceil;
-  }
-  return 10000;
-}
-const q347 = document.getElementById('q347');
-const q347out = document.getElementById('q347out');
-function calc() {
-  const q = parseFloat(q347.value);
-  const r = minResidual(q);
-  if (r === null) { q347out.innerHTML = 'Enter a Q<sub>347</sub> above zero. At zero there is no permanent flow and Art. 31 does not apply.'; return; }
-  const pct = (100 * r / q).toFixed(0);
-  q347out.innerHTML = `Minimum residual flow <b>${r.toLocaleString('de-CH', { maximumFractionDigits: 1 })} l/s</b>` +
-    ` (${(r / 1000).toFixed(3)} m&#179;/s), which is ${pct}&#8201;% of Q<sub>347</sub>.` +
-    (q > 60000 ? ' Q<sub>347</sub> is above 60 000 l/s, so the table is at its ceiling.' : '');
-}
-q347.addEventListener('input', calc);
-calc();
-
-const MODALS = ['law', 'sources'].map(id => document.getElementById(id));
-const openModal = id => { document.getElementById(id).hidden = false; };
-const closeModals = () => { let any = false; for (const m of MODALS) { if (!m.hidden) any = true; m.hidden = true; } return any; };
-document.getElementById('openLaw').onclick = () => openModal('law');
-document.getElementById('openSources').onclick = () => openModal('sources');
-for (const b of document.querySelectorAll('.modalClose[data-close]')) b.onclick = () => closeModals();
-for (const m of MODALS) m.addEventListener('click', e => { if (e.target === m) closeModals(); });
+// The Art. 31(1) table itself lives in gschg31.js, loaded before this file and
+// shared with the law page, so the statute is transcribed once and not twice.
 window.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (closeModals()) return;
   if (!panel.hidden) { panel.hidden = true; selected = null; dirty = true; }
 });
 
@@ -1487,13 +1475,16 @@ window.addEventListener('keydown', e => {
    publishes how full the Grande Dixence is today, and this layer does not
    pretend to.
    =========================================================================== */
-const RESRAMP = ['#22333d', '#2b5560', '#377f81', '#4da8a2', '#7fd4d0', '#aeeae5'];
-const resColor = f => stepColor(RESRAMP, f);
+const resColor = f => stepColor(PAL.res, f);
 
 async function loadReservoirs() {
   try {
-    const j = await fetch('data/reservoirs.json').then(r => r.json());
-    for (const d of j.dams) { d.wx = mercX(d.x); d.wy = mercY(d.y); d.kind = 'dam'; }
+    const j = await fetch(ROOT + 'data/reservoirs.json').then(r => r.json());
+    for (const d of j.dams) {
+      d.wx = mercX(d.x); d.wy = mercY(d.y); d.kind = 'dam';
+      d.t = D(d.t); d.a = D(d.a);
+    }
+    if (j.fill?.latest) j.fill.latest.rank = D(j.fill.latest.rank);
     // biggest last, so a 385 mio m3 disc is never hidden under a farm pond
     j.dams.sort((a, b) => a.v - b.v);
     reservoirs = j;
@@ -1501,20 +1492,20 @@ async function loadReservoirs() {
     if (wantMode === 'res' && setMode('res')) wantMode = null;
     resLegend();
   } catch (e) {
-    document.getElementById('resTotals').textContent = 'Reservoir layer failed to load: ' + e.message;
+    document.getElementById('resTotals').textContent = T('m.failRes', { e: e.message });
   }
 }
 
 function resLegend() {
   const t = reservoirs.totals, f = reservoirs.fill, L = f.latest;
-  document.getElementById('resTotals').innerHTML =
-    `${t.count} dams under federal supervision hold ${t.volumeMioM3.toLocaleString('de-CH')}&nbsp;million m&#179; ` +
-    `when full. Valais ${t.byRegion.vs.v.toLocaleString('de-CH')}, Grisons ${t.byRegion.gr.v.toLocaleString('de-CH')}, ` +
-    `Ticino ${t.byRegion.ti.v.toLocaleString('de-CH')}, the rest ${t.byRegion.rest.v.toLocaleString('de-CH')}.`;
-  document.getElementById('resRank').innerHTML =
-    `<b>${fmtDate(L.d)}: ${L.pct.toFixed(1)}&#8201;% full, ${L.gwh.toLocaleString('de-CH')} of ` +
-    `${L.max.toLocaleString('de-CH')}&nbsp;GWh.</b> Against the same calendar week in every year since 2000, ` +
-    `that is ${esc(L.rank)}.`;
+  document.getElementById('resTotals').innerHTML = T('m.resTotals', {
+    n: t.count, v: nf(t.volumeMioM3),
+    vs: nf(t.byRegion.vs.v), gr: nf(t.byRegion.gr.v),
+    ti: nf(t.byRegion.ti.v), rest: nf(t.byRegion.rest.v),
+  });
+  document.getElementById('resRank').innerHTML = T('m.resRank', {
+    d: fmtDate(L.d), pct: nfd(L.pct, 1), gwh: nf(L.gwh), max: nf(L.max), rank: esc(L.rank),
+  });
 }
 
 // area with the volume, so a reservoir ten times the size looks ten times the
@@ -1545,7 +1536,7 @@ function drawDams() {
     const f = isPowerDam(d) ? lv[d.g] : null;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, 6.2832);
-    ctx.fillStyle = '#0d0d0d';
+    ctx.fillStyle = PAL.plane;
     ctx.fill();
     if (f !== null && isFinite(f)) {
       ctx.globalAlpha = on ? 1 : 0.88;
@@ -1556,7 +1547,7 @@ function drawDams() {
     ctx.lineWidth = on ? 2 : Math.min(1.4, 0.4 + r * 0.14);
     // A dam built to hold a flood back is not a store of energy and is not in the
     // weekly statistic. It gets no tint, because it has no level to show.
-    ctx.strokeStyle = f === null ? 'rgba(143,155,179,0.85)' : (on ? '#f2fffe' : 'rgba(174,234,229,0.7)');
+    ctx.strokeStyle = f === null ? alpha(PAL.resFlood, 0.85) : (on ? PAL.resHead : alpha(PAL.resHi, 0.7));
     ctx.stroke();
   }
   ctx.globalAlpha = 1;
@@ -1573,42 +1564,37 @@ function pickDam(mx, my) {
   return best;
 }
 
-function panelDam(d, T, B, N, X) {
+function panelDam(d, titleEl, B, N, X) {
   const lv = resLevels(resWeekIndex());
   const f = isPowerDam(d) ? lv[d.g] : null;
   const share = 100 * d.v / reservoirs.totals.volumeMioM3;
   const row = (k, v, u) => `<dt>${k}</dt><dd>${v}${u ? `<span class="unit">${u}</span>` : ''}</dd>`;
-  T.textContent = d.n;
+  titleEl.textContent = d.n;
   let html = '';
-  if (d.rn && d.rn !== d.n) html += row('Reservoir', esc(d.rn), '');
-  html += row('Type', esc(d.t), '');
-  html += row('Purpose', esc(d.a), '');
-  html += row('Volume when full', d.v.toLocaleString('de-CH'), 'mio m³');
-  html += row('Share of all Swiss storage', share < 0.1 ? '<0.1' : share.toFixed(1), '%');
-  if (d.h) html += row('Height', d.h.toLocaleString('de-CH'), 'm');
-  if (d.cl) html += row('Crest length', d.cl.toLocaleString('de-CH'), 'm');
-  if (d.ce) html += row('Crest level', d.ce.toLocaleString('de-CH'), 'm');
-  if (d.il) html += row('Lowest outlet', d.il.toLocaleString('de-CH'), 'm');
-  if (d.b) html += row('In service since', d.b, '');
-  html += row('Canton', esc(d.c ?? '—'), '');
+  if (d.rn && d.rn !== d.n) html += row(T('m.dRes'), esc(d.rn), '');
+  html += row(T('m.uType'), esc(d.t), '');
+  html += row(T('m.dPurpose'), esc(d.a), '');
+  html += row(T('m.dVolume'), nf(d.v), 'mio m³');
+  html += row(T('m.dShare'), share < 0.1 ? '&lt;' + nfd(0.1, 1) : nfd(share, 1), '%');
+  if (d.h) html += row(T('m.dHeight'), nf(d.h), 'm');
+  if (d.cl) html += row(T('m.dCrestLen'), nf(d.cl), 'm');
+  if (d.ce) html += row(T('m.dCrestLvl'), nf(d.ce), 'm');
+  if (d.il) html += row(T('m.dOutlet'), nf(d.il), 'm');
+  if (d.b) html += row(T('m.uSince'), d.b, '');
+  html += row(T('m.uCanton'), esc(d.c ?? '—'), '');
   B.innerHTML = html;
 
   X.innerHTML = f === null
-    ? `<p class="aside">This structure is not in the weekly filling statistic. That statistic counts the
-       energy stored in the reservoirs of the power industry, and a dam built to hold back a flood, to
-       raise a river for a run-of-river plant or to supply drinking water stores no energy to count.</p>`
-    : `<p class="aside"><b>${RESNAME[d.g][0].toUpperCase() + RESNAME[d.g].slice(1)} stood at
-       ${(100 * f).toFixed(1)}&#8201;% on ${fmtDate(lv.d)}</b>, ${Math.round(lv[d.g + 'Gwh']).toLocaleString('de-CH')}
-       of ${reservoirs.fill.max[d.g].toLocaleString('de-CH')}&nbsp;GWh. That is the region's figure and it is
-       the smallest unit anyone publishes. It is shown on this dam because this dam is in that region, not
-       because anyone measured this reservoir.</p>`;
+    ? `<p class="aside">${T('m.dNoStat')}</p>`
+    : `<p class="aside">${T('m.dRegionLevel', {
+        region: RESNAME[d.g][0].toUpperCase() + RESNAME[d.g].slice(1),
+        pct: nfd(100 * f, 1), d: fmtDate(lv.d),
+        gwh: nf(Math.round(lv[d.g + 'Gwh'])), max: nf(reservoirs.fill.max[d.g]),
+      })}</p>`;
 
-  N.innerHTML = `Structure and volume from the BFE register of dams under federal supervision,
-    data state ${vintageOf('dams')}. Filling level from the BFE weekly series, ${fmtDate(reservoirs.fill.from)}
-    to ${fmtDate(reservoirs.fill.to)}, in gigawatt hours &mdash; <b>stored electricity, not stored
-    water</b>. The two figures on this panel come from two files that share no key: the volume is this
-    dam's, the percentage is its region's. Reservoir operation is governed by the concession and, where
-    the reservoir feeds an abstraction, by the residual-flow regime; neither is in either file.`;
+  N.innerHTML = T('m.dNote', {
+    v: vintageOf('dams'), from: fmtDate(reservoirs.fill.from), to: fmtDate(reservoirs.fill.to),
+  });
 }
 
 /* ===========================================================================
@@ -1622,30 +1608,28 @@ function panelDam(d, T, B, N, X) {
    readings that difference has to survive a glance.
    =========================================================================== */
 const RESIDUAL_SRC = {
-  q8493: 'the 1984–1993 decade',
-  qp: 'the full record period',
-  qmod: 'modelled, a rough estimate',
+  q8493: T('m.srcQ8493'),
+  qp: T('m.srcQp'),
+  qmod: T('m.srcQmod'),
 };
 const residualRadius = p => 1.7 + 2.1 * Math.log10(1 + (p.min ?? 0) / 10);
 const residualMeasured = p => p.src === 'q8493' || p.src === 'qp';
 
 async function loadResidual() {
   try {
-    const j = await fetch('data/residual.json').then(r => r.json());
+    const j = await fetch(ROOT + 'data/residual.json').then(r => r.json());
     for (const p of j.points) { p.wx = mercX(p.x); p.wy = mercY(p.y); p.kind = 'residual'; }
     j.points.sort((a, b) => (a.min ?? 0) - (b.min ?? 0));
     residual = j;
     document.getElementById('modeResidual').disabled = false;
     if (wantMode === 'residual' && setMode('residual')) wantMode = null;
     const c = j.counts;
-    document.getElementById('residualCount').innerHTML =
-      `${c.total.toLocaleString('de-CH')} points where BAFU publishes Q<sub>347</sub>. ` +
-      `${(c.bySource.q8493 + c.bySource.qp).toLocaleString('de-CH')} come from gauge records ` +
-      `(${c.bySource.q8493} from the 1984&#8211;1993 decade), ${c.bySource.qmod} are modelled and ` +
-      `${c.bySource.none} carry no value at all. The minimum is computed from Art.&nbsp;31(1) at ` +
-      `${c.withQ347.toLocaleString('de-CH')} of them.`;
+    document.getElementById('residualCount').innerHTML = T('m.residualCount', {
+      total: nf(c.total), gauged: nf(c.bySource.q8493 + c.bySource.qp), dec: nf(c.bySource.q8493),
+      mod: nf(c.bySource.qmod), none: nf(c.bySource.none), with: nf(c.withQ347),
+    });
   } catch (e) {
-    document.getElementById('residualCount').textContent = 'Residual-flow layer failed to load: ' + e.message;
+    document.getElementById('residualCount').textContent = T('m.failResid', { e: e.message });
   }
 }
 
@@ -1661,13 +1645,13 @@ function drawResidual() {
     ctx.arc(x, y, r, 0, 6.2832);
     if (residualMeasured(p)) {
       ctx.globalAlpha = on ? 1 : 0.82;
-      ctx.fillStyle = LAWINK; ctx.fill();
+      ctx.fillStyle = PAL.law; ctx.fill();
       ctx.globalAlpha = 1;
-      ctx.lineWidth = 0.7; ctx.strokeStyle = 'rgba(13,13,13,0.8)'; ctx.stroke();
+      ctx.lineWidth = 0.7; ctx.strokeStyle = halo(0.8); ctx.stroke();
     } else {
-      ctx.fillStyle = '#0d0d0d'; ctx.fill();
+      ctx.fillStyle = PAL.plane; ctx.fill();
       ctx.lineWidth = on ? 2 : 1.2;
-      ctx.strokeStyle = on ? LAWINK : LAWDIM; ctx.stroke();
+      ctx.strokeStyle = on ? PAL.law : PAL.lawDim; ctx.stroke();
     }
   }
   ctx.globalAlpha = 1;
@@ -1685,36 +1669,32 @@ function pickResidual(mx, my) {
   return best;
 }
 
-const lps = v => v >= 1000 ? (v / 1000).toLocaleString('de-CH', { maximumFractionDigits: 2 }) + ' m³/s'
-                           : v.toLocaleString('de-CH', { maximumFractionDigits: 1 }) + ' l/s';
+const lps = v => v >= 1000 ? nf(v / 1000, 2) + ' m³/s'
+                           : nf(v, 1) + ' l/s';
 
-function panelResidual(p, T, B, N, X) {
+function panelResidual(p, titleEl, B, N, X) {
   const row = (k, v, u) => `<dt>${k}</dt><dd>${v}${u ? `<span class="unit">${u}</span>` : ''}</dd>`;
   // the statutory rows wear the serif and the bone, so that the one quantity on
   // this panel that no instrument produced cannot be mistaken for one that was
   const law = (k, v, u) => `<dt class="statutory">${k}</dt><dd class="statutory">${v}${u ? `<span class="unit">${u}</span>` : ''}</dd>`;
-  T.textContent = (p.w || 'Watercourse without a name') + (p.pl ? ', ' + p.pl : '');
+  titleEl.textContent = (p.w || T('m.rsNoName')) + (p.pl ? ', ' + p.pl : '');
   let html = '';
   html += row('Q<sub>347</sub>', p.q === null ? '—' : lps(p.q), '');
-  html += row('Basis', esc(RESIDUAL_SRC[p.src] ?? 'none published'), '');
-  if (p.p) html += row('Record period', esc(p.p), '');
-  if (p.lhg) html += row('BAFU gauge', esc(p.lhg), '');
-  if (p.ar) html += row('Catchment, register', p.ar.toLocaleString('de-CH'), 'km²');
-  if (p.reachArea) html += row('Catchment, river network', p.reachArea.toLocaleString('de-CH'), 'km²');
-  if (p.mean !== null && p.mean !== undefined) html += row('Long-term mean of the reach', fmtQ(p.mean), 'm³/s');
+  html += row(T('m.rsBasis'), esc(RESIDUAL_SRC[p.src] ?? T('m.srcNone')), '');
+  if (p.p) html += row(T('m.rsPeriod'), esc(p.p), '');
+  if (p.lhg) html += row(T('m.rsGauge'), esc(p.lhg), '');
+  if (p.ar) html += row(T('m.rsAreaReg'), nf(p.ar), 'km²');
+  if (p.reachArea) html += row(T('m.rsAreaNet'), nf(p.reachArea), 'km²');
+  if (p.mean !== null && p.mean !== undefined) html += row(T('m.rsReachMean'), fmtQ(p.mean), 'm³/s');
   if (p.min !== null) {
-    html += law('Minimum under Art. 31(1)', lps(p.min), '');
-    if (p.q) html += law('As a share of Q<sub>347</sub>', (100 * p.min / p.q).toFixed(0), '%');
+    html += law(T('m.rsMin'), lps(p.min), '');
+    if (p.q) html += law(T('m.rsAsShare'), nf(100 * p.min / p.q), '%');
   }
   B.innerHTML = html;
 
   let extra = '';
   if (p.min !== null) {
-    extra += `<p class="statute">Art.&nbsp;31(1) GSchG would require <b>${lps(p.min)}</b> to remain in
-      this bed below an abstraction. That is the floor. Art.&nbsp;31(2) requires it to be <b>raised</b>
-      where water quality, groundwater recharge, rare habitats, fish passage or the spawning function of
-      a small stream are not otherwise secured, and Art.&nbsp;33 raises it further on a weighing of
-      interests. It may be set lower only in the closed list of cases in Art.&nbsp;32.</p>`;
+    extra += `<p class="statute">${T('m.rsStatute', { v: lps(p.min) })}</p>`;
   }
   // The register's catchment and the network's catchment are two independent
   // statements about the same place. Where they disagree by more than a factor of
@@ -1723,22 +1703,266 @@ function panelResidual(p, T, B, N, X) {
   if (p.ar && p.reachArea) {
     const f = p.reachArea / p.ar;
     if (f > 2 || f < 0.5) {
-      extra += `<p class="flag">The catchment BAFU records for this point and the catchment of the river
-        reach it was snapped to differ by a factor of ${(f > 1 ? f : 1 / f).toFixed(1)}. The point is
-        probably matched to the wrong watercourse, so treat the reach figures on this panel as unverified.</p>`;
+      extra += `<p class="flag">${T('m.rsMismatch', { f: nfd(f > 1 ? f : 1 / f, 1) })}</p>`;
     }
   }
   X.innerHTML = extra;
 
-  N.innerHTML = `Q<sub>347</sub> from the BAFU basis for determining residual flows, federal data state
-    ${vintageOf('q347')}; the minimum is computed here from the table in Art.&nbsp;31(1) GSchG.
-    <b>This is what the statute would require of a new abstraction at this point. It is not a duty owed
-    today by anyone already taking water here.</b> Arts.&nbsp;29&#8211;36 attach to an abstraction that
-    needs a new permit or concession. An abstraction running under a concession already granted is
-    governed by the restoration regime of Arts.&nbsp;80&#8211;83, which reaches only as far as it can
-    without compensable interference in existing water rights &mdash; and which is why the operative
-    moment for most Swiss plants is the day their concession expires, not today.`;
+  N.innerHTML = T('m.rsNote', { v: vintageOf('q347') });
 }
+
+/* ===========================================================================
+   PROTECTED WETLAND, five federal inventories
+   The reason these are on a water map is not that they are damp. Each ordinance
+   states its protection aim in terms of water: the Auenverordnung requires that
+   the natural dynamics of the water and sediment regime be preserved, which is a
+   duty about how much water passes and when, on the very reaches the residual-flow
+   layer already puts a statutory floor under. A mire dies if the water table drops.
+   These are places where a quantity of water is already the subject of a duty.
+
+   TWO REGISTERS, because there are two protections and they are not the same
+   strength. Alluvial zones and amphibian spawning sites are protected by ordinance
+   and the aim is stated as water: they wear the water's own hue, being the river's
+   own ground. Bogs, fens and mire landscapes are protected by Art. 78(5) of the
+   Federal Constitution — the article the Rothenthurm initiative wrote in 1987 —
+   which forbids installations and alteration of the ground outright, with no
+   balancing test to lose: they wear the bone every statutory quantity on this map
+   wears. A reader who learns only that difference has learnt the useful thing.
+
+   Mire landscapes are drawn as an outline and never filled. They are containers,
+   875 km2 of them, and a fill would bury the bogs they are drawn around.
+   =========================================================================== */
+// fill and line are alphas; wide is the stroke in device pixels. The alluvial zones
+// are given the strongest hand of the five because they are the reason this layer
+// is here: they are drawn as a boundary first and a wash second, since a boundary
+// is what a legal object is and an outline does not compete with the blue lines the
+// way a wash does.
+const WETCLASS = {
+  auen:  { label: T('m.wetAuen'),  reg: 'water', fill: 0.20, line: 0.95, wide: 1.5 },
+  amphi: { label: T('m.wetAmphi'), reg: 'water', fill: 0.09, line: 0.42, wide: 0.8 },
+  hoch:  { label: T('m.wetHoch'),  reg: 'law',   fill: 0.24, line: 0.70, wide: 0.9 },
+  flach: { label: T('m.wetFlach'), reg: 'law',   fill: 0.14, line: 0.46, wide: 0.8 },
+  moorl: { label: T('m.wetMoorl'), reg: 'law',   fill: 0,    line: 0.32, wide: 1.1 },
+};
+// The water register is a pale wash rather than the ramp's own middle. An alluvial
+// zone is the river's ground, so it belongs to the water's hue — but drawn in the
+// ramp's blue it vanished into the rivers running through it, which is the one
+// thing this layer must not do.
+const wetRgb = reg => (reg === 'water' ? PAL.wetWaterRgb : PAL.lawRgb);
+const wetPaint = (k, a) => `rgba(${wetRgb(WETCLASS[k].reg)},${a})`;
+// Drawn largest container first so the small objects sit on top of it.
+const WETORDER = ['moorl', 'flach', 'amphi', 'auen', 'hoch'];
+
+let wetlands = null;                  // {objects[], inventories, ...}
+let alluvialByReach = new Map();      // reach id -> the zone it runs through
+
+async function loadWetlands() {
+  try {
+    const w = await fetch(ROOT + 'data/wetlands.json').then(r => r.json());
+    const P = w.p;
+    for (const i of Object.values(w.inventories)) { i.name = D(i.name); i.ord = D(i.ord); }
+    for (const o of w.objects) if (o.t) o.t = D(o.t);
+    for (const o of w.objects) {
+      if (o.r) {
+        // One Path2D per object, in world coordinates, built once. The canvas
+        // transform carries it to the screen; 3,211 outlines rebuilt on every
+        // frame would be work for nothing. Ring order and winding are the source's
+        // own, so a fill with the nonzero rule punches the holes by itself.
+        const path = new Path2D();
+        let x0 = 1, y0 = 1, x1 = 0, y1 = 0;
+        o.rings = o.r.map(([xs, ys]) => {
+          const n = xs.length;
+          const px = new Float64Array(n), py = new Float64Array(n);
+          let x = 0, y = 0;
+          for (let i = 0; i < n; i++) {
+            x += xs[i]; y += ys[i];
+            px[i] = mercX(x / P); py[i] = mercY(y / P);
+            if (px[i] < x0) x0 = px[i]; if (px[i] > x1) x1 = px[i];
+            if (py[i] < y0) y0 = py[i]; if (py[i] > y1) y1 = py[i];
+          }
+          path.moveTo(px[0], py[0]);
+          for (let i = 1; i < n; i++) path.lineTo(px[i], py[i]);
+          path.closePath();
+          return { px, py };
+        });
+        o.path = path;
+        o.b = [x0, y0, x1, y1];
+        o.w = [(x0 + x1) / 2, (y0 + y1) / 2];
+        o.r = null;
+      } else if (o.c) {
+        // Too small for an outline at any zoom this map reaches, and still an
+        // object of the inventory. It keeps a mark and says so in the panel.
+        o.w = [mercX(o.c[0]), mercY(o.c[1])];
+        o.b = [o.w[0], o.w[1], o.w[0], o.w[1]];
+      }
+      o.kind = 'wetland';
+    }
+    alluvialByReach = new Map();
+    for (const o of w.objects) {
+      if (!o.h) continue;
+      for (const id of o.h) if (!alluvialByReach.has(id)) alluvialByReach.set(id, o);
+    }
+    wetlands = w;
+    document.getElementById('modeWet').disabled = false;
+    if (wantMode === 'wet' && setMode('wet')) wantMode = null;
+    wetlandNote();
+  } catch (e) {
+    const el = document.getElementById('wetCount');
+    if (el) el.textContent = T('m.failWet', { e: e.message });
+  }
+}
+
+function wetlandNote() {
+  const el = document.getElementById('wetCount');
+  if (!el || !wetlands) return;
+  const inv = wetlands.inventories;
+  const n = wetlands.reachesInAlluvial;
+  el.innerHTML = T('m.wetNote', { n: nf(n), total: nf(reaches.length) });
+  const t = document.getElementById('wetTotals');
+  if (t) {
+    t.innerHTML = Object.keys(WETCLASS).map(k => {
+      const c = inv[k];
+      return `<li><span class="swatch wet_${k}"></span>${esc(c.name)}<i>${nf(c.count)}` +
+             `<span class="wetKm">${nf(c.km2)} km&#178;</span></i></li>`;
+    }).join('');
+  }
+}
+
+// The panel for one object of one inventory. The object number is given the same
+// weight as the name because the number is what an ordinance, an object sheet and a
+// decision all use, and a reader who has to cite this is citing the number.
+function panelWetland(o, titleEl, B, N, X) {
+  const row = (k, v, u) => `<dt>${k}</dt><dd>${v}${u ? `<span class="unit">${u}</span>` : ''}</dd>`;
+  const c = WETCLASS[o.k], inv = wetlands.inventories[o.k];
+  titleEl.textContent = o.n || T('m.wTitle', { label: c.label, num: o.num });
+
+  let html = row(T('m.wInventory'), esc(inv.name), '');
+  html += `<dt>${T('m.wNumber')}</dt><dd class="plain">${esc(o.num)}</dd>`;
+  html += o.a >= 0.01 ? row(T('m.wArea'), nfd(o.a, 2), 'km²')
+                      : row(T('m.wArea'), nfd(o.a * 100, 2), 'ha');
+  if (o.t) html += `<dt>${T('m.uType')}</dt><dd class="plain">${esc(o.t)}</dd>`;
+  html += `<dt>${T('m.rsBasis')}</dt><dd class="plain">${esc(inv.ord)}, ${esc(inv.sr)}</dd>`;
+  if (o.h) html += row(T('m.wReaches'), o.h.length, '');
+  B.innerHTML = html;
+
+  // An alluvial zone is where this map's two legal layers land on the same water,
+  // and that is the whole reason the inventory is drawn here rather than admired.
+  let extra = '';
+  if (o.k === 'auen') {
+    extra += `<p class="statute">${T('m.wAuen', {
+      n: o.h ? Tn('m.wReach', o.h.length) : T('m.wReachSome'),
+    })}</p>`;
+  } else if (o.k === 'moorl' || o.k === 'hoch' || o.k === 'flach') {
+    extra += `<p class="statute">${T('m.wMire', {
+      what: T(o.k === 'moorl' ? 'm.wLandscape' : 'm.wMireWord'),
+    })}</p>`;
+  }
+  if (!o.path) {
+    extra += `<p class="aside">${T('m.wTooSmall')}</p>`;
+  }
+  const sheet = wetSheet(o);
+  if (sheet) {
+    extra += `<p class="aside">${T('m.wSheet', { url: esc(sheet) })}</p>`;
+  }
+  X.innerHTML = extra;
+
+  N.innerHTML = T('m.wNote', {
+    name: esc(inv.name), ord: esc(inv.ord), sr: esc(inv.sr),
+    v: vintageOf('wet_' + o.k), tol: wetlands.tolerance_m,
+  });
+}
+
+function drawWetlands() {
+  // The visible world rectangle, so that 3,211 outlines are not all handed to the
+  // rasteriser when a dozen are on the screen.
+  const wx0 = -view.x / view.k, wy0 = -view.y / view.k;
+  const wx1 = (W - view.x) / view.k, wy1 = (H - view.y) / view.k;
+  ctx.save();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.translate(view.x, view.y);
+  ctx.scale(view.k, view.k);
+  ctx.lineJoin = 'round';
+  // Below this area an object is smaller than a few pixels and adds speckle rather
+  // than information, so it waits for the zoom that can draw it. It is never
+  // dropped for good: at valley zoom every object of every inventory is on screen.
+  const z = zoom();
+  const minA = 0.5 / Math.pow(z, 1.7);
+  const pts = [];
+  for (const k of WETORDER) {
+    const c = WETCLASS[k];
+    ctx.lineWidth = c.wide / view.k;
+    for (const o of wetlands.objects) {
+      if (o.k !== k) continue;
+      if (!o.path) { pts.push(o); continue; }
+      if (o.a < minA) continue;
+      if (o.b[2] < wx0 || o.b[0] > wx1 || o.b[3] < wy0 || o.b[1] > wy1) continue;
+      const on = hovered?.kind === 'wetland' && hovered.ref === o;
+      if (c.fill) {
+        ctx.fillStyle = wetPaint(k, on ? Math.min(0.5, c.fill * 2.4) : c.fill);
+        ctx.fill(o.path, 'evenodd');
+      }
+      ctx.strokeStyle = wetPaint(k, on ? 0.95 : c.line);
+      ctx.stroke(o.path);
+    }
+  }
+  ctx.restore();
+  // The objects too small to draw as ground. A ring, not a disc: it carries a place
+  // and not a quantity, which is the same grammar the use layer runs on. They wait
+  // for the zoom that can tell them apart; nine hundred rings over the Mittelland at
+  // country view is a texture and not a fact.
+  if (z < 2.4) return;
+  for (const o of pts) {
+    const x = sx(o.w[0]), y = sy(o.w[1]);
+    if (x < -8 || y < -8 || x > W + 8 || y > H + 8) continue;
+    const on = hovered?.kind === 'wetland' && hovered.ref === o;
+    ctx.beginPath();
+    ctx.arc(x, y, on ? 4.5 : 2.4, 0, 6.2832);
+    ctx.lineWidth = on ? 1.8 : 1;
+    ctx.strokeStyle = wetPaint(o.k, on ? 0.95 : 0.5);
+    ctx.stroke();
+  }
+}
+
+// Point in polygon against the object's own rings, in world coordinates. The rings
+// keep the source's winding, so counting crossings over all of them at once treats
+// a hole as a hole.
+function inWetland(o, wx, wy) {
+  if (!o.rings) return false;
+  if (wx < o.b[0] || wx > o.b[2] || wy < o.b[1] || wy > o.b[3]) return false;
+  let hit = false;
+  for (const r of o.rings) {
+    const { px, py } = r;
+    for (let i = 0, j = px.length - 1; i < px.length; j = i++) {
+      if ((py[i] > wy) !== (py[j] > wy) &&
+          wx < (px[j] - px[i]) * (wy - py[i]) / (py[j] - py[i]) + px[i]) hit = !hit;
+    }
+  }
+  return hit;
+}
+
+function pickWetland(mx, my) {
+  const wx = (mx - view.x) / view.k, wy = (my - view.y) / view.k;
+  // Smallest first, so that a bog inside a mire landscape answers for itself rather
+  // than being swallowed by the container drawn around it.
+  let best = null;
+  for (const o of wetlands.objects) {
+    if (!inWetland(o, wx, wy)) continue;
+    if (!best || o.a < best.a) best = o;
+  }
+  if (best) return best;
+  let near = null, bd = 81;
+  for (const o of wetlands.objects) {
+    if (o.path) continue;
+    const dx = sx(o.w[0]) - mx, dy = sy(o.w[1]) - my;
+    const d = dx * dx + dy * dy;
+    if (d < bd) { bd = d; near = o; }
+  }
+  return near;
+}
+
+// The object sheet: the federal PDF that carries the protection aim and the
+// boundary description for this object, rebuilt from the template on its inventory.
+const wetSheet = o => (o.pdf && wetlands ? wetlands.inventories[o.k].sheet + o.pdf : null);
 
 /* ===========================================================================
    ICE, FIVE SURVEYS
@@ -1753,7 +1977,7 @@ const ICE_Y0 = 1850, ICE_Y1 = 2023;
 async function loadIceHistory() {
   if (!glaciers) return;
   try {
-    const j = await fetch('data/icehistory.json').then(r => r.json());
+    const j = await fetch(ROOT + 'data/icehistory.json').then(r => r.json());
     const P = j.p;
     for (const f of j.frames) {
       if (f.from === 'glaciers.pastRings') { f.path = glaciers.pathPast; continue; }
@@ -1776,12 +2000,11 @@ async function loadIceHistory() {
     const F = iceFrames;
     const worst = F.slice(1).map((b, i) => ({ a: F[i], b, rate: (F[i].km2 - b.km2) / (b.y - F[i].y) }))
                             .reduce((x, y) => (y.rate > x.rate ? y : x));
-    document.getElementById('iceTotals').innerHTML =
-      `${F[0].km2.toLocaleString('de-CH')}&nbsp;km&#178; in ${F[0].y}, ` +
-      `${F.at(-1).km2.toLocaleString('de-CH')}&nbsp;km&#178; in ${F.at(-1).y}. ` +
-      `<b>${(100 * (1 - F.at(-1).km2 / F[0].km2)).toFixed(0)}&#8201;% of the area is gone.</b> ` +
-      `The fastest interval on record is ${worst.a.y}&#8211;${worst.b.y}, at ` +
-      `${worst.rate.toFixed(1)}&nbsp;km&#178; a year.`;
+    document.getElementById('iceTotals').innerHTML = T('m.iceSeq', {
+      k0: nf(F[0].km2), y0: F[0].y, k1: nf(F.at(-1).km2), y1: F.at(-1).y,
+      lost: nf(100 * (1 - F.at(-1).km2 / F[0].km2)),
+      a: worst.a.y, b: worst.b.y, rate: nfd(worst.rate, 1),
+    });
   } catch (e) { /* the two-state layer still works without the sequence */ }
 }
 
@@ -1810,13 +2033,13 @@ function drawIce() {
   ctx.lineJoin = 'round';
 
   // what there was, always: the 1850 outline, under everything
-  ctx.fillStyle = 'rgba(200,129,60,0.17)';
+  ctx.fillStyle = `rgba(${PAL.icePastRgb},0.17)`;
   ctx.fill(glaciers.pathPast, 'evenodd');
-  ctx.strokeStyle = 'rgba(200,129,60,0.5)';
+  ctx.strokeStyle = `rgba(${PAL.icePastRgb},0.5)`;
   ctx.stroke(glaciers.pathPast);
 
   // what there is at the playhead
-  ctx.fillStyle = '#dce9f8';
+  ctx.fillStyle = PAL.ice;
   if (!st) { ctx.globalAlpha = 0.92; ctx.fill(glaciers.pathNow, 'evenodd'); }
   else {
     if (st.t < 1 && st.a.path) { ctx.globalAlpha = 0.92 * (1 - st.t); ctx.fill(st.a.path, 'evenodd'); }
@@ -1824,7 +2047,7 @@ function drawIce() {
   }
   if (hovered?.kind === 'glacier' && hovered.ref.path) {
     ctx.globalAlpha = 1;
-    ctx.strokeStyle = '#fab219';
+    ctx.strokeStyle = PAL.warning;
     ctx.lineWidth = 1.8 / view.k;
     ctx.stroke(hovered.ref.path);
   }
@@ -1839,14 +2062,8 @@ function drawIce() {
    five glacier surveys on a real time axis. It is a chart and a control at once,
    and the map is bound to its playhead.
    =========================================================================== */
-const RESNOTE = `Weekly since 3 January 2000, in gigawatt hours: <b>stored electricity, not stored
-  water.</b> Published for four regions and for nothing smaller, so the tint on every dam of a region is
-  the same figure. The line is the national level; the band behind it is the tenth to the ninetieth
-  percentile of the same calendar week across the record.`;
-const ICENOTE = `Five dated inventories, held in their real intervals: 81, 42, 37 and 13 years. Between
-  two surveys the outline is interpolated, so what moves there is arithmetic and not a measurement.
-  <b>This is area.</b> The ice thinned faster than it shrank in plan, so these rates are not the rate of
-  ice loss.`;
+const RESNOTE = T('m.resNote');
+const ICENOTE = T('m.iceNote');
 
 const ribbon = { mode: null, pos: 1, by: { res: 1, ice: 1 }, playing: false };
 const RIBDUR = { res: 34000, ice: 17000 };      // ms for one full pass
@@ -1871,7 +2088,7 @@ function setRibbon(m) {
     ribbon.pos = ribbon.by[kind];
     scrub.value = Math.round(ribbon.pos * 1000);
     document.getElementById('ribbonTitle').textContent =
-      kind === 'res' ? 'Filling level, weekly since 2000' : 'Glacier area, five surveys';
+      kind === 'res' ? T('m.ribTitleRes') : T('m.ribTitleIce');
     document.getElementById('ribbonNote').innerHTML = kind === 'res' ? RESNOTE : ICENOTE;
     ribbonResize();
     readRibbon();
@@ -1919,12 +2136,12 @@ function drawRibbon() {
       rctx.lineTo(px(i / (n - 1)), py(e.p10 / 100));
     }
     rctx.closePath();
-    rctx.fillStyle = 'rgba(127,212,208,0.13)';
+    rctx.fillStyle = alpha(PAL.resFull, 0.13);
     rctx.fill();
 
     const grad = rctx.createLinearGradient(0, pt, 0, h - pb);
-    grad.addColorStop(0, 'rgba(127,212,208,0.30)');
-    grad.addColorStop(1, 'rgba(127,212,208,0.02)');
+    grad.addColorStop(0, alpha(PAL.resFull, 0.30));
+    grad.addColorStop(1, alpha(PAL.resFull, 0.02));
     rctx.beginPath();
     rctx.moveTo(px(0), py(0));
     for (let i = 0; i < n; i++) rctx.lineTo(px(i / (n - 1)), py(ws[i][1] / 100));
@@ -1937,9 +2154,9 @@ function drawRibbon() {
       const X = px(i / (n - 1)), Y = py(ws[i][1] / 100);
       i ? rctx.lineTo(X, Y) : rctx.moveTo(X, Y);
     }
-    rctx.strokeStyle = '#7fd4d0'; rctx.lineWidth = 1; rctx.stroke();
+    rctx.strokeStyle = PAL.resFull; rctx.lineWidth = 1; rctx.stroke();
 
-    rctx.fillStyle = '#898781';
+    rctx.fillStyle = PAL.inkMuted;
     const y0 = +ws[0][0].slice(0, 4), y1 = +ws[n - 1][0].slice(0, 4);
     for (let y = Math.ceil(y0 / 5) * 5; y <= y1; y += 5) {
       const i = ws.findIndex(r => r[0].slice(0, 4) === String(y));
@@ -1949,7 +2166,7 @@ function drawRibbon() {
       const t = String(y), tw = rctx.measureText(t).width;
       if (X + 3 + tw <= w) rctx.fillText(t, X + 3, h - pb + 2);   // measure, do not guess
     }
-    ribbonHead(px(resWeekIndex() / (n - 1)), py(ws[resWeekIndex()][1] / 100), h, pt, pb, '#eafffe');
+    ribbonHead(px(resWeekIndex() / (n - 1)), py(ws[resWeekIndex()][1] / 100), h, pt, pb, PAL.resHead);
   } else {
     const F = iceFrames;
     const X = y => px((y - ICE_Y0) / (ICE_Y1 - ICE_Y0));
@@ -1960,34 +2177,34 @@ function drawRibbon() {
     for (const f of F) rctx.lineTo(X(f.y), Y(f.km2));
     rctx.lineTo(X(F.at(-1).y), py(0));
     rctx.closePath();
-    rctx.fillStyle = 'rgba(220,233,248,0.10)'; rctx.fill();
+    rctx.fillStyle = alpha(PAL.ice, 0.10); rctx.fill();
 
     rctx.beginPath();
     for (const [i, f] of F.entries()) i ? rctx.lineTo(X(f.y), Y(f.km2)) : rctx.moveTo(X(f.y), Y(f.km2));
-    rctx.strokeStyle = '#dce9f8'; rctx.lineWidth = 1.3; rctx.stroke();
+    rctx.strokeStyle = PAL.ice; rctx.lineWidth = 1.3; rctx.stroke();
 
     for (const f of F) {
       rctx.beginPath(); rctx.arc(X(f.y), Y(f.km2), 2.6, 0, 6.2832);
-      rctx.fillStyle = '#0d0d0d'; rctx.fill();
-      rctx.lineWidth = 1.3; rctx.strokeStyle = '#dce9f8'; rctx.stroke();
+      rctx.fillStyle = PAL.plane; rctx.fill();
+      rctx.lineWidth = 1.3; rctx.strokeStyle = PAL.ice; rctx.stroke();
     }
-    rctx.fillStyle = '#898781';
+    rctx.fillStyle = PAL.inkMuted;
     for (const [i, f] of F.entries()) {
       const lx = Math.max(0, Math.min(w - 20, X(f.y) - (i === 0 ? 0 : i === F.length - 1 ? 20 : 10)));
       rctx.fillText(String(f.y), lx, h - pb + 2);
     }
     const st = iceAt(iceYear());
-    ribbonHead(X(iceYear()), Y(st.km2), h, pt, pb, '#ffffff');
+    ribbonHead(X(iceYear()), Y(st.km2), h, pt, pb, PAL.ink);
   }
 }
 
 function ribbonHead(x, y, h, pt, pb, col) {
-  rctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  rctx.strokeStyle = ink(0.4);
   rctx.lineWidth = 1;
   rctx.beginPath(); rctx.moveTo(x, pt - 3); rctx.lineTo(x, h - pb); rctx.stroke();
   rctx.beginPath(); rctx.arc(x, y, 3.4, 0, 6.2832);
   rctx.fillStyle = col; rctx.fill();
-  rctx.strokeStyle = '#0d0d0d'; rctx.lineWidth = 1.2; rctx.stroke();
+  rctx.strokeStyle = PAL.plane; rctx.lineWidth = 1.2; rctx.stroke();
 }
 
 // The envelope is indexed by week of the year, so a date has to be turned back
@@ -1999,24 +2216,19 @@ function isoWeekIndex(iso) {
   const start = Date.UTC(d.getUTCFullYear(), 0, 1);
   return Math.min(52, Math.floor((d.getTime() - start) / 604800000));
 }
-const fmtDate = iso => {
-  const [y, m, d] = iso.split('-');
-  return `${d}.${m}.${y}`;
-};
-
 function readRibbon() {
   const out = document.getElementById('ribbonRead');
   if (ribbon.mode === 'res') {
     const i = resWeekIndex(), lv = resLevels(i);
     const e = reservoirs.fill.envelope[isoWeekIndex(lv.d)];
-    const band = !e ? '' : lv.pct < e.p10 ? ' · below the tenth percentile for this week'
-                        : lv.pct > e.p90 ? ' · above the ninetieth' : '';
-    out.textContent = `${fmtDate(lv.d)} · ${lv.pct.toFixed(1)} % · ${lv.gwh.toLocaleString('de-CH')} GWh${band}`;
+    const band = !e ? '' : lv.pct < e.p10 ? T('m.ribP10')
+                        : lv.pct > e.p90 ? T('m.ribP90') : '';
+    out.textContent = T('m.ribRes', { d: fmtDate(lv.d), pct: nfd(lv.pct, 1), gwh: nf(lv.gwh), band });
   } else if (ribbon.mode === 'ice') {
     const y = iceYear(), st = iceAt(y);
     out.textContent = st.exact
-      ? `${Math.round(y)} survey · ${st.km2.toLocaleString('de-CH')} km²`
-      : `${Math.round(y)} · about ${Math.round(st.km2).toLocaleString('de-CH')} km², between the ${st.a.y} and ${st.b.y} surveys`;
+      ? T('m.ribSurvey', { y: Math.round(y), km2: nf(st.km2) })
+      : T('m.ribBetween', { y: Math.round(y), km2: nf(Math.round(st.km2)), a: st.a.y, b: st.b.y });
   }
 }
 
@@ -2041,16 +2253,16 @@ function startPlay() {
   if (ribbon.pos >= 1) ribbon.pos = 0;      // at the end, play means play again
   ribbon.playing = true; playLast = 0;
   playIcon.setAttribute('d', 'M1 1h3.5v12H1z M7.5 1H11v12H7.5z');
-  playLabel.textContent = 'Pause';
-  playBtn.setAttribute('aria-label', 'Pause');
+  playLabel.textContent = T('m.pause');
+  playBtn.setAttribute('aria-label', T('m.pause'));
   playRAF = requestAnimationFrame(stepPlay);
 }
 function stopPlay() {
   ribbon.playing = false;
   cancelAnimationFrame(playRAF);
   playIcon.setAttribute('d', 'M1 1l10 6-10 6z');
-  playLabel.textContent = 'Play';
-  playBtn.setAttribute('aria-label', 'Play');
+  playLabel.textContent = T('m.play');
+  playBtn.setAttribute('aria-label', T('m.play'));
 }
 playBtn.onclick = () => (ribbon.playing ? stopPlay() : startPlay());
 scrub.addEventListener('input', () => {
@@ -2069,59 +2281,35 @@ scrub.addEventListener('input', () => {
    =========================================================================== */
 async function loadVintage() {
   try {
-    vintage = await fetch('data/vintage.json').then(r => r.json());
+    vintage = await fetch(ROOT + 'data/vintage.json').then(r => r.json());
     renderVintage();
   } catch (e) {
-    document.getElementById('vintageTable').textContent = 'The source list failed to load: ' + e.message;
+    // Nothing on the map depends on this beyond two notes, so a failure here is
+    // reported where it is read: in the note itself, not in the console.
+    const ages = document.getElementById('srcAges');
+    if (ages) ages.textContent = T('src.loadFail', { e: e.message });
   }
 }
 const vintageOf = key => {
   const s = vintage?.sources.find(x => x.key === key);
-  return s?.datenstand ? fmtDate(s.datenstand) : 'unstated';
+  return s?.datenstand ? fmtDate(s.datenstand) : T('m.unstated');
 };
-function ageText(days) {
-  if (days === null || days === undefined) return 'live';
-  if (days < 45) return days + (days === 1 ? ' day' : ' days');
-  if (days < 400) return Math.round(days / 30.4) + ' months';
-  return (days / 365.25).toFixed(1) + ' years';
-}
+// The water-sources legend prints its own layers' ages, because the whole point of
+// that layer is where the water comes from and one of its three pictures is most of
+// a decade old. Making the reader open another page to find that out would be
+// exactly the defect this project exists to correct. The full table of every source
+// and its age is on sources.html, drawn from this same file.
 function renderVintage() {
-  const rows = vintage.sources.slice().sort((a, b) => (a.ageDays ?? -1) < (b.ageDays ?? -1) ? 1 : -1);
-  const worst = Math.max(...rows.map(r => r.ageDays ?? 0)) || 1;
-  const stale = new Set(vintage.staleKeys);
-  document.getElementById('vintageTable').innerHTML = rows.map(s => {
-    const cls = s.live ? 'isLive' : stale.has(s.key) ? 'isStale' : '';
-    const w = Math.max(1, Math.round(100 * (s.ageDays ?? 0) / worst));
-    return `<div class="vRow ${cls}">
-      <div>
-        <div class="vName">${esc(s.name)}<span class="vCls">${esc(s.cls)}</span></div>
-        <div class="vHolder">${esc(s.holder)} · ${esc(s.cadence)}${s.url ? ` · <a href="${esc(s.url)}" target="_blank" rel="noopener">source</a>` : ''}</div>
-      </div>
-      <div class="vAge">${ageText(s.ageDays)}<b>${s.datenstand ? 'state ' + fmtDate(s.datenstand) : 'read live'}</b></div>
-      <div class="vBar"><i style="width:${w}%"></i></div>
-      <div class="vNote">${esc(s.note)}</div>
-    </div>`;
-  }).join('');
-  // The water-sources legend prints its own layers' ages, because the whole point
-  // of that layer is where the water comes from and one of its three pictures is
-  // most of a decade old. Making the reader open the source table to find that out
-  // would be exactly the defect this page exists to correct.
   const ages = document.getElementById('srcAges');
-  if (ages) {
-    const gw = vintage.sources.find(x => x.key === 'groundwater');
-    const ca = vintage.sources.find(x => x.key === 'catchments');
-    ages.innerHTML = `<b>How old the pictures are.</b> Groundwater bodies, Datenstand ` +
-      `<b class="num">${vintageOf('groundwater')}</b>` +
-      (gw?.ageDays ? ` &mdash; ${ageText(gw.ageDays)} old` : '') + `. Sub-catchments, Datenstand ` +
-      `<b class="num">${vintageOf('catchments')}</b>` +
-      (ca?.ageDays ? ` &mdash; ${ageText(ca.ageDays)}` : '') + `. Read from the federal legend ` +
-      `endpoints, not remembered here.`;
-  }
-  const n = rows.filter(s => (s.ageDays ?? 0) > 1826).length;
-  document.getElementById('vintageBuilt').innerHTML =
-    `Data states read from the federal legend endpoints on ${fmtDate(vintage.built)}. ` +
-    `<b>${n} of ${rows.length} sources are more than five years old.</b> Licences: each source above, ` +
-    `on its own terms. Nothing here is a forecast and nothing here is a finding of breach.`;
+  if (!ages) return;
+  const gw = vintage.sources.find(x => x.key === 'groundwater');
+  const ca = vintage.sources.find(x => x.key === 'catchments');
+  ages.innerHTML = T('m.srcAges', {
+    gw: vintageOf('groundwater'),
+    gwAge: gw?.ageDays ? T('m.srcAgeOld', { a: ageText(gw.ageDays) }) : '',
+    ca: vintageOf('catchments'),
+    caAge: ca?.ageDays ? T('m.srcAgeBare', { a: ageText(ca.ageDays) }) : '',
+  });
 }
 
 /* ===========================================================================
@@ -2193,11 +2381,19 @@ const eastOf  = wx => (wx * 2 - 1) * HALF;
 const northOf = wy => (1 - wy * 2) * HALF;
 
 // A picture requested for a rectangle, redrawn from cache while the next one is
-// on the wire. `blend` and `alpha` are how a sheet of paper meant for white
-// becomes ground for a near-black plane; see the note on each layer below.
+// on the wire.
+//
+// Every one of these sheets is rendered on a federal server that has never heard of
+// this page, for white paper: dark ink on light ground. That is the right way round
+// for the day surface and exactly the wrong way round for the night one, so each
+// layer carries two treatments and picks by surface. `look()` is read at request
+// time and the cache is dropped when the surface changes, because a tile that was
+// inverted for the dark plane is not a tile for paper.
+const wmsLayers = [];
 function wmsLayer(spec) {
-  return {
+  const layer = {
     spec,
+    look() { return spec[document.documentElement.dataset.theme === 'day' ? 'day' : 'night'] ?? {}; },
     img: null, box: null,          // what is currently drawable
     want: null, loading: false,    // what has been asked for
     fail: 0,
@@ -2245,7 +2441,8 @@ function wmsLayer(spec) {
       const im = new Image();
       im.onload = () => {
         this.loading = false; this.fail = 0;
-        this.img = this.spec.filter ? treat(im, this.spec.filter) : im;
+        const f = this.look().filter;
+        this.img = f ? treat(im, f) : im;
         this.box = { ...n, k: view.k };
         dirty = true;
       };
@@ -2256,22 +2453,20 @@ function wmsLayer(spec) {
       if (!this.img || !this.box) return;
       const b = this.box;
       ctx.save();
-      ctx.globalAlpha = this.spec.alpha;
-      if (this.spec.blend) ctx.globalCompositeOperation = this.spec.blend;
+      ctx.globalAlpha = this.look().alpha ?? this.spec.alpha;
+      const bl = this.look().blend;
+      if (bl) ctx.globalCompositeOperation = bl;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(this.img, sx(b.x0), sy(b.y0), (b.x1 - b.x0) * view.k, (b.y1 - b.y0) * view.k);
       ctx.restore();
     },
   };
+  wmsLayers.push(layer);
+  return layer;
 }
 
-// Both federal sheets are drawn for white paper: dark ink on light ground. On this
-// plane they are turned inside out, so the paper goes black and the ink comes up
-// light. For the hillshade that inversion is what makes it usable at all — flat
-// ground, which is most of the picture, falls to the plane's own black and only
-// the slopes are left, so the terrain appears where there is terrain instead of as
-// a grey slab over the whole country. Nothing is ever read back off a canvas in
-// this file, so a picture from another origin can be composited freely.
+// Nothing is ever read back off a canvas in this file, so a picture from another
+// origin can be composited freely.
 function treat(im, filter) {
   const c = document.createElement('canvas');
   c.width = im.naturalWidth; c.height = im.naturalHeight;
@@ -2282,18 +2477,24 @@ function treat(im, filter) {
   return c;
 }
 
-// The two basemaps, both off unless asked for.
+// The two basemaps, both off unless asked for, and each drawn twice over.
 //
 // Relief is a hillshade: mid grey where the ground is flat, dark in shadow, light
-// on a lit slope. Composited with `lighten` it can only add light, so the shadows
-// stay the plane's own black and the lit faces come up out of it. That is the one
-// way to put terrain under a dark map without lifting the whole background to grey
-// and taking the discharge ramp's contrast with it.
+// on a lit slope. The whole problem is the flat ground, which is most of the
+// picture and wants to become a slab of grey over the country, taking the discharge
+// ramp's contrast with it. Each surface solves it with the blend mode that can only
+// move pixels one way. On night the sheet is inverted and composited with `lighten`,
+// so it can only add light: shadows fall to the plane's own black and only the lit
+// faces come up out of it. On day the sheet is left the way it was drawn and
+// composited with `multiply`, so it can only take light away: the flat mid grey is
+// lifted until it barely marks the paper and only the shadows bite.
 const GROUND = {
   relief: wmsLayer({ service: FSDI, layers: 'ch.swisstopo.swissalti3d-reliefschattierung',
-                     alpha: 0.42, blend: 'lighten', filter: 'invert(1) contrast(1.35)' }),
+                     night: { alpha: 0.42, blend: 'lighten', filter: 'invert(1) contrast(1.35)' },
+                     day:   { alpha: 0.5,  blend: 'multiply', filter: 'brightness(1.28) contrast(1.3)' } }),
   topo:   wmsLayer({ service: FSDI, layers: 'ch.swisstopo.pixelkarte-grau',
-                     alpha: 0.46, blend: 'lighten', filter: 'invert(1) saturate(0.3)' }),
+                     night: { alpha: 0.46, blend: 'lighten', filter: 'invert(1) saturate(0.3)' },
+                     day:   { alpha: 0.5,  blend: 'multiply', filter: 'saturate(0.25) brightness(1.06)' } }),
 };
 let ground = null;
 
@@ -2318,9 +2519,11 @@ const SOURCE = {
   // does what it is here to do: show where the water under the ground is, behind
   // the water on top of it.
   gw:    wmsLayer({ service: FSDI, layers: 'ch.bafu.grundwasserkoerper',
-                   alpha: 0.26, filter: 'saturate(0.4) brightness(0.85)' }),
+                   night: { alpha: 0.26, filter: 'saturate(0.4) brightness(0.85)' },
+                   day:   { alpha: 0.34, blend: 'multiply', filter: 'saturate(0.45)' } }),
   catch: wmsLayer({ service: FSDI, layers: 'ch.bafu.wasser-teileinzugsgebiete_2',
-                    alpha: 0.34, filter: 'saturate(0.4)' }),
+                    night: { alpha: 0.34, filter: 'saturate(0.4)' },
+                    day:   { alpha: 0.4,  blend: 'multiply', filter: 'saturate(0.45)' } }),
   // S1 is the fenced ground at the wellhead, S2 the close protection zone, S3 the
   // outer one. Only the zones IN FORCE are drawn. geodienste.ch also serves the
   // planned ones, and a planned zone is not a legal constraint: drawing the two in
@@ -2333,9 +2536,12 @@ const SOURCE = {
   // water, orange is a taking, bone is a figure from the statute, amber is heat. A
   // protection zone is none of those and must not borrow any of their meanings. The
   // legend swatch is the rotated colour, not the source's, so the key matches.
+  // The violet rotation holds on both surfaces: the reason for it is what the hue
+  // would be confused with, and the rivers are blue on paper too.
   zone:  wmsLayer({ service: GEODIENSTE,
                     layers: 'grundwasserschutzzone_s3_in_kraft,grundwasserschutzzone_s2_in_kraft,grundwasserschutzzone_s1_in_kraft',
-                    alpha: 0.8, filter: 'hue-rotate(95deg) saturate(1.35)' }),
+                    night: { alpha: 0.8, filter: 'hue-rotate(95deg) saturate(1.35)' },
+                    day:   { alpha: 0.7, blend: 'multiply', filter: 'hue-rotate(95deg) saturate(1.2)' } }),
 };
 // Two on, two off. The groundwater bodies and the sub-catchments both cover the
 // whole country in flat colour, and two national washes under each other is a
@@ -2350,7 +2556,7 @@ function drawHeadwaters() {
   const z = zoom();
   const minU = minUpland();
   ctx.save();
-  ctx.strokeStyle = '#4da8a2';
+  ctx.strokeStyle = PAL.resMid;
   ctx.lineCap = 'round';
   // The head of each reach is a point, and there are several thousand of them. At
   // country view a point for every one is a texture rather than a fact, so the
@@ -2368,7 +2574,7 @@ function drawHeadwaters() {
     ctx.globalAlpha = 0.85;
     ctx.beginPath();
     ctx.arc(sx(r.px[0]), sy(r.py[0]), Math.min(3, 1 + 0.35 * z), 0, 6.2832);
-    ctx.fillStyle = '#aeeae5';
+    ctx.fillStyle = PAL.resHi;
     ctx.fill();
   }
   ctx.restore();
@@ -2383,11 +2589,11 @@ function drawSprings() {
     ctx.beginPath();
     if (s.k === 'q') {                       // a spring: a filled point
       ctx.arc(x, y, 3.4, 0, 6.2832);
-      ctx.fillStyle = '#aeeae5'; ctx.fill();
-      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(13,13,13,0.8)'; ctx.stroke();
+      ctx.fillStyle = PAL.resHi; ctx.fill();
+      ctx.lineWidth = 1; ctx.strokeStyle = halo(0.8); ctx.stroke();
     } else {                                 // a waterfall: an open chevron
       ctx.moveTo(x - 4, y - 3); ctx.lineTo(x, y + 3.5); ctx.lineTo(x + 4, y - 3);
-      ctx.lineWidth = 1.6; ctx.strokeStyle = '#aeeae5'; ctx.stroke();
+      ctx.lineWidth = 1.6; ctx.strokeStyle = PAL.resHi; ctx.stroke();
     }
   }
   ctx.restore();
@@ -2398,48 +2604,187 @@ function drawSources() {
   drawSprings();
 }
 
-/* ---------------------------------------------------------------------------
+/* ===========================================================================
    THE NAMES
    HydroRIVERS is anonymous; swissNAMES3D is a gazetteer. build/10-names.mjs
-   joins them and hands over an anchor, a rank and, where the join found a
-   channel, the direction of that channel. Everything below is placement.
+   joins them and hands over, for every placement the gazetteer makes, a name, a
+   rank, and the reach the placement snapped to.
 
-   Hydrography is set in italic. That is not decoration, it is the convention on
-   every topographic map printed in the last two centuries, and it is what lets a
-   reader tell the name of a river from the name of a town without being told.
+   The names used to be painted on the plane. They no longer are, and the reason
+   is that a label on a map has to be somewhere, and everywhere it can be is
+   already spoken for: over the water it hides the water, beside the water it is
+   in the next canton, and off to the side it lands under the legend. Every fix
+   for that is a compromise with the drawing, and the drawing is the point.
 
-   Rank decides what is worth its ink at the current scale, and a greedy pass in
-   rank order decides what fits. No label is ever moved off its anchor to make it
-   fit: a name that does not fit is not drawn, because a name nudged 40 px is a
-   name in the wrong place.
-   --------------------------------------------------------------------------- */
+   So the names moved into the readout. Point at a river and the map tells you
+   what it is called, next to what it is carrying, in the same breath. Nothing
+   moves, nothing collides, nothing has to be hidden at one zoom to fit at
+   another, and the name is attached to the reach the reader actually asked
+   about instead of floating near it and hoping to be connected. On a touch
+   screen the same tap that opens a reach carries the same name.
+
+   What stays painted is standing water and ice: a lake name sits inside a shape
+   that is its own and competes with nothing, and on the ice layer a glacier is
+   the subject rather than a passing feature. Those are places. A river is a
+   reading, and a reading belongs in the readout.
+   =========================================================================== */
 let names = null;
-let showNames = true;
+let showPlaces = true;
+let nameByReach = new Map();     // reach id -> { n, alt[], carried }
 
 // Who has delivered the protection zones, and when. A national picture assembled
 // from twenty-six cantonal deliveries is as current as its oldest contributor, and
 // the picture itself does not say who that is, so the page does.
 async function loadCantons() {
   try {
-    const c = await fetch('data/cantons.json').then(r => r.json());
+    const c = await fetch(ROOT + 'data/cantons.json').then(r => r.json());
     const el = document.getElementById('srcCoverage');
     if (!el) return;
     const old = new Date(c.oldest), now = new Date();
-    const yrs = ((now - old) / 31557600000).toFixed(1);
-    el.innerHTML = `<b>Coverage.</b> All <b class="num">${c.covered}</b> cantons deliver this model to ` +
-      `geodienste.ch and all ${c.free} publish it freely. The delivery dates run from ` +
-      `<b class="num">${fmtDate(c.oldest)}</b> (${c.oldestCt}, ${yrs} years ago) to ` +
-      `<b class="num">${fmtDate(c.newest)}</b>, so the national picture is as old as ${c.oldestCt}, ` +
-      `not as new as its newest canton. Liechtenstein, which shares the service, delivers nothing here.`;
+    const yrs = nfd((now - old) / 31557600000, 1);
+    el.innerHTML = T('m.srcCoverage', {
+      covered: c.covered, free: c.free, oldest: fmtDate(c.oldest), newest: fmtDate(c.newest),
+      ct: c.oldestCt, yrs,
+    });
   } catch (e) { /* the layer still draws; only the note about it is missing */ }
 }
 
 async function loadNames() {
   try {
-    names = await fetch('data/names.json').then(r => r.json());
+    names = await fetch(ROOT + 'data/names.json').then(r => r.json());
+    indexNames();
     dirty = true;
   } catch (e) { names = null; }
 }
+
+/* Which reach carries which name.
+   Two steps, and the second is the one that matters.
+
+   swissNAMES3D places a label, not a river. The Aare is written sixteen times
+   across a map of Switzerland and the water between the writings is anonymous,
+   so an index built from the anchors alone names 1,691 of 8,716 reaches and a
+   reader pointing between two labels is told nothing about a river they can see
+   is the Aare.
+
+   So each name is carried along its own channel, on the rule rivers are actually
+   named by: the majority partner keeps the name. Downstream it runs while the
+   reach it came from still supplies at least half of what flows below, and stops
+   at the confluence where it no longer does, because there the river has become
+   something else. Upstream it follows the stem carrying most of the water and
+   stops when the only choice left is a tributary less than half the size, because
+   going up a river you follow the water and not the map.
+
+   Anchors are processed largest first, and a claim already made is never
+   overwritten, so where a brook's name and a trunk river's name compete for the
+   same water the trunk holds it. That is also what contains the join's known
+   failure: build/10-names.mjs cannot tell a canal running 200 m from the Aare
+   from the Aare, but the Aare, being larger, gets there first. */
+function indexNames() {
+  if (!names || !reaches.length) return;
+  nameByReach = new Map();
+  const at = new Map();                 // reach -> the placement that claimed it
+
+  // Several names land on one reach. Within 500 m of the Aare's line the gazetteer
+  // has also written the Rothkanal, the Erzbach and a Dorfbach, and the snap cannot
+  // tell a canal from the river it runs beside — the network is not drawn finely
+  // enough for that. So the reach is awarded, on two things the build measured.
+  //
+  // Corroboration first: a name the gazetteer wrote along a course a dozen times
+  // is a river, a name written twice beside one is a canal. Then distance: between
+  // two equally corroborated names, the one written on the line beats the one
+  // written next to it. Neither test alone is enough — the Rhone's side canals are
+  // written repeatedly, and a river's own label is often set off its line to fit —
+  // but a canal has to beat the trunk on both to take it, and none does.
+  const claim = a => (a.c || 1) * 1e6 - (a.d || 0);
+
+  // But corroboration is thin everywhere: the gazetteer writes the Rhine six times
+  // and the Toess once, so a side channel written four times can out-vote a trunk
+  // river. What separates them is not how often the register repeats a name but
+  // what the name says. A Bach is a brook, a Riale is a mountain brook, a Kanal is
+  // a cut channel, an Aalte Rii and a Vieux Rhone are courses the river has left,
+  // and a Rheinfall is a waterfall. None of them drains four figures of country.
+  //
+  // So the register's own vocabulary is read as a size class, and a name that
+  // declares itself small is refused a reach that is not. The refusal is not a
+  // rename: it leaves the reach empty for the trunk's own name to be carried onto
+  // by the propagation below, which is how the Aare reaches the water the Erzbach
+  // was holding. The cost is the two canals that genuinely carry a trunk — the
+  // Nidau-Bueren-Kanal and the Hagneck-Kanal, both cut for the Jura correction —
+  // which now read as the Aare. That is the water's own name and not a falsehood,
+  // only less local than the register could have been.
+  // Tested as whole words, not as a prefix, because the register writes "Grand
+  // Canal" and "La Vieille Thielle" as readily as "Canal des Iles".
+  const SMALL = /(bach|bächli|bachli|bächlein|giessen|giesse|graben|wuhr|teich|kanal|canale|fall|fälle)$/i;
+  const SMALL_WORD = /\b(riale|rio|ruisseau|torrent|ual|rigole|canal|canaux|aalte|alte|alter|alti|alt|vieux|vieil|vieille|vecchio|vecchia)\b/i;
+  // Above this the claim is refused. Switzerland has no brook and no side cut that
+  // drains 500 km2; the largest so labelled here sits on 10,706, which is the Aare.
+  const SMALL_MAX = 500;
+
+  for (const a of names.rivers) {
+    if (!a.h) continue;
+    const on = reaches[byId.get(a.h)];
+    if (on && on.upland > SMALL_MAX && (SMALL.test(a.n) || SMALL_WORD.test(a.n))) continue;
+    const where = a.x + '|' + a.y;
+    const cur = nameByReach.get(a.h);
+    if (!cur) { nameByReach.set(a.h, { n: a.n, alt: [], w: claim(a) }); at.set(a.h, where); continue; }
+    // Rhein, Le Rhin, Rein and Reno are one river written four times at one point.
+    // Same placement, different name: that is a language, not a competitor.
+    if (at.get(a.h) === where) {
+      if (cur.n !== a.n && !cur.alt.includes(a.n) && cur.alt.length < 4) cur.alt.push(a.n);
+      continue;
+    }
+    // A different placement is a different watercourse, and it takes the reach
+    // only by being better attested than the name already holding it.
+    if (claim(a) > cur.w) {
+      nameByReach.set(a.h, { n: a.n, alt: [], w: claim(a) });
+      at.set(a.h, where);
+    }
+  }
+
+  const kids = new Map();
+  for (const r of reaches) {
+    if (!byId.has(r.next)) continue;
+    const a = kids.get(r.next);
+    if (a) a.push(r.id); else kids.set(r.next, [r.id]);
+  }
+
+  // Largest first, so that where a brook and a trunk river compete for the same
+  // water the trunk claims it and the brook finds it taken.
+  const seeds = [...nameByReach.keys()]
+    .map(id => reaches[byId.get(id)])
+    .filter(Boolean)
+    .sort((a, b) => b.upland - a.upland);
+
+  for (const start of seeds) {
+    const rec = nameByReach.get(start.id);
+
+    let here = start;
+    for (let step = 0; step < 600; step++) {
+      const j = byId.get(here.next);
+      if (j === undefined) break;
+      const nx = reaches[j];
+      if (nameByReach.has(nx.id) || nx.upland > here.upland * 2) break;
+      nameByReach.set(nx.id, { n: rec.n, alt: rec.alt, carried: true });
+      here = nx;
+    }
+
+    here = start;
+    for (let step = 0; step < 600; step++) {
+      const cs = kids.get(here.id);
+      if (!cs) break;
+      let big = null;
+      for (const cid of cs) {
+        const c = reaches[byId.get(cid)];
+        if (c && (!big || c.upland > big.upland)) big = c;
+      }
+      if (!big || nameByReach.has(big.id) || big.upland < here.upland * 0.5) break;
+      nameByReach.set(big.id, { n: rec.n, alt: rec.alt, carried: true });
+      here = big;
+    }
+  }
+}
+
+const nameOf = r => (r && nameByReach.get(r.id)) || null;
 
 // Sorted once, the first time the ice layer wants a label.
 let __iceSorted = null;
@@ -2450,8 +2795,16 @@ function iceByArea() {
   return __iceSorted ?? [];
 }
 
-function drawNames() {
-  if (!names || !showNames) return;
+/* The places that keep their names on the plane: lakes everywhere, glaciers on
+   the layer that is about them, named springs and falls on the layer that asked
+   for them. All three are set in italic, which is not decoration but the
+   convention on every topographic map printed in the last two centuries, and is
+   what lets a reader tell a name on the water from a name on the land.
+
+   No label is ever moved off its anchor to make it fit. A name that does not fit
+   is not drawn, because a name nudged 40 px is a name in the wrong place. */
+function drawPlaces() {
+  if (!names || !showPlaces) return;
   const z = zoom();
   const boxes = [];
   // Type is set in CSS pixels and the map is not: on a phone the country is 375 px
@@ -2481,28 +2834,19 @@ function drawNames() {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.lineJoin = 'round';
-  ctx.strokeStyle = 'rgba(10,10,10,0.92)';
+  ctx.strokeStyle = halo(0.92);
 
-  const label = (text, x, y, ang, size, fill, track) => {
+  const label = (text, x, y, size, fill) => {
     ctx.font = `italic ${size}px Archivo, system-ui, sans-serif`;
-    const w = ctx.measureText(text).width + (track ? track * (text.length - 1) : 0);
-    // the box of a rotated label, taken as its bounding box: conservative, which
-    // is the right way round for collisions
-    const c = Math.abs(Math.cos(ang)), s = Math.abs(Math.sin(ang));
-    if (!fits(x, y, w * c + size * s, w * s + size * c)) return false;
-    ctx.save();
-    ctx.translate(x, y);
-    if (ang) ctx.rotate(ang);
+    const w = ctx.measureText(text).width;
+    if (!fits(x, y, w, size)) return false;
     ctx.lineWidth = Math.max(2.4, size * 0.34);
-    ctx.strokeText(text, 0, 0);
+    ctx.strokeText(text, x, y);
     ctx.fillStyle = fill;
-    ctx.fillText(text, 0, 0);
-    ctx.restore();
+    ctx.fillText(text, x, y);
     return true;
   };
 
-  // Lakes first: a lake name owns the middle of a shape and a river name can go
-  // round it, never the other way about.
   const lakeMin = 700 / Math.pow(z, 2.4);
   let n = 0;
   const lakeCap = W > 700 ? 26 : 7;
@@ -2512,65 +2856,30 @@ function drawNames() {
     const x = sx(mercX(l.x)), y = sy(mercY(l.y));
     if (x < 30 || y < 20 || x > W - 30 || y > H - 20) continue;
     const size = ts * Math.max(10, Math.min(17, 9 + Math.log10(1 + l.r) * 2.4));
-    if (label(l.n, x, y, 0, size, 'rgba(174,214,244,0.92)')) n++;
+    if (label(l.n, x, y, size, `rgba(${PAL.labelWater},0.92)`)) n++;
   }
 
-  // Glaciers, on the layer that is about them, and named from the ice file rather
-  // than from the gazetteer: GLAMOS attaches the name to the body itself, along
-  // with the body's area, so the name is on the right ice and the biggest ice gets
-  // the name first. There is no join here and so nothing for a join to get wrong.
+  // Named from the ice file rather than from the gazetteer: GLAMOS attaches the
+  // name to the body itself, along with the body's area, so the name is on the
+  // right ice and the biggest ice gets the name first. There is no join here and
+  // so nothing for a join to get wrong.
   if (mode === 'ice' && glaciers) {
     const iceMin = 22 / Math.pow(z, 2.2);
     for (const g of iceByArea()) {
       if (n > 44 || g.a < iceMin) break;
       const x = sx(g.w[0]), y = sy(g.w[1]);
       if (x < 30 || y < 20 || x > W - 30 || y > H - 20) continue;
-      if (label(g.n, x, y, 0, ts * Math.max(10, Math.min(14, 8 + Math.log10(1 + g.a) * 3)),
-                'rgba(214,232,248,0.92)')) n++;
+      if (label(g.n, x, y, ts * Math.max(10, Math.min(14, 8 + Math.log10(1 + g.a) * 3)),
+                `rgba(${PAL.labelIce},0.92)`)) n++;
     }
   }
 
-  // Watercourses, largest first. The threshold is upstream area in km2 and it
-  // falls fast with the zoom, so the country view carries the Rhine and the Rhone
-  // and a valley view carries the brook the valley is named after.
-  //
-  // Two thresholds, because rank alone is not enough. The join that produced these
-  // ranks cannot tell a drainage canal running 200 m from the Rhone from the Rhone,
-  // so a handful of canals carry a trunk river's size. What saves the picture is
-  // that a stolen size is always stolen from a river that is standing right there:
-  // hold the labels apart by a fixed distance in pixels and the neighbourhood goes
-  // to whichever name in it ranks highest, which is the trunk. See the note in
-  // build/10-names.mjs for what this does not fix.
-  // Under Live only the network is gone, and a river name over blank ground would
-  // claim water this map is no longer drawing. Lakes keep their names: a lake is
-  // still on the screen, because it is geography rather than a reading.
-  const riverMin = liveOnly ? Infinity : 3000 / Math.pow(z, 2.3);
-  const cap = W > 1100 ? 34 : W > 700 ? 20 : 11;
-  const apart = Math.max(52, (150 - 16 * z) * ts);
-  const placed = [];
-  for (const r of names.rivers) {
-    if (n > cap) break;
-    if (r.r < riverMin) break;                 // the array is sorted by rank
-    const x = sx(mercX(r.x)), y = sy(mercY(r.y));
-    if (x < 40 || y < 16 || x > W - 40 || y > H - 16) continue;
-    let near = false;
-    for (const q of placed) if (Math.abs(q[0] - x) < apart && Math.abs(q[1] - y) < apart) { near = true; break; }
-    if (near) continue;
-    // upright: a name is read left to right whichever way its river runs
-    let a = r.a ?? 0;
-    if (a > Math.PI / 2) a -= Math.PI;
-    if (a < -Math.PI / 2) a += Math.PI;
-    const size = ts * Math.max(10, Math.min(15, 8.5 + Math.log10(1 + r.r) * 1.6));
-    if (label(r.n, x, y, a, size, 'rgba(157,197,244,0.9)')) { n++; placed.push([x, y]); }
-  }
-
-  // Named springs and waterfalls belong to the layer that asked for them.
   if (mode === 'source' && z > 1.6) {
     for (const s of names.springs) {
-      if (n > cap + 18) break;
+      if (n > 60) break;
       const x = sx(mercX(s.x)), y = sy(mercY(s.y));
       if (x < 40 || y < 16 || x > W - 40 || y > H - 16) continue;
-      if (label(s.n, x, y + 11, 0, ts * 10.5, 'rgba(174,234,229,0.9)')) n++;
+      if (label(s.n, x, y + 11, ts * 10.5, `rgba(${PAL.labelRes},0.9)`)) n++;
     }
   }
   ctx.restore();
@@ -2588,10 +2897,11 @@ function drawNames() {
    It is meant to be uncomfortable. 171 reaches out of 8,716 survive it.
    =========================================================================== */
 const ARCHIVAL = {
-  res:      'the BFE filling statistic and the dam register',
-  ice:      'the GLAMOS inventories, the newest surveyed in 2023',
-  residual: 'the Q347 register, surveyed around 2000',
-  use:      'four registers of water use, the newest from 2019',
+  res:      T('m.archRes'),
+  ice:      T('m.archIce'),
+  residual: T('m.archResidual'),
+  use:      T('m.archUse'),
+  wet:      T('m.archWet'),
 };
 let liveOnly = false;
 const isLive = s => (s.q !== null && s.q !== undefined) ||
@@ -2604,7 +2914,7 @@ function setLiveOnly(v) {
     const b = document.querySelector('#modes button[data-mode="' + k + '"]');
     if (!b) continue;
     b.classList.toggle('archival', v);
-    b.title = v ? `Hidden while the map is showing live data only: this layer is ${ARCHIVAL[k]}.` : '';
+    b.title = v ? T('m.liveOnlyTitle', { src: ARCHIVAL[k] }) : '';
   }
   // A layer built on a 2004 register cannot stay on the screen under a switch that
   // says only live data is on the screen.
@@ -2615,15 +2925,49 @@ function setLiveOnly(v) {
     for (const r of reaches) if (r.basis === 'measured') measured++;
     const live = stations.filter(s => s.q !== null && s.q !== undefined).length;
     note.innerHTML = v
-      ? `Showing <b class="num">${measured.toLocaleString('de-CH')}</b> reaches with a gauge on them and ` +
-        `<b class="num">${live}</b> gauges reporting a discharge. ` +
-        `<b class="num">${(reaches.length - measured).toLocaleString('de-CH')}</b> reaches and the four ` +
-        `archival layers are hidden, because nothing in them was measured today.`
+      ? T('m.liveOnlyNote', { measured: nf(measured), live: nf(live), hidden: nf(reaches.length - measured) })
       : '';
   }
   dirtyAlloc = true;
   invalidate();
 }
+
+/* ===========================================================================
+   THE PROMPT, ONCE
+   A still map does not announce that it answers when it is pointed at, and the
+   names now live in the readout rather than on the plane, so the one thing a
+   first-time reader has to be told is where to put the cursor. They are told once,
+   it is remembered, and it goes the moment they do it.
+   =========================================================================== */
+(function prompt() {
+  const el = document.getElementById('hint');
+  if (!el) return;
+  try { if (localStorage.getItem('riverflow.seen') === '1') return; } catch (e) { /* private mode */ }
+  el.hidden = false;
+  const done = () => {
+    cv.removeEventListener('pointerdown', done);
+    cv.removeEventListener('pointermove', done);
+    try { localStorage.setItem('riverflow.seen', '1'); } catch (e) { /* private mode */ }
+    el.classList.add('gone');
+    // The masthead is shorter without it, and on a phone the layer switch sits
+    // directly under the masthead, so the measurement has to be taken again.
+    setTimeout(() => { el.hidden = true; layoutSheet(); }, 520);
+  };
+  cv.addEventListener('pointerdown', done);
+  cv.addEventListener('pointermove', done);
+})();
+
+/* A change of surface is a change of every colour on both canvases. The base map
+   only repaints when something asks it to, and the particle pool caches a colour
+   per reach, so both have to be told. */
+window.addEventListener('themechange', () => {
+  readPalette();
+  // A federal sheet treated for the dark plane is not a sheet for paper, so the
+  // cached pictures go and are asked for again under the other treatment.
+  for (const l of wmsLayers) l.clear();
+  dirtyAlloc = true;
+  invalidate();
+});
 
 // ---- go ---------------------------------------------------------------------
 layoutSheet();

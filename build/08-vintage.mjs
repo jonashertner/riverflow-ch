@@ -21,18 +21,41 @@ import fs from 'node:fs/promises';
 
 const LEGEND = l => `https://api3.geo.admin.ch/rest/services/all/MapServer/${l}/legend?lang=de`;
 
-// Pull "Datenstand dd.mm.yyyy" out of the legend HTML. Returns ISO, or null if the
-// legend stops carrying one — in which case the page says "not stated by the
-// source", which is the truth, rather than falling back to a date we made up.
+// Pull "Datenstand dd.mm.yyyy" out of the legend HTML.
+//
+// Two different things can leave a layer without a date, and they must not be
+// confused, because the page prints one of them as a fact about the source:
+//
+//   reached, no date   the geoportal answered, and its answer carries no Datenstand:
+//                      either a legend without one, or a 404 for a layer that
+//                      publishes no legend at all (the base rasters do not). The page
+//                      says "not stated by the source", which is then true.
+//   not reached        the endpoint timed out, threw, or answered 5xx. We know nothing
+//                      about this layer's age, and printing "not stated" would put a
+//                      claim about a federal register in the reader's hands that we
+//                      never checked. So the build refuses instead — see below.
+//
+// The distinction is the whole point: a 404 is an answer, a timeout is a silence.
+//
+// Returns { reached, iso }. Three attempts, because a single blip should not be
+// allowed to decide what the site says about a register's age.
 async function datenstand(layer) {
-  try {
-    const r = await fetch(LEGEND(layer));
-    if (!r.ok) return null;
-    const txt = (await r.text()).replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/\s+/g, ' ');
-    const m = /Datenstand\s*(\d{1,2})\.(\d{1,2})\.(\d{4})/.exec(txt);
-    if (!m) return null;
-    return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
-  } catch { return null; }
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const r = await fetch(LEGEND(layer));
+      // 404/410: the layer publishes no legend, and never will. That is an answer.
+      if (r.status === 404 || r.status === 410) return { reached: true, iso: null };
+      if (r.ok) {
+        const txt = (await r.text()).replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/\s+/g, ' ');
+        const m = /Datenstand\s*(\d{1,2})\.(\d{1,2})\.(\d{4})/.exec(txt);
+        return { reached: true, iso: m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : null };
+      }
+      // Anything else — 5xx, 403, 429 — is the server declining to tell us. Retry,
+      // then treat as silence.
+    } catch { /* fall through to the next attempt */ }
+    if (attempt < 2) await new Promise(t => setTimeout(t, 500 * (attempt + 1)));
+  }
+  return { reached: false, iso: null };
 }
 
 // cls — what kind of claim the source can support, which is the distinction the
@@ -100,6 +123,46 @@ const SOURCES = [
     url: 'https://map.geo.admin.ch/?layers=ch.bafu.gewaesserschutz-klaeranlagen_anteilq347',
     licence: 'opendata.swiss, attribution',
     note: 'From a survey of 2011, taken before the fourth treatment stage was built out. Every plant upgraded since is described here as it was before the upgrade.',
+  },
+  {
+    key: 'wet_auen', layer: 'ch.bafu.bundesinventare-auen',
+    name: 'Federal inventory of alluvial zones of national importance',
+    holder: 'BAFU', cls: 'register', cadence: 'by revision of the ordinance annex', live: false,
+    url: 'https://map.geo.admin.ch/?layers=ch.bafu.bundesinventare-auen',
+    licence: 'opendata.swiss, attribution',
+    note: 'The one inventory on this map whose protection aim is stated as a quantity of water: Auenverordnung Art. 4 requires the natural dynamics of the water and sediment regime to be preserved. 415 reaches drawn here run through one of these objects.',
+  },
+  {
+    key: 'wet_hoch', layer: 'ch.bafu.bundesinventare-hochmoore',
+    name: 'Federal inventory of raised and transitional bogs of national importance',
+    holder: 'BAFU', cls: 'register', cadence: 'by revision of the ordinance annex', live: false,
+    url: 'https://map.geo.admin.ch/?layers=ch.bafu.bundesinventare-hochmoore',
+    licence: 'opendata.swiss, attribution',
+    note: 'Protected by Art. 78(5) of the Federal Constitution. A third of the objects are smaller than 1.5 ha and are drawn as a mark rather than an outline.',
+  },
+  {
+    key: 'wet_flach', layer: 'ch.bafu.bundesinventare-flachmoore',
+    name: 'Federal inventory of fens of national importance',
+    holder: 'BAFU', cls: 'register', cadence: 'by revision of the ordinance annex', live: false,
+    url: 'https://map.geo.admin.ch/?layers=ch.bafu.bundesinventare-flachmoore',
+    licence: 'opendata.swiss, attribution',
+    note: 'The largest of the mire inventories by object count, revised on the same day as the raised bogs.',
+  },
+  {
+    key: 'wet_amphi', layer: 'ch.bafu.bundesinventare-amphibien',
+    name: 'Federal inventory of amphibian spawning sites of national importance',
+    holder: 'BAFU', cls: 'register', cadence: 'by revision of the ordinance annex', live: false,
+    url: 'https://map.geo.admin.ch/?layers=ch.bafu.bundesinventare-amphibien',
+    licence: 'opendata.swiss, attribution',
+    note: 'Only the fixed objects are drawn. The inventory also lists mobile objects, which are gravel and clay pits whose protected sites move as the works move, and a boundary for those would be a fiction.',
+  },
+  {
+    key: 'wet_moorl', layer: 'ch.bafu.bundesinventare-moorlandschaften',
+    name: 'Federal inventory of mire landscapes of particular beauty and national importance',
+    holder: 'BAFU', cls: 'register', cadence: 'by revision of the ordinance annex', live: false,
+    url: 'https://map.geo.admin.ch/?layers=ch.bafu.bundesinventare-moorlandschaften',
+    licence: 'opendata.swiss, attribution',
+    note: 'Object number 1 is Rothenthurm, the site whose defence produced Art. 78(5) of the Constitution in 1987. The 89 objects cover about 875 km2, roughly 2 per cent of the country.',
   },
   {
     key: 'npp', layer: 'ch.bfe.kernkraftwerke',
@@ -203,9 +266,14 @@ try {
   zoneOldest = c.oldest; zoneCt = c.oldestCt;
 } catch { /* run build/11-cantons.mjs first; until then the layer says "unstated" */ }
 
+const unreachable = [];
 for (const s of SOURCES) {
   let ds = s.fixed ?? null;
-  if (s.layer) ds = await datenstand(s.layer);
+  if (s.layer) {
+    const got = await datenstand(s.layer);
+    if (!got.reached) unreachable.push(s.layer);
+    ds = got.iso;
+  }
   if (s.key === 'reservoirFill') ds = fillLatest;
   if (s.key === 'zones') ds = zoneOldest;
   sources.push({
@@ -216,6 +284,23 @@ for (const s of SOURCES) {
     layer: s.layer, datenstand: ds,
     ageDays: ds ? days(ds) : null,
   });
+}
+
+// A run that could not reach the geoportal writes nothing at all.
+//
+// The alternative is worse than useless: every unreachable register would be
+// written out as "not stated by the source" with no stale flag, and the page whose
+// one promise is that a figure carries its age would quietly stop saying that all
+// of them are old. The previously built file is stale, but every date in it is a
+// date a federal legend actually published. Stale and true beats fresh and made up.
+//
+// The Pages workflow already knows what to do with this: the commit step is gated
+// on the build succeeding, and the failure step says so in the run log.
+if (unreachable.length) {
+  console.error(`vintage audit ABANDONED: ${unreachable.length} of ${SOURCES.filter(s => s.layer).length} legend endpoints could not be reached after three attempts.`);
+  for (const l of unreachable) console.error(`  unreachable  ${l}`);
+  console.error('site/data/vintage.json is left as it was. Nothing here was written.');
+  process.exit(1);
 }
 
 // Sorted oldest first, because the oldest is the one that decides what the map can

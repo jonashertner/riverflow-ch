@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en" data-root="./">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How this map is made, and how to read it — Water and ice in Switzerland</title>
+<meta name="description" content="Every layer of the Swiss water and ice map, the join behind it, the class of evidence it belongs to, and where each chain breaks. Including how to read the map itself.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/method.html">
+<link rel="alternate" hreflang="en" href="method.html">
+<link rel="alternate" hreflang="de" href="de/method.html">
+<link rel="alternate" hreflang="fr" href="fr/method.html">
+<link rel="alternate" hreflang="it" href="it/method.html">
+<link rel="alternate" hreflang="rm" href="rm/method.html">
+<link rel="alternate" hreflang="x-default" href="method.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="How this map is made, and how to read it — Water and ice in Switzerland">
+<meta property="og:description" content="Every layer of the Swiss water and ice map, the join behind it, the class of evidence it belongs to, and where each chain breaks. Including how to read the map itself.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="site.css">
+<script src="i18n.js"></script>
+<script src="i18n-data.js"></script>
+<script src="theme.js"></script>
+</head>
+<body class="page" data-page="method">
+
+<a class="skip" href="#main">Skip to the text</a>
+
+<header class="siteHead">
+  <a class="brand" href="./">
+    <svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg>
+    <span class="brandName"><span class="brandLong">Water and ice in Switzerland</span><span class="brandShort">Water &amp; ice</span></span>
+  </a>
+  <nav class="siteNav" aria-label="Site">
+    <a href="./" class="toMap">Map</a>
+    <a href="method.html" aria-current="page">Method</a>
+    <a href="sources.html">Sources</a>
+    <a href="law.html">Law</a>
+    <a href="about.html">About</a>
+    <span class="langs" data-langswitch></span>
+    <button type="button" class="themeBtn" title="Night. Switch to day." aria-label="Night. Switch to day.">
+      <svg class="tIconNight" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z"/></svg>
+      <svg class="tIconDay" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="3.1"/><path d="M8 1.4v1.5M8 13v1.5M14.5 8H13M3 8H1.5M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1M12.6 12.6l-1.1-1.1M4.5 4.5 3.4 3.4"/></svg>
+      <svg class="tIconAuto" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="8" cy="8" r="5.7"/><path d="M8 2.3a5.7 5.7 0 0 1 0 11.4Z" fill="currentColor" stroke="none"/></svg>
+    </button>
+  </nav>
+</header>
+
+<div class="docWrap">
+  <details class="toc" open>
+    <summary><span class="tocTitle">Contents</span></summary>
+    <span class="tocTitle">Contents</span>
+    <ol>
+      <li><a href="#reading">Reading the map</a></li>
+      <li><a href="#network">The network</a></li>
+      <li><a href="#basins">Where the water goes</a></li>
+      <li><a href="#live">The live read</a></li>
+      <li><a href="#evidence">Three classes of evidence</a></li>
+      <li><a href="#estimate">Estimating a reach</a></li>
+      <li><a href="#names">The names</a></li>
+      <li><a href="#ice">The ice</a></li>
+      <li><a href="#reservoirs">The reservoirs</a></li>
+      <li><a href="#wetlands">Protected wetland</a></li>
+      <li><a href="#pictures">Pictures, and data</a></li>
+      <li><a href="#limits">What it cannot do</a></li>
+      <li><a href="#build">How it is rebuilt</a></li>
+    </ol>
+  </details>
+
+  <article class="doc" id="main">
+    <header class="docHead">
+      <p class="eyebrow">Method</p>
+      <h1>How this map is made, and how to read it</h1>
+      <p class="lede">Every figure on this map is the end of a chain: a federal register, a join,
+        a projection, an inference. This page walks each chain in the order the map walks it, and
+        says <b>where each one breaks</b>.</p>
+      <p class="dateline">Written against the build of <b>19.08.2026</b>. Figures marked as structural are counted from the data files themselves and change only when a source is rebuilt.</p>
+    </header>
+
+    <section id="reading">
+      <h2>Reading the map</h2>
+      <p>The map draws one country eight ways. The layers are grouped by the question they
+        answer rather than by the office that publishes them, because the question is what a
+        reader arrives with.</p>
+      <div class="tWrap"><table>
+        <thead><tr><th scope="col">Layer</th><th scope="col">The question it answers</th><th scope="col">What it is drawn from</th></tr></thead>
+        <tbody>
+          <tr><td><b>Flow</b></td><td>How much water is moving, right now?</td><td>236 federal gauges, read every ten minutes, propagated onto 8'716 reaches</td></tr>
+          <tr><td><b>Against normal</b></td><td>Is that a lot or a little for this river?</td><td>Today against a modelled long-term mean. Not quotable, and the layer says so</td></tr>
+          <tr><td><b>Temperature</b></td><td>Where is the 25&nbsp;°C ceiling in play?</td><td>The gauges that carry a thermometer, against GSchV Annex&nbsp;2 No.&nbsp;12(4)</td></tr>
+          <tr><td><b>Reservoirs</b></td><td>How much water is held back, and how full is it?</td><td>225 dams under federal supervision, and a weekly filling series since 2000</td></tr>
+          <tr><td><b>Ice</b></td><td>What has the ice lost, and how fast?</td><td>Five dated glacier inventories, 1850 to 2023</td></tr>
+          <tr><td><b>Residual flow</b></td><td>What would the statute require in this bed?</td><td>1'041 published Q<sub>347</sub> points, with the Art.&nbsp;31(1) minimum computed</td></tr>
+          <tr><td><b>Water use</b></td><td>Who takes water out, and who puts heat in?</td><td>Four federal registers: hydropower, abstractions, nuclear sites, treatment plants</td></tr>
+          <tr><td><b>Water sources</b></td><td>Where does the water come from?</td><td>Groundwater bodies, headwaters, sub-catchments, and the protection zones in force</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Pointing, and what comes back</h3>
+      <p>Point at any water and the map names it and states what it is carrying, together with
+        the class of evidence that figure belongs to. Click, or tap, and the full reading opens:
+        the discharge, the long-term mean, the share of it, the upstream catchment, and a sentence
+        saying in plain words what the number rests on. Scroll or pinch to zoom; drag to pan. The
+        address bar keeps the layer and the view, so a link to a river is a link to that river.</p>
+      <p>Names live on the pointer rather than on the plane. A label on a map has to be
+        <em>somewhere</em>, and everywhere it can go is already spoken for: over the water it hides
+        the water, beside the water it is in the next canton, off to one side it lands under the
+        legend. Attaching the name to the reading instead costs nothing, collides with nothing, and
+        has the advantage that the name you get is the name of the reach you asked about. Lakes and
+        glaciers keep their names on the plane, because a lake name sits inside a shape that is its
+        own and competes with nothing.</p>
+
+      <h3>Time, and the switch that strips the map back</h3>
+      <p>Two layers describe a change rather than a state, and they get a time ribbon: the
+        reservoirs run twenty-six years of weekly filling, the ice runs five surveys held in their
+        real intervals of 81, 42, 37 and 13 years. Press play, or drag the scrubber.</p>
+      <p><b>Live data only</b> is the switch worth knowing about. It removes everything that is
+        not being measured today: the four archival layers go, and so do the 8'545 reaches whose
+        number is an inference. What is left is 171 reaches and the gauges reporting on them. It is
+        meant to be uncomfortable, and it is the most honest picture on this site.</p>
+    </section>
+
+    <section id="network">
+      <h2>The network</h2>
+      <p>The river lines are HydroRIVERS v1.0, the river network of HydroSHEDS, clipped to
+        Switzerland and to reaches with a catchment of 5&nbsp;km² or more. That leaves
+        <span class="num">8'716</span> reaches, each with an identifier, the reach immediately
+        downstream of it, a Strahler order, an upstream catchment area and a modelled long-term
+        mean discharge.</p>
+      <p><b>It is a modelled geometry and not the federal watercourse layer.</b> HydroRIVERS is a
+        global product derived from a digital elevation model, and it is generalised far coarser
+        than a Swiss topographic map: a single reach can cut a meander the real river takes, and
+        two channels 200&nbsp;m apart can be one line. At country scale that is invisible. At
+        valley scale it is the reason a line does not sit exactly where the water does, and it is
+        the reason the name join described below has the failure mode it has.</p>
+      <p>The map is drawn in Web Mercator, which is also the projection the federal WMS services
+        answer in, so the optional relief and grey-topographic grounds and the four source overlays
+        need no reprojection: the rectangle on screen is asked for in the coordinates it is already
+        in.</p>
+    </section>
+
+    <section id="basins">
+      <h2>Where the water goes</h2>
+      <p>Every reach in HydroRIVERS carries <code>MAIN_RIV</code>, the identifier of the most
+        downstream reach of its river system. Grouping the Swiss extract by that field gives the
+        river systems; identifying each system by the reach its water leaves the country through
+        gives the four European sea basins. Nothing about the basins is quoted: they fall out of a
+        field the network already carries.</p>
+      <p>The share of the country in each is then measured rather than taken from a federal page. A
+        one-kilometre grid is laid over the border polygon, every cell whose centre falls inside it
+        is assigned to the basin of the nearest mapped channel through a 0.02° vertex hash, and the
+        cells are counted. That gives <span class="num">41'128</span> cells inside a simplified
+        border of <span class="num">41'140</span> km², against the official
+        <span class="num">41'291</span> km²: <b>0.4&nbsp;% is lost to the simplification of the
+        border ring</b>, and the shares are shares of what the grid found, not of the official area.</p>
+      <p>The last Swiss gauge in each basin is the one with the largest modelled mean, and its
+        distance from the border is measured by brute force against the 749 vertices of the border
+        ring. That distance is the point of the exercise: it is what shows that on the Ticino there
+        is no frontier gauge at all, and the map's own use layer is what shows that on the Inn there
+        is one and it stands inside a diverted reach.</p>
+      <div class="aside">The four derived shares sum to <b>99.99&nbsp;%</b>. The four federal shares
+        sum to <b>98.7&nbsp;%</b>, because the Adige basin in Val Müstair sits outside them. The
+        derivation is not more accurate than the federal figures; it is more complete, and it says
+        which cells it could not place.</div>
+      <p>The glaciers are sorted by the same rule. Each body in the 2023 inventory and each outline
+        in the 1850 inventory is assigned to a basin by its own centroid. The 2023 areas are the
+        inventory's own and sum exactly to its published total; the 1850 areas are measured here
+        from the outlines by the shoelace and sum <b>1.1&nbsp;% high</b>, because a hole inside an
+        outline is counted as ice. Both figures, and the discrepancy, are printed on the page that
+        uses them.</p>
+      <p class="fine">The result is <code>site/data/basins.json</code>, and it is read by the
+        <a href="about.html#europe">opening section of the About page</a>.</p>
+    </section>
+
+    <section id="live">
+      <h2>The live read</h2>
+      <p>Discharge, water level and water temperature come from the gauging network of the Federal
+        Office for the Environment, queried through LINDAS, the federal linked-data service, with
+        one SPARQL request against the graph <code>&lt;https://lindas.admin.ch/foen/hydro&gt;</code>.
+        The federal series updates roughly every ten minutes and the page re-reads it on demand.</p>
+      <p>There are <span class="num">236</span> stations in the answer.
+        <span class="num">229</span> of them snap to a river reach, and they land on
+        <span class="num">208</span> distinct reaches, because more than one gauge can sit on the
+        same modelled line.</p>
+      <div class="flag"><b>A trap, and it is in the federal data.</b> LINDAS publishes a per-station
+        flag saying whether the discharge series is in litres per second. On every one of the 190
+        rows that carry it, the flag is wrong. The unit is resolved from the observed series and its
+        stated unit instead, and the conversion factor for each station is shown in that station's
+        own panel, so a reader can check the arithmetic rather than trust it.</div>
+    </section>
+
+    <section id="evidence">
+      <h2>Three classes of evidence</h2>
+      <p>This is the claim the map makes about itself, and it is the reason the whole project
+        exists: <b>most of what you are looking at is inference.</b> Every reach on the screen
+        belongs to exactly one of three classes, and the bar at the top of the map counts them from
+        the drawing itself on every live read, so it cannot drift away from what is on screen.</p>
+      <div class="evPage">
+        <div class="evBar" role="img" aria-label="208 reaches gauged, 5'010 estimated, 3'498 with no basis">
+          <span class="evMeasured" style="flex:208"></span>
+          <span class="evEstimated" style="flex:5010"></span>
+          <span class="evNone" style="flex:3498"></span>
+        </div>
+        <ul class="evKeys">
+          <li><i class="evMeasured"></i>Gauged &mdash; <span class="num">208</span> (2.4&#8201;%)</li>
+          <li><i class="evEstimated"></i>Estimated &mdash; <span class="num">5'010</span> (57.5&#8201;%)</li>
+          <li><i class="evNone"></i>No basis &mdash; <span class="num">3'498</span> (40.1&#8201;%)</li>
+        </ul>
+      </div>
+      <p class="fine">Those are the <b>structural</b> figures: how the network divides once you ask
+        which reaches could ever carry a measured number. The live figures on the map are lower in
+        the first class, usually around 171, because not every gauge is reporting a discharge at any
+        given moment. The difference between the two is itself worth knowing.</p>
+      <div class="tWrap"><table>
+        <thead><tr><th scope="col">Class</th><th scope="col">What the number is</th><th scope="col">What it will bear</th></tr></thead>
+        <tbody>
+          <tr><td><b>Measured</b></td><td>A gauge sits on this reach; the figure is read from it.</td><td>A measurement, at that point, at that minute. Nothing further downstream.</td></tr>
+          <tr><td><b>Estimated</b></td><td>The reach's long-term mean, scaled by how far the nearest gauge stands from its own mean.</td><td>An indication of direction and rough size. Not a figure to put in a pleading.</td></tr>
+          <tr><td><b>No basis</b></td><td>No gauge below it and none above it. The long-term mean, and nothing else.</td><td>Nothing about today. It is drawn as unknown rather than guessed.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="estimate">
+      <h2>Estimating a reach</h2>
+      <p>An ungauged reach is given a number in one step, and the step is deliberately crude
+        because a crude rule that can be stated in a sentence is easier to argue with than a
+        sophisticated one that cannot.</p>
+      <p>Each gauge yields an <em>anomaly</em>: what it is reading now, divided by its own
+        long-term mean. A reach with no gauge takes the anomaly of <b>the first gauged reach
+        downstream</b> of it, because that is the water it is about to become, and multiplies its
+        own long-term mean by it. Failing that it takes the anomaly of the largest gauged river
+        above it. Failing both, it has no basis and is drawn as such.</p>
+      <div class="aside">The long-term mean used here is HydroRIVERS <code>DIS_AV_CMS</code>, which
+        is <b>modelled</b> and is not the federal statistic. Every figure that depends on it — the
+        estimate, and the whole <em>Against normal</em> layer — inherits that. The layer says so on
+        its own face and the words are <b>not quotable</b>.</div>
+    </section>
+
+    <section id="names">
+      <h2>The names</h2>
+      <p>HydroRIVERS is anonymous. It carries an identifier, an area and a discharge, and no name
+        at all. The names come from swissNAMES3D, the official gazetteer published by swisstopo,
+        release 2026, and they are joined to the network by proximity.</p>
+      <p>The gazetteer gives a name and one anchor point per placement, not a named geometry: the
+        Rhine appears six times along its course and the Aare sixteen. That is a label file, and it
+        is used as one. Each anchor is snapped to the nearest reach, which gives it two things it
+        lacks — how much country drains past the point where the name is written, so the map knows
+        how large the water is, and the local direction of the channel.</p>
+      <h3>Three numbers, and each of them was tuned</h3>
+      <p>Nothing in this project fought back harder, and the three numbers that settle it are worth
+        stating because each one is a compromise rather than a fact.</p>
+      <ul>
+        <li><b>500&nbsp;m of snap radius.</b> The two sources are drawn at different scales, and the
+          real gap runs from 85&nbsp;m on the Rhine at Schaffhausen through 254&nbsp;m on the Ticino
+          to 1'097&nbsp;m on the Reuss. Tighten it to 300&nbsp;m and the Limmat, the Emme and the
+          Sarine silently vanish. Widen it to 1'200&nbsp;m and the Äpelööbächlein comes out as the
+          fifth largest watercourse in Switzerland.</li>
+        <li><b>25&nbsp;km of clustering.</b> Fourteen different brooks in this country are called
+          Dorfbach and they are not one river, so anchors sharing a name are grouped by proximity
+          and each group is ranked on its own.</li>
+        <li><b>Three placements before a cluster is believed.</b> A cluster of three or more takes
+          the largest reach any of its anchors reached; a cluster of one or two takes the smallest.
+          That is what stops the Erzbach, written twice beside the Aare, from claiming
+          10'706&nbsp;km² on the strength of one placement that fell 131&nbsp;m from the trunk.</li>
+      </ul>
+      <h3>Carrying a name along its own water</h3>
+      <p>The anchors alone name 1'691 of 8'716 reaches, so a reader pointing between two placements
+        would be told nothing about a river they can plainly see is the Aare. Each name is therefore
+        carried along its own channel, on the rule rivers are actually named by: <b>the majority
+        partner keeps the name</b>. Downstream it runs while the reach it came from still supplies at
+        least half of what flows below, and stops at the confluence where it no longer does. Upstream
+        it follows the branch carrying most of the water, stopping when the only choice left is a
+        tributary less than half the size. Names are processed largest first and a claim already made
+        is never overwritten. That carries the count to <span class="num">3'433</span> reaches.</p>
+      <h3>Refusing a brook the Rhine</h3>
+      <p>A canal running within about 200&nbsp;m of a trunk river cannot be told from that river in a
+        network generalised this coarsely, and the snap has nothing to weigh: within 500&nbsp;m of
+        the Aare the register has also written the Rothkanal, the Erzbach and a Dorfbach, and no
+        Aare label falls near enough to argue. Corroboration cannot settle it either — the gazetteer
+        writes the Rhine six times in the whole country and the Töss once.</p>
+      <p>What settles it is the register's own vocabulary. A <i>Bach</i> is a brook, a <i>Riale</i> a
+        mountain brook, a <i>Kanal</i> a cut channel, an <i>Aalte Rii</i> and a <i>Vieux Rhône</i>
+        courses the river has left. None of them drains four figures of country. So a name that
+        declares itself small is <b>refused</b> a reach above 500&nbsp;km², and the reach is left for
+        the trunk's own name to be carried onto.</p>
+      <div class="aside"><b>What that fixed.</b> Before the refusal the Aare's trunk read
+        <i>Aalte Rii</i>, the Ticino read <i>Riale Pian Perdasc</i> over 57 reaches, and the Rhône's
+        course was held by half a dozen side canals. After it, the Rhine runs 165 reaches, the Rhône
+        91, the Ticino 76 and the Aare 70. Of the large Swiss reaches — over 1'000&nbsp;km² and inside
+        the gauged network — <span class="num">99&nbsp;%</span> now carry a name.</div>
+      <div class="flag"><b>What it costs, and what still gets it wrong.</b> Two canals that genuinely
+        carry a trunk, the Nidau-Büren-Kanal and the Hagneck-Kanal, both cut for the Jura water
+        correction, now read as the Aare. That is the water's own name and not a falsehood, only less
+        local than the register could have been. And about two dozen reaches around Sierre and in the
+        Lötschental still carry a neighbour's name, because nothing in the words or the network
+        separates them. They are named here rather than quietly corrected.</div>
+    </section>
+
+    <section id="ice">
+      <h2>The ice</h2>
+      <p>Five dated inventories from GLAMOS — 1850, 1931, 1973, 2010 and 2023 — with the 2023
+        bodies drawn over the 1850 outlines, so what stays in colour is the ice that has gone. The
+        tongue sparkline in a glacier's panel is the Swiss Glacier Length Change series, measured
+        every autumn since the 1880s.</p>
+      <div class="aside"><b>This is area, not volume, and the two have not moved together.</b>
+        Through recent decades the ice thinned faster than it shrank in plan, because a glacier
+        loses thickness over its whole surface before it loses its outline. The area figures on this
+        map are measured. Any volume figure quoted is cited, and comes from separate work by
+        separate methods.</div>
+      <p class="fine">Five surveys made between 1850 and 2023 are five different instruments: a
+        plane-table survey, an aerial photogrammetric one and an airborne-laser one are not the same
+        measurement, and the older outlines carry the uncertainty of their own century. What the
+        series is strong evidence of is a change of state, its size and its timing.</p>
+    </section>
+
+    <section id="reservoirs">
+      <h2>The reservoirs</h2>
+      <p>Two federal registers, and they do not describe the same objects. Holding both without
+        letting either borrow the other's authority is the whole difficulty of this layer.</p>
+      <ul>
+        <li>The <b>dams</b> are structures: 225 of them under federal supervision, each with the
+          volume its reservoir holds when full. That is a fixed property and it is drawn as one, by
+          area.</li>
+        <li>The <b>filling level</b> is a weekly figure in gigawatt hours — stored electricity, not
+          stored water — published for four regions and for nothing smaller, since 3 January 2000.</li>
+      </ul>
+      <div class="flag">So the layer can say what a reservoir holds when full, and it can say how
+        full a region is this week. <b>It cannot say how full the Grande Dixence is today.</b>
+        Nobody publishes that. The tint on a disc is its region's level, applied identically to
+        every dam in that region, and the legend says so on its own face.</div>
+    </section>
+
+    <section id="wetlands">
+      <h2>Protected wetland</h2>
+      <p>Five federal inventories, and they are on a water map for a reason that is not that they
+        are damp. Each ordinance states its protection aim in terms of water. The
+        <b>Auenverordnung</b> requires the natural dynamics of the water and sediment regime to be
+        preserved — a duty about how much water passes and when. A mire dies if the water table
+        drops. These are places where a quantity of water is already the subject of a federal duty,
+        drawn on the same canvas as the quantity itself.</p>
+      <div class="tWrap"><table>
+        <thead><tr><th>Inventory</th><th>Objects</th><th class="num">km²</th><th>Protection</th></tr></thead>
+        <tbody>
+          <tr><td>Alluvial zones</td><td class="num">326</td><td class="num">278.5</td>
+              <td>Auenverordnung, SR 451.31</td></tr>
+          <tr><td>Raised and transitional bogs</td><td class="num">552</td><td class="num">56.7</td>
+              <td>SR 451.32, and Art. 78(5) BV</td></tr>
+          <tr><td>Fens</td><td class="num">1'371</td><td class="num">228.1</td>
+              <td>SR 451.33, and Art. 78(5) BV</td></tr>
+          <tr><td>Amphibian spawning sites</td><td class="num">873</td><td class="num">222.3</td>
+              <td>SR 451.34</td></tr>
+          <tr><td>Mire landscapes</td><td class="num">89</td><td class="num">875</td>
+              <td>SR 451.35, and Art. 78(5) BV</td></tr>
+        </tbody>
+      </table></div>
+      <p class="fine">The inventories overlap each other — a fen sits inside a mire landscape, an
+        alluvial zone inside both — so these areas must not be added up. Each is the federal
+        <code>shape_area</code> attribute for that inventory, not something measured
+        off the simplified outline this map draws.</p>
+
+      <h3>Two protections, drawn as two</h3>
+      <p>Alluvial zones and amphibian spawning sites are protected by ordinance, and both aims are
+        stated in terms of water, so they are drawn in the water's own pale hue. Bogs, fens and mire
+        landscapes are drawn in the ink every statutory quantity on this map wears &mdash; bone on
+        the night surface, sepia on the day one, a warm earth against a cool ground either way &mdash;
+        because they are held by something stronger than an ordinance.</p>
+      <div class="statute"><b>Art. 78(5) of the Federal Constitution.</b> Mires and mire landscapes
+        of particular beauty and national importance are protected outright: no installations may be
+        built and the ground may not be altered, save for facilities serving the mires&rsquo; own
+        protection or their existing agricultural use. Unlike almost every protection in Swiss
+        environmental law there is no balancing test here to lose. The article is the one the
+        Rothenthurm initiative wrote into the Constitution in 1987, and Rothenthurm is object
+        number 1 of the mire-landscape inventory — on this map, under that number.</div>
+      <p>Mire landscapes are drawn as an outline and never filled. They are containers, 875 km² of
+        them, and a fill would bury the bogs they are drawn around.</p>
+
+      <h3>Where the two layers land on the same water</h3>
+      <div class="flag"><b>415 of the 8'716 reaches on this map run through an alluvial zone
+        of national importance.</b> On those reaches two duties meet: Art. 4 of the Auenverordnung
+        requires the natural dynamics of the water regime to be preserved, and Art. 31 GSchG puts a
+        floor under the quantity left in the bed where water is taken. The residual-flow layer draws
+        the second. This one draws where the first also applies. Hovering such a reach says so in
+        its own readout, whichever layer is on.</div>
+      <p class="fine">A reach counts as running through a zone when a vertex of its line falls
+        inside the zone's boundary. That is a coarse test and it is the right coarseness: the
+        network is generalised to about a hundred metres, so a finer test would be answering a
+        question the geometry cannot support. It locates the overlap; it does not measure it.</p>
+
+      <h3>What is drawn, and what waits for the zoom</h3>
+      <p>Outlines are simplified to 45 m. Objects smaller than about 1.5 ha have no outline at any
+        zoom this map reaches and are drawn as a ring instead — a third of the raised-bog inventory
+        is like this, because the ordinance protects patches of a few hundred square metres, and a
+        map that dropped them would be saying they are not there. At country view the smallest
+        objects wait: nine hundred rings over the Mittelland is a texture, not a fact. Zoom in and
+        every object of every inventory is on the screen.</p>
+      <p>Every object carries its number and a link to its <b>federal object sheet</b>, the PDF that
+        holds the protection aim and the boundary description. The number, not the name, is the unit
+        the ordinance and any decision use, so the panel gives it the same weight as the name.
+        Parcels filed under one number are shown as one object.</p>
+
+      <div class="aside"><b>The ages disagree with the aims.</b> The amphibian inventory carries a
+        federal data state of May 2026. The alluvial-zone inventory — the one whose protection aim
+        is a quantity of water — carries November 2017, and so does the mire-landscape inventory
+        that holds Rothenthurm. Both are on the
+        <a href="sources.html#table">sources page</a> with every other date.</div>
+    </section>
+
+    <section id="pictures">
+      <h2>Pictures, and things that are data</h2>
+      <p>Three of the four overlays on the water-sources layer, and both optional grounds, are
+        drawn by a federal or cantonal server for the rectangle on screen and arrive as an image.
+        This map cannot query them, cannot date them from the picture, and cannot check them. It
+        can only place them correctly and say what they are.</p>
+      <p>The headwaters are the exception: they are first-order reaches of this map's own network,
+        drawn in this map's own ink. And <b>a headwater is not a spring.</b> It is a reach with
+        nothing above it, clipped at 5&nbsp;km² of upstream area — the top of the network as this
+        map draws it, and the part of the country with no gauge anywhere above it.</p>
+      <p class="fine">The hillshade is composited differently on each surface, and the difference is
+        not decoration. swissALTI3D's relief is drawn for white paper: mid grey where the ground is
+        flat, which is most of the picture. On the day surface it is left as drawn and multiplied
+        into the page, so it can only take light away and the flat ground barely marks the paper. On
+        the night surface it is inverted and composited with <span class="num">lighten</span>, so it
+        can only add light: flat ground falls back to the plane's own black and only the lit slopes
+        are left. Dropped on unaltered, it would turn the country into a grey slab either way and
+        take the discharge ramp's contrast with it.</p>
+    </section>
+
+    <section id="limits">
+      <h2>What this map cannot do</h2>
+      <p>The most useful thing it does for a file is narrower and more reliable than proof: it tells
+        you which register is old, what quantity nobody publishes, and which reach the question
+        actually sits on. Here is the other side of that.</p>
+      <ul>
+        <li><b>It cannot tell you a concession's expiry date.</b> For an existing abstraction that
+          date, and not today, is the operative one. It is in the concession, and no federal open
+          dataset carries it.</li>
+        <li><b>It cannot tell you a nuclear station's cooling volume or thermal load.</b> No federal
+          open dataset publishes either. Those figures sit in the cantonal concession and in the
+          operators' own reporting.</li>
+        <li><b>It cannot tell you how full one named reservoir is.</b> See above.</li>
+        <li><b>It cannot establish causation.</b> The glacier inventories and the reservoir series
+          are strong evidence of a change of state. They are not, on their own, evidence that any
+          named party caused it. Attribution is a separate question needing separate sources.</li>
+        <li><b>It cannot find a breach.</b> A datum here is a fact about a river. The step to a
+          finding is the lawyer's, and it needs the concession, the licence and the site.</li>
+      </ul>
+    </section>
+
+    <section id="build">
+      <h2>How it is rebuilt</h2>
+      <p>The data is baked by a numbered sequence of scripts with no dependencies beyond Node, each
+        writing one file into <code>site/data</code>. The numbering is a real order: later steps read
+        what earlier ones wrote.</p>
+      <div class="tWrap"><table>
+        <thead><tr><th scope="col">Step</th><th scope="col">What it builds</th><th scope="col">When it runs</th></tr></thead>
+        <tbody>
+          <tr><td class="n">00</td><td>Fetches the federal source archives</td><td>by hand</td></tr>
+          <tr><td class="n">01</td><td>The gauging stations, with their unit resolution</td><td>by hand</td></tr>
+          <tr><td class="n">02</td><td>The river network</td><td>by hand</td></tr>
+          <tr><td class="n">03</td><td>Lakes and the border</td><td>by hand</td></tr>
+          <tr><td class="n">04</td><td>The glacier inventories</td><td>by hand</td></tr>
+          <tr><td class="n">05</td><td>The four registers of water use</td><td>by hand</td></tr>
+          <tr><td class="n">06</td><td>The weekly reservoir filling series</td><td><b>weekly</b></td></tr>
+          <tr><td class="n">07</td><td>Q<sub>347</sub> and the Art.&nbsp;31(1) minimum</td><td>by hand</td></tr>
+          <tr><td class="n">08</td><td>The vintage audit: every source's data state</td><td><b>weekly</b></td></tr>
+          <tr><td class="n">09</td><td>Glacier length change</td><td>by hand</td></tr>
+          <tr><td class="n">10</td><td>The names, joined to the network</td><td>by hand</td></tr>
+          <tr><td class="n">11</td><td>The twenty-six cantonal delivery dates</td><td><b>weekly</b></td></tr>
+          <tr><td class="n">12</td><td>The five federal inventories of protected wetland</td><td><b>weekly</b></td></tr>
+          <tr><td class="n">13</td><td>The four sea basins, their shares, gauges and ice</td><td>by hand</td></tr>
+        </tbody>
+      </table></div>
+      <p class="fine">Four steps run every Monday in continuous integration and their output is
+        committed, so the repository and not only the deployment stays the record. Step 11 must run
+        before step 8, because the protection-zone vintage is the oldest cantonal delivery and step
+        8 reads it. Step 10 is deliberately not automated: swissNAMES3D is an annual release of
+        about 32&nbsp;MB and it is rebuilt by hand when a new one appears. Step 13 reads only steps
+        01 to 04 and is deterministic, so it is rebuilt when they are and not on a clock.</p>
+    </section>
+
+    <p><a class="toMapBig" href="./"><svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg> Back to the map</a></p>
+  </article>
+</div>
+
+<footer class="siteFoot">
+  <div class="siteFootIn">
+    <p><b>Water and ice in Switzerland.</b> Live discharge, water level and temperature from the
+      BAFU gauging network through LINDAS. Rivers HydroRIVERS v1.0 (HydroSHEDS, WWF). Ice GLAMOS.
+      Reservoirs and hydropower BFE. Residual flow, abstractions and treatment plants BAFU. Names
+      swissNAMES3D (swisstopo). Protection zones, the twenty-six cantons through geodienste.ch.
+      Every source, its licence and its data state is on the
+      <a href="sources.html">sources page</a>.</p>
+    <p>Measured and modelled water, not a forecast. A datum here is a fact about a river, a
+      reservoir or a glacier; it is not a finding of breach, and nothing on this site is legal
+      advice.</p>
+    <div class="footLinks">
+      <a href="./">The map</a>
+      <a href="method.html">Method</a>
+      <a href="sources.html">Sources</a>
+      <a href="law.html">Law</a>
+      <a href="about.html">About</a>
+      <a href="https://github.com/jonashertner/riverflow-ch">Source code</a>
+    </div>
+  </div>
+</footer>
+
+<script src="fmt.js"></script>
+<script src="gschg31.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

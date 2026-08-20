@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="de" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quellen und ihr Alter — Wasser und Eis in der Schweiz</title>
+<meta name="description" content="Jeder Datensatz hinter der Schweizer Wasser- und Eiskarte: Stelle, Klasse, publizierter Datenstand, Alter und Lizenz. Acht von einundzwanzig Quellen sind älter als fünf Jahre.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/de/sources.html">
+<link rel="alternate" hreflang="en" href="../sources.html">
+<link rel="alternate" hreflang="de" href="sources.html">
+<link rel="alternate" hreflang="fr" href="../fr/sources.html">
+<link rel="alternate" hreflang="it" href="../it/sources.html">
+<link rel="alternate" hreflang="rm" href="../rm/sources.html">
+<link rel="alternate" hreflang="x-default" href="../sources.html">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Quellen und ihr Alter — Wasser und Eis in der Schweiz">
+<meta property="og:description" content="Jeder Datensatz hinter der Schweizer Wasser- und Eiskarte: Stelle, Klasse, publizierter Datenstand, Alter und Lizenz. Acht von einundzwanzig Quellen sind älter als fünf Jahre.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../site.css">
+<script src="../i18n.js"></script>
+<script src="../i18n-data.js"></script>
+<script src="../theme.js"></script>
+</head>
+<body class="page" data-page="sources">
+
+<a class="skip" href="#main">Direkt zum Text</a>
+
+<header class="siteHead">
+  <a class="brand" href="./">
+    <svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg>
+    <span class="brandName"><span class="brandLong">Wasser und Eis in der Schweiz</span><span class="brandShort">Wasser &amp; Eis</span></span>
+  </a>
+  <nav class="siteNav" aria-label="Website">
+    <a href="./" class="toMap">Karte</a>
+    <a href="method.html">Methode</a>
+    <a href="sources.html" aria-current="page">Quellen</a>
+    <a href="law.html">Recht</a>
+    <a href="about.html">Über</a>
+    <span class="langs" data-langswitch></span>
+    <button type="button" class="themeBtn" title="Nacht. Auf Tag umschalten." aria-label="Nacht. Auf Tag umschalten.">
+      <svg class="tIconNight" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z"/></svg>
+      <svg class="tIconDay" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="3.1"/><path d="M8 1.4v1.5M8 13v1.5M14.5 8H13M3 8H1.5M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1M12.6 12.6l-1.1-1.1M4.5 4.5 3.4 3.4"/></svg>
+      <svg class="tIconAuto" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="8" cy="8" r="5.7"/><path d="M8 2.3a5.7 5.7 0 0 1 0 11.4Z" fill="currentColor" stroke="none"/></svg>
+    </button>
+  </nav>
+</header>
+
+<div class="docWrap">
+  <details class="toc" open>
+    <summary><span class="tocTitle">Inhalt</span></summary>
+    <span class="tocTitle">Inhalt</span>
+    <ol>
+      <li><a href="#spine-sec">Jede Quelle auf einer Achse</a></li>
+      <li><a href="#stale">Was alt ist und weshalb es zählt</a></li>
+      <li><a href="#table">Die vollständige Liste</a></li>
+      <li><a href="#zones">Die sechsundzwanzig Lieferungen</a></li>
+      <li><a href="#licences">Lizenzen und Quellenangabe</a></li>
+    </ol>
+  </details>
+
+  <article class="doc" id="main">
+    <header class="docHead">
+      <p class="eyebrow">Quellen</p>
+      <h1>Die Quellen und ihr Alter</h1>
+      <p class="lede">Ein Geoportal des Bundes zeichnet Ihnen ein Register von 2000 und eine Messung von vor zehn Minuten im selben scharfen Stil, und nichts im Bild sagt, was was ist. Für eine Karte, die als Beweismittel taugen soll, ist das der Mangel, auf den es am meisten ankommt: <b>nicht eine falsche Zahl, sondern eine Zahl, deren Alter unsichtbar ist.</b></p>
+      <p class="dateline">Die Datenstände werden beim Build von den Legenden-Endpunkten des Bundes gelesen und jeden Montag aufgefrischt. Nichts auf dieser Seite ist erinnert; alles ist abgerufen.</p>
+    </header>
+
+    <section id="spine-sec">
+      <h2>Jede Quelle auf einer Achse</h2>
+      <p>Jeder Balken beginnt beim publizierten Datenstand der betreffenden Quelle und läuft bis heute. Die Balken werden an einer einzigen Achse gelesen, und das ist die einzige Form, in der sich ein neunjähriges Register und eine zehn Minuten alte Messung auf einen Blick vergleichen lassen.</p>
+      <div id="spine">Wird geladen&#8230;</div>
+      <p class="fine" id="vintageBuilt">&nbsp;</p>
+    </section>
+
+    <section id="stale">
+      <h2>Was alt ist und weshalb es zählt</h2>
+      <p>Alter ist nicht ohne weiteres ein Mangel, und die beiden ältesten Quellen hier zeigen, weshalb die Frage Register für Register gestellt werden muss.</p>
+      <div class="statute"><b>Q<sub>347</sub>, Datenstand 01.01.2000.</b> Das ist die merkwürdigste Tatsache der Karte und die nützlichste. Art.&nbsp;4 Bst. h GSchG definiert das Q<sub>347</sub> als Zehnjahresmittel, und das Jahrzehnt in dieser Datei ist jenes, auf dem die kantonalen Festlegungen tatsächlich beruhen. Für die Frage <em>was war verlangt</em> ist die alte Zahl deshalb die richtige. Für die Frage <em>wie viel Wasser führt dieser Bach in einem trockenen Jahr</em> beschreibt sie eine Hydrologie, die sich seither verändert hat. Eine Zahl, zwei Aufgaben, und sie taugt nur für eine davon.</div>
+      <div class="flag"><b>Grundwasserkörper, Datenstand 01.01.2017.</b> Neuneinhalb Jahre alt, und nichts auf dem Portal des Bundes sagt es, während man hinschaut. Dieser Fall wurde von der Altersprüfung an dem Tag entdeckt, an dem die Ebene hinzukam, und das ist das ganze Argument dafür, die Prüfung überhaupt zu führen. Sein Alter steht in der Quellenlegende der Karte selbst, nicht nur hier.</div>
+      <p>Das Restwasserregister der bestehenden Entnahmen trägt einen Datenstand von 01.01.2004: eine seither erteilte, geänderte oder sanierte Bewilligung steht nicht darin. Die Erhebung der Abwasserreinigungsanlagen stammt von 2014, das Register der Kernanlagen von 2019 und das modellierte Gewässernetz von 2019.</p>
+      <p class="fine">Eine Quelle gilt auf dieser Website als veraltet, wenn sie älter als fünf Jahre ist. Diese Schwelle ist eine Konvention und keine rechtliche Grösse; sie liegt dort, wo sie liegt, weil ein Bundesregister, das sich fünf Jahre nicht bewegt hat, in aller Regel nicht mehr nachgeführt wird und nicht etwa aufgehört hat, sich zu verändern.</p>
+    </section>
+
+    <section id="table">
+      <h2>Die vollständige Liste</h2>
+      <p>Stelle, Klasse, publizierter Datenstand, Alter und Lizenz für alles, was die Karte zeichnet. Die Daten werden beim Build von den Legenden-Endpunkten des Bundes abgerufen und nicht hier erinnert; eine Nachführung beim BAFU erscheint deshalb beim nächsten Build, ohne dass jemand eine Zeile ändert.</p>
+      <div class="tWrap" id="sourceTable">Wird geladen&#8230;</div>
+    </section>
+
+    <section id="zones">
+      <h2>Die sechsundzwanzig Lieferungen</h2>
+      <p>Für die Grundwasserschutzzonen besteht <b>keine Bundesebene</b>. Was besteht, ist geodienste.ch, ein gemeinsamer Dienst der Kantone und von swisstopo, der die Lieferung jedes Kantons zum minimalen Geodatenmodell <em>Planerischer Gewässerschutz</em> zu einem nationalen Dienst zusammenführt. Das ist die Ebene, die die Karte zeichnet.</p>
+      <p>Ein nationales Bild, das aus sechsundzwanzig Lieferungen zusammengesetzt ist, hat ein Aktualitätsproblem, das kein einzelner Datenstand ausdrücken kann: <b>Es ist so alt wie sein ältester Beitrag, und das Bild sagt nicht, wessen Beitrag das ist.</b> Deshalb wird das Lieferdatum jedes Kantons aus dem Register des Dienstes selbst gelesen, und diese Website nennt das älteste mit dem Namen des Kantons.</p>
+      <div id="cantonStrip">Wird geladen&#8230;</div>
+      <p class="fine">Gezeichnet sind nur <em>rechtskräftige</em> Zonen. geodienste.ch liefert auch geplante und künftige Zonen, und eine geplante Zone ist noch keine rechtliche Schranke. S1 ist der eingezäunte Fassungsbereich, S2 die engere, S3 die weitere Schutzzone — Art.&nbsp;20 GSchG und GSchV Anhang&nbsp;4 Ziff.&nbsp;1. Sie messen Hektaren; in der Landesansicht sind sie deshalb kleiner als ein Pixel. Liechtenstein nutzt den Dienst mit und ist kein Kanton; es liefert hier nichts und wird gesondert gezählt statt in eine Abdeckungszahl hinein, die es so oder so verfälschen würde.</p>
+    </section>
+
+    <section id="licences">
+      <h2>Lizenzen und Quellenangabe</h2>
+      <p>Jede Quelle wird zu ihren eigenen Bedingungen genutzt, die in der Tabelle oben bei ihr stehen. Zusammengefasst: Die Bundesdatensätze sind über opendata.swiss publiziert und verlangen eine Quellenangabe; swissNAMES3D ist Open Data von swisstopo, freie Nutzung mit Quellenangabe; HydroRIVERS wird vom HydroSHEDS-Projekt des WWF unter einer eigenen Lizenz für nichtkommerzielle Nutzung und Forschung mit Quellenangabe publiziert; die kantonalen Schutzzonen sind über WMS von allen sechsundzwanzig Kantonen über geodienste.ch frei verfügbar.</p>
+      <p>Diese Website fügt diesem Material zwei Dinge hinzu, und keines davon ist eine neue Messung: die Übertragung eines gemessenen Werts auf ein Gewässernetz und die Angabe des Alters jeder Quelle neben der Quelle. Beides ist auf der <a href="method.html">Methodenseite</a> beschrieben.</p>
+      <p class="fine">Gesetz und Verordnung sind nach den konsolidierten deutschen Texten auf fedlex.admin.ch in den am 19. August 2026 geltenden Fassungen zitiert. Die Rechtsprechung ist nach den amtlichen Sammlungen zitiert. Siehe die <a href="law.html">rechtliche Ebene</a>.</p>
+    </section>
+
+    <p><a class="toMapBig" href="./"><svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg> Zurück zur Karte</a></p>
+  </article>
+</div>
+
+<footer class="siteFoot">
+  <div class="siteFootIn">
+    <p><b>Wasser und Eis in der Schweiz.</b> Live-Abfluss, Wasserstand und Temperatur aus dem BAFU-Messnetz über LINDAS. Flüsse HydroRIVERS v1.0 (HydroSHEDS, WWF). Eis GLAMOS. Speicherseen und Wasserkraft BFE. Restwasser, Wasserentnahmen und Abwasserreinigungsanlagen BAFU. Namen swissNAMES3D (swisstopo). Schutzzonen, die sechsundzwanzig Kantone über geodienste.ch. Jede Quelle, ihre Lizenz und ihr Datenstand stehen auf der <a href="sources.html">Quellenseite</a>.</p>
+    <p>Gemessenes und modelliertes Wasser, keine Prognose. Ein Datum hier ist eine Tatsache über einen Fluss, einen Speicher oder einen Gletscher; es ist keine Feststellung einer Rechtsverletzung, und nichts auf dieser Website ist Rechtsberatung.</p>
+    <div class="footLinks"><a href="./">Die Karte</a> <a href="method.html">Methode</a> <a href="sources.html">Quellen</a> <a href="law.html">Recht</a> <a href="about.html">Über</a> <a href="https://github.com/jonashertner/riverflow-ch">Quellcode</a></div>
+  </div>
+</footer>
+
+<script src="../fmt.js"></script>
+<script src="../gschg31.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

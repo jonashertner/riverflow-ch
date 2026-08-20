@@ -72,7 +72,7 @@ const reaches = net.reaches.map(r => {
   const n = r.x.length, xs = new Float64Array(n), ys = new Float64Array(n);
   let x = 0, y = 0;
   for (let i = 0; i < n; i++) { x += r.x[i]; y += r.y[i]; xs[i] = x / P; ys[i] = y / P; }
-  return { u: r.u, d: r.d, o: r.o, xs, ys };
+  return { i: r.i, u: r.u, d: r.d, o: r.o, xs, ys };
 });
 
 // A coarse grid over the country so the snap is not 7,826 x 8,716 segment tests.
@@ -133,7 +133,7 @@ function snap(lon, lat) {
   const pick = near[0];
   const r = reaches[pick.ri], i = pick.at, n = r.xs.length;
   const a = Math.max(0, i - 3), b = Math.min(n - 1, i + 3);
-  return { u: r.u, d: r.d, o: r.o, km: pick.d,
+  return { h: r.i, u: r.u, d: r.d, o: r.o, km: pick.d,
            dx: r.xs[b] - r.xs[a], dy: r.ys[b] - r.ys[a] };
 }
 
@@ -175,6 +175,17 @@ for (const row of lin) {
     r: Math.round(s.u),
     a: (s.dx || s.dy) ? +ang.toFixed(3) : null,
     o: s.o,
+    // The reach the anchor snapped to. The build knows it and the browser would
+    // have to redo the whole snap to find it out, so it is carried: with an id the
+    // map can put the name on the water under the cursor instead of painting it on
+    // the plane and hoping the reader connects the two.
+    h: s.h,
+    // How far the name fell from the line it was snapped to, in metres. Several
+    // names land on one reach — a canal, its river, and the odd brook all within
+    // the snap radius — and the map has to say which one the water under the
+    // cursor is. Distance is the honest half of that answer: the name written on
+    // the line beats the name written beside it.
+    d: Math.round(s.km * 1000),
   });
 }
 // Rank a name by the LARGEST reach any of its own anchors reached, within a
@@ -190,11 +201,16 @@ for (const row of lin) {
 // called Dorfbach and they are not one river. Anchors of the same name are grouped
 // by proximity, single-linkage at CLUSTER_KM, and each group is ranked on its own.
 //
-// WHAT THIS STILL GETS WRONG, and it is not fixable at this scale: a canal running
-// alongside a big river within about 200 m cannot be told from it in a network
-// generalised this coarsely. The Rothkanal beside the Aare takes 9,917 km2 and the
-// Erzbach 10,706. Both are drawn as though they were trunk rivers. Three names out
-// of 1,244 are affected and they are named here rather than quietly corrected.
+// WHAT THE SNAP GETS WRONG: a canal running alongside a big river within about
+// 200 m cannot be told from it in a network generalised this coarsely. The
+// Rothkanal beside the Aare snaps to 9,917 km2 and the Erzbach to 10,706, and on
+// this evidence alone both are trunk rivers. The snap cannot fix that — there is
+// no competing label within the radius to weigh it against — so the correction is
+// made where the reaches are actually named, in indexNames() in site/app.js, by
+// reading the register's own vocabulary as a size class: a Bach, a Kanal, a Riale
+// and an Aalte Rii do not drain four figures of country, and a name that declares
+// itself small is refused a reach that is not. The two fields that decision needs,
+// d and c below, are measured here because only the build knows them.
 const CLUSTER_KM = 25;
 const groups = new Map();
 for (const r of rivers) {
@@ -224,7 +240,11 @@ for (const a of groups.values()) for (const g of a) {
   for (const m of g) { if (m.r > max) max = m.r; if (m.r < min) min = m.r; }
   const rank = g.length >= CORROBORATE ? max : min;
   if (rank < max) demoted++;
-  for (const m of g) m.r = rank;
+  // The size of the cluster travels with every anchor in it. It is the other half
+  // of the ownership answer: a name the gazetteer wrote along a course a dozen
+  // times is a river, a name written twice beside one is a canal, and when both
+  // claim the same reach the map should believe the one with a course.
+  for (const m of g) { m.r = rank; m.c = g.length; }
 }
 rivers.sort((a, b) => b.r - a.r);
 const top = [];

@@ -1,0 +1,358 @@
+/* Design tokens for every page on this site.
+ *
+ * The page has exactly two kinds of ink and they never mix.
+ *
+ *   MEASURED INK is the data ramps — one blue hue stepped by lightness for
+ *   discharge, a diverging ramp for anomaly, a thermal ramp for temperature. It
+ *   is set in the sans face with tabular figures. It says what an instrument read.
+ *
+ *   STATUTORY INK is a warm earth, --law, and it is set in a serif. It says what a
+ *   text requires. A minimum residual flow is not a measurement and must never be
+ *   able to be mistaken for one at a glance, so it does not get to wear the colour
+ *   of one.
+ *
+ * That distinction is the whole design. Everything else is kept quiet so that it
+ * stays legible. style.css dresses the map with it; site.css dresses the pages.
+ *
+ * ---- NIGHT AND DAY -------------------------------------------------------
+ *
+ * There are two surfaces, and the second is not the first inverted.
+ *
+ * Night is the near-black plane the map was designed on. On it, MORE INK IS MORE
+ * LIGHT: a big river is bright, a brook is a whisper of navy, and the eye reads
+ * brightness as quantity.
+ *
+ * Day is chart paper — cool, faintly blue, never cream, because a warm ground
+ * would tint the one blue hue the discharge ramp depends on. On paper the
+ * relation reverses: more ink is LESS light. A ramp that stayed dark-to-light
+ * would say that the Rhine is paler than the brook feeding it, which is a lie in
+ * the only direction that matters. So every ordered ramp below reverses its
+ * lightness between the two surfaces, and every ramp is written least-ink first.
+ * The step numbers are positions on the scale, not lightnesses.
+ *
+ * The statutory register survives the move by swapping its role rather than its
+ * meaning: bone on black, sepia on paper. Warm against cool either way, serif
+ * either way, never the colour of a measurement either way.
+ *
+ * Night is the default. A reader who has asked their system for a light interface
+ * gets day; the toggle in the header overrides both and is remembered.
+ */
+
+:root {
+  color-scheme: dark;
+
+  --surface-1:   #1a1a19;
+  --surface-2:   #131312;
+  --plane:       #0d0d0d;
+  --plane-rgb:   13,13,13;
+  --ink:         #ffffff;
+  --ink-rgb:     255,255,255;
+  --ink-2:       #c3c2b7;
+  --ink-muted:   #898781;
+  --hairline:    rgba(255,255,255,0.10);
+  --rule:        #2c2c2a;
+
+  /* The knockout a bright mark is drawn on so that it separates from whatever is
+     under it. On the dark plane it is the plane; on paper it is the paper. */
+  --halo:        #0d0d0d;
+  --halo-rgb:    13,13,13;
+  /* The trail the particle canvas fades itself with, one frame at a time. */
+  --trail:       rgba(0,0,0,0.14);
+
+  /* measured ink: one hue, ordered by lightness, so more water reads brighter */
+  --seq-700: #0d366b;
+  --seq-600: #184f95;
+  --seq-500: #256abf;
+  --seq-450: #2a78d6;
+  --seq-400: #3987e5;
+  --seq-300: #6da7ec;
+  --seq-200: #9ec5f4;
+  --seq-100: #cde2fb;
+  /* The most ink the water ramp has: a live gauge, the head of a ribbon, a name. */
+  --hi:      #cde2fb;
+  --flow:    #eaf4ff;
+
+  /* Against normal. One hue below the mean, one above, neutral at the mean. The
+     middle is quiet on purpose: a river at its long-term mean is not news. */
+  --div-1: #7a3f19; --div-2: #a85f28; --div-3: #c8813c; --div-4: #dda86d;
+  --div-5: #7f7d78;
+  --div-6: #8fb6de; --div-7: #4d90cc; --div-8: #2a6cb0; --div-9: #184f95;
+
+  /* statutory ink. Bone, not blue: a figure the law states is not a reading. */
+  --law:      #d9cbb0;
+  --law-rgb:  217,203,176;
+  --law-dim:  #9c9282;
+  --law-hi:   #f0e6d4;
+  --law-bg:   rgba(217,203,176,0.10);
+  --law-line: rgba(217,203,176,0.32);
+
+  --good:     #0ca30c;
+  --warning:  #fab219;
+  --serious:  #ec835a;
+  --critical: #d03b3b;
+
+  /* Water use. Two hues, because the legally meaningful axis is direction:
+     Art. 31 GSchG governs taking water out, GSchV Annex 2 No. 12(4) putting heat in.
+     Validated dark/all-pairs: CVD dE 9.4, normal-vision dE 26.5, both above the
+     floor. Three or more hues cannot clear the all-pairs floors here, so which
+     register a mark belongs to is carried by its form, not by a fourth colour. */
+  --use-out: #d95926;
+  --use-in:  #199e70;
+
+  /* Temperature. Single hue, brighter is warmer. Validated dark/ordinal. The old
+     ramp ran blue-green-yellow-red, which is a rainbow and reads as four
+     categories rather than one rising quantity. */
+  --temp-1: #9a5518; --temp-2: #c4731f; --temp-3: #dd9436; --temp-4: #eeb96a; --temp-5: #f8d79c;
+
+  /* Evidence classes. Ordinal, one hue, plus a neutral for absence.
+     Validated dark/ordinal: monotone L, gaps >= 0.06, dark end 2.15:1. */
+  --ev-measured:  #9ec5f4;
+  --ev-estimated: #3987e5;
+  --ev-none:      #3a4450;
+  --ev-none-dim:  #2b3138;
+
+  /* Standing water, and the ice ribbons drawn over it. */
+  --lake:      #16294a;
+  --lake-line: rgba(157,197,244,0.20);
+  --ice:       #dce9f8;
+  --ice-past-rgb: 200,129,60;
+
+  --res-full:  #7fd4d0;
+  --res-mid:   #4da8a2;
+  --res-hi:    #aeeae5;
+  --res-head:  #eafffe;
+  --res-flood: #8f9bb3;
+  --res-1: #22333d; --res-2: #2b5560; --res-3: #377f81;
+  --res-4: #4da8a2; --res-5: #7fd4d0; --res-6: #aeeae5;
+
+  /* Protected wetland. The water inventories wear the water register, the mire
+     inventories the statutory one, because that is the division in the statutes. */
+  --wet-water-rgb: 164,209,240;
+  /* The legend key is a swatch a few millimetres across on a panel, not a wash over
+     a map, so it carries the same hue at a strength that survives being small. */
+  --wet-key-rgb:   122,176,214;
+
+  /* Names drawn on the canvas, one per register they name. */
+  --label-water: 174,214,244;
+  --label-ice:   214,232,248;
+  --label-res:   174,234,229;
+
+  /* What a floating panel casts on the plane under it. On night that is a darker
+     dark; on day it is the shadow paper actually casts, which is faint and cool. */
+  --shadow: 0 4px 22px rgba(0,0,0,0.55);
+
+  /* The active layer keys the sheets: a checkbox or a focus ring in the legend is
+     in the colour of the thing the legend is about. Set from setMode(). */
+  --accent: var(--seq-400);
+
+  /* fluid spine. One step at 360 px, another at 2560, linear in between. */
+  --pad:   clamp(10px, 1.6vw, 24px);
+  --gap:   clamp(6px, 0.7vw, 12px);
+  --r:     10px;
+  --sheet-h: 0px;                    /* set by script on phones */
+  --title-h: 96px;                   /* measured by script: the title block's foot */
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+
+  --fs-base: 14px;
+  --panel-w: 300px;
+  --legend-w: 268px;
+
+  /* Three registers of type, one per kind of statement. Prose is Archivo, a
+     grotesque with enough width to stay legible at 11 px on a dark plane. Every
+     measured figure is IBM Plex Mono with tabular figures, so a column of readings
+     lines up and a number never has to be read as a word. The statute gets a
+     serif: it is the cheapest way to make a quotation from a text look like a
+     quotation from a text and not like another data field. */
+  --sans: Archivo, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --serif: "Source Serif 4", ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+}
+
+/* ---- day ------------------------------------------------------------------
+   Only the colours move. Every spacing, size and face above is shared, so the two
+   surfaces cannot drift apart in anything but ink.
+
+   The palette is written once, here. index.html and every prose page resolve the
+   reader's choice into data-theme on <html> in a head script that runs before the
+   first paint, so there is no flash and no second copy of these values living in a
+   prefers-color-scheme block waiting to drift out of step with this one. With
+   scripting off the page stays on night, which is the surface it was designed on. */
+:root[data-theme="day"] {
+  color-scheme: light;
+
+  --surface-1:   #fbfcfd;
+  --surface-2:   #eef2f6;
+  --plane:       #e8ecf0;
+  --plane-rgb:   232,236,240;
+  --ink:         #10151a;
+  --ink-rgb:     16,21,26;
+  --ink-2:       #38424c;
+  --ink-muted:   #6b7681;
+  --hairline:    rgba(16,21,26,0.14);
+  --rule:        #d2d9e0;
+
+  --halo:        #ffffff;
+  --halo-rgb:    255,255,255;
+  --trail:       rgba(232,236,240,0.16);
+
+  --seq-700: #bacbdc; --seq-600: #9ab4cd; --seq-500: #7a9cbd; --seq-450: #6389b1;
+  --seq-400: #4a76a4; --seq-300: #33608f; --seq-200: #1e4a76; --seq-100: #0b3157;
+  --hi:      #0b3157;
+  --flow:    #123a63;
+
+  --div-1: #6b3410; --div-2: #8f4d18; --div-3: #b06a28; --div-4: #c99a63;
+  --div-5: #a8aab0;
+  --div-6: #7fa3c8; --div-7: #4a7fb4; --div-8: #2a5f96; --div-9: #12406f;
+
+  --law:      #5f4d2b;
+  --law-rgb:  95,77,43;
+  --law-dim:  #857451;
+  --law-hi:   #3f3317;
+  --law-bg:   rgba(95,77,43,0.09);
+  --law-line: rgba(95,77,43,0.30);
+
+  --good:     #0a7a17;
+  --warning:  #a97505;
+  --serious:  #b8562a;
+  --critical: #b02525;
+
+  --use-out: #b8410f;
+  --use-in:  #0d7050;
+
+  --temp-1: #e0cdae; --temp-2: #cda877; --temp-3: #b4823c; --temp-4: #95601f; --temp-5: #6f4212;
+
+  --ev-measured:  #123e6d;
+  --ev-estimated: #4f83bd;
+  --ev-none:      #c2c9d0;
+  --ev-none-dim:  #d3d9df;
+
+  --lake:      #ccdcec;
+  --lake-line: rgba(58,108,158,0.28);
+  --ice:       #123a63;
+  --ice-past-rgb: 150,92,34;
+
+  --res-full:  #2a7a76;
+  --res-mid:   #357370;
+  --res-hi:    #1b5350;
+  --res-head:  #0d3b39;
+  --res-flood: #57657d;
+  --res-1: #cfe0de; --res-2: #a8c6c3; --res-3: #7fa9a5;
+  --res-4: #578c88; --res-5: #356e6a; --res-6: #1b5350;
+
+  --wet-water-rgb: 46,96,150;
+  --wet-key-rgb:   46,96,150;
+
+  --label-water: 20,52,88;
+  --label-ice:   28,44,70;
+  --label-res:   14,66,64;
+
+  --shadow: 0 6px 20px rgba(20,40,64,0.13);
+}
+
+/* The three classes of evidence, wherever they are drawn: the bar on the map, the
+   bar on the method page, the key beside either. */
+.evMeasured  { background: var(--ev-measured); }
+.evEstimated { background: var(--ev-estimated); }
+.evNone      { background: var(--ev-none); }
+
+/* A measured figure, anywhere it appears in prose. */
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink-2); }
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--plane);
+  color: var(--ink);
+  font: var(--fs-base)/1.45 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select { font: inherit; }
+
+:where(button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--seq-300);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.skip {
+  position: fixed; top: -60px; left: 12px; z-index: 100;
+  background: var(--surface-1); color: var(--ink);
+  padding: 8px 14px; border-radius: 6px; border: 1px solid var(--hairline);
+  text-decoration: none;
+}
+.skip:focus { top: 12px; }
+
+/* ---- the night/day switch -------------------------------------------------
+   Two surfaces and a third setting that means "whatever the system says". The
+   control is a single button that cycles night, day, auto, because a three-way
+   segmented control costs more width than a map header has to spare on a phone.
+
+   data-theme on <html> carries the RESOLVED surface and is the only thing the
+   palette keys on. data-pref carries what the reader actually asked for, which is
+   the only thing the icon keys on: under "auto" the button must show that it is
+   following the system, not which way the system currently points. */
+.themeBtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; flex: none;
+  border: 1px solid var(--hairline); border-radius: 8px;
+  background: transparent; color: var(--ink-muted);
+  cursor: pointer; padding: 0;
+}
+.themeBtn:hover { color: var(--ink); background: rgba(var(--ink-rgb),0.06); }
+.themeBtn svg { width: 15px; height: 15px; display: block; }
+.themeBtn .tIconDay, .themeBtn .tIconAuto { display: none; }
+:root[data-pref="day"] .themeBtn .tIconNight { display: none; }
+:root[data-pref="day"] .themeBtn .tIconDay   { display: block; }
+:root[data-pref="auto"] .themeBtn .tIconNight,
+:root[data-pref="auto"] .themeBtn .tIconDay  { display: none; }
+:root[data-pref="auto"] .themeBtn .tIconAuto { display: block; }
+
+/* ---- five languages, five marks ----------------------------------------------
+   The site is published in English, German, French, Italian and Rumantsch. The
+   control is a row and not a menu: there are five of them, they are two letters
+   each, and a menu would hide four behind a gesture to save thirty pixels. The
+   codes are the ones the Confederation prints on its own forms; the full name is
+   on the control for the pointer and for the screen reader.
+
+   Each page states its own alternates in <link rel="alternate">, so this row is
+   built from what actually exists and never offers a page that would 404. */
+/* The switcher sits inside a nav that already styles its own links, on two pages
+   whose nav selectors differ (#siteNav on the map, .siteNav on the documents). The
+   attribute is what actually distinguishes these links — every one of them carries
+   a lang — so it is what the selector matches, and the id is named alongside it
+   because an id outranks any number of classes. */
+.langs {
+  display: flex; align-items: center; gap: 0; flex: none;
+  margin-left: 6px; padding-left: 7px;
+  border-left: 1px solid var(--hairline);
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.04em;
+}
+.langs [lang], #siteNav .langs [lang] {
+  font-size: inherit; letter-spacing: inherit; font-weight: 400; line-height: 1;
+  padding: 6px 3.5px; margin: 0; border-radius: 5px;
+  text-decoration: none; color: var(--ink-muted);
+  transition: background 120ms, color 120ms;
+}
+.langs a[lang]:hover, #siteNav .langs a[lang]:hover {
+  color: var(--ink); background: rgba(var(--ink-rgb),0.06);
+}
+.langs b[lang], #siteNav .langs b[lang] { color: var(--ink); font-weight: 500; }
+/* The abbreviation carries the full name for a pointer; it must not carry the
+   dotted underline browsers give <abbr>, which in a two-letter code reads as an
+   error mark. */
+.langs abbr { text-decoration: none; border-bottom: 0; cursor: default; }
+
+/* On a phone the bar wraps to two rows: the places this site goes on the first,
+   the five languages and the surface on the second. That is a legible split rather
+   than a wrapping accident, but it costs a row, so the row is made shallow. */
+@media (max-width: 560px) {
+  .langs { margin-left: 4px; padding-left: 5px; font-size: 10px; }
+  .langs [lang], #siteNav .langs [lang] { padding: 5px 3px; }
+  .themeBtn { width: 26px; height: 26px; }
+  .themeBtn svg { width: 14px; height: 14px; }
+}
+}
