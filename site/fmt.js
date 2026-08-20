@@ -21,6 +21,11 @@ const fmtClock = d => `${p2(d.getHours())}:${p2(d.getMinutes())}`;
 const fmtStamp = d =>
   `${p2(d.getDate())}.${p2(d.getMonth() + 1)}.${d.getFullYear()} ${fmtClock(d)}`;
 
+// How far behind a live reading has fallen. The same principle as ageText below,
+// at the other end of the scale: minutes while minutes still mean something, hours
+// once they stop.
+const lagText = mins => mins < 120 ? Tn('age.min', mins) : Tn('age.hour', Math.round(mins / 60));
+
 // How old a source is, in the coarsest unit that still says something. Days up to
 // six weeks, then months, then years to one decimal — because past a year the
 // difference between 3.2 and 3.4 years is the difference between two federal

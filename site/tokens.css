@@ -108,6 +108,7 @@
      Validated dark/ordinal: monotone L, gaps >= 0.06, dark end 2.15:1. */
   --ev-measured:  #9ec5f4;
   --ev-estimated: #3987e5;
+  --ev-estimated-ink: #3987e5;   /* 5.34:1 on the night plane; no twin needed */
   --ev-none:      #3a4450;
   --ev-none-dim:  #2b3138;
 
@@ -189,7 +190,7 @@
   --ink:         #10151a;
   --ink-rgb:     16,21,26;
   --ink-2:       #38424c;
-  --ink-muted:   #6b7681;
+  --ink-muted:   #5c646e;
   --hairline:    rgba(16,21,26,0.14);
   --rule:        #d2d9e0;
 
@@ -202,20 +203,26 @@
   --hi:      #0b3157;
   --flow:    #123a63;
 
+  /* On the night surface --accent is the 400 step of the ramp and that is legible.
+     On this one the same blue reads 4.00:1 against the plane, and --accent is text —
+     the nav link to the map, the eyebrows. So it is set here one step darker rather
+     than by moving --seq-400, which would bend the ramp the map encodes with. */
+  --accent: #416790;
+
   --div-1: #6b3410; --div-2: #8f4d18; --div-3: #b06a28; --div-4: #c99a63;
   --div-5: #a8aab0;
   --div-6: #7fa3c8; --div-7: #4a7fb4; --div-8: #2a5f96; --div-9: #12406f;
 
   --law:      #5f4d2b;
   --law-rgb:  95,77,43;
-  --law-dim:  #857451;
+  --law-dim:  #6e5f42;
   --law-hi:   #3f3317;
   --law-bg:   rgba(95,77,43,0.09);
   --law-line: rgba(95,77,43,0.30);
 
-  --good:     #0a7a17;
-  --warning:  #a97505;
-  --serious:  #b8562a;
+  --good:     #0a7516;
+  --warning:  #865c04;
+  --serious:  #a24b25;
   --critical: #b02525;
 
   --use-out: #b8410f;
@@ -227,6 +234,11 @@
   --ev-estimated: #4f83bd;
   --ev-none:      #c2c9d0;
   --ev-none-dim:  #d3d9df;
+  /* site.css lends the method page its evidence colour as --accent, and an accent
+     is text: nav links, eyebrows. #4f83bd reads 3.33:1 here, which is fine for the
+     swatch it was chosen as and not fine for a word. The swatch keeps its colour;
+     the text gets this one. */
+  --ev-estimated-ink: #396699;
 
   --lake:      #ccdcec;
   --lake-line: rgba(58,108,158,0.28);

@@ -39,6 +39,14 @@
     const d = rail.closest('details');
     if (d && window.matchMedia('(max-width: 1079px)').matches) d.open = false;
   });
+  // ...and having folded shut, it has to come back when the window widens. At
+  // 1080 px the summary is display:none, because the rail is meant to be a
+  // permanently open column there — so a rail left closed by a tap at phone width
+  // would have neither list nor control, and no way back short of a reload.
+  const wide = window.matchMedia('(min-width: 1080px)');
+  const reopen = e => { const d = rail.closest('details'); if (d && e.matches) d.open = true; };
+  wide.addEventListener('change', reopen);
+  reopen(wide);
 })();
 
 // ---- Art. 31(1) GSchG, with the reader's own figure --------------------------
@@ -65,6 +73,29 @@
 // table underneath says the same thing in words; the spine says it in lengths,
 // which is the only form in which a nine-year-old register and a ten-minute-old
 // reading can be compared at a glance.
+const LEGEND = l => `https://api3.geo.admin.ch/rest/services/all/MapServer/${l}/legend?lang=de`;
+
+// The build reads these same endpoints, and the file it writes is the floor: it
+// paints at once and it is what the page shows when the geoportal cannot be
+// reached. But that file was written on build day, and a Datenstand moves when the
+// register moves, not when this site rebuilds. So every layer that publishes a
+// legend is read again here, in the reader's own browser, and a date that has
+// moved is corrected on the screen.
+//
+// The distinction the build makes holds here too: 404 is an answer — the layer
+// publishes no legend and never will — and anything else is a silence. A silence
+// leaves the baked date standing, and the line under the table says how many dates
+// were confirmed just now and how many still stand as the build left them, rather
+// than presenting a week-old file as a reading taken this minute.
+async function readState(layer) {
+  const r = await fetch(LEGEND(layer));
+  if (r.status === 404 || r.status === 410) return { reached: true, iso: null };
+  if (!r.ok) return { reached: false, iso: null };
+  const txt = (await r.text()).replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/\s+/g, ' ');
+  const m = /Datenstand\s*(\d{1,2})\.(\d{1,2})\.(\d{4})/.exec(txt);
+  return { reached: true, iso: m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : null };
+}
+
 async function drawSpine() {
   const spineEl = document.getElementById('spine');
   const tableEl = document.getElementById('sourceTable');
@@ -83,60 +114,105 @@ async function drawSpine() {
     s.name = D(s.name); s.holder = D(s.holder); s.cadence = D(s.cadence);
     s.cls = D(s.cls); s.note = D(s.note); s.licence = D(s.licence);
   }
-  const stale = new Set(v.staleKeys);
-  const rows = v.sources.slice().sort((a, b) => (b.ageDays ?? -1) - (a.ageDays ?? -1));
   const day = 86400000;
-  const now = Date.parse(v.built);
-  const dated = rows.filter(s => s.datenstand);
-  const t0 = Date.UTC(new Date(Math.min(...dated.map(s => Date.parse(s.datenstand)))).getUTCFullYear(), 0, 1);
-  const span = Math.max(day, now - t0);
-  const at = t => 100 * (t - t0) / span;
 
-  if (spineEl) {
-    const y0 = new Date(t0).getUTCFullYear(), y1 = new Date(now).getUTCFullYear();
-    const ticks = [];
-    for (let y = y0; y <= y1; y += 5) {
-      ticks.push(`<span style="left:${at(Date.UTC(y, 0, 1)).toFixed(2)}%">${y}</span>` +
-                 `<i style="left:${at(Date.UTC(y, 0, 1)).toFixed(2)}%"></i>`);
+  // Five years — the rule build/08-vintage.mjs applies, and the rule the page states
+  // in words under the table. It is recomputed here rather than taken from
+  // v.staleKeys, because staleKeys was decided on the build's clock against the
+  // build's dates. Once this function began ageing sources to the reader's clock and
+  // the live read began correcting the dates themselves, a marking frozen at build
+  // time would put a red bar beside an age that no longer earns one — and the count
+  // in the sentence below, which is recomputed, would contradict the colour above it.
+  const STALE_DAYS = 365 * 5;
+
+  // The file was written on the day of the build and is read on some later day, so
+  // an age is counted from the source's own data state to the reader's own clock
+  // and not to the build's. A spine that aged everything to the build date would be
+  // a week short by the end of a weekly cycle — on a page whose whole claim is that
+  // every figure carries its age.
+  const paint = live => {
+    const now = Date.now();
+    for (const s of v.sources) {
+      s.ageDays = s.datenstand ? Math.floor((now - Date.parse(s.datenstand)) / day) : null;
     }
-    const axis = `<div class="spineAxis" aria-hidden="true">${ticks.join('')}</div>`;
-    const list = rows.map(s => {
-      const cls = s.live ? 'isLive' : stale.has(s.key) ? 'isStale' : '';
-      const a = s.live ? 99.4 : s.datenstand ? at(Date.parse(s.datenstand)) : null;
-      const bar = a === null
-        ? `<span class="spineTrack" title="${T('src.noState')}"></span>`
-        : `<span class="spineTrack"><i style="--a:${a.toFixed(2)}%;--b:0%"></i></span>`;
-      const age = s.live ? T('src.live') : s.datenstand ? ageText(s.ageDays) : T('src.notStated');
-      return `<li class="spineRow ${cls}">
-        <span class="spineName"><b>${esc(s.name)}</b><br>${esc(s.holder)}</span>
-        ${bar}
-        <span class="spineAge">${age}</span>
-      </li>`;
-    }).join('');
-    spineEl.innerHTML = axis + `<ol class="spine">${list}</ol>`;
-  }
+    const rows = v.sources.slice().sort((a, b) => (b.ageDays ?? -1) - (a.ageDays ?? -1));
+    const dated = rows.filter(s => s.datenstand);
+    const t0 = Date.UTC(new Date(Math.min(...dated.map(s => Date.parse(s.datenstand)))).getUTCFullYear(), 0, 1);
+    const span = Math.max(day, now - t0);
+    const at = t => 100 * (t - t0) / span;
 
-  if (tableEl) {
-    tableEl.innerHTML = `<table>
-      <thead><tr>
-        <th scope="col">${T('src.thSource')}</th><th scope="col">${T('src.thClass')}</th>
-        <th scope="col">${T('src.thState')}</th><th scope="col">${T('src.thAge')}</th>
-      </tr></thead>
-      <tbody>${rows.map(s => `<tr>
-        <td><b>${esc(s.name)}</b><br>${esc(s.holder)} · ${esc(s.cadence)}${
-          s.url ? ` · <a href="${esc(s.url)}" target="_blank" rel="noopener">${T('src.linkSource')}</a>` : ''}
-          <br><span class="fine">${esc(s.note)} ${T('src.licence', { l: esc(s.licence ?? T('src.seeSource')) })}</span></td>
-        <td>${esc(s.cls)}</td>
-        <td class="n">${s.datenstand ? fmtDate(s.datenstand) : s.live ? T('src.readLive') : T('src.notStated')}</td>
-        <td class="n">${s.live ? T('src.live') : s.datenstand ? ageText(s.ageDays) : '—'}</td>
-      </tr>`).join('')}</tbody></table>`;
-  }
+    if (spineEl) {
+      const y0 = new Date(t0).getUTCFullYear(), y1 = new Date(now).getUTCFullYear();
+      const ticks = [];
+      for (let y = y0; y <= y1; y += 5) {
+        ticks.push(`<span style="left:${at(Date.UTC(y, 0, 1)).toFixed(2)}%">${y}</span>` +
+                   `<i style="left:${at(Date.UTC(y, 0, 1)).toFixed(2)}%"></i>`);
+      }
+      const axis = `<div class="spineAxis" aria-hidden="true">${ticks.join('')}</div>`;
+      const list = rows.map(s => {
+        const cls = s.live ? 'isLive' : (s.ageDays ?? -1) > STALE_DAYS ? 'isStale' : '';
+        const a = s.live ? 99.4 : s.datenstand ? at(Date.parse(s.datenstand)) : null;
+        const bar = a === null
+          ? `<span class="spineTrack" title="${T('src.noState')}"></span>`
+          : `<span class="spineTrack"><i style="--a:${a.toFixed(2)}%;--b:0%"></i></span>`;
+        const age = s.live ? T('src.live') : s.datenstand ? ageText(s.ageDays) : T('src.notStated');
+        return `<li class="spineRow ${cls}">
+          <span class="spineName"><b>${esc(s.name)}</b><br>${esc(s.holder)}</span>
+          ${bar}
+          <span class="spineAge">${age}</span>
+        </li>`;
+      }).join('');
+      spineEl.innerHTML = axis + `<ol class="spine">${list}</ol>`;
+    }
 
-  const built = document.getElementById('vintageBuilt');
-  if (built) {
-    const n = rows.filter(s => (s.ageDays ?? 0) > 1826).length;
-    built.innerHTML = T('src.built', { d: fmtDate(v.built), n, total: rows.length });
-  }
+    if (tableEl) {
+      tableEl.innerHTML = `<table>
+        <thead><tr>
+          <th scope="col">${T('src.thSource')}</th><th scope="col">${T('src.thClass')}</th>
+          <th scope="col">${T('src.thState')}</th><th scope="col">${T('src.thAge')}</th>
+        </tr></thead>
+        <tbody>${rows.map(s => `<tr>
+          <td><b>${esc(s.name)}</b><br>${esc(s.holder)} · ${esc(s.cadence)}${
+            s.url ? ` · <a href="${esc(s.url)}" target="_blank" rel="noopener">${T('src.linkSource')}</a>` : ''}
+            <br><span class="fine">${esc(s.note)} ${T('src.licence', { l: esc(s.licence ?? T('src.seeSource')) })}</span></td>
+          <td>${esc(s.cls)}</td>
+          <td class="n">${s.datenstand ? fmtDate(s.datenstand) : s.live ? T('src.readLive') : T('src.notStated')}</td>
+          <td class="n">${s.live ? T('src.live') : s.datenstand ? ageText(s.ageDays) : '—'}</td>
+        </tr>`).join('')}</tbody></table>`;
+    }
+
+    const built = document.getElementById('vintageBuilt');
+    if (built) {
+      const n = rows.filter(s => (s.ageDays ?? 0) > STALE_DAYS).length;
+      const vars = { d: fmtDate(v.built), n, total: rows.length, ...live };
+      built.innerHTML = T(!live ? 'src.built'
+        : live.r === live.layers ? 'src.builtLive' : 'src.builtPart', vars);
+    }
+  };
+
+  paint(null);                       // the baked floor, on the screen at once
+
+  // Then the geoportal, in parallel: fourteen small responses, none of which the
+  // page waits for before it is usable.
+  //
+  // A read only ever counts as a confirmation when it carries a date, or when it
+  // carries none for a layer that had none baked either — the base rasters publish
+  // no legend, and the page already says so. A layer that used to state a
+  // Datenstand and now states none is the one case that is not a confirmation: an
+  // empty legend and a renamed layer are the same 404 from here, and the baked date
+  // was verified against the source once. So it stands, and it is reported as
+  // standing rather than quietly replaced by "not stated".
+  const layered = v.sources.filter(s => s.layer);
+  const got = await Promise.all(layered.map(s =>
+    readState(s.layer).catch(() => ({ reached: false, iso: null }))));
+  let r = 0;
+  got.forEach((g, i) => {
+    const s = layered[i];
+    if (!g.reached) return;
+    if (g.iso) { s.datenstand = g.iso; r++; }
+    else if (!s.datenstand) r++;
+  });
+  if (r) paint({ r, layers: layered.length });
 }
 drawSpine();
 

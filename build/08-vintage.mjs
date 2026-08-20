@@ -98,7 +98,7 @@ const SOURCES = [
     holder: 'BFE', cls: 'register', cadence: 'annual', live: false,
     url: 'https://www.bfe.admin.ch/bfe/de/home/versorgung/statistik-und-geodaten/geoinformation/geodaten/wasser/statistik-wasserkraftanlagen-schweiz.html',
     licence: 'opendata.swiss, attribution',
-    note: 'The freshest of the registers. It carries capacity and head but no water quantity, so the discharge on the map is derived by arithmetic.',
+    note: 'Revised annually to the year’s end. It carries capacity and head but no water quantity, so the discharge on the map is derived by arithmetic.',
   },
   {
     key: 'abstraction', layer: 'ch.bafu.wasser-entnahme',
@@ -138,7 +138,7 @@ const SOURCES = [
     holder: 'BAFU', cls: 'register', cadence: 'by revision of the ordinance annex', live: false,
     url: 'https://map.geo.admin.ch/?layers=ch.bafu.bundesinventare-hochmoore',
     licence: 'opendata.swiss, attribution',
-    note: 'Protected by Art. 78(5) of the Federal Constitution. A third of the objects are smaller than 1.5 ha and are drawn as a mark rather than an outline.',
+    note: 'Protected by Art. 78(5) of the Federal Constitution. A third of the objects have no ring as large as 1.5 ha and are drawn as a mark rather than an outline.',
   },
   {
     key: 'wet_flach', layer: 'ch.bafu.bundesinventare-flachmoore',

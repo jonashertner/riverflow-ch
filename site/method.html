@@ -182,7 +182,10 @@
       <p>Discharge, water level and water temperature come from the gauging network of the Federal
         Office for the Environment, queried through LINDAS, the federal linked-data service, with
         one SPARQL request against the graph <code>&lt;https://lindas.admin.ch/foen/hydro&gt;</code>.
-        The federal series updates roughly every ten minutes and the page re-reads it on demand.</p>
+        The federal series updates roughly every ten minutes and the page re-reads it on that
+        cadence, for as long as it is the tab being looked at. A hidden tab stops asking, and on
+        return serves out whatever is left of the cadence. The button forces a read at any
+        time.</p>
       <p>There are <span class="num">236</span> stations in the answer.
         <span class="num">229</span> of them snap to a river reach, and they land on
         <span class="num">208</span> distinct reaches, because more than one gauge can sit on the
@@ -371,7 +374,7 @@
         the night surface, sepia on the day one, a warm earth against a cool ground either way &mdash;
         because they are held by something stronger than an ordinance.</p>
       <div class="statute"><b>Art. 78(5) of the Federal Constitution.</b> Mires and mire landscapes
-        of particular beauty and national importance are protected outright: no installations may be
+        of particular beauty and national importance are protected: no installations may be
         built and the ground may not be altered, save for facilities serving the mires&rsquo; own
         protection or their existing agricultural use. Unlike almost every protection in Swiss
         environmental law there is no balancing test here to lose. The article is the one the
@@ -397,7 +400,7 @@
         zoom this map reaches and are drawn as a ring instead — a third of the raised-bog inventory
         is like this, because the ordinance protects patches of a few hundred square metres, and a
         map that dropped them would be saying they are not there. At country view the smallest
-        objects wait: nine hundred rings over the Mittelland is a texture, not a fact. Zoom in and
+        objects wait: four hundred and forty-four rings over the country is a texture, not a fact. Zoom in and
         every object of every inventory is on the screen.</p>
       <p>Every object carries its number and a link to its <b>federal object sheet</b>, the PDF that
         holds the protection aim and the boundary description. The number, not the name, is the unit
@@ -481,7 +484,9 @@
         before step 8, because the protection-zone vintage is the oldest cantonal delivery and step
         8 reads it. Step 10 is deliberately not automated: swissNAMES3D is an annual release of
         about 32&nbsp;MB and it is rebuilt by hand when a new one appears. Step 13 reads only steps
-        01 to 04 and is deterministic, so it is rebuilt when they are and not on a clock.</p>
+        01 to 04 and is deterministic, so it is rebuilt when they are and not on a clock. Step 8 also
+        runs in the reader&rsquo;s own browser on every visit to the sources page, so a data state
+        that moved between Mondays is corrected on the screen rather than waiting for a build.</p>
     </section>
 
     <p><a class="toMapBig" href="./"><svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg> Back to the map</a></p>

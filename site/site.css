@@ -33,7 +33,7 @@ body.page { overflow-x: hidden; }
 /* Each page takes a key colour from its own subject, exactly as each layer of the
    map does. Sources is the one page with no single subject colour: it is about
    age, and age has two states there, live and stale, both already in the palette. */
-body[data-page="method"]  { --accent: var(--ev-estimated); }
+body[data-page="method"]  { --accent: var(--ev-estimated-ink); }
 body[data-page="sources"] { --accent: var(--seq-300); }
 body[data-page="law"]     { --accent: var(--law); }
 body[data-page="about"]   { --accent: var(--seq-300); }

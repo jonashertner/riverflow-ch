@@ -344,11 +344,11 @@ Object.assign(DSTR, {
     it: 'Disegnato come immagine WMS. Quale suolo drena verso quale acqua; il livello non riporta alcuna quantità.',
     rm: 'Dissegnà sco maletg WMS. Tge terren che sa dertgira en tge aua; il nivel na porta nagina quantitad.',
   },
-  'Protected by Art. 78(5) of the Federal Constitution. A third of the objects are smaller than 1.5 ha and are drawn as a mark rather than an outline.': {
-    de: 'Geschützt durch Art. 78 Abs. 5 der Bundesverfassung. Ein Drittel der Objekte sind kleiner als 1.5 ha und werden als Marke statt als Umriss gezeichnet.',
-    fr: 'Protégés par l’art. 78, al. 5 de la Constitution fédérale. Un tiers des objets font moins de 1,5 ha et sont dessinés comme une marque plutôt que comme un contour.',
-    it: 'Protetti dall’art. 78 cpv. 5 della Costituzione federale. Un terzo degli oggetti misurano meno di 1.5 ha e sono disegnati come un segno anziché come un contorno.',
-    rm: 'Protegids tras l’art. 78 al. 5 da la Constituziun federala. In terz dals objects èn pli pitschens che 1,5 ha e vegnan dissegnads sco marca e betg sco cuntur.',
+  'Protected by Art. 78(5) of the Federal Constitution. A third of the objects have no ring as large as 1.5 ha and are drawn as a mark rather than an outline.': {
+    de: 'Geschützt durch Art. 78 Abs. 5 der Bundesverfassung. Bei einem Drittel der Objekte ist kein Ring so gross wie 1.5 ha; sie werden als Marke statt als Umriss gezeichnet.',
+    fr: 'Protégés par l’art. 78, al. 5 de la Constitution fédérale. Un tiers des objets n’ont aucun anneau atteignant 1,5 ha et sont dessinés comme une marque plutôt que comme un contour.',
+    it: 'Protetti dall’art. 78 cpv. 5 della Costituzione federale. Un terzo degli oggetti non ha alcun anello grande 1.5 ha ed è disegnato come un segno anziché come un contorno.',
+    rm: 'Protegids tras l’art. 78 al. 5 da la Constituziun federala. In terz dals objects n’han nagin rintg da 1,5 ha e vegnan dissegnads sco marca e betg sco cuntur.',
   },
   'The largest of the mire inventories by object count, revised on the same day as the raised bogs.': {
     de: 'Das nach Objektzahl grösste der Moorinventare, revidiert am selben Tag wie die Hochmoore.',
@@ -356,11 +356,11 @@ Object.assign(DSTR, {
     it: 'Il più grande degli inventari palustri per numero di oggetti, riveduto lo stesso giorno delle torbiere alte.',
     rm: 'Il pli grond dals inventaris palusters tenor il dumber d’objects, revedì il medem di sco las tuorbas autas.',
   },
-  'The freshest of the registers. It carries capacity and head but no water quantity, so the discharge on the map is derived by arithmetic.': {
-    de: 'Das frischeste der Register. Es trägt Leistung und Fallhöhe, aber keine Wassermenge; der Abfluss auf der Karte wird deshalb rechnerisch hergeleitet.',
-    fr: 'Le plus frais des registres. Il porte la puissance et la hauteur de chute, mais aucune quantité d’eau : le débit sur la carte est donc dérivé par le calcul.',
-    it: 'Il più fresco dei registri. Riporta la potenza e il salto, ma nessuna quantità d’acqua: la portata sulla carta è quindi derivata per calcolo.',
-    rm: 'Il pli frestg dals registers. El porta la pussanza e l’autezza da crudada, ma nagina quantitad d’aua; la quantitad d’aua sin la charta vegn perquai derivada cun il quen.',
+  'Revised annually to the year’s end. It carries capacity and head but no water quantity, so the discharge on the map is derived by arithmetic.': {
+    de: 'Jährlich auf das Jahresende revidiert. Es trägt Leistung und Fallhöhe, aber keine Wassermenge; der Abfluss auf der Karte wird deshalb rechnerisch hergeleitet.',
+    fr: 'Révisé chaque année à la fin de l’année. Il porte la puissance et la hauteur de chute, mais aucune quantité d’eau : le débit sur la carte est donc dérivé par le calcul.',
+    it: 'Riveduto ogni anno alla fine dell’anno. Riporta la potenza e il salto, ma nessuna quantità d’acqua: la portata sulla carta è quindi derivata per calcolo.',
+    rm: 'Revedì mintg’onn a la fin da l’onn. El porta la pussanza e l’autezza da crudada, ma nagina quantitad d’aua; la quantitad d’aua sin la charta vegn perquai derivada cun il quen.',
   },
   'A gazetteer of name placements, not of named geometries. Each anchor is joined to the nearest drawn reach, which is what gives a name its rank and its angle. The join fails predictably where a canal runs within 200 m of a trunk river: build/10-names.mjs names the cases it gets wrong rather than hiding them.': {
     de: 'Ein Verzeichnis von Namenspositionen, nicht von benannten Geometrien. Jeder Ankerpunkt wird dem nächstgelegenen gezeichneten Abschnitt zugeordnet, und daraus ergeben sich Rang und Winkel eines Namens. Die Zuordnung scheitert vorhersehbar, wo ein Kanal innerhalb von 200 m neben einem Hauptfluss verläuft: build/10-names.mjs benennt die Fälle, die es falsch macht, statt sie zu verbergen.',

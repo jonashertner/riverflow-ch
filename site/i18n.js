@@ -188,6 +188,24 @@ Object.assign(STR, {
     rm: 'Status da las datas legì ils <b>{d}</b> dals puncts d’access da las legendas federalas. <b>{n} da {total} funtaunas èn pli veglias che tschintg onns.</b> Nagut qua n’è ina prognosa e nagut qua n’è la constataziun d’ina violaziun.',
   },
 
+  // Three lines for one fact, because how the dates on this page were obtained is
+  // itself part of what the page reports: read here and now, read here and now
+  // except for the ones that did not answer, or standing as the build left them.
+  'src.builtLive': {
+    en: 'Data states read from the federal legend endpoints just now, in this browser — all {layers} layers answered. <b>{n} of {total} sources are more than five years old.</b> Nothing here is a forecast and nothing here is a finding of breach.',
+    de: 'Datenstände soeben in diesem Browser von den Legenden-Endpunkten des Bundes gelesen — alle {layers} Ebenen haben geantwortet. <b>{n} von {total} Quellen sind älter als fünf Jahre.</b> Nichts davon ist eine Prognose und nichts davon ist die Feststellung einer Verletzung.',
+    fr: 'États des données lus à l’instant, dans ce navigateur, depuis les points d’accès aux légendes de la Confédération — les {layers} couches ont toutes répondu. <b>{n} sources sur {total} ont plus de cinq ans.</b> Rien ici n’est une prévision et rien ici n’est le constat d’une violation.',
+    it: 'Stati dei dati letti or ora, in questo browser, dagli endpoint delle legende federali — tutti i {layers} livelli hanno risposto. <b>{n} fonti su {total} hanno più di cinque anni.</b> Nulla di quanto segue è una previsione e nulla è l’accertamento di una violazione.',
+    rm: 'Status da las datas legì gist ussa, en quest browser, dals puncts d’access da las legendas federalas — tut ils {layers} nivels han respundì. <b>{n} da {total} funtaunas èn pli veglias che tschintg onns.</b> Nagut qua n’è ina prognosa e nagut qua n’è la constataziun d’ina violaziun.',
+  },
+  'src.builtPart': {
+    en: 'Data states: {r} of {layers} federal layers answered just now, in this browser; the rest stand as read on <b>{d}</b>. <b>{n} of {total} sources are more than five years old.</b> Nothing here is a forecast and nothing here is a finding of breach.',
+    de: 'Datenstände: {r} von {layers} Ebenen des Bundes haben soeben in diesem Browser geantwortet; die übrigen stehen so, wie sie am <b>{d}</b> gelesen wurden. <b>{n} von {total} Quellen sind älter als fünf Jahre.</b> Nichts davon ist eine Prognose und nichts davon ist die Feststellung einer Verletzung.',
+    fr: 'États des données : {r} des {layers} couches fédérales ont répondu à l’instant, dans ce navigateur ; les autres restent telles qu’elles ont été lues le <b>{d}</b>. <b>{n} sources sur {total} ont plus de cinq ans.</b> Rien ici n’est une prévision et rien ici n’est le constat d’une violation.',
+    it: 'Stati dei dati: {r} dei {layers} livelli federali hanno risposto or ora, in questo browser; gli altri restano come sono stati letti il <b>{d}</b>. <b>{n} fonti su {total} hanno più di cinque anni.</b> Nulla di quanto segue è una previsione e nulla è l’accertamento di una violazione.',
+    rm: 'Status da las datas: {r} dals {layers} nivels federals han respundì gist ussa, en quest browser; ils auters restan uschia sco els èn vegnids legids ils <b>{d}</b>. <b>{n} da {total} funtaunas èn pli veglias che tschintg onns.</b> Nagut qua n’è ina prognosa e nagut qua n’è la constataziun d’ina violaziun.',
+  },
+
   // ---- the twenty-six cantonal deliveries ----
   'ct.loadFail': {
     en: 'The cantonal delivery list failed to load: {e}',
@@ -285,6 +303,10 @@ Object.assign(STR, {
   },
 
   // ---- ages, in the coarsest unit that still says something ----
+  'age.min.one':  { en: '{n} minute', de: '{n} Minute', fr: '{n} minute', it: '{n} minuto', rm: '{n} minuta' },
+  'age.min.other':{ en: '{n} minutes', de: '{n} Minuten', fr: '{n} minutes', it: '{n} minuti', rm: '{n} minutas' },
+  'age.hour.one': { en: '{n} hour', de: '{n} Stunde', fr: '{n} heure', it: '{n} ora', rm: '{n} ura' },
+  'age.hour.other':{ en: '{n} hours', de: '{n} Stunden', fr: '{n} heures', it: '{n} ore', rm: '{n} uras' },
   'age.day.one': { en: '{n} day', de: '{n} Tag', fr: '{n} jour', it: '{n} giorno', rm: '{n} di' },
   'age.day.other': { en: '{n} days', de: '{n} Tage', fr: '{n} jours', it: '{n} giorni', rm: '{n} dis' },
   'age.months': { en: '{n} months', de: '{n} Monate', fr: '{n} mois', it: '{n} mesi', rm: '{n} mais' },

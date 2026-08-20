@@ -61,6 +61,13 @@ Object.assign(STR, {
     it: '{n} stazioni, ultima misura {t}',
     rm: '{n} staziuns, ultima mesiraziun {t}',
   },
+  'm.stampStale': {
+    en: '{n} gauges, last reading {t} — {a} old, past the ten-minute publication cadence.',
+    de: '{n} Messstellen, letzte Messung {t} — {a} alt, über den Publikationstakt von zehn Minuten hinaus.',
+    fr: '{n} stations, dernière mesure {t} — vieille de {a}, au-delà du rythme de publication de dix minutes.',
+    it: '{n} stazioni, ultima misura {t} — vecchia di {a}, oltre la cadenza di pubblicazione di dieci minuti.',
+    rm: '{n} staziuns, ultima mesiraziun {t} — veglia da {a}, sur il ritmus da publicaziun da diesch minutas.',
+  },
   'm.noTemp': {
     en: 'No temperature series in this read.',
     de: 'In dieser Abfrage keine Temperaturreihen.',

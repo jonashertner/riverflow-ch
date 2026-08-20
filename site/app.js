@@ -176,6 +176,7 @@ let byId = new Map();
 let stations = [];         // {id,name,lon,lat,factor,reach,meanQ,...}
 let gaugeByReach = new Map();
 let liveStamp = null;
+let liveTimer = null, liveBackoff = 0, lastTry = 0;
 let hovered = null;        // {kind:'reach'|'station', ref}
 let selected = null;
 let motion = true, showStations = true;
@@ -416,9 +417,15 @@ WHERE {
   ?st schema:identifier ?id .
 }`;
 
-async function refresh() {
+// The cube publishes every ten minutes; a map left open used to show whatever it
+// read on load until somebody pressed the button, so a reading could be hours old
+// with nothing on the screen saying so. `auto` marks a re-read the page decided on
+// by itself: it runs without touching the button, because a control that flickers
+// on a timer reads as something the reader did.
+async function refresh(auto = false) {
   const btn = document.getElementById('refresh');
-  btn.disabled = true; btn.textContent = T('m.reading');
+  if (!auto) { btn.disabled = true; btn.textContent = T('m.reading'); }
+  lastTry = Date.now();
   try {
     const r = await fetch(ENDPOINT, {
       method: 'POST',
@@ -449,16 +456,49 @@ async function refresh() {
       if (o?.time && (!newest || o.time > newest)) newest = o.time;
     }
     liveStamp = newest;
+    liveBackoff = 0;
     applyLive();
     stampText();
     invalidate(); dirtyAlloc = true;
   } catch (e) {
-    document.getElementById('stamp').textContent = T('m.liveFail', { e: e.message });
-    updateEvidence();
+    // A failed automatic re-read must not wipe a good reading off the screen. The
+    // last one that arrived is still the best the page has; what changes is that it
+    // is now ageing, and stampText says so once it outlives its own cadence.
+    if (auto) { stampText(); }
+    else { document.getElementById('stamp').textContent = T('m.liveFail', { e: e.message }); updateEvidence(); }
+    liveBackoff = Math.min(liveBackoff ? liveBackoff * 2 : 60000, LIVE_CADENCE);
   } finally {
-    btn.disabled = false; btn.textContent = T('m.refresh');
+    if (!auto) { btn.disabled = false; btn.textContent = T('m.refresh'); }
+    scheduleLive();
   }
 }
+
+// ---- keeping the live read live ---------------------------------------------
+// Re-read on the publication cadence, but only while the tab is being looked at:
+// a hidden tab polling a federal endpoint every ten minutes spends someone else's
+// bandwidth on a page nobody is reading. Coming back to a tab reads at once if the
+// reading on the screen has already outlived the cadence, and otherwise waits out
+// the remainder of it.
+const LIVE_CADENCE = 600000;
+
+// The wait runs from the last attempt rather than the last success, and returning to
+// a tab serves out whatever is left of it instead of starting it again. Both matter
+// for the same reason: a read that failed still cost the endpoint a request, and
+// backing off is the whole point of having failed. Measured from the last success,
+// an endpoint that is down would leave the interval permanently elapsed, and every
+// alt-tab back to the page would fire another unthrottled request at it — the
+// opposite of the restraint the hidden-tab rule above is for.
+function scheduleLive() {
+  clearTimeout(liveTimer);
+  if (document.hidden) return;
+  const wait = Math.max(0, lastTry + (liveBackoff || LIVE_CADENCE) - Date.now());
+  liveTimer = setTimeout(() => refresh(true), wait);
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { clearTimeout(liveTimer); return; }
+  scheduleLive();
+});
 
 /* Anomaly propagation. ratio = measured / long-term mean at the gauge's own reach.
  * A reach inherits the ratio of the first gauge found walking downstream. Where the
@@ -544,7 +584,11 @@ function stampText() {
   const d = new Date(liveStamp);
   const t = fmtStamp(d);
   const n = stations.filter(s => s.q !== null && s.q !== undefined).length;
-  el.textContent = T('m.stamp', { n, t });
+  // Silence while the reading is current is the right silence: a timestamp inside
+  // its own cadence needs no gloss. Past two cadences the re-read is not arriving,
+  // and then the age is the thing the reader needs, not the hour of the reading.
+  const behind = Math.round((Date.now() - d.getTime()) / 60000);
+  el.textContent = behind > 20 ? T('m.stampStale', { n, t, a: lagText(behind) }) : T('m.stamp', { n, t });
 
   const withT = stations.filter(s => s.obs?.temp !== null && s.obs?.temp !== undefined);
   const c = document.getElementById('tempCount');
@@ -1342,7 +1386,9 @@ function spark(ser) {
 }
 
 document.getElementById('panelClose').onclick = () => { panel.hidden = true; selected = null; };
-document.getElementById('refresh').onclick = refresh;
+// Bound through a wrapper: onclick hands the listener a MouseEvent, and refresh's
+// first parameter is the flag that decides whether the read is a silent one.
+document.getElementById('refresh').onclick = () => refresh();
 document.getElementById('toggleStations').onchange = e => { showStations = e.target.checked; dirty = true; };
 // Motion is one switch. The current and the replays are both motion, and a reader
 // who turned motion off did not mean only the particles.
@@ -1725,9 +1771,10 @@ function panelResidual(p, titleEl, B, N, X) {
    and the aim is stated as water: they wear the water's own hue, being the river's
    own ground. Bogs, fens and mire landscapes are protected by Art. 78(5) of the
    Federal Constitution — the article the Rothenthurm initiative wrote in 1987 —
-   which forbids installations and alteration of the ground outright, with no
-   balancing test to lose: they wear the bone every statutory quantity on this map
-   wears. A reader who learns only that difference has learnt the useful thing.
+   which forbids installations and alteration of the ground save for the mires’
+   own protection and their existing agricultural use, with no balancing test to
+   lose: they wear the bone every statutory quantity on this map wears. A reader
+   who learns only that difference has learnt the useful thing.
 
    Mire landscapes are drawn as an outline and never filled. They are containers,
    875 km2 of them, and a fill would bury the bogs they are drawn around.
@@ -1908,7 +1955,7 @@ function drawWetlands() {
   ctx.restore();
   // The objects too small to draw as ground. A ring, not a disc: it carries a place
   // and not a quantity, which is the same grammar the use layer runs on. They wait
-  // for the zoom that can tell them apart; nine hundred rings over the Mittelland at
+  // for the zoom that can tell them apart; four hundred and forty-four rings over the country at
   // country view is a texture and not a fact.
   if (z < 2.4) return;
   for (const o of pts) {
@@ -2282,6 +2329,14 @@ scrub.addEventListener('input', () => {
 async function loadVintage() {
   try {
     vintage = await fetch(ROOT + 'data/vintage.json').then(r => r.json());
+    // The file was written on build day and is read on some later day. sources.html
+    // ages every source to the reader's own clock; this legend names two of the same
+    // registers, so it ages them the same way — otherwise the two pages disagree by
+    // up to a week about the age of the same file.
+    const day = 86400000, now = Date.now();
+    for (const s of vintage.sources) {
+      s.ageDays = s.datenstand ? Math.floor((now - Date.parse(s.datenstand)) / day) : null;
+    }
     renderVintage();
   } catch (e) {
     // Nothing on the map depends on this beyond two notes, so a failure here is
