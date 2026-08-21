@@ -7,7 +7,7 @@
      needs the text bigger. A map is not a reason to break zoom. -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Water and ice in Switzerland — a measured base layer</title>
-<meta name="description" content="Live discharge in Swiss rivers from the federal gauging network, water temperature against the statutory ceiling, reservoir storage against 26 years of its own record, and Swiss glacier area across five dated inventories. Every figure carries its source, its class of evidence and its age.">
+<meta name="description" content="Live discharge in Swiss rivers from the federal gauging network, reservoir storage against 26 years of its own record, and Swiss glacier area across six dated inventories. Every figure carries its source, evidence class and age.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0d0d0d">
 <link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/">
@@ -19,7 +19,7 @@
 <link rel="alternate" hreflang="x-default" href="./">
 <link rel="icon" href="favicon.svg?v=20260821" type="image/svg+xml">
 <meta property="og:title" content="Water and ice in Switzerland">
-<meta property="og:description" content="Swiss rivers, live. Reservoirs against 26 years of their own record. Glaciers across five dated inventories. A measured base layer for legal work on climate.">
+<meta property="og:description" content="Swiss rivers, live. Reservoirs against 26 years of record. Glaciers across six inventories. Evidence for understanding water and protecting its pathways.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Water and ice in Switzerland">
 <meta property="og:url" content="https://jonashertner.github.io/riverflow-ch/">
@@ -45,7 +45,7 @@
 
 <header id="titlebar">
   <h1>Water and ice in Switzerland</h1>
-  <p class="sub">Rivers read live from the federal gauges. Ice across five surveys. Reservoirs against their own record.</p>
+  <p class="sub">Rivers read live from federal gauges. Ice across six surveys. Reservoirs against their own record.</p>
   <p class="stamp" id="stamp" role="status" aria-live="polite">Loading&#8230;</p>
 
   <!-- The page's one claim about itself, drawn rather than asserted. -->
@@ -187,9 +187,10 @@
       <li><span class="swatch ice2023"></span>Ice in 2023</li>
     </ul>
     <p class="lgNote">The 2023 bodies are drawn over the 1850 outlines. What stays in colour is
-      the ice that has gone. Press play to run the five dated surveys in their real intervals.</p>
+      the ice that has gone. Press play to run six dated surveys in their real intervals.</p>
     <p class="lgNote" id="iceTotals">&nbsp;</p>
-    <p class="lgNote"><b>This is area, not volume.</b> The two have not moved together: through recent
+    <p class="lgNote"><b>This is area, not volume.</b> The 2010 and 2016 totals use different
+      delineation methods; their apparent increase is not ice growth. Through recent
       decades the ice thinned faster than it shrank in plan, because a glacier loses thickness over its
       whole surface before it loses its outline. The area figures here are measured. The volume figures
       are cited, and they come from separate work by separate methods.</p>
@@ -201,17 +202,12 @@
       <li><span class="swatch resiMod"></span>Q<sub>347</sub> modelled &mdash; a rough estimate</li>
     </ul>
     <p class="lgNote" id="residualCount">&nbsp;</p>
-    <p class="lgNote"><b>What the statute would require, not what anyone owes today.</b> Art. 31(1) GSchG
-      sets a minimum that must stay in the bed where water is taken. The figure follows from
-      Q<sub>347</sub>, and BAFU publishes Q<sub>347</sub> at 1'041 points, so the minimum can be
-      computed and mapped instead of typed in. But the rule bites only on a <b>new</b> abstraction, and on
-      an existing one only when its concession expires and has to be renewed. An abstraction already
-      running is governed by the restoration regime of Art.&nbsp;80&nbsp;ff instead.</p>
-    <p class="lgNote"><b>Datenstand 1 January 2000.</b> That is the strangest fact in this layer and the
-      most useful. Art.&nbsp;4(h) defines Q<sub>347</sub> as a ten-year mean, and the decade in this file is
-      the decade the determinations were made on &mdash; so for the question "what was required" the old
-      figure is the right one. For the question "how much water is in this brook in a dry year" it
-      describes a hydrology that has since changed.</p>
+    <p class="lgNote"><b>Illustration, not legal determination.</b> The map applies the arithmetic in
+      Art.&nbsp;31(1) GSchG to BAFU's published Q<sub>347</sub> values. A canton must still determine the
+      adequate residual flow for the site. Local measurement and Arts.&nbsp;31(2), 32 and 33 may change it.</p>
+    <p class="lgNote"><b>Federal data state 1 January 2000.</b> The file is historical. BAFU calls its
+      model values rough estimates that generally need local measurement. Use the source record and the
+      cantonal decision—not this map—in legal work.</p>
   </div>
 
   <div class="lg" id="lgUse" hidden>
@@ -331,11 +327,13 @@
 
 <dialog id="intro" aria-labelledby="introTitle" aria-describedby="introLead">
   <button type="button" id="introClose" aria-label="Close project brief">&times;</button>
-  <p class="introEyebrow">A measured picture of Swiss water</p>
-  <h2 id="introTitle">Switzerland&rsquo;s water, read as evidence.</h2>
-  <p class="introLead" id="introLead">One map brings together live river discharge, reservoir history,
-    glacier retreat and the law that governs water. Every figure tells you where it came from, how old
-    it is, and whether it was measured or inferred.</p>
+  <p class="introEyebrow">The water cycle, read as evidence</p>
+  <h2 id="introTitle">Follow the water. Protect its pathways.</h2>
+  <p class="introLead" id="introLead">The goal is to trace water through Switzerland—from ice and
+    groundwater to rivers, storage, use, return and the border—and show the law protecting each
+    essential path. The project exists to help protect wetlands and support legal action when
+    protection fails. This release begins with surface water. Every figure states its source, age
+    and evidence class.</p>
   <ul class="introFacts">
     <li><strong>Live</strong><span>Federal river gauges</span></li>
     <li><strong>26 years</strong><span>Reservoir history</span></li>
@@ -349,9 +347,10 @@
 </dialog>
 
 <footer id="credits">
-  <p><strong>Rivers</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), reaches with a catchment of
-  5&nbsp;km&#178; or more, carrying live discharge from the BAFU gauging network through LINDAS.
-  <strong>Ice</strong> GLAMOS, five dated inventories. <strong>Reservoirs</strong> BFE.
+  <p><strong>Rivers</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), filtered at 5&nbsp;km&#178; after
+  HydroRIVERS' own 10&nbsp;km&#178; or 0.1&nbsp;m&#179;/s source threshold, carrying current valid
+  discharge from the BAFU gauging network through LINDAS.
+  <strong>Ice</strong> GLAMOS, six dated inventories. <strong>Reservoirs</strong> BFE.
   <strong>Residual flow and water use</strong> BAFU and BFE. <strong>Names</strong> swissNAMES3D,
   swisstopo. Every source, its licence and its data state is on the
   <a href="sources.html">sources page</a>. Measured and modelled water, not a forecast.</p>

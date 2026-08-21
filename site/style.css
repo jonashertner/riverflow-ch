@@ -26,7 +26,7 @@ html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 /* ---- the two canvases ----
    The base map redraws only when the view or the data changes. The current runs
    on its own canvas every frame over the top, so 3 200 particles never force a
-   redraw of 8 716 reaches. touch-action is none so the canvas takes its own
+   redraw of 8 711 reaches. touch-action is none so the canvas takes its own
    gestures; the rest of the page still pinches normally. */
 #map, #flow { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
 #map { cursor: grab; touch-action: none; }

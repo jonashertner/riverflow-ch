@@ -9,6 +9,7 @@
 //      used to tell l/s from m3/s. Verified 19.08.2026: station 2492 reads in l/s,
 //      station 2289 reads in m3/s, both flagged isLiter=true.
 import fs from 'node:fs/promises';
+import { bindStations } from './lib-stations.mjs';
 
 const ENDPOINT = 'https://lindas.admin.ch/query';
 const GRAPH = '<https://lindas.admin.ch/foen/hydro>';
@@ -24,13 +25,18 @@ async function sparql(query) {
   return j.results.bindings.map(b => Object.fromEntries(Object.entries(b).map(([k, v]) => [k, v.value])));
 }
 
-const rows = await sparql(`
+const rawRows = await sparql(`
 PREFIX schema: <http://schema.org/>
 PREFIX h: <https://environment.ld.admin.ch/foen/hydro/dimension/>
 PREFIX geo: <http://www.opengis.net/ont/geosparql#>
-SELECT ?station ?id ?name ?wkt ?discharge ?level ?temp
+SELECT ?station ?id ?name ?wkt ?time ?discharge ?level ?temp
 FROM ${GRAPH}
 WHERE {
+  {
+    SELECT ?station (MAX(?observedAt) AS ?time)
+    WHERE { ?latest h:station ?station ; h:measurementTime ?observedAt . }
+    GROUP BY ?station
+  }
   ?obs h:station ?station ; h:measurementTime ?time .
   OPTIONAL { ?obs h:discharge ?discharge }
   OPTIONAL { ?obs h:waterLevel ?level }
@@ -38,6 +44,16 @@ WHERE {
   ?station schema:identifier ?id ; schema:name ?name ; geo:hasGeometry ?g .
   ?g geo:asWKT ?wkt .
 }`);
+
+// During an update the cube can briefly expose more than one observation for a
+// station. Keep one station record, and make the choice here instead of accepting
+// the endpoint's unspecified result order.
+const latestById = new Map();
+for (const row of rawRows) {
+  const previous = latestById.get(row.id);
+  if (!previous || String(row.time) > String(previous.time)) latestById.set(row.id, row);
+}
+const rows = [...latestById.values()].sort((a, b) => String(a.id).localeCompare(String(b.id), 'en', { numeric: true }));
 
 console.log(`LINDAS: ${rows.length} stations, ${rows.filter(r => r.discharge).length} with discharge`);
 
@@ -74,6 +90,14 @@ const tally = {};
 for (const u of units.values()) tally[u ?? 'UNKNOWN'] = (tally[u ?? 'UNKNOWN'] ?? 0) + 1;
 console.log('units:', tally);
 
+function factorFor(unit) {
+  if (!unit) return null;
+  const clean = unit.replace(/<[^>]+>/g, '').replace(/\s+/g, '').toLowerCase();
+  if (clean === 'l/s') return 0.001;
+  if (clean === 'm³/s' || clean === 'm3/s') return 1;
+  return null;
+}
+
 const stations = rows.map(r => {
   const m = /POINT\s*\(([-\d.]+)\s+([-\d.]+)\)/.exec(r.wkt);
   const unit = units.get(r.id) ?? null;
@@ -84,10 +108,23 @@ const stations = rows.map(r => {
     lat: m ? +(+m[2]).toFixed(5) : null,
     // factor converts the raw LINDAS number into m3/s
     unit: unit,
-    factor: unit === 'l/s' ? 0.001 : 1,
+    // An unresolved unit is not silently treated as m3/s. The runtime keeps the
+    // station visible but cannot use its discharge as evidence.
+    factor: factorFor(unit),
     hasQ: r.discharge !== undefined,
   };
 }).filter(s => s.lon !== null);
+
+// The weekly refresh reuses the committed network. A clean full build also has
+// the last committed network available; build/02 repeats the binding after it
+// rebuilds that network from source.
+try {
+  const net = JSON.parse(await fs.readFile(new URL('../site/data/network.json', import.meta.url), 'utf8'));
+  const bound = bindStations(stations, net.reaches, net.p);
+  console.log(`bound ${bound}/${stations.length} stations to the committed network`);
+} catch (error) {
+  console.warn(`station binding skipped: ${error.message}`);
+}
 
 await fs.writeFile(
   new URL('../site/data/stations.json', import.meta.url),

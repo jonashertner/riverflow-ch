@@ -1,13 +1,14 @@
-// Build icehistory.json: five dated states of Swiss ice, so the retreat can be
+// Build icehistory.json: six dated states of Swiss ice, so the retreat can be
 // played instead of cross-faded.
 //
 //   1850  doi:10.18750/inventory.sgi1850.r1992   Maisch and others
 //   1931  doi:10.18750/inventory.sgi1931.r2022   from the 1931 aerial survey
 //   1973  doi:10.18750/inventory.sgi1973.r1976
 //   2010  doi:10.18750/inventory.sgi2010.r2010
+//   2016  doi:10.18750/inventory.sgi2016.r2020
 //   2023  doi:10.18750/inventory.sgi2023.r2026
 //
-// The intervals are 81, 42, 37 and 13 years. Holding each frame in proportion to
+// The intervals are 81, 42, 37, 6 and 7 years. Holding each frame in proportion to
 // its own interval is the whole point: an animation that gives every frame the
 // same time makes 1850-1931 look as fast as 2010-2023, which is the opposite of
 // what the numbers say.
@@ -42,6 +43,7 @@ const FRAMES = [
   { y: 1931, f: 'g1931.json', area: p => p.AREA_M2 * 1e-6, doi: '10.18750/inventory.sgi1931.r2022' },
   { y: 1973, f: 'g1973.json', area: p => p.AREA_M2 * 1e-6, doi: '10.18750/inventory.sgi1973.r1976' },
   { y: 2010, f: 'g2010.json', area: p => p.AREA_M2 * 1e-6, doi: '10.18750/inventory.sgi2010.r2010' },
+  { y: 2016, f: 'g2016.json', area: p => p.area_km2, doi: '10.18750/inventory.sgi2016.r2020' },
   { y: 2023, f: 'g2023.json', area: p => p.area_km2, doi: '10.18750/inventory.sgi2023.r2026' },
 ];
 
@@ -71,11 +73,11 @@ function encode(geometry) {
 // 1850 and 2023 already ship in glaciers.json, as the silhouette under the ice
 // layer and as the clickable bodies over it. Carrying them again here would put
 // 1.1 MB of the same coordinates on the wire twice, so this file holds only the
-// three frames that are new, and the page composes the sequence from both: 1850
-// from glaciers.pastRings, 1931-1973-2010 from here, 2023 from the bodies
+// four frames that are new, and the page composes the sequence from both: 1850
+// from glaciers.pastRings, 1931-1973-2010-2016 from here, 2023 from the bodies
 // themselves. Every frame still carries its area, because the counter and the
-// chart need all five and the numbers cost nothing.
-const GEOM_FOR = new Set([1931, 1973, 2010]);
+// chart need all six and the numbers cost nothing.
+const GEOM_FOR = new Set([1931, 1973, 2010, 2016]);
 
 const frames = [];
 for (const fr of FRAMES) {

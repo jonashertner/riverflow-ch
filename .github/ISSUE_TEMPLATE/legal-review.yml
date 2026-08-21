@@ -1,0 +1,32 @@
+name: Legal review
+description: Correct or qualify a statutory, case-law or implementation claim.
+title: "[Law] "
+labels: [law, review]
+body:
+  - type: textarea
+    id: proposition
+    attributes:
+      label: Proposition to review
+      description: Quote the smallest affected sentence and explain the correction.
+    validations:
+      required: true
+  - type: input
+    id: authority
+    attributes:
+      label: Official authority
+      description: Link to Fedlex, the published decision, or another primary official source.
+    validations:
+      required: true
+  - type: input
+    id: date
+    attributes:
+      label: Version or decision date
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and qualification
+      description: State the jurisdiction, procedural posture and any inference or uncertainty.
+    validations:
+      required: true

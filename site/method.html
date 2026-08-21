@@ -75,6 +75,7 @@
       <li><a href="#reservoirs">The reservoirs</a></li>
       <li><a href="#wetlands">Protected wetland</a></li>
       <li><a href="#pictures">Pictures, and data</a></li>
+      <li><a href="#cycle">Water-cycle coverage</a></li>
       <li><a href="#limits">What it cannot do</a></li>
       <li><a href="#build">How it is rebuilt</a></li>
     </ol>
@@ -87,7 +88,7 @@
       <p class="lede">Every figure on this map is the end of a chain: a federal register, a join,
         a projection, an inference. This page walks each chain in the order the map walks it, and
         says <b>where each one breaks</b>.</p>
-      <p class="dateline">Written against the build of <b>19.08.2026</b>. Figures marked as structural are counted from the data files themselves and change only when a source is rebuilt.</p>
+      <p class="dateline">Structural figures are checked against the committed data at every release. Live figures are accepted per station only when their time, value and unit pass the rules below.</p>
     </header>
 
     <section id="reading">
@@ -98,12 +99,12 @@
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Layer</th><th scope="col">The question it answers</th><th scope="col">What it is drawn from</th></tr></thead>
         <tbody>
-          <tr><td><b>Flow</b></td><td>How much water is moving, right now?</td><td>236 federal gauges, read every ten minutes, propagated onto 8'716 reaches</td></tr>
+          <tr><td><b>Flow</b></td><td>How much water is moving now?</td><td>187 federal discharge series; only current, valid readings can drive 8'711 reaches</td></tr>
           <tr><td><b>Against normal</b></td><td>Is that a lot or a little for this river?</td><td>Today against a modelled long-term mean. Not quotable, and the layer says so</td></tr>
           <tr><td><b>Temperature</b></td><td>Where is the 25&nbsp;°C ceiling in play?</td><td>The gauges that carry a thermometer, against GSchV Annex&nbsp;2 No.&nbsp;12(4)</td></tr>
           <tr><td><b>Reservoirs</b></td><td>How much water is held back, and how full is it?</td><td>225 dams under federal supervision, and a weekly filling series since 2000</td></tr>
-          <tr><td><b>Ice</b></td><td>What has the ice lost, and how fast?</td><td>Five dated glacier inventories, 1850 to 2023</td></tr>
-          <tr><td><b>Residual flow</b></td><td>What would the statute require in this bed?</td><td>1'041 published Q<sub>347</sub> points, with the Art.&nbsp;31(1) minimum computed</td></tr>
+          <tr><td><b>Ice</b></td><td>What has the ice lost, and how fast?</td><td>Six dated glacier inventories, 1850 to 2023</td></tr>
+          <tr><td><b>Residual flow</b></td><td>What does the Art.&nbsp;31(1) arithmetic give?</td><td>1'041 published Q<sub>347</sub> points; illustrative, not a cantonal determination</td></tr>
           <tr><td><b>Water use</b></td><td>Who takes water out, and who puts heat in?</td><td>Four federal registers: hydropower, abstractions, nuclear sites, treatment plants</td></tr>
           <tr><td><b>Water sources</b></td><td>Where does the water come from?</td><td>Groundwater bodies, headwaters, sub-catchments, and the protection zones in force</td></tr>
         </tbody>
@@ -125,19 +126,20 @@
 
       <h3>Time, and the switch that strips the map back</h3>
       <p>Two layers describe a change rather than a state, and they get a time ribbon: the
-        reservoirs run twenty-six years of weekly filling, the ice runs five surveys held in their
-        real intervals of 81, 42, 37 and 13 years. Press play, or drag the scrubber.</p>
-      <p><b>Live data only</b> is the switch worth knowing about. It removes everything that is
-        not being measured today: the four archival layers go, and so do the 8'545 reaches whose
-        number is an inference. What is left is 171 reaches and the gauges reporting on them. It is
-        meant to be uncomfortable, and it is the most honest picture on this site.</p>
+        reservoirs run twenty-six years of weekly filling, the ice runs six surveys held in their
+        real intervals of 81, 42, 37, 6 and 7 years. Press play, or drag the scrubber.</p>
+      <p><b>Live data only</b> removes every estimate and archival layer. What remains changes with
+        the feed: a reach survives only while its selected gauge has a finite, non-negative discharge,
+        a verified unit and an observation no more than 30 minutes old.</p>
     </section>
 
     <section id="network">
       <h2>The network</h2>
-      <p>The river lines are HydroRIVERS v1.0, the river network of HydroSHEDS, clipped to
-        Switzerland and to reaches with a catchment of 5&nbsp;km² or more. That leaves
-        <span class="num">8'716</span> reaches, each with an identifier, the reach immediately
+      <p>The river lines are HydroRIVERS v1.0, clipped to Switzerland and then filtered at
+        5&nbsp;km² upstream area. The source itself includes rivers only where catchment is at least
+        10&nbsp;km² or modelled mean flow is at least 0.1&nbsp;m³/s. It is therefore not a complete
+        inventory of 5–10&nbsp;km² streams. The extract has <span class="num">8'711</span> unique
+        reaches, each with an identifier, the reach immediately
         downstream of it, a Strahler order, an upstream catchment area and a modelled long-term
         mean discharge.</p>
       <p><b>It is a modelled geometry and not the federal watercourse layer.</b> HydroRIVERS is a
@@ -194,15 +196,14 @@
         cadence, for as long as it is the tab being looked at. A hidden tab stops asking, and on
         return serves out whatever is left of the cadence. The button forces a read at any
         time.</p>
-      <p>There are <span class="num">236</span> stations in the answer.
-        <span class="num">229</span> of them snap to a river reach, and they land on
-        <span class="num">208</span> distinct reaches, because more than one gauge can sit on the
-        same modelled line.</p>
-      <div class="flag"><b>A trap, and it is in the federal data.</b> LINDAS publishes a per-station
-        flag saying whether the discharge series is in litres per second. On every one of the 190
-        rows that carry it, the flag is wrong. The unit is resolved from the observed series and its
-        stated unit instead, and the conversion factor for each station is shown in that station's
-        own panel, so a reader can check the arithmetic rather than trust it.</div>
+      <p>The station file has <span class="num">233</span> unique stations; <span class="num">227</span>
+        snap to a reach. <span class="num">187</span> carry discharge, landing on
+        <span class="num">173</span> reaches. Five discharge stations have no verifiable unit, so
+        <span class="num">168</span> reaches can ever be accepted as measured.</p>
+      <div class="flag"><b>Acceptance rule.</b> For each station the query selects the newest timestamp.
+        The browser accepts discharge only when it is finite, non-negative, at most 30 minutes old and
+        has a unit verified from the station's own hydrodaten plot. Stale, invalid and unit-unknown
+        values remain inspectable but never drive a reach or an estimate.</div>
     </section>
 
     <section id="evidence">
@@ -212,21 +213,19 @@
         belongs to exactly one of three classes, and the bar at the top of the map counts them from
         the drawing itself on every live read, so it cannot drift away from what is on screen.</p>
       <div class="evPage">
-        <div class="evBar" role="img" aria-label="208 reaches gauged, 5'010 estimated, 3'498 with no basis">
-          <span class="evMeasured" style="flex:208"></span>
-          <span class="evEstimated" style="flex:5010"></span>
-          <span class="evNone" style="flex:3498"></span>
+        <div class="evBar" role="img" aria-label="168 reaches eligible for measurement, 5'125 estimated, 3'418 with no basis">
+          <span class="evMeasured" style="flex:168"></span>
+          <span class="evEstimated" style="flex:5125"></span>
+          <span class="evNone" style="flex:3418"></span>
         </div>
         <ul class="evKeys">
-          <li><i class="evMeasured"></i>Gauged &mdash; <span class="num">208</span> (2.4&#8201;%)</li>
-          <li><i class="evEstimated"></i>Estimated &mdash; <span class="num">5'010</span> (57.5&#8201;%)</li>
-          <li><i class="evNone"></i>No basis &mdash; <span class="num">3'498</span> (40.1&#8201;%)</li>
+          <li><i class="evMeasured"></i>Eligible gauge reach &mdash; <span class="num">168</span> (1.9&#8201;%)</li>
+          <li><i class="evEstimated"></i>Connected estimate &mdash; <span class="num">5'125</span> (58.8&#8201;%)</li>
+          <li><i class="evNone"></i>No current basis &mdash; <span class="num">3'418</span> (39.2&#8201;%)</li>
         </ul>
       </div>
-      <p class="fine">Those are the <b>structural</b> figures: how the network divides once you ask
-        which reaches could ever carry a measured number. The live figures on the map are lower in
-        the first class, usually around 171, because not every gauge is reporting a discharge at any
-        given moment. The difference between the two is itself worth knowing.</p>
+      <p class="fine">These are structural upper bounds, assuming every unit-verified discharge gauge
+        is current. The bar on the map is live and is normally lower.</p>
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Class</th><th scope="col">What the number is</th><th scope="col">What it will bear</th></tr></thead>
         <tbody>
@@ -242,15 +241,15 @@
       <p>An ungauged reach is given a number in one step, and the step is deliberately crude
         because a crude rule that can be stated in a sentence is easier to argue with than a
         sophisticated one that cannot.</p>
-      <p>Each gauge yields an <em>anomaly</em>: what it is reading now, divided by its own
+      <p>Each accepted gauge yields an <em>anomaly</em>: its current discharge divided by the
         long-term mean. A reach with no gauge takes the anomaly of <b>the first gauged reach
         downstream</b> of it, because that is the water it is about to become, and multiplies its
-        own long-term mean by it. Failing that it takes the anomaly of the largest gauged river
-        above it. Failing both, it has no basis and is drawn as such.</p>
+        own long-term mean by it. Failing that it takes the closest connected gauge on any upstream
+        branch. Failing both, it has no basis.</p>
       <div class="aside">The long-term mean used here is HydroRIVERS <code>DIS_AV_CMS</code>, which
-        is <b>modelled</b> and is not the federal statistic. Every figure that depends on it — the
-        estimate, and the whole <em>Against normal</em> layer — inherits that. The layer says so on
-        its own face and the words are <b>not quotable</b>.</div>
+        is <b>modelled</b>, not a federal station statistic. The scaling does not model diversions,
+        storage or travel time and does not enforce mass balance at confluences. It is a directional
+        signal, not a discharge measurement or drought index.</div>
     </section>
 
     <section id="names">
@@ -281,7 +280,7 @@
           10'706&nbsp;km² on the strength of one placement that fell 131&nbsp;m from the trunk.</li>
       </ul>
       <h3>Carrying a name along its own water</h3>
-      <p>The anchors alone name 1'691 of 8'716 reaches, so a reader pointing between two placements
+      <p>The anchors alone name 1'691 of 8'711 reaches, so a reader pointing between two placements
         would be told nothing about a river they can plainly see is the Aare. Each name is therefore
         carried along its own channel, on the rule rivers are actually named by: <b>the majority
         partner keeps the name</b>. Downstream it runs while the reach it came from still supplies at
@@ -315,7 +314,7 @@
 
     <section id="ice">
       <h2>The ice</h2>
-      <p>Five dated inventories from GLAMOS — 1850, 1931, 1973, 2010 and 2023 — with the 2023
+      <p>Six dated inventories from GLAMOS — 1850, 1931, 1973, 2010, 2016 and 2023 — with the 2023
         bodies drawn over the 1850 outlines, so what stays in colour is the ice that has gone. The
         tongue sparkline in a glacier's panel is the Swiss Glacier Length Change series, measured
         every autumn since the 1880s.</p>
@@ -324,10 +323,20 @@
         loses thickness over its whole surface before it loses its outline. The area figures on this
         map are measured. Any volume figure quoted is cited, and comes from separate work by
         separate methods.</div>
-      <p class="fine">Five surveys made between 1850 and 2023 are five different instruments: a
+      <div class="aside"><b>The apparent gain from 2010 to 2016 is a method break, not ice growth.</b>
+        SGI2010 reports 944.4&nbsp;km&#178;. GLAMOS found that applying the later delineation rules to
+        the 2010 imagery gives about 1'009&nbsp;km&#178;, rather than 944.4&nbsp;km&#178;. The map keeps
+        both published inventories unchanged and does not treat their 16.9&nbsp;km&#178; difference as
+        physical change. See the <a href="https://doi.glamos.ch/pubs/glrep/glrep_141-142.pdf"
+        target="_blank" rel="noopener">GLAMOS methodological assessment</a>.</div>
+      <p class="fine">Six surveys made between 1850 and 2023 use different instruments and
+        delineation rules: a
         plane-table survey, an aerial photogrammetric one and an airborne-laser one are not the same
         measurement, and the older outlines carry the uncertainty of their own century. What the
-        series is strong evidence of is a change of state, its size and its timing.</p>
+        series is strong evidence of is long-run change. The 2010–2016 segment is not a rate.</p>
+      <p class="fine">For phone performance, the 1931, 1973, 2010 and 2016 silhouettes omit bodies
+        smaller than 0.05&nbsp;km&#178;. Their totals include every body. The drawn shapes represent
+        98.7, 97.7, 98.1 and 98.7&nbsp;% of the respective inventory area.</p>
     </section>
 
     <section id="reservoirs">
@@ -392,7 +401,7 @@
         them, and a fill would bury the bogs they are drawn around.</p>
 
       <h3>Where the two layers land on the same water</h3>
-      <div class="flag"><b>415 of the 8'716 reaches on this map run through an alluvial zone
+      <div class="flag"><b>415 of the 8'711 reaches on this map run through an alluvial zone
         of national importance.</b> On those reaches two duties meet: Art. 4 of the Auenverordnung
         requires the natural dynamics of the water regime to be preserved, and Art. 31 GSchG puts a
         floor under the quantity left in the bed where water is taken. The residual-flow layer draws
@@ -442,12 +451,35 @@
         take the discharge ramp's contrast with it.</p>
     </section>
 
+    <section id="cycle">
+      <h2>Water-cycle coverage</h2>
+      <p>The project aims to trace water through the whole cycle and identify the law protecting
+        each essential pathway. This release covers only part of that chain.</p>
+      <div class="tWrap"><table>
+        <thead><tr><th scope="col">Pathway</th><th scope="col">Current coverage</th><th scope="col">Needed next</th></tr></thead>
+        <tbody>
+          <tr><td>Precipitation, snow, soil</td><td>Not mapped</td><td>Observed precipitation, snow water equivalent and soil moisture</td></tr>
+          <tr><td>Ice</td><td>Six area inventories</td><td>Annual mass balance and volume</td></tr>
+          <tr><td>Groundwater and springs</td><td>Groundwater-body context only</td><td>NAQUA levels, spring discharge and recharge</td></tr>
+          <tr><td>Rivers and lakes</td><td>Current station observations on a model network</td><td>Small streams, sediment, NAWA quality and lake profiles</td></tr>
+          <tr><td>Storage</td><td>Dams and regional stored energy</td><td>Named-reservoir levels and lake storage</td></tr>
+          <tr><td>Use and return</td><td>Four historical registers</td><td>Sector volumes, transfers, return flows and current permits</td></tr>
+          <tr><td>Legal protection</td><td>Residual flow, wetlands and protection zones</td><td>Concessions, expiry, orders, enforcement and cantonal decisions</td></tr>
+          <tr><td>Across the border</td><td>Sea-basin context and frontier gauges</td><td>Matched downstream observations and transboundary duties</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
     <section id="limits">
       <h2>What this map cannot do</h2>
       <p>The most useful thing it does for a file is narrower and more reliable than proof: it tells
         you which register is old, what quantity nobody publishes, and which reach the question
         actually sits on. Here is the other side of that.</p>
       <ul>
+        <li><b>It is not a complete account of Swiss water.</b> The table above is the development
+          roadmap, not data the current map claims to contain.</li>
+        <li><b>It does not cover every stream.</b> HydroRIVERS omits many small or dry headwaters;
+          absence from this map does not mean absence on the ground.</li>
         <li><b>It cannot tell you a concession's expiry date.</b> For an existing abstraction that
           date, and not today, is the operative one. It is in the concession, and no federal open
           dataset carries it.</li>
@@ -465,9 +497,8 @@
 
     <section id="build">
       <h2>How it is rebuilt</h2>
-      <p>The data is baked by a numbered sequence of scripts with no dependencies beyond Node, each
-        writing one file into <code>site/data</code>. The numbering is a real order: later steps read
-        what earlier ones wrote.</p>
+      <p>The build uses Bash, curl, unzip, Node and a pinned mapshaper release. Numbered steps write
+        the files in <code>site/data</code>; later steps read earlier outputs.</p>
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Step</th><th scope="col">What it builds</th><th scope="col">When it runs</th></tr></thead>
         <tbody>

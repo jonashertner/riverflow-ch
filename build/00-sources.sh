@@ -21,18 +21,18 @@ unzip -oq ne_countries.zip -d ne_countries
 BB=5.8,45.7,10.6,48.0     # Switzerland with a border margin
 
 echo "clip the river network"
-npx -y mapshaper HydroRIVERS_v10_eu_shp/HydroRIVERS_v10_eu.shp \
+npx -y mapshaper@0.7.53 HydroRIVERS_v10_eu_shp/HydroRIVERS_v10_eu.shp \
   -clip bbox=$BB \
   -filter 'UPLAND_SKM >= 5' \
   -filter-fields HYRIV_ID,NEXT_DOWN,MAIN_RIV,ORD_STRA,ORD_CLAS,UPLAND_SKM,CATCH_SKM,DIS_AV_CMS,LENGTH_KM,DIST_DN_KM \
   -o "$D/rivers_ch.json" format=geojson precision=0.00001
 
 echo "clip the lakes and the border"
-npx -y mapshaper ne_lakes/ne_10m_lakes.shp -clip bbox=$BB -filter-fields name \
+npx -y mapshaper@0.7.53 ne_lakes/ne_10m_lakes.shp -clip bbox=$BB -filter-fields name \
   -o "$D/lakes.json" format=geojson precision=0.00001
-npx -y mapshaper ne_lakes_eu/ne_10m_lakes_europe.shp -clip bbox=$BB -filter-fields name \
+npx -y mapshaper@0.7.53 ne_lakes_eu/ne_10m_lakes_europe.shp -clip bbox=$BB -filter-fields name \
   -o "$D/lakes_eu.json" format=geojson precision=0.00001
-npx -y mapshaper ne_countries/ne_10m_admin_0_countries.shp -filter '"CHE"===ADM0_A3' -filter-fields ADM0_A3 \
+npx -y mapshaper@0.7.53 ne_countries/ne_10m_admin_0_countries.shp -filter '"CHE"===ADM0_A3' -filter-fields ADM0_A3 \
   -o "$D/border.json" format=geojson precision=0.00001
 
 echo "done. now run: node build/01-stations.mjs && node build/02-network.mjs && node build/03-context.mjs"
@@ -55,13 +55,13 @@ done
 # Mercator out of the .prj, so the source frame is given explicitly.
 LV95='+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs'
 
-npx -y mapshaper x/inventory_sgi2023_r2026/SGI_2023_glaciers.shp \
+npx -y mapshaper@0.7.53 x/inventory_sgi2023_r2026/SGI_2023_glaciers.shp \
   -proj from="$LV95" wgs84 \
   -filter-fields sgi-id,name,area_km2,length_km,masl_min,masl_max,year_acq \
   -simplify 6% keep-shapes \
   -o "$G/g2023.json" format=geojson precision=0.00001
 
-npx -y mapshaper x/inventory_sgi1850_r1992/SGI_1850.shp \
+npx -y mapshaper@0.7.53 x/inventory_sgi1850_r1992/SGI_1850.shp \
   -proj from="$LV95" wgs84 \
   -filter-fields SGI,Shape_Area \
   -simplify 5% keep-shapes \
@@ -86,8 +86,8 @@ echo "water use ready. now run: node build/05-users.mjs"
 # ---- the inventories in between ---------------------------------------------
 # 1850 and 2023 are two states, not a sequence. GLAMOS publishes three more dated
 # inventories between them, and with those the retreat can be shown as it happened
-# rather than as a before and after: 1850, 1931, 1973, 2010, 2023. The intervals
-# are 81, 42, 37 and 13 years, and holding each frame in proportion to its own
+# rather than as a before and after: 1850, 1931, 1973, 2010, 2016, 2023. The intervals
+# are 81, 42, 37, 6 and 7 years, and holding each frame in proportion to its own
 # interval is what puts the acceleration on the screen.
 #
 # Two traps here. The 1931 inventory is in the OLD national frame, CH1903/LV03,
@@ -99,24 +99,59 @@ echo "water use ready. now run: node build/05-users.mjs"
 LV03='+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=600000 +y_0=200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs'
 
 cd "$G"
-for f in inventory_sgi1931_r2022 inventory_sgi1973_r1976 inventory_sgi2010_r2010; do
+for f in inventory_sgi1931_r2022 inventory_sgi1973_r1976 inventory_sgi2010_r2010 inventory_sgi2016_r2020; do
   [ -f "$f.zip" ] || curl -fL -o "$f.zip" "https://doi.glamos.ch/data/inventory/$f.zip"
   mkdir -p "x/$f"; unzip -oq "$f.zip" -d "x/$f"
 done
 
-npx -y mapshaper x/inventory_sgi1931_r2022/SGI_1931.shp \
+npx -y mapshaper@0.7.53 x/inventory_sgi1931_r2022/SGI_1931.shp \
   -each 'AREA_M2 = this.area' -proj from="$LV03" wgs84 \
   -filter-fields SGI,AREA_M2,date -simplify 3% keep-shapes \
   -o "$G/g1931.json" format=geojson precision=0.00001
 
-npx -y mapshaper x/inventory_sgi1973_r1976/SGI_1973.shp \
+npx -y mapshaper@0.7.53 x/inventory_sgi1973_r1976/SGI_1973.shp \
   -each 'AREA_M2 = this.area' -proj from="$LV95" wgs84 \
   -filter-fields SGI,AREA_M2 -simplify 3% keep-shapes \
   -o "$G/g1973.json" format=geojson precision=0.00001
 
-npx -y mapshaper x/inventory_sgi2010_r2010/SGI_2010.shp \
+npx -y mapshaper@0.7.53 x/inventory_sgi2010_r2010/SGI_2010.shp \
   -each 'AREA_M2 = this.area' -proj from="$LV95" wgs84 \
   -filter-fields SGI,AREA_M2 -simplify 3% keep-shapes \
   -o "$G/g2010.json" format=geojson precision=0.00001
 
+npx -y mapshaper@0.7.53 x/inventory_sgi2016_r2020/SGI_2016_glaciers.shp \
+  -proj from="$LV95" wgs84 \
+  -filter-fields sgi-id,area_km2,year_acq -simplify 3% keep-shapes \
+  -o "$G/g2016.json" format=geojson precision=0.00001
+
 echo "ice history ready. now run: node build/09-icehistory.mjs"
+
+# Record immutable hashes for every downloaded archive used by this script. API
+# builds record their source state in vintage.json; they are not falsely described
+# as archived inputs here.
+node --input-type=module - "$D/source-archives.json" <<'NODE'
+import fs from 'node:fs';
+import { createHash } from 'node:crypto';
+const out = process.argv[2];
+const rows = [
+  ['/tmp/riv/hydrorivers_eu.zip', 'https://data.hydrosheds.org/file/HydroRIVERS/HydroRIVERS_v10_eu_shp.zip'],
+  ['/tmp/riv/ne_lakes.zip', 'https://naciscdn.org/naturalearth/10m/physical/ne_10m_lakes.zip'],
+  ['/tmp/riv/ne_lakes_eu.zip', 'https://naciscdn.org/naturalearth/10m/physical/ne_10m_lakes_europe.zip'],
+  ['/tmp/riv/ne_countries.zip', 'https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_0_countries.zip'],
+  ['/tmp/riv/wasta/wasta.zip', 'https://data.geo.admin.ch/ch.bfe.statistik-wasserkraftanlagen/statistik-wasserkraftanlagen/statistik-wasserkraftanlagen_2056.csv.zip'],
+  ['/tmp/gl/inventory_sgi1850_r1992.zip', 'https://doi.glamos.ch/data/inventory/inventory_sgi1850_r1992.zip'],
+  ['/tmp/gl/inventory_sgi2023_r2026.zip', 'https://doi.glamos.ch/data/inventory/inventory_sgi2023_r2026.zip'],
+  ['/tmp/gl/lengthchange_2025_r2025.zip', 'https://doi.glamos.ch/data/lengthchange/lengthchange_2025_r2025.zip'],
+  ['/tmp/gl/inventory_sgi1931_r2022.zip', 'https://doi.glamos.ch/data/inventory/inventory_sgi1931_r2022.zip'],
+  ['/tmp/gl/inventory_sgi1973_r1976.zip', 'https://doi.glamos.ch/data/inventory/inventory_sgi1973_r1976.zip'],
+  ['/tmp/gl/inventory_sgi2010_r2010.zip', 'https://doi.glamos.ch/data/inventory/inventory_sgi2010_r2010.zip'],
+  ['/tmp/gl/inventory_sgi2016_r2020.zip', 'https://doi.glamos.ch/data/inventory/inventory_sgi2016_r2020.zip'],
+];
+const archives = rows.filter(([file]) => fs.existsSync(file)).map(([file, url]) => {
+  const bytes = fs.readFileSync(file), stat = fs.statSync(file);
+  return { url, file: file.split('/').at(-1), retrieved: stat.mtime.toISOString(), bytes: bytes.length,
+    sha256: createHash('sha256').update(bytes).digest('hex') };
+});
+fs.writeFileSync(out, JSON.stringify({ built: new Date().toISOString(), archives }));
+console.log(`source archive manifest: ${archives.length} files`);
+NODE

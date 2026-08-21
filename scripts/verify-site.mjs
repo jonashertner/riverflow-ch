@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /* Dependency-free release gate for the static site.
  *
- * The publication surface is 25 HTML documents, eleven JSON datasets and three
+ * The publication surface is 25 HTML documents, fourteen JSON datasets and three
  * shared string catalogues. A broken relative link or one missing translation can
  * therefore hide in a page nobody happened to open. This check treats the site as
  * one artifact and verifies the contracts that make those copies trustworthy. */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import vm from 'node:vm';
 
 const root = resolve(dirname(new URL(import.meta.url).pathname), '..');
@@ -139,6 +140,127 @@ for (const file of [...walk(join(site, 'data'), f => extname(f) === '.json'), ..
   try { JSON.parse(readFileSync(file, 'utf8')); }
   catch (error) { fail(file, `invalid JSON: ${error.message}`); }
 }
+
+// Domain contracts. Syntax alone can publish a plausible-looking falsehood; these
+// checks bind the prose and the runtime assumptions to the committed evidence.
+try {
+  const data = name => JSON.parse(readFileSync(join(site, 'data', name), 'utf8'));
+  const stationFile = join(site, 'data', 'stations.json');
+  const networkFile = join(site, 'data', 'network.json');
+  const residualFile = join(site, 'data', 'residual.json');
+  const reservoirFile = join(site, 'data', 'reservoirs.json');
+  const iceFile = join(site, 'data', 'icehistory.json');
+  const provenanceFile = join(site, 'data', 'provenance.json');
+  const stations = data('stations.json').stations;
+  const reaches = data('network.json').reaches;
+  const residual = data('residual.json');
+  const reservoirs = data('reservoirs.json');
+  const ice = data('icehistory.json');
+  const unique = values => new Set(values).size;
+
+  if (stations.length !== unique(stations.map(s => String(s.id)))) fail(stationFile, 'station identifiers are not unique');
+  if (reaches.length !== unique(reaches.map(r => r.i))) fail(networkFile, 'reach identifiers are not unique');
+  if (stations.length !== 233) fail(stationFile, `published method expects 233 stations, found ${stations.length}`);
+  if (stations.filter(s => s.reach).length !== 227) fail(stationFile, `published method expects 227 bound stations, found ${stations.filter(s => s.reach).length}`);
+  if (reaches.length !== 8711) fail(networkFile, `published method expects 8711 reaches, found ${reaches.length}`);
+  const qStations = stations.filter(s => s.hasQ);
+  const unknownUnits = qStations.filter(s => !Number.isFinite(s.factor));
+  const qReaches = unique(qStations.filter(s => s.reach).map(s => s.reach));
+  const eligible = new Set(qStations.filter(s => s.reach && Number.isFinite(s.factor)).map(s => s.reach));
+  if (qStations.length !== 187) fail(stationFile, `published method expects 187 discharge stations, found ${qStations.length}`);
+  if (unknownUnits.length !== 5) fail(stationFile, `published method expects 5 unresolved discharge units, found ${unknownUnits.length}`);
+  if (qReaches !== 173 || eligible.size !== 168) fail(stationFile, `published method expects 173 discharge reaches and 168 unit-verified reaches, found ${qReaches} and ${eligible.size}`);
+  for (const s of qStations) {
+    if (s.factor !== null && s.factor !== 1 && s.factor !== 0.001) fail(stationFile, `station ${s.id} has unsupported conversion factor ${s.factor}`);
+  }
+
+  // Recompute the structural evidence upper bound from topology. Every eligible
+  // gauge is assumed current here; runtime validation can only reduce the first class.
+  const byId = new Map(reaches.map(r => [r.i, r]));
+  const above = new Set();
+  for (const id of eligible) {
+    let r = byId.get(id), guard = 0;
+    while (r && guard++ < 600) { above.add(r.i); r = byId.get(r.n); }
+  }
+  let measured = 0, estimated = 0, none = 0;
+  for (const start of reaches) {
+    if (eligible.has(start.i)) { measured++; continue; }
+    let r = start, guard = 0, hasDownstream = false;
+    while (r && guard++ < 600) {
+      if (eligible.has(r.i)) { hasDownstream = true; break; }
+      r = byId.get(r.n);
+    }
+    if (hasDownstream || above.has(start.i)) estimated++; else none++;
+  }
+  if (measured !== 168 || estimated !== 5125 || none !== 3418) {
+    fail(networkFile, `structural evidence changed: ${measured} measured, ${estimated} estimated, ${none} none`);
+  }
+
+  if (residual.points.length !== residual.counts.total) fail(residualFile, 'Q347 point count disagrees with summary');
+  if (Object.values(residual.counts.bySource).reduce((a, n) => a + n, 0) !== residual.points.length) fail(residualFile, 'Q347 source classes do not sum to the point count');
+  const minimum = q => {
+    if (!(q > 0)) return null;
+    if (q >= 60000) return 10000;
+    const bands = [[60, 50, 0, 0], [160, 50, 10, 8], [500, 130, 10, 4.4], [2500, 280, 100, 31], [10000, 900, 100, 21.3], [60000, 2500, 1000, 150]];
+    let floor = 0;
+    for (const [ceil, baseValue, per, add] of bands) {
+      if (q < ceil) return per ? baseValue + (q - floor) / per * add : baseValue;
+      floor = ceil;
+    }
+    return 10000;
+  };
+  for (const p of residual.points) {
+    if (p.q !== null && (!(p.q > 0) || !Number.isFinite(p.q))) fail(residualFile, `point ${p.id} has invalid Q347`);
+    const expected = p.q === null ? null : +minimum(p.q).toFixed(1);
+    if (p.min !== expected) fail(residualFile, `point ${p.id} has Art. 31 result ${p.min}, expected ${expected}`);
+  }
+
+  const weeks = reservoirs.fill.weeks;
+  for (let i = 1; i < weeks.length; i++) {
+    const gap = Date.parse(weeks[i][0]) - Date.parse(weeks[i - 1][0]);
+    if (gap !== 7 * 86400000) fail(reservoirFile, `reservoir dates are not weekly at ${weeks[i][0]}`);
+    if (!(weeks[i][1] >= 0 && weeks[i][1] <= 100)) fail(reservoirFile, `invalid filling percentage at ${weeks[i][0]}`);
+  }
+  if (weeks.at(-1)[0] !== reservoirs.fill.to || weeks.at(-1)[0] !== reservoirs.fill.latest.d) fail(reservoirFile, 'latest reservoir dates disagree');
+  if (Date.now() - Date.parse(reservoirs.fill.to) > 15 * 86400000) fail(reservoirFile, `weekly series is more than 15 days old (${reservoirs.fill.to})`);
+  for (const frame of ice.frames) {
+    if (frame.drawnKm2 !== undefined && (frame.drawnKm2 > frame.km2 || frame.drawnKm2 / frame.km2 < 0.95)) fail(iceFile, `frame ${frame.y} geometry omits too much area`);
+  }
+  const iceYears = ice.frames.map(f => f.y);
+  if (JSON.stringify(iceYears) !== JSON.stringify([1850, 1931, 1973, 2010, 2016, 2023])) fail(iceFile, `unexpected glacier inventory years: ${iceYears.join(', ')}`);
+  const ice2010 = ice.frames.find(f => f.y === 2010), ice2016 = ice.frames.find(f => f.y === 2016);
+  if (ice2010?.km2 !== 944.4 || ice2016?.km2 !== 961.3) fail(iceFile, 'the documented 2010–2016 method break no longer matches the data');
+
+  const provenance = data('provenance.json');
+  const vintage = data('vintage.json');
+  for (const source of vintage.sources) {
+    for (const field of ['key', 'name', 'holder', 'cls', 'cadence', 'licence', 'note']) {
+      if (typeof source[field] !== 'string' || !source[field].trim()) fail(join(site, 'data', 'vintage.json'), `source ${source.key ?? '?'} is missing ${field}`);
+    }
+    if (!/^https:\/\//.test(source.url ?? '')) fail(join(site, 'data', 'vintage.json'), `source ${source.key} has no direct HTTPS link`);
+    for (const link of source.links ?? []) if (!link.label || !/^https:\/\//.test(link.url ?? '')) fail(join(site, 'data', 'vintage.json'), `source ${source.key} has an invalid component link`);
+  }
+  if (new Set(vintage.sources.map(s => s.key)).size !== vintage.sources.length) fail(join(site, 'data', 'vintage.json'), 'source keys are not unique');
+  const hash = file => createHash('sha256').update(readFileSync(file)).digest('hex');
+  for (const [name, stated] of Object.entries(provenance.artifacts)) {
+    const file = join(site, name);
+    if (statSync(file).size !== stated.bytes || hash(file) !== stated.sha256) fail(provenanceFile, `artifact hash mismatch for ${name}; rebuild provenance`);
+  }
+  for (const [name, stated] of Object.entries(provenance.generators)) {
+    const file = join(root, name);
+    if (statSync(file).size !== stated.bytes || hash(file) !== stated.sha256) fail(provenanceFile, `generator hash mismatch for ${name}; rebuild provenance`);
+  }
+  for (const [key, expected] of Object.entries({ stations: 233, uniqueStationIds: 233, boundStations: 227, dischargeStations: 187, unresolvedDischargeUnits: 5, dischargeReaches: 173, eligibleDischargeReaches: 168, reaches: 8711, uniqueReachIds: 8711, q347Points: 1041, reservoirWeeks: 1390 })) {
+    if (provenance.facts[key] !== expected) fail(provenanceFile, `fact ${key} is ${provenance.facts[key]}, expected ${expected}`);
+  }
+
+  const claims = [readFileSync(join(root, 'README.md'), 'utf8'), ...['index.html', 'method.html', 'sources.html', 'law.html'].map(name => readFileSync(join(site, name), 'utf8'))].join('\n');
+  for (const phrase of ['legally operative figure', 'what the statute would require', '8\'716 reaches', '236 federal gauges']) {
+    if (claims.includes(phrase)) fail(join(root, 'README.md'), `obsolete claim remains: ${phrase}`);
+  }
+} catch (error) {
+  fail(join(site, 'data'), `domain validation failed: ${error.message}`);
+}
 for (const file of [...walk(site, f => ['.js', '.mjs'].includes(extname(f))), ...walk(join(root, 'build'), f => ['.js', '.mjs'].includes(extname(f))), ...walk(join(root, 'scripts'), f => ['.js', '.mjs'].includes(extname(f)))]) {
   const check = spawnSync(process.execPath, ['--check', file], { encoding: 'utf8' });
   if (check.status !== 0) fail(file, (check.stderr || check.stdout).trim());
@@ -149,7 +271,7 @@ for (const file of [...walk(site, f => ['.js', '.mjs'].includes(extname(f))), ..
 try {
   const catalogueSource = ['i18n.js', 'i18n-data.js', 'i18n-map.js']
     .map(name => readFileSync(join(site, name), 'utf8')).join('\n') +
-    '\n;globalThis.__catalogue = STR;';
+    '\n;globalThis.__catalogue = STR;globalThis.__dataCatalogue = DSTR;';
   const sandbox = {
     document: {
       documentElement: { getAttribute: name => name === 'lang' ? 'en' : null, dataset: { root: './' } },
@@ -160,8 +282,18 @@ try {
   vm.createContext(sandbox);
   vm.runInContext(catalogueSource, sandbox);
   const catalogue = sandbox.__catalogue;
+  const dataCatalogue = sandbox.__dataCatalogue;
   for (const [key, row] of Object.entries(catalogue)) {
     for (const lang of languages) if (typeof row?.[lang] !== 'string' || !row[lang]) fail(join(site, 'i18n.js'), `${key} has no ${lang} translation`);
+  }
+  for (const [key, row] of Object.entries(dataCatalogue)) {
+    for (const lang of ['fr', 'it', 'rm']) if (typeof row?.[lang] !== 'string' || !row[lang]) fail(join(site, 'i18n-data.js'), `${key} has no ${lang} translation`);
+  }
+  const vintageStrings = JSON.parse(readFileSync(join(site, 'data', 'vintage.json'), 'utf8')).sources
+    .flatMap(source => [source.name, source.holder, source.cadence, source.cls, source.note, source.licence, ...(source.links ?? []).map(link => link.label)]);
+  for (const value of vintageStrings) {
+    if (/^SGI\d+$/.test(value)) continue;
+    for (const lang of languages.slice(1)) if (!dataCatalogue[value]?.[lang]) fail(join(site, 'i18n-data.js'), `source text has no ${lang} translation: ${value}`);
   }
   const jsSource = walk(site, f => extname(f) === '.js').map(f => readFileSync(f, 'utf8')).join('\n');
   for (const match of jsSource.matchAll(/\bT\(\s*(['"])([^'"]+)\1(?=\s*(?:,|\)))/g)) {

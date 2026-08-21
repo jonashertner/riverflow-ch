@@ -4,7 +4,8 @@
 // only ever be a calculator you fed by hand. That was wrong. BAFU publishes
 // "Grundlagen zur Bestimmung der Abflussmenge Q347" as a point layer,
 // ch.bafu.hydrologie-q347, with 1,041 points and a Q347 on 1,025 of them. So the
-// statute stops being a calculator and becomes a layer.
+// the calculation can be shown as a layer. The result remains an illustration,
+// not a cantonal residual-flow determination.
 //
 // Three things have to be kept straight, and the layer is worthless if any of
 // them slips.
@@ -12,7 +13,8 @@
 // 1. WHICH Q347. The record carries three, and they are not interchangeable:
 //      q_84_93  Q347 over the decade 1984-1993. Art. 4(h) defines Q347 as a
 //               ten-year average, and this is the decade the cantons worked from
-//               when the Act came into force. It is the legally operative figure.
+//               when the dataset was assembled. It is a historical federal input,
+//               not automatically the binding value at a present-day site.
 //      qp       Q347 over the station's own full record, whose period is in `p`.
 //               A longer and better description of the river, and not the figure
 //               the determination was made on.
@@ -27,16 +29,17 @@
 //    abstractions, and to existing ones only when the concession expires and has
 //    to be renewed. An existing abstraction is governed by the restoration regime
 //    of Art. 80 ff instead. So a figure computed here is what the statute would
-//    require of a new abstraction at this point. It is not a duty owed today by
-//    whoever is already taking water there.
+//    produce under Art. 31(1) for a new abstraction at this point. Local
+//    verification, Art. 31(2), Arts. 32-33 and the cantonal decision can change
+//    the legally adequate residual flow. It is not a duty owed today by whoever
+//    is already taking water there.
 //
 // 3. HOW OLD IT IS. Datenstand 1 January 2000. That is the strangest fact in this
 //    file and the most useful one. It is not simply staleness: Q347 is defined as
 //    a ten-year mean and the decade in this file is the decade the determinations
-//    were made on, so for the legal question "what was required" the old figure is
-//    the right one. For the factual question "how much water is in this brook in a
-//    dry year" it is a description of a hydrology that has since changed. The two
-//    questions have drifted apart, and the layer's job is to show that they have.
+//    were made on. It can document the historical basis; it cannot establish the
+//    current local hydrology or replace the verification BAFU says model values
+//    generally require.
 import fs from 'node:fs/promises';
 
 const API = 'https://api3.geo.admin.ch/rest/services/all/MapServer/identify';
