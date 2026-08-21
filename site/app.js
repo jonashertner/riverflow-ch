@@ -688,6 +688,10 @@ function stampText() {
 // ---- view -------------------------------------------------------------------
 function fit() {
   resize();
+  // ResizeObserver and the mobile visual viewport can fire before the network
+  // has decoded. There is nothing to fit yet; load() will call this again once
+  // reaches exist.
+  if (!reaches.length) return;
   let x0 = 1, x1 = 0, y0 = 1, y1 = 0;
   for (const r of reaches) for (let i = 0; i < r.px.length; i++) {
     if (r.px[i] < x0) x0 = r.px[i]; if (r.px[i] > x1) x1 = r.px[i];
@@ -1630,6 +1634,12 @@ window.addEventListener('resize', () => {
   clearTimeout(__relayoutT); __relayoutT = setTimeout(relayout, 120);
 });
 window.addEventListener('orientationchange', () => setTimeout(relayout, 280));
+// Mobile browser chrome changes the visual viewport without always changing the
+// layout viewport. Keep the map, sheet and bounded camera aligned with the part
+// of the screen the reader can actually see.
+window.visualViewport?.addEventListener('resize', () => {
+  clearTimeout(__relayoutT); __relayoutT = setTimeout(relayout, 80);
+});
 
 window.__fps = () => (__frames / Math.max(0.001, (performance.now() - __t0) / 1000)).toFixed(1);
 window.__diag = () => {
@@ -3223,7 +3233,9 @@ function setLiveOnly(v) {
   const dialog = document.getElementById('intro');
   const open = document.getElementById('introOpen');
   if (!dialog || !open) return;
-  const KEY = 'riverflow.intro.v1';
+  // A new key is intentional: returning readers should see the language choice
+  // and the first complete cycle view once, even if they saw the older brief.
+  const KEY = 'riverflow.intro.v2';
   let seen = false;
   try { seen = localStorage.getItem(KEY) === '1'; } catch (e) { /* private mode */ }
   const show = () => {
@@ -3237,6 +3249,13 @@ function setLiveOnly(v) {
   open.onclick = show;
   document.getElementById('introEnter').onclick = close;
   document.getElementById('introClose').onclick = close;
+  for (const button of dialog.querySelectorAll('[data-cycle-mode]')) {
+    button.onclick = () => {
+      const target = button.dataset.cycleMode;
+      if (!setMode(target)) wantMode = target;
+      close();
+    };
+  }
   dialog.addEventListener('cancel', e => { e.preventDefault(); close(); });
   if (!seen && !location.hash) show();
 })();

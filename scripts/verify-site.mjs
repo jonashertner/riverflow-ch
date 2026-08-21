@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /* Dependency-free release gate for the static site.
  *
- * The publication surface is 25 HTML documents, fourteen JSON datasets and three
- * shared string catalogues. A broken relative link or one missing translation can
- * therefore hide in a page nobody happened to open. This check treats the site as
- * one artifact and verifies the contracts that make those copies trustworthy. */
+ * The publication surface is 26 HTML documents with 25 canonical URLs, fourteen
+ * JSON datasets and three shared string catalogues. A broken relative link or one
+ * missing translation can therefore hide in a page nobody happened to open. This
+ * check treats the site as one artifact and verifies the contracts that make those
+ * copies trustworthy. */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -125,6 +126,43 @@ for (const file of htmlFiles) {
       fail(file, 'canvas is neither named nor hidden from assistive technology');
     }
   }
+}
+
+// The publication root is deliberately German. The English map has its own /en/
+// URL, and every landing variant exposes the language switch before the map opens.
+const landingFiles = ['index.html', 'en/index.html', 'de/index.html', 'fr/index.html', 'it/index.html', 'rm/index.html']
+  .map(name => join(site, name));
+const rootLanding = htmlByFile.get(join(site, 'index.html')) ?? '';
+const englishLanding = htmlByFile.get(join(site, 'en', 'index.html')) ?? '';
+if (!/<html\b[^>]*\blang=["']de["']/i.test(rootLanding)) fail(join(site, 'index.html'), 'publication root must be German');
+if (!/<link\s+[^>]*rel=["']canonical["'][^>]*href=["']https:\/\/jonashertner\.github\.io\/riverflow-ch\/["']/i.test(rootLanding)) {
+  fail(join(site, 'index.html'), 'German landing canonical must own the publication root');
+}
+if (!/<html\b[^>]*\blang=["']en["']/i.test(englishLanding)) fail(join(site, 'en', 'index.html'), 'English landing page is missing');
+for (const file of landingFiles) {
+  const raw = htmlByFile.get(file) ?? '';
+  const switches = (raw.match(/\bdata-langswitch\b/g) ?? []).length;
+  if (switches < 2) fail(file, 'language switch must be present in both the masthead and landing brief');
+  const cycleModes = [...raw.matchAll(/\bdata-cycle-mode=["']([^"']+)["']/g)].map(match => match[1]);
+  const expectedModes = ['ice', 'source', 'flow', 'wet', 'res', 'use'];
+  if (cycleModes.join(',') !== expectedModes.join(',')) fail(file, 'water-cycle stages are missing or out of order');
+  if (!/precipitation|Niederschlag|précipitations|precipitazioni|precipitaziun/i.test(raw) ||
+      !/groundwater recharge|Grundwasserneubildung|recharge des nappes|ricarica delle falde|regeneraziun da l’aua sutterrana/i.test(raw)) {
+    fail(file, 'water-cycle data gaps are not disclosed');
+  }
+}
+const responsiveCssFile = join(site, 'style.css');
+const responsiveCss = readFileSync(join(site, 'tokens.css'), 'utf8') + '\n' + readFileSync(responsiveCssFile, 'utf8');
+for (const [label, pattern] of [
+  ['safe-area top inset', /--safe-t:\s*env\(safe-area-inset-top/],
+  ['44 px mobile layer controls', /#modes button\s*\{[^}]*min-height:\s*44px/s],
+  ['44 px mobile legend controls', /\.controls label\s*\{\s*min-height:\s*44px/],
+  ['dynamic mobile sheet height', /max-height:\s*76dvh/],
+  ['dynamic mobile dialog height', /max-height:\s*calc\(100dvh - 12px\)/],
+  ['large landing language targets', /#intro \.introLangs \[lang\][^{]*\{[^}]*min-width:\s*40px;[^}]*min-height:\s*40px/s],
+]) if (!pattern.test(responsiveCss)) fail(responsiveCssFile, `missing responsive contract: ${label}`);
+if (!/window\.visualViewport\?\.addEventListener\(['"]resize['"]/.test(readFileSync(join(site, 'app.js'), 'utf8'))) {
+  fail(join(site, 'app.js'), 'map does not relayout with the mobile visual viewport');
 }
 
 // The sitemap must describe exactly the canonical publication surface.

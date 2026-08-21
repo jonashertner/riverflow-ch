@@ -3,19 +3,17 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://jonashertner.github.io/riverflow-ch/</loc>
-    <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/en/"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/"/>
     <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/"/>
     <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/de/</loc>
-    <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/"/>
+    <loc>https://jonashertner.github.io/riverflow-ch/en/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/en/"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/"/>
     <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/"/>
     <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/"/>
@@ -23,9 +21,8 @@
   </url>
   <url>
     <loc>https://jonashertner.github.io/riverflow-ch/fr/</loc>
-    <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/en/"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/"/>
     <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/"/>
     <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/"/>
@@ -33,9 +30,8 @@
   </url>
   <url>
     <loc>https://jonashertner.github.io/riverflow-ch/it/</loc>
-    <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/en/"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/"/>
     <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/"/>
     <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/"/>
@@ -43,9 +39,8 @@
   </url>
   <url>
     <loc>https://jonashertner.github.io/riverflow-ch/rm/</loc>
-    <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/en/"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/"/>
     <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/"/>
     <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/"/>

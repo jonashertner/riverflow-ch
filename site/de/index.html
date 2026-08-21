@@ -10,9 +10,9 @@
 <meta name="description" content="Aktueller Abfluss in Schweizer Flüssen aus dem Bundesmessnetz, Speicherfüllung im Vergleich mit 26 Jahren eigener Messreihe und Schweizer Gletscherfläche in sechs datierten Inventaren. Jede Zahl nennt Quelle, Evidenzklasse und Alter.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0d0d0d">
-<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/de/">
-<link rel="alternate" hreflang="en" href="../">
-<link rel="alternate" hreflang="de" href="./">
+<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/">
+<link rel="alternate" hreflang="en" href="../en/">
+<link rel="alternate" hreflang="de" href="../">
 <link rel="alternate" hreflang="fr" href="../fr/">
 <link rel="alternate" hreflang="it" href="../it/">
 <link rel="alternate" hreflang="rm" href="../rm/">
@@ -22,7 +22,7 @@
 <meta property="og:description" content="Schweizer Flüsse, live. Speicher im Vergleich mit 26 Jahren. Gletscher in sechs Inventaren. Evidenz, um Wasser zu verstehen und seine Wege zu schützen.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Wasser und Eis in der Schweiz">
-<meta property="og:url" content="https://jonashertner.github.io/riverflow-ch/de/">
+<meta property="og:url" content="https://jonashertner.github.io/riverflow-ch/">
 <meta property="og:image" content="https://jonashertner.github.io/riverflow-ch/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
@@ -68,7 +68,7 @@
   <p class="hint" id="hint" hidden>Auf das Wasser zeigen, um es zu lesen. <a href="method.html#reading">Wie diese Karte zu lesen ist</a></p>
 
   <nav id="siteNav" aria-label="Website">
-    <button type="button" id="introOpen">Projekt im Überblick</button>
+    <button type="button" id="introOpen">Projekt</button>
     <a href="method.html">Methode</a>
     <a href="sources.html">Quellen</a>
     <a href="law.html">Recht</a>
@@ -275,18 +275,49 @@
 
 <dialog id="intro" aria-labelledby="introTitle" aria-describedby="introLead">
   <button type="button" id="introClose" aria-label="Projektübersicht schliessen">&times;</button>
-  <p class="introEyebrow">Der Wasserkreislauf als Evidenz</p>
+  <div class="introTop">
+    <p class="introEyebrow">Der Wasserkreislauf als Evidenz</p>
+    <span class="langs introLangs" data-langswitch></span>
+  </div>
   <h2 id="introTitle">Dem Wasser folgen. Seine Wege schützen.</h2>
   <p class="introLead" id="introLead">Ziel ist, das Wasser durch die Schweiz zu verfolgen — von Eis und Grundwasser über Flüsse, Speicherung, Nutzung und Rücklauf bis zur Grenze — und das Recht zu zeigen, das jeden wesentlichen Weg schützt. Das Projekt soll Feuchtgebiete schützen helfen und rechtliche Schritte unterstützen, wenn Schutz versagt. Diese Ausgabe beginnt mit Oberflächenwasser. Jede Zahl nennt Quelle, Alter und Evidenzklasse.</p>
+  <div class="introActions">
+    <button type="button" id="introEnter" autofocus>Karte erkunden</button>
+    <a href="method.html">Wie die Evidenz funktioniert</a>
+  </div>
+  <figure class="cycleViz" aria-labelledby="cycleCaption">
+    <svg viewBox="0 0 900 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <path class="cycleAtmosphere" d="M45 58C143 18 256 23 339 60S520 91 610 49 785 25 855 57"/>
+      <path class="cycleMountain cycleMountainBack" d="M44 188 188 69l66 58L365 35l142 153Z"/>
+      <path class="cycleMountain" d="M164 188 344 44l171 144ZM430 188 548 91l121 97Z"/>
+      <path class="cycleSnow" d="m281 95 63-51 52 44-27-10-22 19-22-16-21 20Z"/>
+      <path class="cycleGlacier" d="M347 97c12 25 23 48 20 78l43-10c-4-30-18-55-41-87Z"/>
+      <path class="cycleGround" d="M72 191c151-20 249 15 382-2 111-14 181-18 300 5"/>
+      <path class="cycleAquifer" d="M273 178c68 33 147 28 214 5 48-17 99-8 141 7"/>
+      <path class="cycleRiver" d="M369 151c44 11 50 42 104 40 65-2 82-35 134-30 66 6 95 48 206 31"/>
+      <path class="cycleLake" d="M571 169c22-12 51-13 75-1-18 17-54 19-75 1Z"/>
+      <path class="cycleWetland" d="M511 181c18-13 39-13 58-1M526 181v-17m16 18v-22m16 21v-14"/>
+      <path class="cycleRain" d="m242 51-12 24m39-17-10 21m267-29-11 23m40-18-10 22"/>
+      <path class="cycleReturn" d="M758 180c-10-51 9-91 46-116"/>
+      <circle class="cycleSource" cx="300" cy="158" r="7"/>
+      <circle class="cycleUse" cx="704" cy="178" r="9"/>
+    </svg>
+    <figcaption id="cycleCaption">Vom Niederschlag im Gebirge über Eis, Quellen und Grundwasser zu Flüssen, Feuchtgebieten, Speicherung, Nutzung, Rücklauf und Atmosphäre.</figcaption>
+    <ol class="cycleStages" aria-label="Kartierte Teile des Wasserkreislaufs öffnen">
+      <li><button type="button" data-cycle-mode="ice"><b>Gletscher</b><span>kartierte Inventare</span></button></li>
+      <li><button type="button" data-cycle-mode="source"><b>Bergquellen &amp; Grundwasser</b><span>teilweise kartiert</span></button></li>
+      <li><button type="button" data-cycle-mode="flow"><b>Bäche &amp; Flüsse</b><span>live und modelliert</span></button></li>
+      <li><button type="button" data-cycle-mode="wet"><b>Feuchtgebiete &amp; Seen</b><span>Inventare und Umrisse</span></button></li>
+      <li><button type="button" data-cycle-mode="res"><b>Speicher</b><span>wöchentliche Regionalreihen</span></button></li>
+      <li><button type="button" data-cycle-mode="use"><b>Nutzung &amp; Rücklauf</b><span>Bundesregister</span></button></li>
+    </ol>
+    <p class="cycleGap">Als kartierte Evidenz fehlen noch: Niederschlag, Schneedecke, Bodenfeuchte, Grundwasserneubildung und Verdunstung. <a href="method.html#cycle">Abdeckung ansehen</a>.</p>
+  </figure>
   <ul class="introFacts">
     <li><strong>Live</strong><span>Messstellen des Bundes</span></li>
     <li><strong>26 Jahre</strong><span>Speicherverlauf</span></li>
     <li><strong>1850&ndash;2023</strong><span>Gletscherinventare</span></li>
   </ul>
-  <div class="introActions">
-    <button type="button" id="introEnter" autofocus>Karte erkunden</button>
-    <a href="method.html">Wie die Evidenz funktioniert</a>
-  </div>
   <p class="introNote">Gemessenes und modelliertes Wasser. Keine Prognose.</p>
 </dialog>
 

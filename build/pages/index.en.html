@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en" data-root="./">
+<head>
+<meta charset="utf-8">
+<!-- user-scalable is deliberately NOT disabled. The canvas takes its own gestures
+     through touch-action:none, so pinching the page still works for anyone who
+     needs the text bigger. A map is not a reason to break zoom. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Water and ice in Switzerland — a measured base layer</title>
+<meta name="description" content="Live discharge in Swiss rivers from the federal gauging network, reservoir storage against 26 years of its own record, and Swiss glacier area across six dated inventories. Every figure carries its source, evidence class and age.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/">
+<link rel="alternate" hreflang="en" href="./">
+<link rel="alternate" hreflang="de" href="de/">
+<link rel="alternate" hreflang="fr" href="fr/">
+<link rel="alternate" hreflang="it" href="it/">
+<link rel="alternate" hreflang="rm" href="rm/">
+<link rel="alternate" hreflang="x-default" href="./">
+<link rel="icon" href="favicon.svg?v=20260821" type="image/svg+xml">
+<meta property="og:title" content="Water and ice in Switzerland">
+<meta property="og:description" content="Swiss rivers, live. Reservoirs against 26 years of record. Glaciers across six inventories. Evidence for understanding water and protecting its pathways.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Water and ice in Switzerland">
+<meta property="og:url" content="https://jonashertner.github.io/riverflow-ch/">
+<meta property="og:image" content="https://jonashertner.github.io/riverflow-ch/og-image.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Swiss river network beside the title Water and ice in Switzerland, with counts for river reaches, dams and glacier bodies.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="tokens.css?v=20260821">
+<link rel="stylesheet" href="style.css?v=20260821">
+<script src="i18n.js?v=20260821"></script>
+<script src="i18n-data.js?v=20260821"></script>
+<script src="i18n-map.js?v=20260821"></script>
+<script src="theme.js?v=20260821"></script>
+</head>
+<body class="viz-root" data-layer="flow">
+
+<a class="skip" href="#modes">Skip to the layer controls</a>
+
+<header id="titlebar">
+  <h1>Water and ice in Switzerland</h1>
+  <p class="sub">Rivers read live from federal gauges. Ice across six surveys. Reservoirs against their own record.</p>
+  <p class="stamp" id="stamp" role="status" aria-live="polite">Loading&#8230;</p>
+
+  <!-- The page's one claim about itself, drawn rather than asserted. -->
+  <div id="evidence">
+    <p class="evLabel">What is drawn, by class of evidence</p>
+    <div class="evBar" id="evBar" role="img" aria-label="Composition of the drawing by class of evidence">
+      <span class="evMeasured" style="flex:0"></span>
+      <span class="evEstimated" style="flex:1"></span>
+      <span class="evNone" style="flex:0"></span>
+    </div>
+    <ul class="evKeys">
+      <li><i class="evMeasured"></i>Measured at a gauge<b id="evNumMeasured">&mdash;</b></li>
+      <li><i class="evEstimated"></i>Estimated for the reach<b id="evNumEstimated">&mdash;</b></li>
+      <li><i class="evNone"></i>No basis today<b id="evNumNone">&mdash;</b></li>
+    </ul>
+  </div>
+
+  <!-- First visit only. The map answers when it is pointed at, and nothing on a
+       still screen says so. -->
+  <p class="hint" id="hint" hidden>Point at the water to read it.
+    <a href="method.html#reading">How to read this map</a></p>
+
+  <nav id="siteNav" aria-label="Site">
+    <button type="button" id="introOpen">Project</button>
+    <a href="method.html">Method</a>
+    <a href="sources.html">Sources</a>
+    <a href="law.html">Law</a>
+    <a href="about.html">About</a>
+    <span class="langs" data-langswitch></span>
+    <button type="button" class="themeBtn" title="Night. Switch to day." aria-label="Night. Switch to day.">
+      <svg class="tIconNight" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z"/></svg>
+      <svg class="tIconDay" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="3.1"/><path d="M8 1.4v1.5M8 13v1.5M14.5 8H13M3 8H1.5M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1M12.6 12.6l-1.1-1.1M4.5 4.5 3.4 3.4"/></svg>
+      <svg class="tIconAuto" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="8" cy="8" r="5.7"/><path d="M8 2.3a5.7 5.7 0 0 1 0 11.4Z" fill="currentColor" stroke="none"/></svg>
+    </button>
+  </nav>
+</header>
+
+<main id="main">
+<canvas id="map" tabindex="0" aria-label="Interactive map of water and ice in Switzerland" aria-describedby="mapHelp"></canvas>
+<canvas id="flow" aria-hidden="true"></canvas>
+<p class="srOnly" id="mapHelp"></p>
+
+<nav id="mapControls" aria-label="Map controls">
+  <div class="zoomGroup">
+    <button type="button" id="zoomIn" aria-label="Zoom in" title="Zoom in"><span aria-hidden="true">+</span></button>
+    <span id="zoomLevel" aria-hidden="true">1×</span>
+    <button type="button" id="zoomOut" aria-label="Zoom out" title="Zoom out"><span aria-hidden="true">−</span></button>
+  </div>
+  <button type="button" id="zoomFit" aria-label="Fit Switzerland in view" title="Fit Switzerland in view">Fit</button>
+</nav>
+
+<nav id="modes" aria-label="Layer">
+  <div class="modeGroup" role="group" aria-label="Water now">
+    <span class="modeGroupLabel">Now</span>
+    <button type="button" data-mode="flow" class="on">Flow</button>
+    <button type="button" data-mode="normal">Against normal</button>
+    <button type="button" data-mode="temp">Temperature</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Water stored">
+    <span class="modeGroupLabel">Stored</span>
+    <button type="button" data-mode="res" id="modeRes" disabled>Reservoirs</button>
+    <button type="button" data-mode="ice" id="modeIce" disabled>Ice</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Water and law">
+    <span class="modeGroupLabel">Law</span>
+    <button type="button" data-mode="residual" id="modeResidual" disabled>Residual flow</button>
+    <button type="button" data-mode="use" id="modeUse" disabled>Water use</button>
+    <button type="button" data-mode="wet" id="modeWet" disabled>Wetlands</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Where water comes from">
+    <span class="modeGroupLabel">Source</span>
+    <button type="button" data-mode="source">Water sources</button>
+  </div>
+</nav>
+
+<section id="legend" aria-label="Legend">
+  <button id="sheetHandle" type="button" aria-expanded="false" aria-controls="legendBody">
+    <span class="grip" aria-hidden="true"></span>
+    <span class="sheetTitle" id="sheetTitle">Discharge</span>
+  </button>
+
+  <div id="legendBody">
+  <h2 id="legendTitle">Discharge</h2>
+
+  <div class="lg" id="lgFlow">
+    <div class="ramp ramp-seq"></div>
+    <div class="rampLabels"><span>0.1</span><span>1</span><span>10</span><span>100</span><span>1000 m&#179;/s</span></div>
+    <ul class="notes">
+      <li><span class="swatch measured"></span>Measured at a gauge</li>
+      <li><span class="swatch estimated"></span>Estimated for the reach</li>
+      <li><span class="swatch nobasis"></span>Outside the gauged network</li>
+    </ul>
+  </div>
+
+  <div class="lg" id="lgNormal" hidden>
+    <div class="ramp ramp-div"></div>
+    <div class="rampLabels"><span>25%</span><span>50%</span><span>100%</span><span>200%</span><span>400%</span></div>
+    <p class="lgNote">Discharge now against the long-term mean of the same reach. The mean is an
+      annual figure, so a summer reading below 100&nbsp;% is in part the season and not only the year.
+      Read it as a ratio, not as a drought index.</p>
+    <p class="lgNote">The mean is HydroRIVERS <span class="num">DIS_AV_CMS</span>, which is modelled and
+      not the federal statistic. <b>Not quotable.</b></p>
+  </div>
+
+  <div class="lg" id="lgTemp" hidden>
+    <div class="ramp ramp-temp"></div>
+    <div class="rampLabels"><span>0</span><span>10</span><span>20</span><span>25&nbsp;&deg;C</span></div>
+    <p class="threshold"><i></i>At or above 25&nbsp;&deg;C, the ceiling in GSchV Annex&nbsp;2 No.&nbsp;12(4)</p>
+    <p class="lgNote" id="tempCount">&nbsp;</p>
+    <p class="lgNote">A filled disc is a gauge with a temperature series, and it is filled from the
+      ramp. A hollow ring is a gauge with none: an absent reading is not a cold one. The rivers keep
+      their discharge colour under this layer, dimmed, because temperature is measured at the gauge
+      and nowhere else.</p>
+    <p class="lgNote">One reading is one sensor. Open a gauge to see it against the others nearby
+      before you rely on it.</p>
+  </div>
+
+  <div class="lg" id="lgRes" hidden>
+    <ul class="notes">
+      <li><span class="swatch resFull"></span>Dam, sized by the volume it holds when full</li>
+      <li><span class="swatch resFlood"></span>Built for flood retention, not for power</li>
+    </ul>
+    <div class="ramp ramp-res"></div>
+    <div class="rampLabels"><span>empty</span><span>half</span><span>full</span></div>
+    <p class="lgNote">The tint is the level of the dam's <b>region</b> in the week at the playhead, so
+      every dam in a region moves as one body. Press play to run twenty-six years of it.</p>
+    <p class="lgNote" id="resTotals">&nbsp;</p>
+    <p class="lgNote"><b>Two registers, and they do not describe the same objects.</b> The dams are
+      structures, with the volume each reservoir holds when full. The filling level is a weekly figure in
+      GWh &mdash; stored electricity, not stored water &mdash; and it is published for four regions, not for
+      225 dams. So this layer can say what a reservoir holds when full, and it can say how full the region
+      is this week. <b>It cannot say how full the Grande Dixence is today.</b> Nobody publishes that.</p>
+    <p class="lgNote" id="resRank">&nbsp;</p>
+  </div>
+
+  <div class="lg" id="lgIce" hidden>
+    <ul class="notes">
+      <li><span class="swatch ice1850"></span>Ice in 1850</li>
+      <li><span class="swatch ice2023"></span>Ice in 2023</li>
+    </ul>
+    <p class="lgNote">The 2023 bodies are drawn over the 1850 outlines. What stays in colour is
+      the ice that has gone. Press play to run six dated surveys in their real intervals.</p>
+    <p class="lgNote" id="iceTotals">&nbsp;</p>
+    <p class="lgNote"><b>This is area, not volume.</b> The 2010 and 2016 totals use different
+      delineation methods; their apparent increase is not ice growth. Through recent
+      decades the ice thinned faster than it shrank in plan, because a glacier loses thickness over its
+      whole surface before it loses its outline. The area figures here are measured. The volume figures
+      are cited, and they come from separate work by separate methods.</p>
+  </div>
+
+  <div class="lg" id="lgResidual" hidden>
+    <ul class="notes">
+      <li><span class="swatch resiMeas"></span>Q<sub>347</sub> from gauge records</li>
+      <li><span class="swatch resiMod"></span>Q<sub>347</sub> modelled &mdash; a rough estimate</li>
+    </ul>
+    <p class="lgNote" id="residualCount">&nbsp;</p>
+    <p class="lgNote"><b>Illustration, not legal determination.</b> The map applies the arithmetic in
+      Art.&nbsp;31(1) GSchG to BAFU's published Q<sub>347</sub> values. A canton must still determine the
+      adequate residual flow for the site. Local measurement and Arts.&nbsp;31(2), 32 and 33 may change it.</p>
+    <p class="lgNote"><b>Federal data state 1 January 2000.</b> The file is historical. BAFU calls its
+      model values rough estimates that generally need local measurement. Use the source record and the
+      cantonal decision—not this map—in legal work.</p>
+  </div>
+
+  <div class="lg" id="lgUse" hidden>
+    <p class="useDir">Takes water out</p>
+    <ul class="notes useKeys">
+      <li><label><input type="checkbox" data-use="hydro" checked><span class="swatch useHydro"></span>Hydropower, sized by design discharge</label></li>
+      <li><label><input type="checkbox" data-use="abstraction" checked><span class="swatch useAbs"></span>Abstraction, residual-flow register</label></li>
+      <li><label><input type="checkbox" data-use="npp" checked><span class="swatch useNpp"></span>Nuclear station, cooling water</label></li>
+    </ul>
+    <p class="useDir">Puts water in</p>
+    <ul class="notes useKeys">
+      <li><label><input type="checkbox" data-use="ara" checked><span class="swatch useAra"></span>Treatment plant, sized by population equivalents</label></li>
+    </ul>
+    <p class="lgNote">Two colours, because the direction is what the law turns on: Art.&nbsp;31 GSchG
+      governs taking water out, GSchV Annex&nbsp;2 No.&nbsp;12(4) governs putting heat in. Which register
+      a mark belongs to is carried by the shape of the mark, not by a third and fourth colour.</p>
+    <p class="lgNote"><b>A filled disc carries a quantity. An open ring carries a place and nothing
+      more.</b> Of the four federal registers only the hydropower statistic yields a discharge, and it
+      yields it by arithmetic, not by measurement: capacity divided by head. The residual-flow map holds
+      no volume at all, and no cooling volume for the nuclear sites is published as open data.
+      Treatment plants carry a ratio instead: their discharge against the receiving water at
+      Q<sub>347</sub>. For 39 of them it is above 100&#8201;%, which is to say the brook at low flow
+      carries less than the plant puts into it.</p>
+    <p class="lgNote" id="useCount">&#160;</p>
+  </div>
+
+
+  <div class="lg" id="lgWet" hidden>
+    <ul class="notes wetKeys" id="wetTotals"></ul>
+    <p class="lgNote" id="wetCount">&nbsp;</p>
+    <p class="lgNote"><b>The water register is protected by ordinance, the statutory one by the
+      Constitution.</b> Alluvial zones and amphibian spawning sites state their aim as water, so
+      they are drawn in the water's hue. Bogs, fens and mire landscapes are held by
+      Art.&nbsp;78(5)&nbsp;BV, the Rothenthurm article, which forbids building and any alteration of
+      the ground save for the mires&rsquo; own protection and their existing agricultural use
+      &mdash; with no balancing test to lose, and so they wear the ink every
+      statutory quantity here wears. <a href="method.html#wetlands">How this is drawn</a>.</p>
+    <p class="lgNote"><b>The ages disagree with the aims.</b> The amphibian inventory was revised
+      months ago; the alluvial-zone inventory, whose aim is a quantity of water, carries a federal data
+      state of November 2017 &mdash; and so does the inventory holding Rothenthurm.
+      <a href="sources.html#table">Every date</a>.</p>
+  </div>
+
+  <div class="lg" id="lgSource" hidden>
+    <ul class="notes srcKeys">
+      <li><label><input type="checkbox" data-src="gw"><span class="swatch srcGw"></span>Groundwater bodies</label></li>
+      <li><label><input type="checkbox" data-src="head" checked><span class="swatch srcHead"></span>Headwaters, the top of the drawn network</label></li>
+      <li><label><input type="checkbox" data-src="zone" checked><span class="swatch srcZone"></span>Drinking-water protection zones S1&ndash;S3, in force</label></li>
+      <li><label><input type="checkbox" data-src="catch"><span class="swatch srcCatch"></span>Sub-catchments</label></li>
+    </ul>
+    <p class="lgNote"><b>Three of these four are pictures, not data.</b> The groundwater bodies, the
+      protection zones and the catchments are drawn by a federal or cantonal server for the rectangle on
+      screen and arrive as an image: this map cannot query them, date them from the picture, or check
+      them. The headwaters are the exception, and are drawn in this map&rsquo;s own ink.</p>
+    <p class="lgNote"><b>A headwater is not a spring.</b> It is a reach with nothing above it, clipped at
+      5&nbsp;km&#178; of upstream area &mdash; the top of the network as this map draws it, and the part of
+      the country with no gauge anywhere above it. The named springs and waterfalls that appear from zoom
+      are swissNAMES3D&rsquo;s 86 and 157 <em>named</em> ones, not a count of Switzerland&rsquo;s springs.</p>
+    <p class="lgNote"><b>Only zones in force are drawn.</b> geodienste.ch serves planned and future zones
+      too; a planned zone is not yet a legal constraint. S1 is the fenced ground at the wellhead, S2 the
+      close zone, S3 the outer one &mdash; Art.&nbsp;20 GSchG, GSchV Annex&nbsp;4 No.&nbsp;1. They are
+      measured in hectares, so at country view they are smaller than a pixel: zoom past a canton before
+      expecting to see any.</p>
+    <p class="lgNote" id="srcAges">&nbsp;</p>
+    <p class="lgNote" id="srcCoverage">&nbsp;</p>
+  </div>
+
+  <div class="controls">
+    <label><input type="checkbox" id="toggleStations" checked> Gauging stations</label>
+    <label><input type="checkbox" id="toggleMotion" checked> Motion</label>
+    <label><input type="checkbox" id="togglePlaces" checked> Place names</label>
+  </div>
+  <div class="controls groundRow" role="radiogroup" aria-label="Ground">
+    <span class="ctlLabel">Ground</span>
+    <label><input type="radio" name="ground" value="" checked> None</label>
+    <label><input type="radio" name="ground" value="relief"> Relief</label>
+    <label><input type="radio" name="ground" value="topo"> Grey topo</label>
+  </div>
+  <div class="liveRow">
+    <label class="liveSwitch"><input type="checkbox" id="toggleLive"> Live data only</label>
+    <p class="lgNote" id="liveNote"></p>
+  </div>
+  <div class="btnRow">
+    <button id="refresh" type="button">Refresh live data</button>
+    <a class="btnLaw" href="law.html">The legal hooks</a>
+    <a class="btnLaw" href="sources.html">Sources and their age</a>
+  </div>
+  </div>
+</section>
+
+<!-- The time ribbon. It is empty on the layers that describe only now, and it
+     carries the record on the layers that describe a change. -->
+<section id="ribbon" hidden aria-label="Time">
+  <div class="ribbonHead">
+    <button id="play" type="button" aria-label="Play">
+      <svg viewBox="0 0 12 14" aria-hidden="true" width="11" height="13"><path d="M1 1l10 6-10 6z"/></svg>
+      <span id="playLabel">Play</span>
+    </button>
+    <h2 id="ribbonTitle">&nbsp;</h2>
+    <output id="ribbonRead">&nbsp;</output>
+  </div>
+  <canvas id="ribbonCv" aria-hidden="true"></canvas>
+  <input id="scrub" type="range" min="0" max="1000" value="1000" step="1" aria-label="Scrub through time">
+  <p class="ribbonNote" id="ribbonNote">&nbsp;</p>
+</section>
+
+<aside id="panel" role="dialog" aria-modal="false" aria-labelledby="panelTitle" tabindex="-1" hidden>
+  <button id="panelClose" type="button" aria-label="Close">&times;</button>
+  <h2 id="panelTitle"></h2>
+  <dl id="panelBody"></dl>
+  <div id="panelExtra"></div>
+  <p class="panelNote" id="panelNote"></p>
+</aside>
+
+<div id="tooltip" role="status" hidden></div>
+</main>
+
+<dialog id="intro" aria-labelledby="introTitle" aria-describedby="introLead">
+  <button type="button" id="introClose" aria-label="Close project brief">&times;</button>
+  <div class="introTop">
+    <p class="introEyebrow">The water cycle, read as evidence</p>
+    <span class="langs introLangs" data-langswitch></span>
+  </div>
+  <h2 id="introTitle">Follow the water. Protect its pathways.</h2>
+  <p class="introLead" id="introLead">The goal is to trace water through Switzerland—from ice and
+    groundwater to rivers, storage, use, return and the border—and show the law protecting each
+    essential path. The project exists to help protect wetlands and support legal action when
+    protection fails. This release begins with surface water. Every figure states its source, age
+    and evidence class.</p>
+  <div class="introActions">
+    <button type="button" id="introEnter" autofocus>Explore the map</button>
+    <a href="method.html">How the evidence works</a>
+  </div>
+  <figure class="cycleViz" aria-labelledby="cycleCaption">
+    <svg viewBox="0 0 900 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <path class="cycleAtmosphere" d="M45 58C143 18 256 23 339 60S520 91 610 49 785 25 855 57"/>
+      <path class="cycleMountain cycleMountainBack" d="M44 188 188 69l66 58L365 35l142 153Z"/>
+      <path class="cycleMountain" d="M164 188 344 44l171 144ZM430 188 548 91l121 97Z"/>
+      <path class="cycleSnow" d="m281 95 63-51 52 44-27-10-22 19-22-16-21 20Z"/>
+      <path class="cycleGlacier" d="M347 97c12 25 23 48 20 78l43-10c-4-30-18-55-41-87Z"/>
+      <path class="cycleGround" d="M72 191c151-20 249 15 382-2 111-14 181-18 300 5"/>
+      <path class="cycleAquifer" d="M273 178c68 33 147 28 214 5 48-17 99-8 141 7"/>
+      <path class="cycleRiver" d="M369 151c44 11 50 42 104 40 65-2 82-35 134-30 66 6 95 48 206 31"/>
+      <path class="cycleLake" d="M571 169c22-12 51-13 75-1-18 17-54 19-75 1Z"/>
+      <path class="cycleWetland" d="M511 181c18-13 39-13 58-1M526 181v-17m16 18v-22m16 21v-14"/>
+      <path class="cycleRain" d="m242 51-12 24m39-17-10 21m267-29-11 23m40-18-10 22"/>
+      <path class="cycleReturn" d="M758 180c-10-51 9-91 46-116"/>
+      <circle class="cycleSource" cx="300" cy="158" r="7"/>
+      <circle class="cycleUse" cx="704" cy="178" r="9"/>
+    </svg>
+    <figcaption id="cycleCaption">From mountain precipitation through ice, springs and groundwater to rivers, wetlands, storage, use, return flow and the atmosphere.</figcaption>
+    <ol class="cycleStages" aria-label="Open mapped parts of the water cycle">
+      <li><button type="button" data-cycle-mode="ice"><b>Glaciers</b><span>mapped inventories</span></button></li>
+      <li><button type="button" data-cycle-mode="source"><b>Mountain springs &amp; groundwater</b><span>partly mapped</span></button></li>
+      <li><button type="button" data-cycle-mode="flow"><b>Streams &amp; rivers</b><span>live and modelled</span></button></li>
+      <li><button type="button" data-cycle-mode="wet"><b>Wetlands &amp; lakes</b><span>inventories and outlines</span></button></li>
+      <li><button type="button" data-cycle-mode="res"><b>Reservoirs</b><span>weekly regional series</span></button></li>
+      <li><button type="button" data-cycle-mode="use"><b>Use &amp; return</b><span>federal registers</span></button></li>
+    </ol>
+    <p class="cycleGap">Still missing as mapped evidence: precipitation, snow cover, soil moisture, groundwater recharge and evaporation. <a href="method.html#cycle">See coverage</a>.</p>
+  </figure>
+  <ul class="introFacts">
+    <li><strong>Live</strong><span>Federal river gauges</span></li>
+    <li><strong>26 years</strong><span>Reservoir history</span></li>
+    <li><strong>1850&ndash;2023</strong><span>Glacier inventories</span></li>
+  </ul>
+  <p class="introNote">Measured and modelled water. Not a forecast.</p>
+</dialog>
+
+<footer id="credits">
+  <p><strong>Rivers</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), filtered at 5&nbsp;km&#178; after
+  HydroRIVERS' own 10&nbsp;km&#178; or 0.1&nbsp;m&#179;/s source threshold, carrying current valid
+  discharge from the BAFU gauging network through LINDAS.
+  <strong>Ice</strong> GLAMOS, six dated inventories. <strong>Reservoirs</strong> BFE.
+  <strong>Residual flow and water use</strong> BAFU and BFE. <strong>Names</strong> swissNAMES3D,
+  swisstopo. Every source, its licence and its data state is on the
+  <a href="sources.html">sources page</a>. Measured and modelled water, not a forecast.</p>
+</footer>
+
+<script src="fmt.js?v=20260821"></script>
+<script src="gschg31.js?v=20260821"></script>
+<script src="app.js?v=20260821"></script>
+</body>
+</html>

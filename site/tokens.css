@@ -152,6 +152,7 @@
   --r:     10px;
   --sheet-h: 0px;                    /* set by script on phones */
   --title-h: 96px;                   /* measured by script: the title block's foot */
+  --safe-t: env(safe-area-inset-top, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
   --safe-l: env(safe-area-inset-left, 0px);
   --safe-r: env(safe-area-inset-right, 0px);

@@ -3,8 +3,9 @@
  * The site is written in English and published in Swiss German, French, Italian
  * and Rumantsch Grischun. The prose lives in per-language HTML files under /de,
  * /fr, /it and /rm; everything a script writes at runtime lives here, keyed by a
- * short name, with the English text carried in the same table rather than left in
- * the code. A missing key falls back to English and says so in the console, so a
+ * short name. The German map is published at / and the English one at /en/; the
+ * English reading pages keep their stable root URLs. A missing key falls back to
+ * English and says so in the console, so a
  * half-finished translation degrades to a readable page instead of a blank one.
  *
  * Romansh is Rumantsch Grischun, the standardised written form the Confederation
