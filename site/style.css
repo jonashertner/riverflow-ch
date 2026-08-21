@@ -179,7 +179,7 @@ html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 
 /* ---- first-visit brief ---- */
 #intro {
-  width: min(760px, calc(100vw - 32px)); max-height: calc(100vh - 32px);
+  width: min(900px, calc(100vw - 32px)); max-height: calc(100vh - 32px);
   padding: clamp(26px, 5vw, 58px); overflow: auto;
   color: var(--ink); background: color-mix(in srgb, var(--surface-1) 97%, var(--plane));
   border: 1px solid var(--hairline); border-radius: 14px; box-shadow: 0 28px 90px rgba(0,0,0,0.42);
@@ -191,10 +191,12 @@ html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
   font: 24px/1 var(--sans); cursor: pointer;
 }
 #introClose:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, transparent); }
+.introTop { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 0 46px 16px 0; }
 .introEyebrow {
-  margin: 0 0 16px; color: var(--accent); font-size: 10.5px; font-weight: 600;
+  margin: 0; color: var(--accent); font-size: 10.5px; font-weight: 600;
   letter-spacing: 0.13em; text-transform: uppercase;
 }
+.introLangs { margin-left: auto; padding-left: 10px; pointer-events: auto; }
 #introTitle {
   max-width: 650px; margin: 0; font: 600 clamp(35px, 6vw, 68px)/0.98 var(--serif);
   letter-spacing: -0.045em; text-wrap: balance;
@@ -202,6 +204,55 @@ html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 .introLead {
   max-width: 650px; margin: 24px 0 0; color: var(--ink-2);
   font: 400 clamp(16px, 2.1vw, 20px)/1.5 var(--serif);
+}
+.cycleViz { margin: 30px 0 0; }
+.cycleViz svg {
+  display: block; width: 100%; height: auto; max-height: 230px;
+  border-radius: 9px; background: color-mix(in srgb, var(--surface-2) 78%, transparent);
+}
+.cycleAtmosphere, .cycleGround, .cycleAquifer, .cycleRiver, .cycleWetland,
+.cycleRain, .cycleReturn {
+  fill: none; stroke-linecap: round; stroke-linejoin: round;
+}
+.cycleAtmosphere { stroke: var(--ink-muted); stroke-width: 2; stroke-dasharray: 2 9; }
+.cycleMountain { fill: color-mix(in srgb, var(--law) 15%, var(--surface-2)); stroke: var(--law-line); stroke-width: 1.5; }
+.cycleMountainBack { opacity: .56; }
+.cycleSnow { fill: var(--ice); opacity: .9; }
+.cycleGlacier { fill: color-mix(in srgb, var(--ice) 68%, var(--seq-400)); opacity: .9; }
+.cycleGround { stroke: var(--law-dim); stroke-width: 2; }
+.cycleAquifer { stroke: var(--res-mid); stroke-width: 8; stroke-dasharray: 2 12; opacity: .75; }
+.cycleRiver { stroke: var(--seq-300); stroke-width: 7; stroke-dasharray: 18 8; }
+.cycleLake { fill: var(--lake); stroke: var(--lake-line); stroke-width: 2; }
+.cycleWetland { stroke: rgb(var(--wet-water-rgb)); stroke-width: 3; }
+.cycleRain { stroke: var(--seq-200); stroke-width: 3; stroke-dasharray: 3 8; }
+.cycleReturn { stroke: var(--ink-muted); stroke-width: 2; stroke-dasharray: 5 8; }
+.cycleSource { fill: var(--res-full); stroke: var(--res-head); stroke-width: 2; }
+.cycleUse { fill: var(--surface-2); stroke: var(--use-out); stroke-width: 4; }
+.cycleViz figcaption {
+  max-width: 720px; margin: 13px 0 0; color: var(--ink-2);
+  font: 400 14px/1.5 var(--serif);
+}
+.cycleStages {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  list-style: none; margin: 16px 0 0; padding: 1px; overflow: hidden;
+  background: var(--rule); border-radius: 8px;
+}
+.cycleStages li { min-width: 0; background: var(--surface-1); }
+.cycleStages button {
+  display: grid; gap: 4px; width: 100%; min-height: 62px; padding: 11px 13px;
+  text-align: left; color: var(--ink); background: transparent; border: 0;
+  font-family: var(--sans); cursor: pointer;
+}
+.cycleStages button:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.cycleStages button:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+.cycleStages b { overflow-wrap: anywhere; font-size: 12px; line-height: 1.25; font-weight: 600; }
+.cycleStages span { color: var(--ink-muted); font-size: 10.5px; line-height: 1.25; }
+.cycleGap { margin: 12px 0 0; color: var(--ink-muted); font-size: 11px; line-height: 1.45; }
+.cycleGap a { color: var(--ink-2); text-decoration-color: var(--hairline); text-underline-offset: 3px; }
+.cycleGap a:hover { color: var(--ink); }
+@media (prefers-reduced-motion: no-preference) {
+  .cycleRiver, .cycleRain, .cycleReturn { animation: cycleMove 7s linear infinite; }
+  @keyframes cycleMove { to { stroke-dashoffset: -52; } }
 }
 .introFacts {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
@@ -611,13 +662,24 @@ body.hasRibbon #credits { display: none; }
   :root { --fs-base: 15px; --panel-w: auto; }
 
   #titlebar {
-    top: 0; left: 0; right: 0; max-width: none; padding: 10px 12px 12px;
+    top: 0; left: 0; right: 0; max-width: none;
+    padding: calc(8px + var(--safe-t)) calc(10px + var(--safe-r)) 8px calc(10px + var(--safe-l));
     margin: 0; border-radius: 0;
     background: linear-gradient(to bottom, color-mix(in srgb, var(--plane) 94%, transparent), color-mix(in srgb, var(--plane) 70%, transparent) 60%, color-mix(in srgb, var(--plane) 0%, transparent));
-    padding-left: calc(12px + var(--safe-l));
   }
   #titlebar h1 { font-size: 16px; }
-  #titlebar .stamp { margin-top: 3px; font-size: 11px; }
+  #titlebar .stamp {
+    margin-top: 3px; overflow: hidden; font-size: 11px;
+    white-space: nowrap; text-overflow: ellipsis;
+  }
+  #titlebar .hint, #siteNav > a { display: none; }
+  #siteNav { flex-wrap: nowrap; align-items: center; margin-top: 7px; padding-top: 6px; }
+  #introOpen { min-height: 40px; margin-left: -5px; padding-inline: 5px; }
+  #titlebar .langs { margin-left: auto; padding-left: 4px; }
+  #titlebar .langs [lang] {
+    display: grid; place-items: center; min-width: 28px; min-height: 40px; padding: 0 2px;
+  }
+  #titlebar .themeBtn { width: 40px; height: 40px; }
 
   /* the layer switcher scrolls horizontally rather than wrapping or shrinking
      below a usable tap target */
@@ -626,12 +688,16 @@ body.hasRibbon #credits { display: none; }
        whether or not the title wrapped and whether or not the prompt is shown. */
     top: var(--title-h); bottom: auto; left: 0; right: 0; transform: none;
     max-width: none; border-radius: 0; border-left: 0; border-right: 0;
-    overflow-x: auto; scrollbar-width: none;
+    overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none;
+    scroll-snap-type: x proximity;
     padding: 4px calc(8px + var(--safe-l)) 4px calc(8px + var(--safe-r));
     justify-content: flex-start;
   }
   #modes::-webkit-scrollbar { display: none; }
-  #modes button { padding: 9px 12px; font-size: 12.5px; min-height: 38px; }
+  #modes button {
+    min-height: 44px; padding: 10px 13px; font-size: 12.5px;
+    scroll-snap-align: start;
+  }
   .modeGroupLabel { display: none; }
   .modeGroup + .modeGroup { margin-left: 4px; padding-left: 6px; }
 
@@ -646,7 +712,7 @@ body.hasRibbon #credits { display: none; }
 
   /* ---- the sheet ---- */
   #legend {
-    left: 0; right: 0; bottom: 0; width: auto; max-height: 76vh;
+    left: 0; right: 0; bottom: 0; width: auto; max-height: 76vh; max-height: 76dvh;
     border-radius: 14px 14px 0 0; border-left: 0; border-right: 0; border-bottom: 0;
     padding: 0 0 calc(10px + var(--safe-b));
     background: color-mix(in srgb, var(--surface-1) 96%, transparent);
@@ -673,13 +739,13 @@ body.hasRibbon #credits { display: none; }
   #legend h2 { display: none; }             /* the handle carries the title */
   .btnRow { grid-template-columns: 1fr 1fr; }
   .btnRow button:first-child { grid-column: 1 / -1; }
-  .btnRow button, .btnRow a { min-height: 42px; line-height: 26px; }
-  .controls label { min-height: 32px; }
+  .btnRow button, .btnRow a { min-height: 44px; line-height: 26px; }
+  .controls label { min-height: 44px; }
 
   /* the panel becomes a second sheet, over the first */
   #panel {
     left: 0; right: 0; top: auto; bottom: 0; width: auto;
-    max-height: 72vh; border-radius: 14px 14px 0 0;
+    max-height: 72vh; max-height: 72dvh; border-radius: 14px 14px 0 0;
     border-left: 0; border-right: 0; border-bottom: 0;
     padding: 16px 14px calc(16px + var(--safe-b));
     background: color-mix(in srgb, var(--surface-1) 97%, transparent);
@@ -687,7 +753,7 @@ body.hasRibbon #credits { display: none; }
     animation: sheetUp 240ms cubic-bezier(0.22, 0.61, 0.36, 1);
   }
   @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
-  #panelClose { top: 8px; right: 8px; }
+  #panelClose { top: 8px; right: 8px; min-width: 44px; min-height: 44px; }
 
   /* the ribbon sits above the sheet */
   #ribbon {
@@ -705,31 +771,53 @@ body.hasRibbon #credits { display: none; }
     flex: 1 0 100%; order: 2; text-align: left;
     white-space: normal; font-size: 12px; line-height: 1.35; margin-top: 6px;
   }
+  #play { min-height: 44px; }
+  #scrub { height: 44px; margin-top: -8px; }
+  #scrub::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: -9px; }
+  #scrub::-moz-range-thumb { width: 20px; height: 20px; }
   .ribbonNote { display: none; }
 
   #tooltip { display: none; }               /* a finger has no hover */
 
   #intro {
-    width: calc(100vw - 16px); max-height: calc(100vh - 16px);
-    padding: 30px 20px 24px; border-radius: 12px;
+    width: calc(100vw - 12px); max-height: calc(100vh - 12px); max-height: calc(100dvh - 12px);
+    padding: calc(22px + var(--safe-t)) 18px calc(20px + var(--safe-b)); border-radius: 12px;
   }
-  #introTitle { font-size: clamp(34px, 11vw, 50px); }
-  .introLead { margin-top: 18px; font-size: 16px; }
+  #introTitle { font-size: clamp(30px, 10vw, 44px); line-height: 1; }
+  .introTop { align-items: flex-start; flex-direction: column; gap: 8px; margin-right: 42px; }
+  .introLangs { margin-left: 0; padding-left: 0; border-left: 0; }
+  #intro .introLangs [lang] {
+    display: grid; place-items: center; min-width: 40px; min-height: 40px; padding: 0;
+  }
+  .introLead { margin-top: 15px; font-size: 15px; line-height: 1.42; }
+  .introActions { align-items: stretch; flex-direction: column; gap: 8px; margin-top: 18px; }
+  #introEnter, .introActions a { width: 100%; min-height: 48px; }
+  .cycleViz { margin-top: 22px; }
+  .cycleViz svg { height: 118px; max-height: none; }
+  .cycleViz figcaption { margin-top: 10px; font-size: 13px; line-height: 1.4; }
+  .cycleStages { grid-template-columns: repeat(2, 1fr); }
+  .cycleStages button { min-height: 68px; padding: 10px; }
   .introFacts { grid-template-columns: 1fr; margin-top: 23px; }
   .introFacts li { grid-template-columns: 105px 1fr; align-items: baseline; padding: 12px 14px; }
-  .introActions { align-items: stretch; flex-direction: column; gap: 8px; margin-top: 22px; }
-  #introEnter, .introActions a { width: 100%; }
 }
 
 /* very small phones: give the numbers room by dropping the sub-labels */
 @media (max-width: 380px) {
-  #modes button { padding: 9px 9px; font-size: 12px; }
+  #modes button { padding: 10px 11px; font-size: 12px; }
   #titlebar h1 { font-size: 15px; }
+  #titlebar .langs [lang] { min-width: 26px; }
+  .cycleStages b { font-size: 11.5px; }
+}
+
+@media (max-width: 480px) {
+  .introFacts, .introNote { display: none; }
 }
 
 /* short landscape phones: the sheet would eat the map */
 @media (max-height: 480px) and (orientation: landscape) and (max-width: 940px) {
   #titlebar .sub, #titlebar .stamp { display: none; }
+  #titlebar h1 { font-size: 14px; }
+  #siteNav { margin-top: 4px; padding-top: 3px; }
   #legend { max-height: 60vh; }
   #ribbon { display: none; }
 }

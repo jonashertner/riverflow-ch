@@ -35,7 +35,7 @@ for (const file of publicationFiles) artifacts[path.relative(path.join(root, 'si
 
 const generatorNames = [
   ...(await fs.readdir(path.join(root, 'build'))).filter(name => /\.(?:mjs|py|sh)$/.test(name)).map(name => `build/${name}`),
-  ...(await fs.readdir(path.join(root, 'build', 'pages'))).filter(name => name.endsWith('.json')).map(name => `build/pages/${name}`),
+  ...(await fs.readdir(path.join(root, 'build', 'pages'))).filter(name => /\.(?:html|json)$/.test(name)).map(name => `build/pages/${name}`),
   'scripts/verify-site.mjs', '.github/workflows/pages.yml',
 ].sort();
 const generators = {};

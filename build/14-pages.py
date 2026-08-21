@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""The five pages, in five languages.
+"""Five pages in five languages, with German at the publication root.
 
-The English files under site/ are the originals. The twenty translated files are
+The English files under site/ are the originals except for the landing page,
+whose durable source is build/pages/index.en.html. The translated files are
 derived from them here, so that a change to the English structure — a new
 paragraph, a renamed id, a moved link — cannot leave the other four languages
 behind: it reappears as an untranslated chunk and the build says so.
@@ -161,7 +162,7 @@ def scan(raw):
 
 
 def keys_of(page):
-    raw = open(os.path.join(SITE, page), encoding='utf-8').read()
+    raw = open(source_path(page), encoding='utf-8').read()
     seen, out = set(), []
     for _, _, k in scan(raw):
         if k not in seen:
@@ -188,6 +189,13 @@ ASSETS = ('tokens.css', 'style.css', 'site.css', 'favicon.svg', 'i18n.js',
 BASE = 'https://jonashertner.github.io/riverflow-ch/'
 
 
+def source_path(page):
+    """The English landing source is not itself a published root document: the
+    root is German. The other English pages retain their stable root URLs."""
+    return (os.path.join(TRANS, 'index.en.html') if page == 'index.html'
+            else os.path.join(SITE, page))
+
+
 def relocate(raw, lang, page):
     """Move a page one directory down and restate where it sits in the set."""
     tail = '' if page == 'index.html' else page
@@ -197,15 +205,57 @@ def relocate(raw, lang, page):
         for attr in ('href', 'src'):
             raw = re.sub(r'%s="%s(\?[^"#]*)?"' % (attr, re.escape(a)),
                          lambda m: '%s="../%s%s"' % (attr, a, m.group(1) or ''), raw)
-    raw = raw.replace('<link rel="canonical" href="%s%s">' % (BASE, tail),
-                      '<link rel="canonical" href="%s%s/%s">' % (BASE, lang, tail))
-    raw = raw.replace('<meta property="og:url" content="%s%s">' % (BASE, tail),
-                      '<meta property="og:url" content="%s%s/%s">' % (BASE, lang, tail))
-    alts = ['<link rel="alternate" hreflang="en" href="../%s">' % tail]
-    for L in LANGS:
-        href = (tail or './') if L == lang else '../%s/%s' % (L, tail)
-        alts.append('<link rel="alternate" hreflang="%s" href="%s">' % (L, href))
-    alts.append('<link rel="alternate" hreflang="x-default" href="../%s">' % tail)
+    if page == 'index.html':
+        canonical = BASE if lang == 'de' else '%s%s/' % (BASE, lang)
+        raw = raw.replace('<link rel="canonical" href="%s">' % BASE,
+                          '<link rel="canonical" href="%s">' % canonical)
+        raw = raw.replace('<meta property="og:url" content="%s">' % BASE,
+                          '<meta property="og:url" content="%s">' % canonical)
+        # English reading pages keep their stable root URLs, while the English
+        # map now lives at /en/.
+        if lang == 'en':
+            for target in ('method.html', 'sources.html', 'law.html', 'about.html'):
+                raw = raw.replace('href="%s' % target, 'href="../%s' % target)
+        alts = [
+            '<link rel="alternate" hreflang="en" href="%s">' % ('./' if lang == 'en' else '../en/'),
+            '<link rel="alternate" hreflang="de" href="../">',
+            '<link rel="alternate" hreflang="fr" href="%s">' % ('./' if lang == 'fr' else '../fr/'),
+            '<link rel="alternate" hreflang="it" href="%s">' % ('./' if lang == 'it' else '../it/'),
+            '<link rel="alternate" hreflang="rm" href="%s">' % ('./' if lang == 'rm' else '../rm/'),
+            '<link rel="alternate" hreflang="x-default" href="../">',
+        ]
+    else:
+        raw = raw.replace('<link rel="canonical" href="%s%s">' % (BASE, tail),
+                          '<link rel="canonical" href="%s%s/%s">' % (BASE, lang, tail))
+        raw = raw.replace('<meta property="og:url" content="%s%s">' % (BASE, tail),
+                          '<meta property="og:url" content="%s%s/%s">' % (BASE, lang, tail))
+        alts = ['<link rel="alternate" hreflang="en" href="../%s">' % tail]
+        for L in LANGS:
+            href = tail if L == lang else '../%s/%s' % (L, tail)
+            alts.append('<link rel="alternate" hreflang="%s" href="%s">' % (L, href))
+        alts.append('<link rel="alternate" hreflang="x-default" href="../%s">' % tail)
+    old = re.search(r'<link rel="alternate" hreflang="en".*?hreflang="x-default"[^>]*>', raw, re.S)
+    return raw[:old.start()] + '\n'.join(alts) + raw[old.end():]
+
+
+def root_german(raw):
+    """Publish the German map at / while keeping German reading pages in /de/."""
+    raw = raw.replace('<html lang="de" data-root="../">',
+                      '<html lang="de" data-root="./">')
+    for asset in ASSETS:
+        for attr in ('href', 'src'):
+            raw = re.sub(r'%s="\.\./%s' % (attr, re.escape(asset)),
+                         '%s="%s' % (attr, asset), raw)
+    for target in ('method.html', 'sources.html', 'law.html', 'about.html'):
+        raw = raw.replace('href="%s' % target, 'href="de/%s' % target)
+    alts = [
+        '<link rel="alternate" hreflang="en" href="en/">',
+        '<link rel="alternate" hreflang="de" href="./">',
+        '<link rel="alternate" hreflang="fr" href="fr/">',
+        '<link rel="alternate" hreflang="it" href="it/">',
+        '<link rel="alternate" hreflang="rm" href="rm/">',
+        '<link rel="alternate" hreflang="x-default" href="./">',
+    ]
     old = re.search(r'<link rel="alternate" hreflang="en".*?hreflang="x-default"[^>]*>', raw, re.S)
     return raw[:old.start()] + '\n'.join(alts) + raw[old.end():]
 
@@ -215,7 +265,8 @@ def lastmod(page):
     checkout's file times are the time of the checkout and would date every page
     to the day the site was deployed."""
     try:
-        d = subprocess.run(['git', 'log', '-1', '--format=%cs', '--', 'site/' + page],
+        tracked = ('build/pages/index.en.html' if page == 'index.html' else 'site/' + page)
+        d = subprocess.run(['git', 'log', '-1', '--format=%cs', '--', tracked],
                            cwd=os.path.dirname(HERE), capture_output=True, text=True).stdout.strip()
         if re.fullmatch(r'\d{4}-\d{2}-\d{2}', d):
             return d
@@ -226,14 +277,17 @@ def lastmod(page):
 
 def sitemap():
     """One entry per page per language, each declaring the whole set. A search
-    engine that finds any one of the twenty-five knows the other twenty-four and
-    which language each is in."""
+    engine that finds one knows the complete language set. German owns /; the
+    English landing page owns /en/."""
     rows = ['<?xml version="1.0" encoding="UTF-8"?>',
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
             '        xmlns:xhtml="http://www.w3.org/1999/xhtml">']
     for page in PAGES:
         tail = '' if page == 'index.html' else page
-        where = [('en', BASE + tail)] + [(L, '%s%s/%s' % (BASE, L, tail)) for L in LANGS]
+        where = ([('de', BASE), ('en', BASE + 'en/'),
+                  ('fr', BASE + 'fr/'), ('it', BASE + 'it/'), ('rm', BASE + 'rm/')]
+                 if page == 'index.html'
+                 else [('en', BASE + tail)] + [(L, '%s%s/%s' % (BASE, L, tail)) for L in LANGS])
         when = lastmod(page)
         for _, url in where:
             rows.append('  <url>')
@@ -253,11 +307,15 @@ def sitemap():
 
 def build():
     owed = 0
+    source_index = open(source_path('index.html'), encoding='utf-8').read()
+    os.makedirs(os.path.join(SITE, 'en'), exist_ok=True)
+    open(os.path.join(SITE, 'en', 'index.html'), 'w', encoding='utf-8').write(
+        relocate(source_index, 'en', 'index.html'))
     for lang in LANGS:
         table = load(lang)
         os.makedirs(os.path.join(SITE, lang), exist_ok=True)
         for page in PAGES:
-            raw = relocate(open(os.path.join(SITE, page), encoding='utf-8').read(), lang, page)
+            raw = relocate(open(source_path(page), encoding='utf-8').read(), lang, page)
             todo, out = set(), raw
             for start, end, key in reversed(scan(raw)):
                 if key in table and table[key]:
@@ -269,6 +327,8 @@ def build():
                 owed += len(todo)
             open(os.path.join(SITE, lang, page), 'w', encoding='utf-8').write(out)
         print('%s: five pages written' % lang)
+    open(os.path.join(SITE, 'index.html'), 'w', encoding='utf-8').write(
+        root_german(open(os.path.join(SITE, 'de', 'index.html'), encoding='utf-8').read()))
     sitemap()
     return 1 if owed else 0
 

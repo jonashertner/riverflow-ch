@@ -11,8 +11,8 @@
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0d0d0d">
 <link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/fr/">
-<link rel="alternate" hreflang="en" href="../">
-<link rel="alternate" hreflang="de" href="../de/">
+<link rel="alternate" hreflang="en" href="../en/">
+<link rel="alternate" hreflang="de" href="../">
 <link rel="alternate" hreflang="fr" href="./">
 <link rel="alternate" hreflang="it" href="../it/">
 <link rel="alternate" hreflang="rm" href="../rm/">
@@ -68,7 +68,7 @@
   <p class="hint" id="hint" hidden>Pointez l’eau pour la lire. <a href="method.html#reading">Comment lire cette carte</a></p>
 
   <nav id="siteNav" aria-label="Site">
-    <button type="button" id="introOpen">Aperçu du projet</button>
+    <button type="button" id="introOpen">Projet</button>
     <a href="method.html">Méthode</a>
     <a href="sources.html">Sources</a>
     <a href="law.html">Droit</a>
@@ -275,18 +275,49 @@
 
 <dialog id="intro" aria-labelledby="introTitle" aria-describedby="introLead">
   <button type="button" id="introClose" aria-label="Fermer l’aperçu du projet">&times;</button>
-  <p class="introEyebrow">Le cycle de l’eau lu comme preuve</p>
+  <div class="introTop">
+    <p class="introEyebrow">Le cycle de l’eau lu comme preuve</p>
+    <span class="langs introLangs" data-langswitch></span>
+  </div>
   <h2 id="introTitle">Suivre l’eau. Protéger ses voies.</h2>
   <p class="introLead" id="introLead">Le but est de suivre l’eau à travers la Suisse — de la glace et des eaux souterraines aux cours d’eau, au stockage, aux usages, aux retours et à la frontière — et de montrer le droit qui protège chaque voie essentielle. Le projet vise à aider à protéger les zones humides et à soutenir l’action en justice lorsque la protection échoue. Cette version commence par les eaux de surface. Chaque chiffre indique sa source, son âge et sa classe de preuve.</p>
+  <div class="introActions">
+    <button type="button" id="introEnter" autofocus>Explorer la carte</button>
+    <a href="method.html">Comment fonctionnent les preuves</a>
+  </div>
+  <figure class="cycleViz" aria-labelledby="cycleCaption">
+    <svg viewBox="0 0 900 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <path class="cycleAtmosphere" d="M45 58C143 18 256 23 339 60S520 91 610 49 785 25 855 57"/>
+      <path class="cycleMountain cycleMountainBack" d="M44 188 188 69l66 58L365 35l142 153Z"/>
+      <path class="cycleMountain" d="M164 188 344 44l171 144ZM430 188 548 91l121 97Z"/>
+      <path class="cycleSnow" d="m281 95 63-51 52 44-27-10-22 19-22-16-21 20Z"/>
+      <path class="cycleGlacier" d="M347 97c12 25 23 48 20 78l43-10c-4-30-18-55-41-87Z"/>
+      <path class="cycleGround" d="M72 191c151-20 249 15 382-2 111-14 181-18 300 5"/>
+      <path class="cycleAquifer" d="M273 178c68 33 147 28 214 5 48-17 99-8 141 7"/>
+      <path class="cycleRiver" d="M369 151c44 11 50 42 104 40 65-2 82-35 134-30 66 6 95 48 206 31"/>
+      <path class="cycleLake" d="M571 169c22-12 51-13 75-1-18 17-54 19-75 1Z"/>
+      <path class="cycleWetland" d="M511 181c18-13 39-13 58-1M526 181v-17m16 18v-22m16 21v-14"/>
+      <path class="cycleRain" d="m242 51-12 24m39-17-10 21m267-29-11 23m40-18-10 22"/>
+      <path class="cycleReturn" d="M758 180c-10-51 9-91 46-116"/>
+      <circle class="cycleSource" cx="300" cy="158" r="7"/>
+      <circle class="cycleUse" cx="704" cy="178" r="9"/>
+    </svg>
+    <figcaption id="cycleCaption">Des précipitations en montagne, par la glace, les sources et les eaux souterraines, jusqu’aux cours d’eau, zones humides, retenues, usages, retours et à l’atmosphère.</figcaption>
+    <ol class="cycleStages" aria-label="Ouvrir les parties cartographiées du cycle de l’eau">
+      <li><button type="button" data-cycle-mode="ice"><b>Glaciers</b><span>inventaires cartographiés</span></button></li>
+      <li><button type="button" data-cycle-mode="source"><b>Sources alpines &amp; eaux souterraines</b><span>cartographiées en partie</span></button></li>
+      <li><button type="button" data-cycle-mode="flow"><b>Ruisseaux &amp; cours d’eau</b><span>en direct et modélisés</span></button></li>
+      <li><button type="button" data-cycle-mode="wet"><b>Zones humides &amp; lacs</b><span>inventaires et contours</span></button></li>
+      <li><button type="button" data-cycle-mode="res"><b>Retenues</b><span>séries régionales hebdomadaires</span></button></li>
+      <li><button type="button" data-cycle-mode="use"><b>Usages &amp; retours</b><span>registres fédéraux</span></button></li>
+    </ol>
+    <p class="cycleGap">Manquent encore comme preuves cartographiées : précipitations, manteau neigeux, humidité du sol, recharge des nappes et évaporation. <a href="method.html#cycle">Voir la couverture</a>.</p>
+  </figure>
   <ul class="introFacts">
     <li><strong>En direct</strong><span>Stations hydrométriques fédérales</span></li>
     <li><strong>26 ans</strong><span>Historique des réservoirs</span></li>
     <li><strong>1850&ndash;2023</strong><span>Inventaires glaciaires</span></li>
   </ul>
-  <div class="introActions">
-    <button type="button" id="introEnter" autofocus>Explorer la carte</button>
-    <a href="method.html">Comment fonctionnent les preuves</a>
-  </div>
   <p class="introNote">Des eaux mesurées et modélisées. Pas une prévision.</p>
 </dialog>
 
