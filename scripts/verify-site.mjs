@@ -160,9 +160,14 @@ for (const [label, pattern] of [
   ['dynamic mobile sheet height', /max-height:\s*76dvh/],
   ['dynamic mobile dialog height', /max-height:\s*calc\(100dvh - 12px\)/],
   ['large landing language targets', /#intro \.introLangs \[lang\][^{]*\{[^}]*min-width:\s*40px;[^}]*min-height:\s*44px/s],
+  ['contained intermediate mode rail', /@media \(min-width:\s*701px\) and \(max-width:\s*1340px\)[\s\S]*?#modes\s*\{[^}]*overflow-x:\s*auto/],
+  ['collision-free wide mode rail', /@media \(min-width:\s*1900px\)[\s\S]*?#modes\s*\{[^}]*left:\s*calc\(var\(--pad\) \+ 484px\)/],
 ]) if (!pattern.test(responsiveCss)) fail(responsiveCssFile, `missing responsive contract: ${label}`);
 if (!/window\.visualViewport\?\.addEventListener\(['"]resize['"]/.test(readFileSync(join(site, 'app.js'), 'utf8'))) {
   fail(join(site, 'app.js'), 'map does not relayout with the mobile visual viewport');
+}
+if (!/modeNav\.addEventListener\(['"]wheel['"]/.test(readFileSync(join(site, 'app.js'), 'utf8'))) {
+  fail(join(site, 'app.js'), 'intermediate mode rail has no practical mouse-wheel navigation');
 }
 
 // The sitemap must describe exactly the canonical publication surface.

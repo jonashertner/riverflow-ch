@@ -2020,6 +2020,21 @@ for (const b of document.querySelectorAll('#modes button')) {
   b.onclick = () => setMode(b.dataset.mode);
 }
 
+/* Between phone and wide desktop the translated layer names form a horizontal
+   rail. Touch and trackpads scroll it natively; a vertical mouse wheel should be
+   just as useful because the map page itself has no vertical scroll. */
+(function practicalModeRail() {
+  const modeNav = document.getElementById('modes');
+  if (!modeNav) return;
+  modeNav.addEventListener('wheel', event => {
+    const max = modeNav.scrollWidth - modeNav.clientWidth;
+    if (max <= 2 || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
+    const before = modeNav.scrollLeft;
+    modeNav.scrollLeft = Math.max(0, Math.min(max, before + event.deltaY));
+    if (modeNav.scrollLeft !== before) event.preventDefault();
+  }, { passive: false });
+})();
+
 // ---- Art. 31(1) GSchG -------------------------------------------------------
 // The statute states a base figure at the foot of each band and a rate above it.
 // The Art. 31(1) table itself lives in gschg31.js, loaded before this file and
