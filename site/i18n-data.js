@@ -24,6 +24,17 @@
  */
 Object.assign(DSTR, {
 
+  // ---- NAWA sampling types ------------------------------------------------
+  'Stichprobe': {
+    de: 'Stichprobe', fr: 'Échantillon instantané', it: 'Campione istantaneo', rm: 'Prova singula',
+  },
+  'Sammelprobe zeitproportional': {
+    de: 'Sammelprobe zeitproportional', fr: 'Échantillon composite proportionnel au temps', it: 'Campione composito proporzionale al tempo', rm: 'Prova maschadada proporziunala al temp',
+  },
+  'Sammelprobe abflussproportional': {
+    de: 'Sammelprobe abflussproportional', fr: 'Échantillon composite proportionnel au débit', it: 'Campione composito proporzionale alla portata', rm: 'Prova maschadada proporziunala a la quantitad d’aua',
+  },
+
   // ---- what each source is ------------------------------------------------
   'Basis for determining Q347': {
     de: 'Grundlagen zur Bestimmung von Q347',
@@ -142,6 +153,12 @@ Object.assign(DSTR, {
     it: 'Portata, livello e temperatura alle stazioni federali',
     rm: 'Quantitad d’aua, nivel e temperatura a las staziuns federalas',
   },
+  'NAWA TREND surface-water quality: individual laboratory results': {
+    de: 'NAWA TREND Oberflächengewässerqualität: einzelne Laborresultate',
+    fr: 'Qualité des eaux de surface NAWA TREND : résultats de laboratoire individuels',
+    it: 'Qualità delle acque superficiali NAWA TREND: singoli risultati di laboratorio',
+    rm: 'Qualitad da las auas da surfatscha NAWA TREND: singuls resultats da labor',
+  },
   'Relief shading and the grey national map, optional ground': {
     de: 'Reliefschattierung und die graue Landeskarte, wahlweise als Untergrund',
     fr: 'Ombrage du relief et carte nationale grise, fond facultatif',
@@ -211,6 +228,12 @@ Object.assign(DSTR, {
     it: 'ogni 10 minuti', rm: 'mintga 10 minutas',
   },
   'periodic': { de: 'periodisch', fr: 'périodique', it: 'periodico', rm: 'periodica' },
+  'annual prepared files; programme continues': {
+    de: 'aufbereitete Dateien jährlich; Messprogramm läuft weiter',
+    fr: 'fichiers préparés annuels ; programme en cours',
+    it: 'file preparati annuali; programma in corso',
+    rm: 'datotecas preparadas mintga onn; program cuntinuescha',
+  },
 
   // ---- what class of claim it can support ---------------------------------
   'measured': { de: 'gemessen', fr: 'mesuré', it: 'misurato', rm: 'mesirà' },
@@ -262,6 +285,18 @@ Object.assign(DSTR, {
   'Open government data, no key': {
     de: 'Open Government Data, ohne Schlüssel', fr: 'Données publiques ouvertes, sans clé',
     it: 'Dati pubblici aperti, senza chiave', rm: 'Datas publicas avertas, senza clav',
+  },
+  'Open use. Must provide the source. Commercial and non-commercial use permitted with attribution.': {
+    de: 'Freie Nutzung. Quellenangabe ist Pflicht. Kommerzielle und nicht kommerzielle Nutzung mit Quellenangabe erlaubt.',
+    fr: 'Utilisation libre. Indication de la source obligatoire. Usage commercial et non commercial permis avec attribution.',
+    it: 'Uso libero. Indicazione della fonte obbligatoria. Uso commerciale e non commerciale consentito con attribuzione.',
+    rm: 'Diever liber. La funtauna sto vegnir inditgada. Diever commerzial e betg commerzial permess cun indicaziun da la funtauna.',
+  },
+  'Every published result in the current prepared release. The map keeps parameter, unit, sampling year, censored results and station separate; exact rows remain at BAFU and are read when a station opens. NAWA covers flowing waters and does not replace the denser cantonal monitoring networks.': {
+    de: 'Jedes publizierte Resultat der aktuellen aufbereiteten Ausgabe. Die Karte hält Parameter, Einheit, Probenjahr, zensierte Resultate und Messstelle getrennt; die exakten Zeilen bleiben beim BAFU und werden beim Öffnen einer Messstelle gelesen. NAWA erfasst Fliessgewässer und ersetzt die dichteren kantonalen Messnetze nicht.',
+    fr: 'Chaque résultat publié de l’édition préparée actuelle. La carte sépare paramètre, unité, année d’échantillonnage, résultats censurés et station ; les lignes exactes restent à l’OFEV et sont lues à l’ouverture d’une station. NAWA couvre les cours d’eau et ne remplace pas les réseaux cantonaux plus denses.',
+    it: 'Ogni risultato pubblicato nell’edizione preparata attuale. La carta mantiene separati parametro, unità, anno di campionamento, risultati censurati e stazione; le righe esatte restano presso l’UFAM e vengono lette quando si apre una stazione. NAWA copre i corsi d’acqua e non sostituisce le reti cantonali più fitte.',
+    rm: 'Mintga resultat publitgà da l’ediziun preparada actuala. La charta tegna separads il parameter, l’unitad, l’onn da las provas, ils resultats censurads e la staziun; las lingias exactas restan tar l’UFAM e vegnan legidas cura ch’ina staziun vegn averta. NAWA cumpiglia auas currentas e na remplazza betg las raits chantunalas pli spessas.',
   },
 
   // ---- the note under each source -----------------------------------------
@@ -612,5 +647,10 @@ Object.assign(DSTR, {
   'length change': { de: 'Längenänderung', fr: 'variation de longueur', it: 'variazione della lunghezza', rm: 'midada da lunghezza' },
   '10m lakes': { de: 'Seen 1:10 Mio.', fr: 'lacs 1:10 M', it: 'laghi 1:10 M', rm: 'lais 1:10 miu.' },
   '10m countries': { de: 'Länder 1:10 Mio.', fr: 'pays 1:10 M', it: 'paesi 1:10 M', rm: 'pajais 1:10 miu.' },
+  'NAWA programme': { de: 'NAWA-Programm', fr: 'programme NAWA', it: 'programma NAWA', rm: 'program NAWA' },
+  'dataset and field definitions': { de: 'Datensatz- und Felddefinitionen', fr: 'définitions du jeu et des champs', it: 'definizioni del set e dei campi', rm: 'definiziuns dal set e dals champs' },
+  'prepared annual files': { de: 'aufbereitete Jahresdateien', fr: 'fichiers annuels préparés', it: 'file annuali preparati', rm: 'datotecas annualas preparadas' },
+  'public GraphQL API': { de: 'öffentliche GraphQL-API', fr: 'API GraphQL publique', it: 'API GraphQL pubblica', rm: 'API GraphQL publica' },
+  'licence and source': { de: 'Lizenz und Quelle', fr: 'licence et source', it: 'licenza e fonte', rm: 'licenza e funtauna' },
   'unknown': { de: 'unbekannt', fr: 'inconnu', it: 'sconosciuto', rm: 'nunenconuschent' },
 });

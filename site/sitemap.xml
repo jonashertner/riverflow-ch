@@ -2,248 +2,253 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/en/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/"/>
-  </url>
-  <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/en/</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/en/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/"/>
-  </url>
-  <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/fr/</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/en/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/"/>
-  </url>
-  <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/it/</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/en/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/"/>
-  </url>
-  <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/rm/</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/en/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/"/>
-  </url>
-  <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/about.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/about.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/about.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/about.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/about.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/about.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/about.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/en/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/de/about.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/en/</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/about.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/about.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/about.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/about.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/about.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/about.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/en/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/fr/about.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/fr/</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/about.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/about.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/about.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/about.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/about.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/about.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/en/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/it/about.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/it/</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/about.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/about.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/about.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/about.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/about.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/about.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/en/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/rm/about.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/rm/</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/about.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/about.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/about.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/about.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/about.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/about.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/en/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/method.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/about.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/method.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/method.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/method.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/method.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/method.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/method.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/about.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/about.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/about.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/about.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/about.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/about.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/de/method.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/de/about.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/method.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/method.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/method.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/method.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/method.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/method.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/about.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/about.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/about.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/about.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/about.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/about.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/fr/method.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/fr/about.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/method.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/method.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/method.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/method.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/method.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/method.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/about.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/about.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/about.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/about.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/about.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/about.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/it/method.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/it/about.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/method.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/method.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/method.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/method.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/method.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/method.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/about.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/about.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/about.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/about.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/about.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/about.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/rm/method.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/rm/about.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/method.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/method.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/method.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/method.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/method.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/method.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/about.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/about.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/about.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/about.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/about.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/about.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/law.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/method.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/law.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/law.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/law.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/law.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/law.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/law.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/method.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/method.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/method.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/method.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/method.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/method.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/de/law.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/de/method.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/law.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/law.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/law.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/law.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/law.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/law.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/method.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/method.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/method.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/method.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/method.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/method.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/fr/law.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/fr/method.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/law.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/law.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/law.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/law.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/law.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/law.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/method.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/method.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/method.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/method.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/method.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/method.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/it/law.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/it/method.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/law.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/law.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/law.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/law.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/law.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/law.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/method.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/method.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/method.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/method.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/method.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/method.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/rm/law.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/rm/method.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/law.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/law.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/law.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/law.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/law.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/law.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/method.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/method.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/method.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/method.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/method.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/method.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/sources.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/law.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/law.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/law.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/law.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/law.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/law.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/law.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/de/sources.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/de/law.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/law.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/law.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/law.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/law.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/law.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/law.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/fr/sources.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/fr/law.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/law.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/law.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/law.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/law.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/law.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/law.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/it/sources.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/it/law.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/law.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/law.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/law.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/law.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/law.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/law.html"/>
   </url>
   <url>
-    <loc>https://jonashertner.github.io/riverflow-ch/rm/sources.html</loc>
+    <loc>https://opengovclimate.ch/riverflow/rm/law.html</loc>
     <lastmod>2026-08-21</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://jonashertner.github.io/riverflow-ch/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://jonashertner.github.io/riverflow-ch/de/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://jonashertner.github.io/riverflow-ch/fr/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://jonashertner.github.io/riverflow-ch/it/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="rm" href="https://jonashertner.github.io/riverflow-ch/rm/sources.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://jonashertner.github.io/riverflow-ch/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/law.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/law.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/law.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/law.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/law.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/law.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/sources.html</loc>
+    <lastmod>2026-08-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/sources.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/de/sources.html</loc>
+    <lastmod>2026-08-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/sources.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/fr/sources.html</loc>
+    <lastmod>2026-08-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/sources.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/it/sources.html</loc>
+    <lastmod>2026-08-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/sources.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/rm/sources.html</loc>
+    <lastmod>2026-08-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/sources.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/sources.html"/>
   </url>
 </urlset>

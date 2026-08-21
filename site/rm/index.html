@@ -7,10 +7,10 @@
      needs the text bigger. A map is not a reason to break zoom. -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Aua e glatsch en Svizra — ina basa mesirada</title>
-<meta name="description" content="Debit actual dals flums svizzers da la rait federala, accumulaziun cumparegliada cun 26 onns da registraziuns e surfatscha da glatschers en sis inventaris datads. Mintga cifra inditgescha funtauna, classa d’evidenza e vegliadetgna.">
+<meta name="description" content="Flums svizzers actuals, qualitad da l’aua per staziun, istorgia dals lais da serra e sis inventaris da glatschers – cun funtauna, data e classa da cumprova decleradas.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0d0d0d">
-<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/rm/">
+<link rel="canonical" href="https://opengovclimate.ch/riverflow/rm/">
 <link rel="alternate" hreflang="en" href="../en/">
 <link rel="alternate" hreflang="de" href="../">
 <link rel="alternate" hreflang="fr" href="../fr/">
@@ -19,11 +19,11 @@
 <link rel="alternate" hreflang="x-default" href="../">
 <link rel="icon" href="../favicon.svg?v=20260821" type="image/svg+xml">
 <meta property="og:title" content="Aua e glatsch en Svizra">
-<meta property="og:description" content="Flums svizzers, live. Lais da serra cumparegliads cun 26 onns. Glatschers en sis inventaris. Evidenza per chapir l’aua e proteger sias vias.">
+<meta property="og:description" content="Flums svizzers, qualitad da l’aua, lais da serra e glatschers. Evidenza per chapir l’aua e proteger sias vias essenzialas.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Aua e glatsch en Svizra">
-<meta property="og:url" content="https://jonashertner.github.io/riverflow-ch/rm/">
-<meta property="og:image" content="https://jonashertner.github.io/riverflow-ch/og-image.jpg">
+<meta property="og:url" content="https://opengovclimate.ch/riverflow/rm/">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -32,8 +32,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="../tokens.css?v=20260821">
-<link rel="stylesheet" href="../style.css?v=20260821">
+<link rel="stylesheet" href="../tokens.css?v=20260821b">
+<link rel="stylesheet" href="../style.css?v=20260821b">
 <script src="../i18n.js?v=20260821"></script>
 <script src="../i18n-data.js?v=20260821"></script>
 <script src="../i18n-map.js?v=20260821"></script>
@@ -45,7 +45,7 @@
 
 <header id="titlebar">
   <h1>Aua e glatsch en Svizra</h1>
-  <p class="sub">Flums live da las staziuns federalas. Glatsch en sis relevaziuns. Lais da serra cumparegliads cun lur atgna seria.</p>
+  <p class="sub">Deflussiun actuala. Qualitad da l’aua per staziun. Lais da serra e glatschers en il decurs dal temp.</p>
   <p class="stamp" id="stamp" role="status" aria-live="polite">Vegn chargià&#8230;</p>
 
   <!-- The page's one claim about itself, drawn rather than asserted. -->
@@ -65,7 +65,7 @@
 
   <!-- First visit only. The map answers when it is pointed at, and nothing on a
        still screen says so. -->
-  <p class="hint" id="hint" hidden>Mussar sin l’aua per la leger. <a href="method.html#reading">Co leger questa charta</a></p>
+  <p class="hint" id="hint" hidden>Tscherner in flum u in segn per ils detagls. <a href="method.html#reading">Leger la charta</a></p>
 
   <nav id="siteNav" aria-label="Pagina">
     <button type="button" id="introOpen">Project</button>
@@ -103,6 +103,10 @@
     <button type="button" data-mode="normal">Cunter il normal</button>
     <button type="button" data-mode="temp">Temperatura</button>
   </div>
+  <div class="modeGroup" role="group" aria-label="Qualitad da l’aua">
+    <span class="modeGroupLabel">Stadi</span>
+    <button type="button" data-mode="quality" id="modeQuality">Qualitad da l’aua</button>
+  </div>
   <div class="modeGroup" role="group" aria-label="Aua stanziada">
     <span class="modeGroupLabel">Stanziada</span>
     <button type="button" data-mode="res" id="modeRes" disabled>Lais da serra</button>
@@ -139,8 +143,8 @@
   <div class="lg" id="lgNormal" hidden>
     <div class="ramp ramp-div"></div>
     <div class="rampLabels"><span>25%</span><span>50%</span><span>100%</span><span>200%</span><span>400%</span></div>
-    <p class="lgNote">La quantitad d’aua ussa cunter la media da lunga durada da la medema partida. La media è ina cifra annuala; ina mesira da stad sut 100&nbsp;% è perquai per part la stagiun e betg mo l’onn. Da leger sco relaziun, betg sco index da setgira.</p>
-    <p class="lgNote">La media è HydroRIVERS <span class="num">DIS_AV_CMS</span>: modelada, e betg la statistica federala. <b>Betg citabla.</b></p>
+    <p class="lgNote">Deflussiun actuala dividida cun la media annuala da lunga durada da la partida. Ina valur sut 100&nbsp;% la stad po reflectar tant la stagiun sco l’onn. Quai è ina relaziun, betg in index da setgira.</p>
+    <p class="lgNote">La media è la valur modelada <span class="num">DIS_AV_CMS</span> da HydroRIVERS, betg ina statistica federala. <b>Betg citabla.</b></p>
   </div>
 
   <div class="lg" id="lgTemp" hidden>
@@ -148,8 +152,38 @@
     <div class="rampLabels"><span>0</span><span>10</span><span>20</span><span>25&nbsp;&deg;C</span></div>
     <p class="threshold"><i></i>A partir da 25&nbsp;&deg;C, la limita da la GSchV agiunta&nbsp;2 cifra&nbsp;12 al.&nbsp;4</p>
     <p class="lgNote" id="tempCount">&nbsp;</p>
-    <p class="lgNote">In disc emplenì è ina staziun cun ina seria da temperatura, ed el vegn emplenì ord la scala da colurs. In rintg vid è ina staziun senza tala: ina mesira che manca n’è betg ina mesira fraida. Sut quest nivel tegnan ils flums la colur da lur quantitad d’aua, smorzada, perquai che la temperatura vegn mesirada tar la staziun e naginsanua auter.</p>
-    <p class="lgNote">Ina mesira è in sensur. Avrì ina staziun e mettai la cunter las pli daspera avant che As fidar da tala.</p>
+    <p class="lgNote">In rudè emplenì è ina staziun cun ina valur da temperatura; la colur suonda la scala. In rintg vid n’ha nagina valur. Ils flums mantegnan, stizzada, lur colur da deflussiun, perquai che la temperatura è enconuschenta mo a la staziun.</p>
+    <p class="lgNote">Ina mesiraziun deriva d’in singul sensur. Cumparegliar las staziuns vischinas avant che sa basar sin ella.</p>
+  </div>
+
+  <div class="lg" id="lgQuality" hidden>
+    <div class="qualityPicker">
+      <label for="qualityParameter">Parameter mesirà</label>
+      <select id="qualityParameter" aria-describedby="qualityScaleNote"></select>
+    </div>
+    <div class="qualityPresets" role="group" aria-label="Parameters tschernids da la qualitad da l’aua">
+      <button type="button" data-quality="ortho-Phosphat-Phosphor (filtriert)\u0000mg/l">Fosfat-P</button>
+      <button type="button" data-quality="Nitrat-Stickstoff\u0000mg/l">Nitrat-N</button>
+      <button type="button" data-quality="Sauerstoff\u0000mg/l">Oxigen</button>
+      <button type="button" data-quality="Diclofenac\u0000µg/l">Diclofenac</button>
+      <button type="button" data-quality="Cypermethrin\u0000µg/l">Cypermethrin</button>
+    </div>
+    <div class="qualityYear">
+      <label for="qualityYear">Onn da las provas <output id="qualityYearRead">2024</output></label>
+      <input id="qualityYear" type="range" min="2011" max="2024" value="2024" step="1">
+    </div>
+    <div class="ramp ramp-quality"></div>
+    <div class="rampLabels"><span id="qualityScaleLow">&nbsp;</span><span id="qualityScaleMid">&nbsp;</span><span id="qualityScaleHigh">&nbsp;</span></div>
+    <ul class="notes qualityKeys">
+      <li><span class="swatch qualityValue"></span>Mediana annuala da las provas quantifitgadas</li>
+      <li><span class="swatch qualityBelow"></span>Examinà; tut ils resultats sut il cunfin da quantificaziun</li>
+      <li><span class="swatch qualityNone"></span>Betg examinà per quest parameter e quest onn</li>
+    </ul>
+    <p class="lgNote" id="qualityCount">Las datas federalas da mesiraziun vegnan chargiadas…</p>
+    <p class="lgNote" id="qualityRelease"></p>
+    <p class="lgNote" id="qualityScaleNote"><b>In parameter, ina scala fixa.</b> Las colurs dovran ses interval dal 5avel al 95avel percentil dal 2011–2024. Ils onns restan cumparegliabels. La scala n’è nagina limita giuridica.</p>
+    <p class="lgNote"><b>Las valurs restan a la staziun.</b> Resultats sut la limita da determinaziun restan «sut la limita» e vegnan exclus da la mediana. Avrir ina staziun per ils resultats exacts e las metadatas.</p>
+    <p class="lgNote">NAWA è ina rait naziunala da monitoring a lunga durada per auas currentas. Ella na cuvra ni lais ni partidas betg mesiradas e na remplazza betg il monitoring chantunal pli spess. <a href="sources.html#table">Funtauna, licenza e status da las datas</a>.</p>
   </div>
 
   <div class="lg" id="lgRes" hidden>
@@ -159,9 +193,9 @@
     </ul>
     <div class="ramp ramp-res"></div>
     <div class="rampLabels"><span>vid</span><span>mez</span><span>plain</span></div>
-    <p class="lgNote">La colur è il grad d’emplenida da la <b>regiun</b> da la serra en l’emna sin la testina; mintga serra d’ina regiun sa mova perquai sco in sulet corp. Cun far ir vegnan ventgasis onns dad ella dà.</p>
+    <p class="lgNote">La colur mussa il stadi d’emplenida emnil da la <b>regiun</b>. Mintga serra en ina regiun survegn la medema valur. La reproducziun mussa ventgasis onns.</p>
     <p class="lgNote" id="resTotals">&nbsp;</p>
-    <p class="lgNote"><b>Dus registers, ed els na descrivan betg ils medems objects.</b> Las serras èn edifizis, cun il volumen che mintga lai da serra tegna tar plaina emplenida. Il grad d’emplenida è ina cifra emnila en GWh &mdash; electricitad stanziada, betg aua stanziada &mdash; ed el vegn publitgà per quatter regiuns, betg per 225 serras. Quest nivel po pia dir tge ch’in lai da serra tegna tar plaina emplenida, ed el po dir quant plaina che la regiun è questa emna. <b>El na po betg dir quant plaina che la Grande Dixence è oz.</b> Quai na publitgescha nagin.</p>
+    <p class="lgNote"><b>Grondezza e colur derivan da differents registers.</b> La grondezza mussa il volumen dal lai da serra tar emplenida maximala. La colur mussa l’energia accumulada en GWh per ina da quatter regiuns. La funtauna na rapporta betg il stadi actual da mintgina da las 225 serras.</p>
     <p class="lgNote" id="resRank">&nbsp;</p>
   </div>
 
@@ -172,7 +206,7 @@
     </ul>
     <p class="lgNote">Ils corps dal 2023 èn dissegnads sur ils cuntuorns dal 1850. En colur resta il glatsch svanì. Laschar ir las sis relevaziuns datadas en lur intervals reals.</p>
     <p class="lgNote" id="iceTotals">&nbsp;</p>
-    <p class="lgNote"><b>Quai è surfatscha, betg volumen.</b> Ils totals dal 2010 e 2016 dovran differentas metodas da cunfinaziun; lur augment apparent n’è betg creschientscha dal glatsch. Ils ultims decennis è il glatsch daventà pli satigl pli spert che sia surfatscha è sa reducida. Las surfatschas èn mesiradas. Ils volumens èn citads e derivan da lavurs e metodas separadas.</p>
+    <p class="lgNote"><b>Quai è surfatscha, betg volumen.</b> Differentas metodas da cunfinaziun fan da l’augment apparent 2010–2016 ina ruptura metodica, betg in augment dal glatsch. Qua vegn mesirada la surfatscha; las stimaziuns citadas dal volumen derivan da studis separads.</p>
   </div>
 
   <div class="lg" id="lgResidual" hidden>
@@ -196,8 +230,8 @@
     <ul class="notes useKeys">
       <li><label><input type="checkbox" data-use="ara" checked><span class="swatch useAra"></span>Ovra da mundaziun, dimensiunada tenor equivalents d’abitants</label></li>
     </ul>
-    <p class="lgNote">Duas colurs, perquai che il dretg sa fixescha sin la direcziun: l’art.&nbsp;31 GSchG regla la prendida d’aua, la GSchV agiunta&nbsp;2 cifra&nbsp;12 al.&nbsp;4 regla l’endatada da chalur. A tge register ch’in segn tutga di sia furma, betg ina terza ed ina quarta colur.</p>
-    <p class="lgNote"><b>In disc emplenì porta ina quantitad. In rintg avert porta in lieu e nagut dapli.</b> Dals quatter registers federals dat mo la statistica da la forza idrica ina quantitad d’aua, ed ella la dat tras quen, betg tras mesiraziun: pussanza dividida tras l’autezza da crudada. La charta da l’aua restanta na cuntegna nagin volumen, e per ils lieus atomars n’è publitgà nagin volumen da sfradentar sco datas avertas. Las ovras da mundaziun portan enstagl ina relaziun: lur endatada cunter il current che la recepescha tar Q<sub>347</sub>. Tar 39 dad ellas è ella sur 100&#8201;%, quai vul dir che il ruaus mena tar aua bassa main che quai che l’ovra i dat.</p>
+    <p class="lgNote">La colur mussa la direcziun: aua prelevada u restituida. La furma identifitgescha il register. L’art.&nbsp;31 LPAuas regla las prelevaziuns; l’agiunta&nbsp;2 cifra&nbsp;12 al.&nbsp;4 OEau regla l’apport da chalur.</p>
+    <p class="lgNote"><b>In segn emplenì porta ina quantitad; in rintg avert localisescha mo in object.</b> La quantitad d’aua da project da l’ovra idraulica vegn deducida da la prestaziun e da l’autezza da crudada, betg mesirada. Il register d’aua restanta na cuntegna nagin volumen prelevà; datas federalas avertas na dattan nagin volumen d’aua da sfradentar nucleara. Sereneras mussan lur deflussiun en relaziun cun Q<sub>347</sub> da l’aua retschaventa. Tar 39 implants surpassa la deflussiun il debit bass dal flum.</p>
     <p class="lgNote" id="useCount">&#160;</p>
   </div>
 
@@ -205,8 +239,8 @@
   <div class="lg" id="lgWet" hidden>
     <ul class="notes wetKeys" id="wetTotals"></ul>
     <p class="lgNote" id="wetCount">&nbsp;</p>
-    <p class="lgNote"><b>Il register da l’aua è protegì tras ina ordinaziun, quel constituziunal tras la Constituziun.</b> Ils territoris alluvials ed ils lieus da fried d’amfibis numnan sco intent da protecziun l’aua e vegnan perquai dissegnads en la colur da l’aua. Las tuorbas autas e bassas ed ils cuntrads da tuorba èn tegnidas da l’art.&nbsp;78 al.&nbsp;5&nbsp;CF, l’artitgel da Rothenthurm, che scumonda da fabritgar e da midar il terren, cun excepziun da la protecziun da las tuorbas sezzas e da lur utilisaziun agricula fin ussa &mdash; senza ponderaziun d’interess che pudess vegnir persa; ellas portan perquai l’encrusta che porta qua mintga grondezza legala. <a href="method.html#wetlands">Co quai è dissegnà</a>.</p>
-    <p class="lgNote"><b>Las vegliadetgnas cuntradin ils intents.</b> L’inventari dals amfibis è vegnì revedì avant paucs mais; quel dals territoris alluvials, dal qual l’intent da protecziun è ina quantitad d’aua, porta in status da datas federal da november 2017 &mdash; ed uschè era l’inventari en il qual Rothenthurm sa chatta. <a href="sources.html#table">Mintga data</a>.</p>
+    <p class="lgNote"><b>La colur distingua las basas giuridicas.</b> Las zonas alluvialas ed ils lieus da reproducziun dals amfibis èn blaus sco l’aua; lur ordinaziuns fixeschan finamiras colliadas cun l’aua. Palids autas e bassas e cuntradas da palì portan la tinta giuridica, perquai che l’art.&nbsp;78 al.&nbsp;5 Cst. las protegia. <a href="method.html#wetlands">Moda da represchentaziun</a>.</p>
+    <p class="lgNote"><b>Ils inventaris na vegneschan betg ensemen.</b> L’inventari dals amfibis è vegnì revedì il matg 2026. Ils inventaris da las zonas alluvialas e da las cuntradas da palì inditgeschan anc november 2017. <a href="sources.html#table">Vesair tut las datas</a>.</p>
   </div>
 
   <div class="lg" id="lgSource" hidden>
@@ -216,8 +250,8 @@
       <li><label><input type="checkbox" data-src="zone" checked><span class="swatch srcZone"></span>Zonas da protecziun da l’aua sutterrana S1&ndash;S3, en vigur</label></li>
       <li><label><input type="checkbox" data-src="catch"><span class="swatch srcCatch"></span>Sutbogns da rimnada</label></li>
     </ul>
-    <p class="lgNote"><b>Trais da quests quatter nivels èn maletgs, betg datas.</b> Ils corps d’aua sutterrana, las zonas da protecziun ed ils bogns da rimnada vegnan dissegnads dad in server da la Confederaziun u dad in chantun per il rectangul sin il visur ed arrivan sco maletg: questa charta na po ni ils dumandar, ni ils datar ord il maletg, ni ils verifitgar. Las partidas da survart èn l’excepziun e vegnan dissegnadas cun l’encrusta atgna da questa charta.</p>
-    <p class="lgNote"><b>Ina partida da survart n’è betg ina funtauna.</b> Ella è ina partida sur la quala i n’è nagut pli, tagliada tar 5&nbsp;km&#178; da surfatscha survart &mdash; la cima da la rait uschè sco questa charta la dissegna, e la part dal pajais sur la quala i na stat naginsanua ina staziun. Las funtaunas e las cascadas che cumparan cun il zoom èn las 86 e 157 <em>numnadas</em> da swissNAMES3D, betg ina dumbraziun da las funtaunas svizras.</p>
+    <p class="lgNote"><b>Trais surposiziuns arrivan sco maletgs.</b> La charta na po ni dumandar ni verifitgar ils corps d’aua sutterrana, las zonas da protecziun ed ils intschess. Ils curs superiurs èn l’excepziun: els derivan da la rait da questa charta.</p>
+    <p class="lgNote"><b>In curs superiur n’è betg ina funtauna.</b> El è il punct il pli aut da la rait da flums dissegnada, limità a 5&nbsp;km&#178; d’intschess amunt. Cun dapli zoom agiunta swissNAMES3D 86 funtaunas e 157 cascadas numnadas – betg in inventari naziunal cumplet.</p>
     <p class="lgNote"><b>Mo zonas en vigur vegnan dissegnadas.</b> geodienste.ch furnescha era zonas planisadas e futuras; ina zona planisada n’è anc betg ina restricziun giuridica. S1 è il terren serrà enturn la tschiffada, S2 la zona daspera, S3 quella pli lontana &mdash; art.&nbsp;20 GSchG, GSchV agiunta&nbsp;4 cifra&nbsp;1. Ellas sa mesiran en ectars; en la vista sin l’entir pajais èn ellas perquai pli pitschnas ch’in pixel: zoomai sur in chantun ora avant ch’As spetgar dad ina.</p>
     <p class="lgNote" id="srcAges">&nbsp;</p>
     <p class="lgNote" id="srcCoverage">&nbsp;</p>
@@ -280,10 +314,10 @@
     <span class="langs introLangs" data-langswitch></span>
   </div>
   <h2 id="introTitle">Suandar l’aua. Proteger sias vias.</h2>
-  <p class="introLead" id="introLead">La finamira è da suandar l’aua tras la Svizra — dal glatsch e da l’aua sutterrana sur flums, accumulaziun, utilisaziun e return fin al cunfin — e da mussar il dretg che protegia mintga via essenziala. Il project duai gidar a proteger territoris umids e sustegnair pass giuridics sche la protecziun na funcziuna betg. Questa versiun cumenza cun l’aua da surfatscha. Mintga cifra inditgescha funtauna, vegliadetgna e classa d’evidenza.</p>
+  <p class="introLead" id="introLead">Suandar l’aua tras la Svizra – dal glatsch e da l’aua sutterrana als flums, a l’accumulaziun, utilisaziun, return e cunfin – ed identifitgar il dretg che protegia mintga via essenziala. La finamira è da proteger las zonas umidas e da pussibilitar pass giuridics sche quella protecziun n’effectuescha betg. Questa emprima ediziun sa concentrescha sin las auas a la surfatscha. Mintga cifra inditgescha funtauna, data e classa da cumprova.</p>
   <div class="introActions">
     <button type="button" id="introEnter" autofocus>Explorar la charta</button>
-    <a href="method.html">Co che las cumprovas funcziunan</a>
+    <a href="method.html">Co che las datas èn cumprovadas</a>
   </div>
   <figure class="cycleViz" aria-labelledby="cycleCaption">
     <svg viewBox="0 0 900 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
@@ -302,11 +336,12 @@
       <circle class="cycleSource" cx="300" cy="158" r="7"/>
       <circle class="cycleUse" cx="704" cy="178" r="9"/>
     </svg>
-    <figcaption id="cycleCaption">Da la precipitaziun en las muntognas sur glatsch, funtaunas ed aua sutterrana a flums, territoris umids, accumulaziun, utilisaziun, return ed atmosfera.</figcaption>
+    <figcaption id="cycleCaption">La precipitaziun en muntogna daventa glatsch, aua sutterrana, funtaunas, flums e zonas umidas. L’aua vegn accumulada, utilisada, restituida ed evapurescha.</figcaption>
     <ol class="cycleStages" aria-label="Avrir las parts cartografiadas dal ciclus da l’aua">
       <li><button type="button" data-cycle-mode="ice"><b>Glatschers</b><span>inventaris cartografiads</span></button></li>
-      <li><button type="button" data-cycle-mode="source"><b>Funtaunas da muntogna &amp; aua sutterrana</b><span>cartografià per part</span></button></li>
+      <li><button type="button" data-cycle-mode="source"><b>Funtaunas ed aua sutterrana</b><span>per part sin la charta</span></button></li>
       <li><button type="button" data-cycle-mode="flow"><b>Auals &amp; flums</b><span>live e modelads</span></button></li>
+      <li><button type="button" data-cycle-mode="quality"><b>Qualitad da l’aua</b><span>staziun per staziun</span></button></li>
       <li><button type="button" data-cycle-mode="wet"><b>Territoris umids &amp; lais</b><span>inventaris e cuntuorns</span></button></li>
       <li><button type="button" data-cycle-mode="res"><b>Lais da serra</b><span>serias regiunalas emnilas</span></button></li>
       <li><button type="button" data-cycle-mode="use"><b>Utilisaziun &amp; return</b><span>registers federals</span></button></li>
@@ -317,12 +352,13 @@
     <li><strong>En direct</strong><span>Staziuns federalas da mesiraziun</span></li>
     <li><strong>26 onns</strong><span>Istorgia dals lais da serra</span></li>
     <li><strong>1850&ndash;2023</strong><span>Inventaris dals glatschers</span></li>
+    <li><strong>2011&ndash;2024</strong><span>Resultats federals da la qualitad da l’aua</span></li>
   </ul>
   <p class="introNote">Aua mesirada e modelada. Nagina prognosa.</p>
 </dialog>
 
 <footer id="credits">
-  <p><strong>Flums</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), filtrà tar 5&nbsp;km&#178; suenter la limita da funtauna da 10&nbsp;km&#178; u 0,1&nbsp;m&#179;/s da HydroRIVERS, cun debit actual e valid da la rait da l’UFAM via LINDAS. <strong>Glatsch</strong> GLAMOS, sis inventaris datads. <strong>Lais da serra</strong> UFE. <strong>Aua restanta ed utilisaziun da l’aua</strong> UFAM ed UFE. <strong>Nums</strong> swissNAMES3D, swisstopo. Mintga funtauna, licenza e status da datas stattan sin la <a href="sources.html">pagina da las funtaunas</a>. Aua mesirada e modelada, betg ina prognosa.</p>
+  <p><strong>Flums</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), filtrà tar 5&nbsp;km&#178; suenter l’atgna limita da funtauna da 10&nbsp;km&#178; u 0,1&nbsp;m&#179;/s, cun debit actual e valid da la rait UFAM via LINDAS. <strong>Qualitad</strong> UFAM NAWA TREND. <strong>Glatsch</strong> GLAMOS, sis inventaris datads. <strong>Lais da serra</strong> UFE. <strong>Aua restanta ed utilisaziun</strong> UFAM ed UFE. <strong>Nums</strong> swissNAMES3D, swisstopo. Mintga funtauna, sia licenza e ses status èn sin la <a href="sources.html">pagina da las funtaunas</a>. Aua mesirada e modelada, betg ina prognosa.</p>
 </footer>
 
 <script src="../fmt.js?v=20260821"></script>

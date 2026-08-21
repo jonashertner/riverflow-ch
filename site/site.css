@@ -69,6 +69,7 @@ body[data-page="about"]   { --accent: var(--seq-300); }
 
 .siteNav { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 2px; margin-left: auto; }
 .siteNav a {
+  display: inline-flex; align-items: center;
   color: var(--ink-muted); text-decoration: none;
   font-size: 12.5px; padding: 7px 10px; border-radius: 6px;
   transition: background 120ms, color 120ms;
@@ -77,19 +78,29 @@ body[data-page="about"]   { --accent: var(--seq-300); }
 .siteNav a[aria-current="page"] { color: var(--ink); background: color-mix(in srgb, var(--ink) 10%, transparent); }
 .siteNav a.toMap { color: var(--accent); }
 @media (max-width: 560px) {
-  .siteHead { padding: 7px clamp(14px, 4vw, 40px); gap: 8px 16px; }
-  .siteNav a { font-size: 12px; padding: 6px 8px; }
+  body.page { scroll-padding-top: 108px; }
+  .siteHead { padding: 8px 0 0; gap: 7px 0; }
+  .brand { padding: 0 14px; min-height: 32px; }
+  .siteNav {
+    width: 100%; margin-left: 0; padding: 0 8px 7px;
+    flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto;
+    overscroll-behavior-x: contain; scrollbar-width: none;
+  }
+  .siteNav::-webkit-scrollbar { display: none; }
+  .siteNav a { min-height: 44px; flex: none; font-size: 12px; padding: 6px 9px; }
+  .siteNav .langs { flex: none; }
+  .siteNav .langs [lang], .siteNav .themeBtn { min-width: 40px; min-height: 44px; }
 }
 
 /* ---- the column ---- */
 .docWrap {
   display: grid; justify-content: center;
   gap: clamp(28px, 4vw, 72px);
-  grid-template-columns: min(46rem, 100%);
+  grid-template-columns: min(42rem, 100%);
   padding: clamp(28px, 5vw, 64px) clamp(16px, 4vw, 40px) 96px;
 }
 @media (min-width: 1080px) {
-  .docWrap { grid-template-columns: 216px min(44rem, calc(100% - 300px)); }
+  .docWrap { grid-template-columns: 216px min(42rem, calc(100% - 300px)); }
 }
 .doc { min-width: 0; }
 
@@ -143,6 +154,7 @@ body[data-page="about"]   { --accent: var(--seq-300); }
 }
 .doc p, .doc li {
   font-size: clamp(15.5px, 1.15vw, 17px); line-height: 1.68; color: var(--ink-2);
+  overflow-wrap: break-word; text-wrap: pretty;
 }
 .doc p { margin: 0 0 16px; }
 .doc ul, .doc ol { margin: 0 0 18px; padding-left: 22px; }
@@ -188,7 +200,11 @@ body[data-page="about"]   { --accent: var(--seq-300); }
 }
 
 /* ---- tables ---- */
-.tWrap { overflow-x: auto; margin: 22px 0; -webkit-overflow-scrolling: touch; }
+.tWrap {
+  overflow-x: auto; margin: 22px 0; padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+  scrollbar-color: var(--ink-muted) transparent;
+}
 .doc table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 460px; }
 .doc th, .doc td {
   text-align: left; padding: 10px 12px 10px 0; vertical-align: top;
@@ -200,6 +216,25 @@ body[data-page="about"]   { --accent: var(--seq-300); }
 }
 .doc td { color: var(--ink-2); line-height: 1.5; }
 .doc td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.auditTable { min-width: 720px !important; }
+.auditTable th:nth-child(1) { width: 18%; }
+.auditTable th:nth-child(2) { width: 14%; }
+.auditTable th:nth-child(3) { width: 30%; }
+.auditStatus {
+  display: inline-block; padding: 2px 6px; border: 1px solid var(--hairline);
+  border-radius: 999px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-2);
+}
+.auditStatus.results { border-color: color-mix(in srgb, var(--good) 38%, var(--hairline)); }
+.auditStatus.programme { border-color: color-mix(in srgb, var(--accent) 36%, var(--hairline)); }
+.auditStatus.partial { border-color: color-mix(in srgb, var(--critical) 42%, var(--hairline)); }
+.auditScopes { display: flex; flex-wrap: wrap; gap: 4px; }
+.auditScopes span {
+  padding: 2px 5px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 5%, transparent);
+  font-family: var(--mono); font-size: 10px; color: var(--ink-muted); white-space: nowrap;
+}
+.auditZero { display: inline-block; max-width: 9rem; margin-top: 3px; white-space: normal; font-size: 10px; color: var(--critical); }
+.auditNote { margin-top: -10px !important; }
 
 /* ---- the contents rail ----
    Sticky on a desktop, a disclosure on a phone. It is the same list either way. */

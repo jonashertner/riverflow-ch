@@ -7,10 +7,10 @@
      needs the text bigger. A map is not a reason to break zoom. -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Acqua e ghiaccio in Svizzera — una base misurata</title>
-<meta name="description" content="Portata attuale dei corsi d’acqua svizzeri dalla rete federale, invasi rispetto a 26 anni di registrazioni e superficie glaciale in sei inventari datati. Ogni cifra indica fonte, classe di evidenza ed età.">
+<meta name="description" content="Corsi d’acqua svizzeri in tempo reale, qualità dell’acqua per stazione, storia degli invasi e sei inventari glaciali — con fonte, data e classe di prova esplicite.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0d0d0d">
-<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/it/">
+<link rel="canonical" href="https://opengovclimate.ch/riverflow/it/">
 <link rel="alternate" hreflang="en" href="../en/">
 <link rel="alternate" hreflang="de" href="../">
 <link rel="alternate" hreflang="fr" href="../fr/">
@@ -19,11 +19,11 @@
 <link rel="alternate" hreflang="x-default" href="../">
 <link rel="icon" href="../favicon.svg?v=20260821" type="image/svg+xml">
 <meta property="og:title" content="Acqua e ghiaccio in Svizzera">
-<meta property="og:description" content="Corsi d’acqua svizzeri, in diretta. Invasi rispetto a 26 anni di dati. Ghiacciai in sei inventari. Evidenze per capire l’acqua e proteggere i suoi percorsi.">
+<meta property="og:description" content="Corsi d’acqua svizzeri, qualità dell’acqua, invasi e ghiacciai. Evidenze per capire l’acqua e proteggere i suoi percorsi essenziali.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Acqua e ghiaccio in Svizzera">
-<meta property="og:url" content="https://jonashertner.github.io/riverflow-ch/it/">
-<meta property="og:image" content="https://jonashertner.github.io/riverflow-ch/og-image.jpg">
+<meta property="og:url" content="https://opengovclimate.ch/riverflow/it/">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -32,8 +32,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="../tokens.css?v=20260821">
-<link rel="stylesheet" href="../style.css?v=20260821">
+<link rel="stylesheet" href="../tokens.css?v=20260821b">
+<link rel="stylesheet" href="../style.css?v=20260821b">
 <script src="../i18n.js?v=20260821"></script>
 <script src="../i18n-data.js?v=20260821"></script>
 <script src="../i18n-map.js?v=20260821"></script>
@@ -45,7 +45,7 @@
 
 <header id="titlebar">
   <h1>Acqua e ghiaccio in Svizzera</h1>
-  <p class="sub">Corsi d’acqua in diretta dalle stazioni federali. Ghiaccio in sei rilievi. Invasi rispetto alla propria serie.</p>
+  <p class="sub">Deflusso attuale. Qualità dell’acqua per stazione. Invasi e ghiacciai nel tempo.</p>
   <p class="stamp" id="stamp" role="status" aria-live="polite">Caricamento&#8230;</p>
 
   <!-- The page's one claim about itself, drawn rather than asserted. -->
@@ -65,7 +65,7 @@
 
   <!-- First visit only. The map answers when it is pointed at, and nothing on a
        still screen says so. -->
-  <p class="hint" id="hint" hidden>Punta sull’acqua per leggerla. <a href="method.html#reading">Come leggere questa carta</a></p>
+  <p class="hint" id="hint" hidden>Selezionare un corso d’acqua o un simbolo per i dettagli. <a href="method.html#reading">Leggere la carta</a></p>
 
   <nav id="siteNav" aria-label="Sito">
     <button type="button" id="introOpen">Progetto</button>
@@ -103,6 +103,10 @@
     <button type="button" data-mode="normal">Contro la norma</button>
     <button type="button" data-mode="temp">Temperatura</button>
   </div>
+  <div class="modeGroup" role="group" aria-label="Qualità dell’acqua">
+    <span class="modeGroupLabel">Stato</span>
+    <button type="button" data-mode="quality" id="modeQuality">Qualità dell’acqua</button>
+  </div>
   <div class="modeGroup" role="group" aria-label="Acqua immagazzinata">
     <span class="modeGroupLabel">Immagazzinata</span>
     <button type="button" data-mode="res" id="modeRes" disabled>Bacini</button>
@@ -139,8 +143,8 @@
   <div class="lg" id="lgNormal" hidden>
     <div class="ramp ramp-div"></div>
     <div class="rampLabels"><span>25%</span><span>50%</span><span>100%</span><span>200%</span><span>400%</span></div>
-    <p class="lgNote">La portata adesso contro la media di lungo periodo dello stesso tratto. La media è una cifra annuale: un valore estivo sotto il 100&nbsp;% è quindi in parte la stagione e non solo l’anno. Da leggere come un rapporto, non come un indice di siccità.</p>
-    <p class="lgNote">La media è HydroRIVERS <span class="num">DIS_AV_CMS</span>: modellata, e non la statistica federale. <b>Non citabile.</b></p>
+    <p class="lgNote">Deflusso attuale diviso per la media annua pluriennale del tratto. In estate, un valore inferiore al 100&nbsp;% può riflettere la stagione oltre all’anno. È un rapporto, non un indice di siccità.</p>
+    <p class="lgNote">La media è il valore modellato <span class="num">DIS_AV_CMS</span> di HydroRIVERS, non una statistica federale. <b>Non citabile.</b></p>
   </div>
 
   <div class="lg" id="lgTemp" hidden>
@@ -148,8 +152,38 @@
     <div class="rampLabels"><span>0</span><span>10</span><span>20</span><span>25&nbsp;&deg;C</span></div>
     <p class="threshold"><i></i>A partire da 25&nbsp;&deg;C, il limite dell’OPAc allegato&nbsp;2 n.&nbsp;12 cpv.&nbsp;4</p>
     <p class="lgNote" id="tempCount">&nbsp;</p>
-    <p class="lgNote">Un disco pieno è una stazione con una serie di temperatura, ed è riempito dalla scala. Un anello vuoto è una stazione che non ne ha: una misura assente non è una misura fredda. Sotto questo livello i corsi d’acqua mantengono il colore della loro portata, attenuato, perché la temperatura si misura alla stazione e in nessun altro luogo.</p>
-    <p class="lgNote">Una misura è un sensore. Apra una stazione e la confronti con quelle vicine prima di farvi affidamento.</p>
+    <p class="lgNote">Un cerchio pieno indica una stazione con una temperatura; il colore segue la scala. Un anello vuoto non ha un valore. I corsi d’acqua mantengono, attenuato, il colore del deflusso, perché la temperatura è nota solo alla stazione.</p>
+    <p class="lgNote">Una misura proviene da un solo sensore. Confrontare le stazioni vicine prima di farvi affidamento.</p>
+  </div>
+
+  <div class="lg" id="lgQuality" hidden>
+    <div class="qualityPicker">
+      <label for="qualityParameter">Parametro misurato</label>
+      <select id="qualityParameter" aria-describedby="qualityScaleNote"></select>
+    </div>
+    <div class="qualityPresets" role="group" aria-label="Parametri selezionati della qualità dell’acqua">
+      <button type="button" data-quality="ortho-Phosphat-Phosphor (filtriert)\u0000mg/l">Fosfato-P</button>
+      <button type="button" data-quality="Nitrat-Stickstoff\u0000mg/l">Nitrato-N</button>
+      <button type="button" data-quality="Sauerstoff\u0000mg/l">Ossigeno</button>
+      <button type="button" data-quality="Diclofenac\u0000µg/l">Diclofenac</button>
+      <button type="button" data-quality="Cypermethrin\u0000µg/l">Cipermetrina</button>
+    </div>
+    <div class="qualityYear">
+      <label for="qualityYear">Anno di campionamento <output id="qualityYearRead">2024</output></label>
+      <input id="qualityYear" type="range" min="2011" max="2024" value="2024" step="1">
+    </div>
+    <div class="ramp ramp-quality"></div>
+    <div class="rampLabels"><span id="qualityScaleLow">&nbsp;</span><span id="qualityScaleMid">&nbsp;</span><span id="qualityScaleHigh">&nbsp;</span></div>
+    <ul class="notes qualityKeys">
+      <li><span class="swatch qualityValue"></span>Mediana annua dei campioni quantificati</li>
+      <li><span class="swatch qualityBelow"></span>Campionato; tutti i risultati sotto il limite di quantificazione</li>
+      <li><span class="swatch qualityNone"></span>Non campionato per questo parametro e anno</li>
+    </ul>
+    <p class="lgNote" id="qualityCount">Caricamento dei dati federali di misura…</p>
+    <p class="lgNote" id="qualityRelease"></p>
+    <p class="lgNote" id="qualityScaleNote"><b>Un parametro, una scala fissa.</b> I colori usano il suo intervallo dal 5° al 95° percentile nel 2011–2024. Gli anni restano confrontabili. La scala non è una soglia legale.</p>
+    <p class="lgNote"><b>I valori restano alla stazione.</b> I risultati sotto il limite di quantificazione restano «sotto il limite» e sono esclusi dalla mediana. Aprire una stazione per i risultati esatti e i metadati.</p>
+    <p class="lgNote">NAWA è una rete nazionale di monitoraggio a lungo termine dei corsi d’acqua. Non copre laghi o tratti non misurati e non sostituisce il monitoraggio cantonale più fitto. <a href="sources.html#table">Fonte, licenza e stato dei dati</a>.</p>
   </div>
 
   <div class="lg" id="lgRes" hidden>
@@ -159,9 +193,9 @@
     </ul>
     <div class="ramp ramp-res"></div>
     <div class="rampLabels"><span>vuoto</span><span>metà</span><span>pieno</span></div>
-    <p class="lgNote">La tinta è il grado di riempimento della <b>regione</b> dello sbarramento nella settimana in cui si trova la testina: ogni sbarramento di una regione si muove quindi come un corpo solo. Avvii la riproduzione per percorrere ventisei anni.</p>
+    <p class="lgNote">Il colore indica il riempimento settimanale della <b>regione</b>. Ogni diga di una regione riceve lo stesso valore. La riproduzione anima ventisei anni.</p>
     <p class="lgNote" id="resTotals">&nbsp;</p>
-    <p class="lgNote"><b>Due registri, e non descrivono gli stessi oggetti.</b> Gli sbarramenti sono opere, con il volume che ogni invaso contiene a invaso pieno. Il grado di riempimento è una cifra settimanale in GWh &mdash; elettricità immagazzinata, non acqua immagazzinata &mdash; ed è pubblicato per quattro regioni, non per 225 sbarramenti. Questo livello può quindi dire che cosa contiene un invaso a pieno carico e può dire quanto è pieno la regione questa settimana. <b>Non può dire quanto è piena la Grande Dixence oggi.</b> Nessuno lo pubblica.</p>
+    <p class="lgNote"><b>Dimensione e colore provengono da registri diversi.</b> La dimensione indica il volume a piena capacità. Il colore indica l’energia accumulata in GWh per una delle quattro regioni. La fonte non riporta il livello attuale di ciascuna delle 225 dighe.</p>
     <p class="lgNote" id="resRank">&nbsp;</p>
   </div>
 
@@ -172,7 +206,7 @@
     </ul>
     <p class="lgNote">I corpi del 2023 sono disegnati sui contorni del 1850. Resta colorato il ghiaccio scomparso. Avvia i sei rilievi datati ai loro intervalli reali.</p>
     <p class="lgNote" id="iceTotals">&nbsp;</p>
-    <p class="lgNote"><b>Questa è superficie, non volume.</b> I totali del 2010 e del 2016 usano metodi di delimitazione diversi; l’aumento apparente non è crescita del ghiaccio. Negli ultimi decenni il ghiaccio si è assottigliato più in fretta di quanto si sia ritirato in pianta. Le superfici sono misurate. I volumi sono citati e provengono da lavori e metodi separati.</p>
+    <p class="lgNote"><b>Questa è superficie, non volume.</b> Metodi di delimitazione diversi rendono l’aumento apparente 2010–2016 una discontinuità metodologica, non crescita del ghiaccio. Qui si misura la superficie; le stime di volume citate provengono da studi separati.</p>
   </div>
 
   <div class="lg" id="lgResidual" hidden>
@@ -196,8 +230,8 @@
     <ul class="notes useKeys">
       <li><label><input type="checkbox" data-use="ara" checked><span class="swatch useAra"></span>Impianto di depurazione, dimensionato sugli abitanti equivalenti</label></li>
     </ul>
-    <p class="lgNote">Due colori, perché il diritto si annoda sulla direzione: l’art.&nbsp;31 LPAc regola il prelievo d’acqua, l’OPAc allegato&nbsp;2 n.&nbsp;12 cpv.&nbsp;4 regola l’immissione di calore. A quale registro appartenga un segno lo dice la sua forma, non un terzo e un quarto colore.</p>
-    <p class="lgNote"><b>Un disco pieno porta una quantità. Un anello aperto porta un luogo e nulla di più.</b> Dei quattro registri federali solo la statistica della forza idrica fornisce una portata, e la fornisce per calcolo, non per misura: potenza divisa per salto. La carta dei deflussi residuali non contiene alcun volume, e per i siti nucleari nessun volume di raffreddamento è pubblicato come dato aperto. Gli impianti di depurazione portano invece un rapporto: il loro scarico contro il corso d’acqua ricevente al Q<sub>347</sub>. Per 39 di essi supera il 100&#8201;%, vale a dire che il ruscello in magra porta meno di quanto l’impianto vi immette.</p>
+    <p class="lgNote">Il colore indica la direzione: acqua prelevata o restituita. La forma identifica il registro. L’art.&nbsp;31 LPAc disciplina i prelievi; l’allegato&nbsp;2 n.&nbsp;12 cpv.&nbsp;4 OPAc disciplina l’apporto di calore.</p>
+    <p class="lgNote"><b>Un simbolo pieno porta una quantità; un anello aperto localizza soltanto un oggetto.</b> La portata di progetto idroelettrica è ricavata da potenza e salto, non misurata. Il registro dei deflussi residuali non contiene volumi di prelievo; i dati federali aperti non indicano volumi di raffreddamento nucleare. Gli impianti di depurazione mostrano lo scarico rispetto al Q<sub>347</sub> del ricettore. In 39 impianti, lo scarico supera il deflusso di magra del corso d’acqua.</p>
     <p class="lgNote" id="useCount">&#160;</p>
   </div>
 
@@ -205,8 +239,8 @@
   <div class="lg" id="lgWet" hidden>
     <ul class="notes wetKeys" id="wetTotals"></ul>
     <p class="lgNote" id="wetCount">&nbsp;</p>
-    <p class="lgNote"><b>Il registro dell’acqua è protetto da un’ordinanza, quello costituzionale dalla Costituzione.</b> Le zone golenali e i siti di riproduzione degli anfibi indicano l’acqua come scopo di protezione: sono perciò disegnati nella tinta dell’acqua. Le torbiere alte, le torbiere basse e i paesaggi palustri sono retti dall’art.&nbsp;78 cpv.&nbsp;5&nbsp;Cost., l’articolo di Rothenthurm, che vieta di costruire e di alterare il terreno, eccettuato quanto serve alla protezione delle paludi stesse e alla loro utilizzazione agricola già esistente &mdash; senza ponderazione d’interessi da perdere; portano perciò l’inchiostro che qui porta ogni grandezza legale. <a href="method.html#wetlands">Come è disegnato</a>.</p>
-    <p class="lgNote"><b>Le età contraddicono gli scopi.</b> L’inventario degli anfibi è stato riveduto pochi mesi fa; quello delle zone golenali, il cui scopo di protezione è una quantità d’acqua, porta uno stato dei dati federale del novembre 2017 &mdash; e così pure l’inventario in cui si trova Rothenthurm. <a href="sources.html#table">Ogni data</a>.</p>
+    <p class="lgNote"><b>Il colore distingue le basi legali.</b> Zone golenali e siti di riproduzione degli anfibi sono in blu acqua; le loro ordinanze fissano obiettivi legati all’acqua. Torbiere alte, paludi e zone palustri usano l’inchiostro legale perché l’art.&nbsp;78 cpv.&nbsp;5 Cost. le protegge. <a href="method.html#wetlands">Rappresentazione</a>.</p>
+    <p class="lgNote"><b>Gli inventari non invecchiano insieme.</b> L’inventario degli anfibi è stato rivisto nel maggio 2026. Quelli delle zone golenali e delle zone palustri indicano ancora novembre 2017. <a href="sources.html#table">Vedere tutte le date</a>.</p>
   </div>
 
   <div class="lg" id="lgSource" hidden>
@@ -216,8 +250,8 @@
       <li><label><input type="checkbox" data-src="zone" checked><span class="swatch srcZone"></span>Zone di protezione delle acque sotterranee S1&ndash;S3, in vigore</label></li>
       <li><label><input type="checkbox" data-src="catch"><span class="swatch srcCatch"></span>Sottobacini</label></li>
     </ul>
-    <p class="lgNote"><b>Tre di questi quattro livelli sono immagini, non dati.</b> I corpi d’acqua sotterranea, le zone di protezione e i bacini sono disegnati da un server federale o cantonale per il rettangolo sullo schermo e arrivano come immagine: questa carta non può interrogarli, non può datarli dall’immagine e non può verificarli. I tratti sorgentizi fanno eccezione e sono disegnati con l’inchiostro proprio di questa carta.</p>
-    <p class="lgNote"><b>Un tratto sorgentizio non è una sorgente.</b> È un tratto sopra il quale non vi è nulla, tagliato a 5&nbsp;km&#178; di superficie a monte &mdash; la sommità della rete così come questa carta la disegna, e la parte del Paese sopra la quale non sta alcuna stazione. Le sorgenti e le cascate che compaiono con lo zoom sono le 86 e 157 <em>denominate</em> di swissNAMES3D, non un conteggio delle sorgenti svizzere.</p>
+    <p class="lgNote"><b>Tre sovrapposizioni arrivano come immagini.</b> La carta non può interrogare o verificare corpi idrici sotterranei, zone di protezione e bacini. Fanno eccezione i tratti di testa, ricavati dalla rete della carta.</p>
+    <p class="lgNote"><b>Un tratto di testa non è una sorgente.</b> È l’estremità superiore della rete fluviale disegnata, limitata a 5&nbsp;km&#178; di bacino a monte. A maggior ingrandimento swissNAMES3D aggiunge 86 sorgenti e 157 cascate nominate, non un inventario nazionale completo.</p>
     <p class="lgNote"><b>Sono disegnate solo le zone in vigore.</b> geodienste.ch serve anche zone pianificate e future; una zona pianificata non è ancora un vincolo giuridico. S1 è il terreno recintato attorno alla captazione, S2 la zona ravvicinata, S3 quella distante &mdash; art.&nbsp;20 LPAc, OPAc allegato&nbsp;4 n.&nbsp;1. Si misurano in ettari: alla scala del Paese sono perciò più piccole di un pixel; ingrandisca oltre un cantone prima di aspettarsene una.</p>
     <p class="lgNote" id="srcAges">&nbsp;</p>
     <p class="lgNote" id="srcCoverage">&nbsp;</p>
@@ -280,10 +314,10 @@
     <span class="langs introLangs" data-langswitch></span>
   </div>
   <h2 id="introTitle">Seguire l’acqua. Proteggere i suoi percorsi.</h2>
-  <p class="introLead" id="introLead">L’obiettivo è seguire l’acqua attraverso la Svizzera — dal ghiaccio e dalle acque sotterranee ai corsi d’acqua, all’accumulo, agli usi, ai ritorni e al confine — e mostrare il diritto che protegge ogni percorso essenziale. Il progetto vuole aiutare a proteggere le zone umide e sostenere azioni legali quando la protezione fallisce. Questa versione parte dalle acque superficiali. Ogni cifra indica fonte, età e classe di evidenza.</p>
+  <p class="introLead" id="introLead">Seguire l’acqua attraverso la Svizzera — dal ghiaccio e dalle acque sotterranee ai corsi d’acqua, allo stoccaggio, all’uso, alla restituzione e al confine — e identificare il diritto che protegge ogni via essenziale. L’obiettivo è proteggere le zone umide e rendere possibile l’azione legale quando tali protezioni falliscono. Questa prima edizione si concentra sulle acque superficiali. Ogni dato indica fonte, data e classe di prova.</p>
   <div class="introActions">
     <button type="button" id="introEnter" autofocus>Esplora la carta</button>
-    <a href="method.html">Come funzionano le evidenze</a>
+    <a href="method.html">Come funziona la prova</a>
   </div>
   <figure class="cycleViz" aria-labelledby="cycleCaption">
     <svg viewBox="0 0 900 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
@@ -302,11 +336,12 @@
       <circle class="cycleSource" cx="300" cy="158" r="7"/>
       <circle class="cycleUse" cx="704" cy="178" r="9"/>
     </svg>
-    <figcaption id="cycleCaption">Dalle precipitazioni in montagna, attraverso ghiaccio, sorgenti e acque sotterranee, fino a corsi d’acqua, zone umide, accumulo, usi, restituzioni e atmosfera.</figcaption>
+    <figcaption id="cycleCaption">Le precipitazioni in montagna diventano ghiaccio, acque sotterranee, sorgenti, corsi d’acqua e zone umide. L’acqua viene accumulata, usata, restituita ed evapora.</figcaption>
     <ol class="cycleStages" aria-label="Apri le parti cartografate del ciclo dell’acqua">
       <li><button type="button" data-cycle-mode="ice"><b>Ghiacciai</b><span>inventari cartografati</span></button></li>
-      <li><button type="button" data-cycle-mode="source"><b>Sorgenti alpine &amp; acque sotterranee</b><span>in parte cartografate</span></button></li>
+      <li><button type="button" data-cycle-mode="source"><b>Sorgenti e acque sotterranee</b><span>parzialmente cartografate</span></button></li>
       <li><button type="button" data-cycle-mode="flow"><b>Ruscelli &amp; fiumi</b><span>in diretta e modellati</span></button></li>
+      <li><button type="button" data-cycle-mode="quality"><b>Qualità dell’acqua</b><span>stazione per stazione</span></button></li>
       <li><button type="button" data-cycle-mode="wet"><b>Zone umide &amp; laghi</b><span>inventari e contorni</span></button></li>
       <li><button type="button" data-cycle-mode="res"><b>Invasi</b><span>serie regionali settimanali</span></button></li>
       <li><button type="button" data-cycle-mode="use"><b>Usi &amp; restituzioni</b><span>registri federali</span></button></li>
@@ -317,12 +352,13 @@
     <li><strong>In diretta</strong><span>Stazioni federali di misura dei corsi d’acqua</span></li>
     <li><strong>26 anni</strong><span>Serie storica dei bacini</span></li>
     <li><strong>1850&ndash;2023</strong><span>Inventari dei ghiacciai</span></li>
+    <li><strong>2011&ndash;2024</strong><span>Risultati federali sulla qualità dell’acqua</span></li>
   </ul>
   <p class="introNote">Acque misurate e modellate. Non una previsione.</p>
 </dialog>
 
 <footer id="credits">
-  <p><strong>Corsi d’acqua</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), filtrato a 5&nbsp;km&#178; dopo la soglia fonte di 10&nbsp;km&#178; o 0,1&nbsp;m&#179;/s propria di HydroRIVERS, con portata attuale valida della rete UFAM tramite LINDAS. <strong>Ghiaccio</strong> GLAMOS, sei inventari datati. <strong>Invasi</strong> UFE. <strong>Deflussi residuali e uso dell’acqua</strong> UFAM e UFE. <strong>Nomi</strong> swissNAMES3D, swisstopo. Ogni fonte, licenza e stato dei dati è nella <a href="sources.html">pagina delle fonti</a>. Acqua misurata e modellata, non una previsione.</p>
+  <p><strong>Corsi d’acqua</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), filtrato a 5&nbsp;km&#178; dopo la propria soglia fonte di 10&nbsp;km&#178; o 0,1&nbsp;m&#179;/s, con portata attuale valida della rete UFAM tramite LINDAS. <strong>Qualità</strong> UFAM NAWA TREND. <strong>Ghiaccio</strong> GLAMOS, sei inventari datati. <strong>Invasi</strong> UFE. <strong>Deflussi residuali e usi</strong> UFAM e UFE. <strong>Nomi</strong> swissNAMES3D, swisstopo. Ogni fonte, licenza e stato dei dati è nella <a href="sources.html">pagina delle fonti</a>. Acqua misurata e modellata, non una previsione.</p>
 </footer>
 
 <script src="../fmt.js?v=20260821"></script>

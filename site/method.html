@@ -7,7 +7,7 @@
 <meta name="description" content="Every layer of the Swiss water and ice map, the join behind it, the class of evidence it belongs to, and where each chain breaks. Including how to read the map itself.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0d0d0d">
-<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/method.html">
+<link rel="canonical" href="https://opengovclimate.ch/riverflow/method.html">
 <link rel="alternate" hreflang="en" href="method.html">
 <link rel="alternate" hreflang="de" href="de/method.html">
 <link rel="alternate" hreflang="fr" href="fr/method.html">
@@ -19,8 +19,8 @@
 <meta property="og:description" content="Every layer of the Swiss water and ice map, the join behind it, the class of evidence it belongs to, and where each chain breaks. Including how to read the map itself.">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Water and ice in Switzerland">
-<meta property="og:url" content="https://jonashertner.github.io/riverflow-ch/method.html">
-<meta property="og:image" content="https://jonashertner.github.io/riverflow-ch/og-image.jpg">
+<meta property="og:url" content="https://opengovclimate.ch/riverflow/method.html">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -29,8 +29,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="tokens.css?v=20260821">
-<link rel="stylesheet" href="site.css?v=20260821">
+<link rel="stylesheet" href="tokens.css?v=20260821b">
+<link rel="stylesheet" href="site.css?v=20260821b">
 <script src="i18n.js?v=20260821"></script>
 <script src="i18n-data.js?v=20260821"></script>
 <script src="theme.js?v=20260821"></script>
@@ -68,12 +68,13 @@
       <li><a href="#network">The network</a></li>
       <li><a href="#basins">Where the water goes</a></li>
       <li><a href="#live">The live read</a></li>
+      <li><a href="#quality">Water quality</a></li>
       <li><a href="#evidence">Three classes of evidence</a></li>
       <li><a href="#estimate">Estimating a reach</a></li>
       <li><a href="#names">The names</a></li>
       <li><a href="#ice">The ice</a></li>
       <li><a href="#reservoirs">The reservoirs</a></li>
-      <li><a href="#wetlands">Protected wetland</a></li>
+      <li><a href="#wetlands">Protected wetlands</a></li>
       <li><a href="#pictures">Pictures, and data</a></li>
       <li><a href="#cycle">Water-cycle coverage</a></li>
       <li><a href="#limits">What it cannot do</a></li>
@@ -85,37 +86,36 @@
     <header class="docHead">
       <p class="eyebrow">Method</p>
       <h1>How this map is made, and how to read it</h1>
-      <p class="lede">Every figure on this map is the end of a chain: a federal register, a join,
-        a projection, an inference. This page walks each chain in the order the map walks it, and
-        says <b>where each one breaks</b>.</p>
+      <p class="lede">Each figure ends a chain of source data, joins, projection and inference.
+        This page explains every layer, how to read it and <b>where its evidence ends</b>.</p>
       <p class="dateline">Structural figures are checked against the committed data at every release. Live figures are accepted per station only when their time, value and unit pass the rules below.</p>
     </header>
 
     <section id="reading">
       <h2>Reading the map</h2>
-      <p>The map draws one country eight ways. The layers are grouped by the question they
-        answer rather than by the office that publishes them, because the question is what a
-        reader arrives with.</p>
+      <p>The map draws one country ten ways. Layers are grouped by the reader&rsquo;s question,
+        not by the office that publishes them.</p>
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Layer</th><th scope="col">The question it answers</th><th scope="col">What it is drawn from</th></tr></thead>
         <tbody>
           <tr><td><b>Flow</b></td><td>How much water is moving now?</td><td>187 federal discharge series; only current, valid readings can drive 8'711 reaches</td></tr>
           <tr><td><b>Against normal</b></td><td>Is that a lot or a little for this river?</td><td>Today against a modelled long-term mean. Not quotable, and the layer says so</td></tr>
           <tr><td><b>Temperature</b></td><td>Where is the 25&nbsp;°C ceiling in play?</td><td>The gauges that carry a thermometer, against GSchV Annex&nbsp;2 No.&nbsp;12(4)</td></tr>
+          <tr><td><b>Water quality</b></td><td>What was measured here, for which substance, and when?</td><td>Every laboratory result in the current NAWA TREND prepared release, kept at its station</td></tr>
           <tr><td><b>Reservoirs</b></td><td>How much water is held back, and how full is it?</td><td>225 dams under federal supervision, and a weekly filling series since 2000</td></tr>
           <tr><td><b>Ice</b></td><td>What has the ice lost, and how fast?</td><td>Six dated glacier inventories, 1850 to 2023</td></tr>
           <tr><td><b>Residual flow</b></td><td>What does the Art.&nbsp;31(1) arithmetic give?</td><td>1'041 published Q<sub>347</sub> points; illustrative, not a cantonal determination</td></tr>
           <tr><td><b>Water use</b></td><td>Who takes water out, and who puts heat in?</td><td>Four federal registers: hydropower, abstractions, nuclear sites, treatment plants</td></tr>
+          <tr><td><b>Wetlands</b></td><td>Which water-dependent places have federal protection?</td><td>Five federal inventories, drawn with their legal class and inventory identity intact</td></tr>
           <tr><td><b>Water sources</b></td><td>Where does the water come from?</td><td>Groundwater bodies, headwaters, sub-catchments, and the protection zones in force</td></tr>
         </tbody>
       </table></div>
 
-      <h3>Pointing, and what comes back</h3>
-      <p>Point at any water and the map names it and states what it is carrying, together with
-        the class of evidence that figure belongs to. Click, or tap, and the full reading opens:
-        the discharge, the long-term mean, the share of it, the upstream catchment, and a sentence
-        saying in plain words what the number rests on. Scroll or pinch to zoom; drag to pan. The
-        address bar keeps the layer and the view, so a link to a river is a link to that river.</p>
+      <h3>Selecting water</h3>
+      <p>Hover over water to see its name, value and evidence class. Select it for the full record:
+        discharge, long-term mean, relative flow, upstream catchment and the basis for the figure.
+        Scroll or pinch to zoom; drag to pan. The address preserves the layer and view, so a copied
+        link returns to the same place.</p>
       <p>Names live on the pointer rather than on the plane. A label on a map has to be
         <em>somewhere</em>, and everywhere it can go is already spoken for: over the water it hides
         the water, beside the water it is in the next canton, off to one side it lands under the
@@ -204,6 +204,38 @@
         The browser accepts discharge only when it is finite, non-negative, at most 30 minutes old and
         has a unit verified from the station's own hydrodaten plot. Stale, invalid and unit-unknown
         values remain inspectable but never drive a reach or an estimate.</div>
+    </section>
+
+    <section id="quality">
+      <h2>Water quality: measurements, not a verdict</h2>
+      <p>The quality layer contains the complete current prepared NAWA TREND record:
+        <span class="num">1'543'996</span> published results at <span class="num">144</span>
+        flowing-water stations, from 2011 through 2024. Its <span class="num">724</span>
+        parameter-and-unit series remain separate. The same substance reported in a different unit
+        is not silently combined.</p>
+      <p>The country view asks one narrow question at a time: one parameter, one unit, one year.
+        A filled diamond is the median of that station's quantified results in that year. A hollow
+        diamond means it was sampled but every valid result lay below the determination limit. An
+        unfilled faint diamond means it was not sampled for that selection. Values below the limit
+        are censored observations, not zero; they are counted and never invented into the median.
+        Missing values remain missing.</p>
+      <p>Colour is comparable across years. Each parameter uses one fixed range derived from the
+        5th, 50th and 95th percentiles of all station-year medians in the release; wide positive
+        ranges use a logarithmic scale. Values beyond the endpoints keep the endpoint colour. The
+        scale shows the distribution of measurements. It is not a health class, a composite score
+        or a legal threshold.</p>
+      <p>No station value is spread along a river and no gap is interpolated. Open a station and the
+        browser reads the exact rows from BAFU's public API: sampling window and type, measured
+        value, determination and detection limits, method, uncertainty and laboratory remark. The
+        baked annual summary remains available if that live read fails.</p>
+      <div class="flag"><b>A measurement comes before a legal conclusion.</b> Whether a result
+        satisfies water-protection law depends on the correct parameter-specific requirement,
+        sampling duration, water use, method and legal context. The map therefore does not colour
+        a station red for “breach”. It preserves the evidence needed to make that assessment and
+        links to the official source.</div>
+      <p class="fine">NAWA is a national long-term programme for flowing waters. It does not replace
+        denser cantonal monitoring and this layer does not cover lakes, biological condition or an
+        unmeasured reach. See the <a href="sources.html#table">source, licence and data state</a>.</p>
     </section>
 
     <section id="evidence">
@@ -350,20 +382,16 @@
         <li>The <b>filling level</b> is a weekly figure in gigawatt hours — stored electricity, not
           stored water — published for four regions and for nothing smaller, since 3 January 2000.</li>
       </ul>
-      <div class="flag">So the layer can say what a reservoir holds when full, and it can say how
-        full a region is this week. <b>It cannot say how full the Grande Dixence is today.</b>
-        Nobody publishes that. The tint on a disc is its region's level, applied identically to
-        every dam in that region, and the legend says so on its own face.</div>
+      <div class="flag">The layer shows each reservoir&rsquo;s full-capacity volume and its region&rsquo;s
+        weekly filling level. <b>It cannot show the current level of the Grande Dixence or any other
+        individual dam.</b> The source reports four regions, so every dam in a region receives the same colour.</div>
     </section>
 
     <section id="wetlands">
-      <h2>Protected wetland</h2>
-      <p>Five federal inventories, and they are on a water map for a reason that is not that they
-        are damp. Each ordinance states its protection aim in terms of water. The
-        <b>Auenverordnung</b> requires the natural dynamics of the water and sediment regime to be
-        preserved — a duty about how much water passes and when. A mire dies if the water table
-        drops. These are places where a quantity of water is already the subject of a federal duty,
-        drawn on the same canvas as the quantity itself.</p>
+      <h2>Protected wetlands</h2>
+      <p>Five federal inventories belong on this map because their protection aims depend on water.
+        The <b>Auenverordnung</b> requires the natural dynamics of water and sediment to be preserved.
+        Mires depend on their water table. The map places these duties beside the water they protect.</p>
       <div class="tWrap"><table>
         <thead><tr><th>Inventory</th><th>Objects</th><th class="num">km²</th><th>Protection</th></tr></thead>
         <tbody>
@@ -461,7 +489,7 @@
           <tr><td>Precipitation, snow, soil</td><td>Not mapped</td><td>Observed precipitation, snow water equivalent and soil moisture</td></tr>
           <tr><td>Ice</td><td>Six area inventories</td><td>Annual mass balance and volume</td></tr>
           <tr><td>Groundwater and springs</td><td>Groundwater-body context only</td><td>NAQUA levels, spring discharge and recharge</td></tr>
-          <tr><td>Rivers and lakes</td><td>Current station observations on a model network</td><td>Small streams, sediment, NAWA quality and lake profiles</td></tr>
+          <tr><td>Rivers and lakes</td><td>Current station observations on a model network; NAWA TREND laboratory results, 2011–2024</td><td>Small streams, sediment, cantonal quality, lake profiles and biological condition</td></tr>
           <tr><td>Storage</td><td>Dams and regional stored energy</td><td>Named-reservoir levels and lake storage</td></tr>
           <tr><td>Use and return</td><td>Four historical registers</td><td>Sector volumes, transfers, return flows and current permits</td></tr>
           <tr><td>Legal protection</td><td>Residual flow, wetlands and protection zones</td><td>Concessions, expiry, orders, enforcement and cantonal decisions</td></tr>
@@ -472,9 +500,8 @@
 
     <section id="limits">
       <h2>What this map cannot do</h2>
-      <p>The most useful thing it does for a file is narrower and more reliable than proof: it tells
-        you which register is old, what quantity nobody publishes, and which reach the question
-        actually sits on. Here is the other side of that.</p>
+      <p>The map does not prove a case. It identifies the relevant reach, the age of each register
+        and the quantities absent from open federal data. Its limits follow.</p>
       <ul>
         <li><b>It is not a complete account of Swiss water.</b> The table above is the development
           roadmap, not data the current map claims to contain.</li>
@@ -491,7 +518,8 @@
           are strong evidence of a change of state. They are not, on their own, evidence that any
           named party caused it. Attribution is a separate question needing separate sources.</li>
         <li><b>It cannot find a breach.</b> A datum here is a fact about a river. The step to a
-          finding is the lawyer's, and it needs the concession, the licence and the site.</li>
+          finding is the lawyer's, and it needs the applicable requirement, sampling design,
+          concession, licence and site.</li>
       </ul>
     </section>
 
@@ -514,18 +542,20 @@
           <tr><td class="n">09</td><td>Glacier length change</td><td>by hand</td></tr>
           <tr><td class="n">10</td><td>The names, joined to the network</td><td>by hand</td></tr>
           <tr><td class="n">11</td><td>The twenty-six cantonal delivery dates</td><td><b>weekly</b></td></tr>
-          <tr><td class="n">12</td><td>The five federal inventories of protected wetland</td><td><b>weekly</b></td></tr>
+          <tr><td class="n">12</td><td>The five federal inventories of protected wetlands</td><td><b>weekly</b></td></tr>
           <tr><td class="n">13</td><td>The four sea basins, their shares, gauges and ice</td><td>by hand</td></tr>
+          <tr><td class="n">14</td><td>The five-language publication</td><td>each release</td></tr>
+          <tr><td class="n">15</td><td>The social preview image</td><td>by hand</td></tr>
+          <tr><td class="n">16</td><td>Machine-readable source provenance</td><td><b>weekly</b></td></tr>
+          <tr><td class="n">17</td><td>The NAWA TREND water-quality record</td><td><b>weekly</b></td></tr>
+          <tr><td class="n">18</td><td>The canton monitoring evidence audit</td><td><b>weekly</b></td></tr>
         </tbody>
       </table></div>
-      <p class="fine">Four steps run every Monday in continuous integration and their output is
-        committed, so the repository and not only the deployment stays the record. Step 11 must run
-        before step 8, because the protection-zone vintage is the oldest cantonal delivery and step
-        8 reads it. Step 10 is deliberately not automated: swissNAMES3D is an annual release of
-        about 32&nbsp;MB and it is rebuilt by hand when a new one appears. Step 13 reads only steps
-        01 to 04 and is deterministic, so it is rebuilt when they are and not on a clock. Step 8 also
-        runs in the reader&rsquo;s own browser on every visit to the sources page, so a data state
-        that moved between Mondays is corrected on the screen rather than waiting for a build.</p>
+      <p class="fine">The Monday refresh rebuilds stations, reservoirs, cantonal dates, wetlands,
+        water quality, monitoring evidence, source vintage and provenance; it then verifies and commits
+        the result. Annual names and deterministic basin geometry are rebuilt when their inputs change.
+        The sources page also checks federal data states in the reader&rsquo;s browser, so a date can update
+        between scheduled builds.</p>
     </section>
 
     <p><a class="toMapBig" href="./"><svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg> Back to the map</a></p>

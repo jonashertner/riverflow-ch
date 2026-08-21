@@ -4,7 +4,7 @@ An open, evidence-led project to understand water through its whole cycle,
 protect wetlands and other essential pathways, and support legal enforcement
 where necessary.
 
-**Live site:** https://jonashertner.github.io/riverflow-ch/
+**Live site:** https://opengovclimate.ch/riverflow/
 
 The project keeps unlike evidence unlike. A current gauge reading, a model
 estimate and a twenty-year-old register never share a label. Every figure states
@@ -23,16 +23,18 @@ primary law and reproducible methods that can support legal action when needed.
 | River flow | Current BAFU discharge where a station passes the live-data rules; indicative estimates elsewhere |
 | Against normal | Current discharge divided by a modelled annual mean; not a drought index |
 | Temperature | Current BAFU station readings |
+| Water quality | All 1'543'996 results in the current prepared NAWA TREND release, reduced to station-year summaries with exact laboratory rows on demand |
 | Reservoirs | 225 dam structures and a separate weekly regional energy-storage series |
 | Ice | Glacier area in six inventories: 1850, 1931, 1973, 2010, 2016 and 2023 |
 | Residual flow | BAFU Q347 points and an illustrative Art. 31(1) calculation |
 | Water use | Federal registers of hydropower, abstractions, nuclear sites and treatment plants |
-| Wetlands | Five federal inventories of protected wetland |
+| Wetlands | Five federal inventories of protected wetlands |
 | Water sources | Groundwater bodies, headwaters, sub-catchments and drinking-water protection zones |
+| Monitoring duties | Federal duties and a 26-canton public-evidence audit; evidence and freshness, not a compliance score |
 
 This is not a forecast, a finding of breach or legal advice. It is also not a
 complete account of Swiss water. Important omissions are listed on the
-[Method page](https://jonashertner.github.io/riverflow-ch/method.html#limits).
+[Method page](https://opengovclimate.ch/riverflow/method.html#limits).
 
 ## Evidence rules
 
@@ -51,13 +53,19 @@ complete account of Swiss water. Important omissions are listed on the
 - The Q347 layer applies only the arithmetic in Art. 31(1) GSchG. BAFU says
   model values generally need local measurement, and the canton determines the
   adequate residual flow after applying the rest of the statutory scheme.
+- A quality result below its determination limit remains censored. It is never
+  converted to zero or used in a median. Values are not interpolated between
+  stations and the map does not invent a composite quality score.
+- GSchG Art. 58 requires the cantonal surveys needed for implementation, not one
+  identical national station and frequency checklist. The cantonal audit records
+  what could be verified publicly and does not pronounce legal compliance.
 - Historical registers remain useful evidence of what was recorded then. They
   are never presented as complete current inventories.
 
 The full methods, transformations and limits are published on the
-[Method](https://jonashertner.github.io/riverflow-ch/method.html),
-[Sources](https://jonashertner.github.io/riverflow-ch/sources.html) and
-[Law](https://jonashertner.github.io/riverflow-ch/law.html) pages.
+[Method](https://opengovclimate.ch/riverflow/method.html),
+[Sources](https://opengovclimate.ch/riverflow/sources.html) and
+[Law](https://opengovclimate.ch/riverflow/law.html) pages.
 
 ## Collaborate
 
@@ -122,6 +130,8 @@ node build/10-names.mjs
 node build/11-cantons.mjs
 node build/12-wetlands.mjs
 node build/13-basins.mjs
+node build/17-quality.mjs
+node build/18-monitoring.mjs
 node build/08-vintage.mjs
 python3 build/14-pages.py build
 node build/16-provenance.mjs
@@ -131,14 +141,16 @@ node scripts/verify-site.mjs
 Raw source archives are downloaded outside the repository. The committed
 provenance manifest records the source states, build scripts, artifact sizes,
 counts and SHA-256 hashes. Upstream datasets retain their own licences; the
-[Sources page](https://jonashertner.github.io/riverflow-ch/sources.html) lists
+[Sources page](https://opengovclimate.ch/riverflow/sources.html) lists
 each holder and term.
 
 ## Publication
 
 GitHub Actions verifies every push to `main`. A weekly job refreshes federal
-stations, reservoirs, cantonal deliveries, wetlands and source dates, rebuilds provenance, validates
-the refreshed artifact, and publishes only after all checks pass.
+stations, reservoirs, water quality, cantonal deliveries, wetlands and source
+dates, rebuilds provenance, validates the refreshed artifact, and publishes only
+after all checks pass. The curated legal-evidence audit changes only after its
+primary canton records are reviewed again.
 
 The repository is the publication record. A map URL stores its layer, centre and
 zoom so a view can be cited, but live observations still need their station time

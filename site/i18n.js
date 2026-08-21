@@ -223,6 +223,37 @@ Object.assign(STR, {
     rm: 'Datas da furniziun ord il register da servetschs geodienste.ch, legidas ils {d}. Tut ils <b>{covered}</b> chantuns furneschan il model e tut ils <b>{free}</b> al publitgeschan liberamain. La furniziun la pli veglia è quella da <b>{oldCt}</b>, {old}; la pli nova {new}. En ambra: ina furniziun che tarda dapli che trais onns sin la pli nova.',
   },
 
+  // ---- the public evidence audit of cantonal monitoring ----
+  'audit.loadFail': {
+    en: 'The monitoring audit failed to load: {e}', de: 'Das Monitoring-Audit konnte nicht geladen werden: {e}',
+    fr: 'L’audit de la surveillance n’a pas pu être chargé : {e}', it: 'Non è stato possibile caricare l’audit del monitoraggio: {e}',
+    rm: 'L’audit dal monitoring na pudeva betg vegnir chargià: {e}',
+  },
+  'audit.thCanton': { en: 'Canton', de: 'Kanton', fr: 'Canton', it: 'Cantone', rm: 'Chantun' },
+  'audit.thNawa': { en: 'NAWA stations', de: 'NAWA-Messstellen', fr: 'Stations NAWA', it: 'Stazioni NAWA', rm: 'Staziuns NAWA' },
+  'audit.thEvidence': { en: 'Public evidence found', de: 'Öffentlicher Nachweis', fr: 'Preuve publique trouvée', it: 'Riscontro pubblico trovato', rm: 'Cumprova publica chattada' },
+  'audit.thScope': { en: 'Scope shown', de: 'Ausgewiesener Umfang', fr: 'Portée indiquée', it: 'Ambito indicato', rm: 'Extensiun mussada' },
+  'audit.record.results.year': { en: 'dated results · {y}', de: 'datierte Ergebnisse · {y}', fr: 'résultats datés · {y}', it: 'risultati datati · {y}', rm: 'resultats datads · {y}' },
+  'audit.record.results': { en: 'dated results', de: 'datierte Ergebnisse', fr: 'résultats datés', it: 'risultati datati', rm: 'resultats datads' },
+  'audit.record.programme.year': { en: 'programme record · {y}', de: 'Programmnachweis · {y}', fr: 'trace du programme · {y}', it: 'riscontro del programma · {y}', rm: 'cumprova dal program · {y}' },
+  'audit.record.programme': { en: 'programme described', de: 'Programm beschrieben', fr: 'programme décrit', it: 'programma descritto', rm: 'program descrit' },
+  'audit.record.partial.year': { en: 'partial record · {y}', de: 'Teilnachweis · {y}', fr: 'trace partielle · {y}', it: 'riscontro parziale · {y}', rm: 'cumprova parziala · {y}' },
+  'audit.record.partial': { en: 'partial record', de: 'Teilnachweis', fr: 'trace partielle', it: 'riscontro parziale', rm: 'cumprova parziala' },
+  'audit.official': { en: 'Official record ↗', de: 'Amtlicher Nachweis ↗', fr: 'Source officielle ↗', it: 'Fonte ufficiale ↗', rm: 'Cumprova uffiziala ↗' },
+  'audit.zero': { en: 'none in this release', de: 'keine in dieser Ausgabe', fr: 'aucune dans cette version', it: 'nessuna in questa versione', rm: 'naginas en questa versiun' },
+  'audit.scope.chemistry': { en: 'chemistry', de: 'Chemie', fr: 'chimie', it: 'chimica', rm: 'chemia' },
+  'audit.scope.biology': { en: 'biology', de: 'Biologie', fr: 'biologie', it: 'biologia', rm: 'biologia' },
+  'audit.scope.groundwater': { en: 'groundwater', de: 'Grundwasser', fr: 'eaux souterraines', it: 'acque sotterranee', rm: 'aua sutterrana' },
+  'audit.scope.lakes': { en: 'lakes', de: 'Seen', fr: 'lacs', it: 'laghi', rm: 'lais' },
+  'audit.scope.data': { en: 'results/data', de: 'Ergebnisse/Daten', fr: 'résultats/données', it: 'risultati/dati', rm: 'resultats/datas' },
+  'audit.note': {
+    en: 'National count: BAFU NAWA TREND {version}, <b>{stations}</b> stations in <b>{covered} of 26</b> cantons. Cantonal links and evidence type checked <b>{checked}</b>. A row records what was publicly verified; it is not a finding of legal compliance.',
+    de: 'Nationale Zählung: BAFU NAWA TREND {version}, <b>{stations}</b> Messstellen in <b>{covered} von 26</b> Kantonen. Kantonale Links und Nachweisart geprüft am <b>{checked}</b>. Eine Zeile hält fest, was öffentlich verifiziert wurde; sie ist keine Feststellung der Rechtskonformität.',
+    fr: 'Décompte national : NAWA TREND de l’OFEV {version}, <b>{stations}</b> stations dans <b>{covered} cantons sur 26</b>. Liens cantonaux et type de preuve vérifiés le <b>{checked}</b>. Une ligne consigne ce qui a pu être vérifié publiquement ; elle ne constate pas la conformité au droit.',
+    it: 'Conteggio nazionale: NAWA TREND dell’UFAM {version}, <b>{stations}</b> stazioni in <b>{covered} cantoni su 26</b>. Link cantonali e tipo di riscontro verificati il <b>{checked}</b>. Ogni riga registra ciò che è stato verificato pubblicamente; non accerta la conformità giuridica.',
+    rm: 'Dumbraziun naziunala: NAWA TREND da l’UFAM {version}, <b>{stations}</b> staziuns en <b>{covered} da 26</b> chantuns. Colliaziuns chantunalas e tip da cumprova controllads ils <b>{checked}</b>. Ina lingia registrescha quai ch’è vegnì verifitgà publicamain; ella na constatescha betg la conformitad giuridica.',
+  },
+
   // ---- where Swiss water goes, on the about page ----
   'bs.loadFail': {
     en: 'The basin derivation failed to load: {e}',

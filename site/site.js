@@ -247,6 +247,49 @@ async function drawCantons() {
 }
 drawCantons();
 
+// ---- what the cantons publicly show that they measure ----------------------
+// This is deliberately an evidence table, not a scorecard. Art. 58 GSchG asks
+// for the surveys required for implementation; it does not supply one national
+// station/parameter/frequency checklist against which a coloured "compliant"
+// badge could honestly be computed. The table therefore says exactly what was
+// found and links the primary record. NAWA counts come from the same release as
+// the quality map, which makes the important zero in AR reproducible.
+async function drawMonitoringAudit() {
+  const el = document.getElementById('monitoringAudit');
+  if (!el) return;
+  let audit;
+  try {
+    audit = await readJSON(ROOT + 'data/canton-monitoring.json');
+  } catch (e) {
+    el.textContent = T('audit.loadFail', { e: e.message });
+    return;
+  }
+  const scope = key => T('audit.scope.' + key);
+  const record = row => T(`audit.record.${row.record}${row.year ? '.year' : ''}`, { y: row.year });
+  el.innerHTML = `<div class="tWrap"><table class="auditTable">
+    <thead><tr>
+      <th scope="col">${T('audit.thCanton')}</th>
+      <th scope="col">${T('audit.thNawa')}</th>
+      <th scope="col">${T('audit.thEvidence')}</th>
+      <th scope="col">${T('audit.thScope')}</th>
+    </tr></thead>
+    <tbody>${audit.cantons.map(row => `<tr>
+      <td><b>${esc(row.ct)}</b><br><span class="fine">${esc(row.name)}</span></td>
+      <td class="n">${nf(row.nawaStations)}${row.nawaStations ? '' : `<br><span class="auditZero">${T('audit.zero')}</span>`}</td>
+      <td><span class="auditStatus ${esc(row.record)}">${record(row)}</span><br>
+        <a href="${esc(row.url)}" target="_blank" rel="noopener">${T('audit.official')}</a></td>
+      <td><span class="auditScopes">${row.scope.map(s => `<span>${scope(s)}</span>`).join('')}</span></td>
+    </tr>`).join('')}</tbody>
+  </table></div>
+  <p class="fine auditNote">${T('audit.note', {
+    version: esc(audit.meta.nationalVersion),
+    stations: nf(audit.meta.nationalStations),
+    covered: nf(audit.meta.cantonsWithNationalStations),
+    checked: fmtDate(audit.meta.checked),
+  })}</p>`;
+}
+drawMonitoringAudit();
+
 // ---- the date the reader is reading on --------------------------------------
 // A citation of a live map has to carry the day it was read, so the day is filled
 // in rather than typed.

@@ -7,7 +7,7 @@
 <meta name="description" content="Jede Ebene der Schweizer Wasser- und Eiskarte, die Verknüpfung dahinter, die Beweisklasse, zu der sie gehört, und die Stelle, an der jede Kette reisst. Samt Anleitung, wie die Karte selbst zu lesen ist.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0d0d0d">
-<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/de/method.html">
+<link rel="canonical" href="https://opengovclimate.ch/riverflow/de/method.html">
 <link rel="alternate" hreflang="en" href="../method.html">
 <link rel="alternate" hreflang="de" href="method.html">
 <link rel="alternate" hreflang="fr" href="../fr/method.html">
@@ -19,8 +19,8 @@
 <meta property="og:description" content="Jede Ebene der Schweizer Wasser- und Eiskarte, die Verknüpfung dahinter, die Beweisklasse, zu der sie gehört, und die Stelle, an der jede Kette reisst. Samt Anleitung, wie die Karte selbst zu lesen ist.">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Wasser und Eis in der Schweiz">
-<meta property="og:url" content="https://jonashertner.github.io/riverflow-ch/de/method.html">
-<meta property="og:image" content="https://jonashertner.github.io/riverflow-ch/og-image.jpg">
+<meta property="og:url" content="https://opengovclimate.ch/riverflow/de/method.html">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -29,8 +29,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="../tokens.css?v=20260821">
-<link rel="stylesheet" href="../site.css?v=20260821">
+<link rel="stylesheet" href="../tokens.css?v=20260821b">
+<link rel="stylesheet" href="../site.css?v=20260821b">
 <script src="../i18n.js?v=20260821"></script>
 <script src="../i18n-data.js?v=20260821"></script>
 <script src="../theme.js?v=20260821"></script>
@@ -68,6 +68,7 @@
       <li><a href="#network">Das Netz</a></li>
       <li><a href="#basins">Wohin das Wasser geht</a></li>
       <li><a href="#live">Die Live-Abfrage</a></li>
+      <li><a href="#quality">Wasserqualität</a></li>
       <li><a href="#evidence">Drei Beweisklassen</a></li>
       <li><a href="#estimate">Einen Abschnitt schätzen</a></li>
       <li><a href="#names">Die Namen</a></li>
@@ -85,29 +86,31 @@
     <header class="docHead">
       <p class="eyebrow">Methode</p>
       <h1>Wie diese Karte gemacht ist und wie sie zu lesen ist</h1>
-      <p class="lede">Jede Zahl auf dieser Karte steht am Ende einer Kette: ein Bundesregister, eine Verknüpfung, eine Projektion, ein Schluss. Diese Seite geht jede Kette in der Reihenfolge ab, in der die Karte sie abgeht, und nennt <b>die Stelle, an der jede reisst</b>.</p>
+      <p class="lede">Jede Zahl steht am Ende einer Kette aus Quelldaten, Verknüpfungen, Projektion und Schlussfolgerung. Diese Seite erklärt jede Ebene, ihre Lesart und <b>wo ihre Evidenz endet</b>.</p>
       <p class="dateline">Strukturelle Zahlen werden bei jeder Veröffentlichung gegen die gespeicherten Daten geprüft. Livewerte werden je Station nur akzeptiert, wenn Zeit, Wert und Einheit die folgenden Regeln erfüllen.</p>
     </header>
 
     <section id="reading">
       <h2>Die Karte lesen</h2>
-      <p>Die Karte zeichnet ein Land auf acht Arten. Die Ebenen sind nach der Frage gruppiert, die sie beantworten, und nicht nach der Stelle, die sie publiziert &mdash; denn die Frage ist das, womit eine Leserin ankommt.</p>
+      <p>Die Karte zeigt ein Land auf zehn Arten. Die Ebenen folgen der Frage der Lesenden, nicht der publizierenden Stelle.</p>
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Ebene</th><th scope="col">Die Frage, die sie beantwortet</th><th scope="col">Woraus sie gezeichnet ist</th></tr></thead>
         <tbody>
           <tr><td><b>Abfluss</b></td><td>Wie viel Wasser fliesst jetzt?</td><td>187 Abflussreihen des Bundes; nur aktuelle, gültige Messungen steuern 8'711 Abschnitte</td></tr>
           <tr><td><b>Gegen normal</b></td><td>Ist das viel oder wenig für diesen Fluss?</td><td>Heute gegen ein modelliertes langjähriges Mittel. Nicht zitierfähig, und die Ebene sagt es</td></tr>
           <tr><td><b>Temperatur</b></td><td>Wo steht die Obergrenze von 25&nbsp;°C im Spiel?</td><td>Die Messstellen mit Thermometer, gegen GSchV Anhang&nbsp;2 Ziff.&nbsp;12 Abs.&nbsp;4</td></tr>
+          <tr><td><b>Wasserqualität</b></td><td>Was wurde hier für welchen Stoff und wann gemessen?</td><td>Jedes Laborresultat der aktuellen aufbereiteten NAWA-TREND-Ausgabe, an seiner Messstelle belassen</td></tr>
           <tr><td><b>Speicherseen</b></td><td>Wie viel Wasser wird zurückgehalten, und wie voll ist es?</td><td>225 Stauanlagen unter Bundesaufsicht und eine wöchentliche Füllungsreihe seit 2000</td></tr>
           <tr><td><b>Eis</b></td><td>Was hat das Eis verloren, und wie schnell?</td><td>Sechs datierte Gletscherinventare, 1850 bis 2023</td></tr>
           <tr><td><b>Restwasser</b></td><td>Was ergibt die Rechnung nach Art.&nbsp;31 Abs.&nbsp;1?</td><td>1'041 publizierte Q<sub>347</sub>-Punkte; veranschaulichend, keine kantonale Festlegung</td></tr>
           <tr><td><b>Wassernutzung</b></td><td>Wer entnimmt Wasser, und wer trägt Wärme ein?</td><td>Vier Bundesregister: Wasserkraft, Wasserentnahmen, Kernanlagen, Abwasserreinigungsanlagen</td></tr>
+          <tr><td><b>Feuchtgebiete</b></td><td>Welche wasserabhängigen Orte stehen unter Bundesschutz?</td><td>Fünf Bundesinventare, mit unveränderter Rechtsklasse und Inventaridentität gezeichnet</td></tr>
           <tr><td><b>Wasservorkommen</b></td><td>Woher kommt das Wasser?</td><td>Grundwasserkörper, Oberläufe, Teileinzugsgebiete und die rechtskräftigen Schutzzonen</td></tr>
         </tbody>
       </table></div>
 
-      <h3>Zeigen, und was zurückkommt</h3>
-      <p>Zeigen Sie auf ein Gewässer, und die Karte nennt es und sagt, was es führt, samt der Beweisklasse, zu der diese Zahl gehört. Ein Klick oder ein Tippen öffnet die vollständige Lesung: den Abfluss, das langjährige Mittel, den Anteil daran, das Einzugsgebiet oberhalb und einen Satz, der in klaren Worten sagt, worauf die Zahl beruht. Scrollen oder Zusammenziehen zoomt, Ziehen verschiebt. Die Adresszeile behält Ebene und Ausschnitt; ein Link auf einen Fluss ist deshalb ein Link auf diesen Fluss.</p>
+      <h3>Wasser auswählen</h3>
+      <p>Auf Wasser zeigen, um Name, Wert und Beweisklasse zu sehen. Auswählen öffnet den vollständigen Datensatz: Abfluss, langjähriges Mittel, relativer Abfluss, Einzugsgebiet oberhalb und Grundlage der Zahl. Scrollen oder mit zwei Fingern zoomen; ziehen zum Verschieben. Die Adresse speichert Ebene und Ansicht, sodass ein kopierter Link zum selben Ort zurückführt.</p>
       <p>Die Namen leben am Zeiger und nicht auf der Fläche. Eine Beschriftung auf einer Karte muss <em>irgendwo</em> stehen, und jeder Ort, an den sie kann, ist schon vergeben: über dem Wasser verdeckt sie das Wasser, neben dem Wasser liegt sie im nächsten Kanton, weiter weg landet sie unter der Legende. Den Namen stattdessen an die Lesung zu hängen kostet nichts, kollidiert mit nichts und hat den Vorzug, dass der Name, den Sie erhalten, der Name des Abschnitts ist, nach dem Sie gefragt haben. Seen und Gletscher behalten ihre Namen auf der Fläche, denn ein Seename sitzt in einer Form, die ihm gehört, und tritt mit nichts in Wettbewerb.</p>
 
       <h3>Die Zeit und der Schalter, der die Karte zurückschält</h3>
@@ -137,6 +140,16 @@
       <p>Abfluss, Wasserstand und Wassertemperatur stammen aus dem Messnetz des Bundesamts für Umwelt, abgefragt über LINDAS, den Linked-Data-Dienst des Bundes, mit einer einzigen SPARQL-Anfrage gegen den Graphen <code>&lt;https://lindas.admin.ch/foen/hydro&gt;</code>. Die Bundesreihe wird rund alle zehn Minuten nachgeführt, und die Seite liest sie in diesem Takt neu, solange sie der Tab ist, den man ansieht. Ein verborgener Tab hört auf zu fragen und dient bei der Rückkehr den Rest des Takts aus. Die Schaltfläche erzwingt jederzeit eine Abfrage.</p>
       <p>Die Stationsdatei enthält <span class="num">233</span> eindeutige Stationen; <span class="num">227</span> werden einem Abschnitt zugeordnet. <span class="num">187</span> führen Abfluss und liegen auf <span class="num">173</span> Abschnitten. Bei fünf Abflussstationen ist die Einheit nicht verifizierbar; höchstens <span class="num">168</span> Abschnitte können daher als gemessen gelten.</p>
       <div class="flag"><b>Annahmeregel.</b> Die Abfrage wählt für jede Station den neuesten Zeitstempel. Der Browser übernimmt Abfluss nur, wenn er endlich, nicht negativ, höchstens 30 Minuten alt und seine Einheit aus der eigenen hydrodaten-Grafik der Station bestätigt ist. Veraltete, ungültige und einheitenlose Werte bleiben prüfbar, steuern aber weder Abschnitt noch Schätzung.</div>
+    </section>
+
+    <section id="quality">
+      <h2>Wasserqualität: Messungen, kein Urteil</h2>
+      <p>Die Qualitätsebene enthält den vollständigen aktuellen aufbereiteten NAWA-TREND-Bestand: <span class="num">1'543'996</span> publizierte Resultate an <span class="num">144</span> Fliessgewässer-Messstellen von 2011 bis 2024. Die <span class="num">724</span> Parameter-Einheiten-Reihen bleiben getrennt. Derselbe Stoff in einer anderen Einheit wird nicht stillschweigend zusammengeführt.</p>
+      <p>Die Landesansicht stellt jeweils eine enge Frage: ein Parameter, eine Einheit, ein Jahr. Eine gefüllte Raute ist der Median der quantifizierten Resultate dieser Messstelle in diesem Jahr. Eine hohle Raute bedeutet: beprobt, aber jedes gültige Resultat lag unter der Bestimmungsgrenze. Eine blasse ungefüllte Raute bedeutet: für diese Auswahl nicht beprobt. Werte unter der Grenze sind zensierte Beobachtungen, nicht null; sie werden gezählt und nie in den Median hineingeschätzt. Fehlende Werte bleiben fehlend.</p>
+      <p>Die Farben sind über die Jahre vergleichbar. Jeder Parameter verwendet einen festen Bereich aus dem 5., 50. und 95. Perzentil aller Messstellen-Jahresmediane der Ausgabe; weite positive Bereiche verwenden eine logarithmische Skala. Werte ausserhalb behalten die Farbe des Endpunkts. Die Skala zeigt die Verteilung der Messungen. Sie ist weder Zustandsklasse noch Gesamtindex noch rechtlicher Grenzwert.</p>
+      <p>Kein Stationswert wird entlang eines Flusses verteilt und keine Lücke interpoliert. Beim Öffnen einer Messstelle liest der Browser die exakten Zeilen aus der öffentlichen BAFU-API: Probenfenster und -typ, Messwert, Bestimmungs- und Nachweisgrenzen, Verfahren, Unsicherheit und Laborbemerkung. Die gebaute Jahreszusammenfassung bleibt verfügbar, falls dieser Live-Abruf scheitert.</p>
+      <div class="flag"><b>Vor der rechtlichen Schlussfolgerung steht die Messung.</b> Ob ein Resultat das Gewässerschutzrecht erfüllt, hängt von der richtigen parameterspezifischen Anforderung, Probendauer, Wassernutzung, Methode und Rechtslage ab. Die Karte färbt eine Messstelle deshalb nicht wegen eines «Verstosses» rot. Sie bewahrt die Evidenz für diese Beurteilung und verlinkt die amtliche Quelle.</div>
+      <p class="fine">NAWA ist ein nationales Langzeitprogramm für Fliessgewässer. Es ersetzt dichtere kantonale Messnetze nicht; diese Ebene deckt weder Seen noch den biologischen Zustand noch einen ungemessenen Abschnitt ab. Siehe <a href="sources.html#table">Quelle, Lizenz und Datenstand</a>.</p>
     </section>
 
     <section id="evidence">
@@ -208,12 +221,12 @@
         <li>Die <b>Stauanlagen</b> sind Bauwerke: 225 davon unter Bundesaufsicht, jede mit dem Volumen, das ihr Speicher bei Vollfüllung fasst. Das ist eine feste Eigenschaft und wird als solche gezeichnet, über die Fläche.</li>
         <li>Der <b>Füllungsgrad</b> ist eine Wochenzahl in Gigawattstunden &mdash; gespeicherter Strom, nicht gespeichertes Wasser &mdash; publiziert für vier Regionen und für nichts Kleineres, seit dem 3. Januar 2000.</li>
       </ul>
-      <div class="flag">Die Ebene kann deshalb sagen, was ein Speicher bei Vollfüllung fasst, und sie kann sagen, wie voll eine Region in dieser Woche ist. <b>Sie kann nicht sagen, wie voll die Grande Dixence heute ist.</b> Das publiziert niemand. Die Tönung einer Scheibe ist der Stand ihrer Region, auf jede Anlage dieser Region gleich angewendet, und die Legende sagt es auf ihrer eigenen Vorderseite.</div>
+      <div class="flag">Die Ebene zeigt für jeden Speicher das Volumen bei Vollstau und den wöchentlichen Füllungsgrad seiner Region. <b>Den aktuellen Stand der Grande Dixence oder einer anderen einzelnen Sperre kann sie nicht zeigen.</b> Die Quelle berichtet vier Regionen; deshalb erhält jede Sperre einer Region dieselbe Farbe.</div>
     </section>
 
     <section id="wetlands">
       <h2>Geschützte Feuchtgebiete</h2>
-      <p>Fünf Bundesinventare, und sie stehen aus einem Grund auf einer Wasserkarte, der nicht der ist, dass sie feucht sind. Jede Verordnung fasst ihr Schutzziel in Begriffen des Wassers. Die <b>Auenverordnung</b> verlangt, dass die natürliche Dynamik des Wasser- und Geschiebehaushalts erhalten bleibt &mdash; eine Pflicht darüber, wie viel Wasser wann durchgeht. Ein Moor stirbt, wenn der Wasserspiegel sinkt. Das sind Orte, an denen eine Wassermenge bereits Gegenstand einer Bundespflicht ist, gezeichnet auf derselben Fläche wie die Menge selbst.</p>
+      <p>Fünf Bundesinventare gehören auf diese Karte, weil ihre Schutzziele vom Wasser abhängen. Die <b>Auenverordnung</b> verlangt, die natürliche Dynamik von Wasser und Geschiebe zu erhalten. Moore hängen von ihrem Wasserstand ab. Die Karte stellt diese Pflichten neben das Wasser, das sie schützen.</p>
       <div class="tWrap"><table>
         <thead><tr><th>Inventar</th><th>Objekte</th><th class="num">km²</th><th>Schutz</th></tr></thead>
         <tbody>
@@ -263,7 +276,7 @@
           <tr><td>Niederschlag, Schnee, Boden</td><td>Nicht kartiert</td><td>Gemessener Niederschlag, Schneewasseräquivalent und Bodenfeuchte</td></tr>
           <tr><td>Eis</td><td>Sechs Flächeninventare</td><td>Jährliche Massenbilanz und Volumen</td></tr>
           <tr><td>Grundwasser und Quellen</td><td>Nur Kontext der Grundwasserkörper</td><td>NAQUA-Stände, Quellschüttung und Neubildung</td></tr>
-          <tr><td>Flüsse und Seen</td><td>Aktuelle Stationsbeobachtungen auf einem Modellnetz</td><td>Kleine Gewässer, Geschiebe, NAWA-Qualität und Seeprofile</td></tr>
+          <tr><td>Flüsse und Seen</td><td>Aktuelle Stationsbeobachtungen auf einem Modellnetz; NAWA-TREND-Laborresultate 2011–2024</td><td>Kleine Gewässer, Geschiebe, kantonale Qualitätsdaten, Seeprofile und biologischer Zustand</td></tr>
           <tr><td>Speicherung</td><td>Stauanlagen und regional gespeicherte Energie</td><td>Füllstände einzelner Speicher und Seespeicherung</td></tr>
           <tr><td>Nutzung und Rücklauf</td><td>Vier historische Register</td><td>Sektormengen, Überleitungen, Rückläufe und aktuelle Bewilligungen</td></tr>
           <tr><td>Rechtlicher Schutz</td><td>Restwasser, Feuchtgebiete und Schutzzonen</td><td>Konzessionen, Ablauf, Anordnungen, Vollzug und kantonale Entscheide</td></tr>
@@ -274,7 +287,7 @@
 
     <section id="limits">
       <h2>Was diese Karte nicht kann</h2>
-      <p>Das Nützlichste, was sie für ein Dossier tut, ist enger und verlässlicher als ein Beweis: Sie sagt Ihnen, welches Register alt ist, welche Menge niemand publiziert und auf welchem Abschnitt die Frage tatsächlich liegt. Hier ist die andere Seite davon.</p>
+      <p>Die Karte beweist keinen Fall. Sie bezeichnet den betroffenen Abschnitt, das Alter jedes Registers und die Mengen, die in offenen Bundesdaten fehlen. Es folgen ihre Grenzen.</p>
       <ul>
         <li><b>Sie ist keine vollständige Darstellung des Schweizer Wassers.</b> Die Tabelle oben ist der Entwicklungsplan, nicht der behauptete Inhalt der heutigen Karte.</li>
         <li><b>Sie erfasst nicht jedes Gewässer.</b> HydroRIVERS lässt viele kleine oder trockene Oberläufe aus; das Fehlen auf dieser Karte bedeutet kein Fehlen vor Ort.</li>
@@ -282,7 +295,7 @@
         <li><b>Sie kann Ihnen die Kühlwassermenge oder die Wärmelast eines Kernkraftwerks nicht sagen.</b> Kein offener Bundesdatensatz publiziert das eine oder das andere. Diese Zahlen stehen in der kantonalen Konzession und in der Berichterstattung der Betreiber selbst.</li>
         <li><b>Sie kann Ihnen nicht sagen, wie voll ein einzelner benannter Speichersee ist.</b> Siehe oben.</li>
         <li><b>Sie kann keine Kausalität begründen.</b> Die Gletscherinventare und die Speicherreihe sind starke Beweise für eine Zustandsänderung. Sie sind für sich allein kein Beweis dafür, dass eine bestimmte Partei sie verursacht hat. Die Zurechnung ist eine eigene Frage und braucht eigene Quellen.</li>
-        <li><b>Sie kann keine Verletzung feststellen.</b> Eine Angabe hier ist eine Tatsache über einen Fluss. Der Schritt zur Feststellung ist Sache der Juristin, und er braucht die Konzession, die Bewilligung und den Ort.</li>
+        <li><b>Sie kann keinen Verstoss feststellen.</b> Ein Datum hier ist eine Tatsache über ein Gewässer. Der Schritt zur rechtlichen Feststellung gehört der juristischen Beurteilung und braucht die anwendbare Anforderung, das Probendesign, die Konzession, die Bewilligung und den Ort.</li>
       </ul>
     </section>
 
@@ -306,9 +319,14 @@
           <tr><td class="n">11</td><td>Die sechsundzwanzig kantonalen Lieferdaten</td><td><b>wöchentlich</b></td></tr>
           <tr><td class="n">12</td><td>Die fünf Bundesinventare geschützter Feuchtgebiete</td><td><b>wöchentlich</b></td></tr>
           <tr><td class="n">13</td><td>Die vier Meereseinzugsgebiete, ihre Anteile, Messstellen und ihr Eis</td><td>von Hand</td></tr>
+          <tr><td class="n">14</td><td>Die Publikation in fünf Sprachen</td><td>bei jeder Ausgabe</td></tr>
+          <tr><td class="n">15</td><td>Das Vorschaubild für soziale Medien</td><td>von Hand</td></tr>
+          <tr><td class="n">16</td><td>Maschinenlesbare Quellenprovenienz</td><td><b>wöchentlich</b></td></tr>
+          <tr><td class="n">17</td><td>Der Wasserqualitätsdatensatz NAWA TREND</td><td><b>wöchentlich</b></td></tr>
+          <tr><td class="n">18</td><td>Das Audit kantonaler Monitoringnachweise</td><td><b>wöchentlich</b></td></tr>
         </tbody>
       </table></div>
-      <p class="fine">Vier Schritte laufen jeden Montag in der kontinuierlichen Integration, und ihre Ausgabe wird eingecheckt; so bleibt das Repository und nicht bloss die Auslieferung der Nachweis. Schritt 11 muss vor Schritt 8 laufen, weil das Alter der Schutzzonen die älteste kantonale Lieferung ist und Schritt 8 sie liest. Schritt 10 ist mit Absicht nicht automatisiert: swissNAMES3D ist eine Jahresausgabe von rund 32&nbsp;MB und wird von Hand neu gebaut, wenn eine neue erscheint. Schritt 13 liest nur die Schritte 01 bis 04 und ist deterministisch; er wird deshalb neu gebaut, wenn diese es werden, und nicht nach der Uhr. Schritt 8 läuft ausserdem bei jedem Besuch der Quellenseite im Browser mit, sodass ein Datenstand, der sich zwischen zwei Montagen verschoben hat, auf dem Bildschirm korrigiert wird und nicht auf einen Build wartet.</p>
+      <p class="fine">Die Montagsaktualisierung baut Messstellen, Speicher, kantonale Daten, Feuchtgebiete, Wasserqualität, Monitoringnachweise, Quellenalter und Provenienz neu; danach prüft und versioniert sie das Ergebnis. Jährliche Namen und deterministische Einzugsgebietsgeometrie werden neu gebaut, wenn sich ihre Eingaben ändern. Die Quellenseite prüft Bundesdatenstände auch im Browser, sodass sich ein Datum zwischen geplanten Builds aktualisieren kann.</p>
     </section>
 
     <p><a class="toMapBig" href="./"><svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg> Zurück zur Karte</a></p>

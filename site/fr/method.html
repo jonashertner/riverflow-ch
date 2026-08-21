@@ -7,7 +7,7 @@
 <meta name="description" content="Chaque couche de la carte suisse de l’eau et de la glace, la jointure qui la sous-tend, la classe de preuve à laquelle elle appartient, et l’endroit où chaque chaîne se rompt. Y compris comment lire la carte elle-même.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0d0d0d">
-<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/fr/method.html">
+<link rel="canonical" href="https://opengovclimate.ch/riverflow/fr/method.html">
 <link rel="alternate" hreflang="en" href="../method.html">
 <link rel="alternate" hreflang="de" href="../de/method.html">
 <link rel="alternate" hreflang="fr" href="method.html">
@@ -19,8 +19,8 @@
 <meta property="og:description" content="Chaque couche de la carte suisse de l’eau et de la glace, la jointure qui la sous-tend, la classe de preuve à laquelle elle appartient, et l’endroit où chaque chaîne se rompt. Y compris comment lire la carte elle-même.">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="L’eau et la glace en Suisse">
-<meta property="og:url" content="https://jonashertner.github.io/riverflow-ch/fr/method.html">
-<meta property="og:image" content="https://jonashertner.github.io/riverflow-ch/og-image.jpg">
+<meta property="og:url" content="https://opengovclimate.ch/riverflow/fr/method.html">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -29,8 +29,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="../tokens.css?v=20260821">
-<link rel="stylesheet" href="../site.css?v=20260821">
+<link rel="stylesheet" href="../tokens.css?v=20260821b">
+<link rel="stylesheet" href="../site.css?v=20260821b">
 <script src="../i18n.js?v=20260821"></script>
 <script src="../i18n-data.js?v=20260821"></script>
 <script src="../theme.js?v=20260821"></script>
@@ -68,6 +68,7 @@
       <li><a href="#network">Le réseau</a></li>
       <li><a href="#basins">Où va l’eau</a></li>
       <li><a href="#live">La lecture en direct</a></li>
+      <li><a href="#quality">Qualité de l’eau</a></li>
       <li><a href="#evidence">Trois classes de preuve</a></li>
       <li><a href="#estimate">Estimer un tronçon</a></li>
       <li><a href="#names">Les noms</a></li>
@@ -85,29 +86,31 @@
     <header class="docHead">
       <p class="eyebrow">Méthode</p>
       <h1>Comment cette carte est faite, et comment la lire</h1>
-      <p class="lede">Chaque chiffre de cette carte est le bout d’une chaîne : un registre fédéral, une jointure, une projection, une inférence. Cette page parcourt chaque chaîne dans l’ordre où la carte la parcourt, et dit <b>où chacune se rompt</b>.</p>
+      <p class="lede">Chaque chiffre termine une chaîne de données sources, jointures, projection et inférence. Cette page explique chaque couche, sa lecture et <b>la limite de sa preuve</b>.</p>
       <p class="dateline">Les chiffres structurels sont vérifiés à chaque publication contre les données enregistrées. Une valeur en direct n’est acceptée par station que si son heure, sa valeur et son unité respectent les règles ci-dessous.</p>
     </header>
 
     <section id="reading">
       <h2>Lire la carte</h2>
-      <p>La carte dessine un seul pays de huit manières. Les couches sont groupées selon la question à laquelle elles répondent et non selon l’office qui les publie, car la question est ce avec quoi un lecteur arrive.</p>
+      <p>La carte montre un pays de dix façons. Les couches suivent la question du lecteur, non l’office qui les publie.</p>
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Couche</th><th scope="col">La question à laquelle elle répond</th><th scope="col">D’après quoi elle est dessinée</th></tr></thead>
         <tbody>
           <tr><td><b>Débit</b></td><td>Combien d’eau s’écoule maintenant ?</td><td>187 séries fédérales de débit ; seules des mesures actuelles et valides alimentent 8 711 tronçons</td></tr>
           <tr><td><b>Face à la normale</b></td><td>Est-ce beaucoup ou peu pour ce cours d’eau ?</td><td>Aujourd’hui face à une moyenne de longue durée modélisée. Non citable, et la couche le dit</td></tr>
           <tr><td><b>Température</b></td><td>Où le plafond de 25&nbsp;°C est-il en jeu ?</td><td>Les stations équipées d’un thermomètre, face à l’annexe&nbsp;2 ch.&nbsp;12 al. 4 OEaux</td></tr>
+          <tr><td><b>Qualité de l’eau</b></td><td>Qu’a-t-on mesuré ici, pour quelle substance et quand ?</td><td>Chaque résultat de laboratoire de la version préparée NAWA TREND actuelle, conservé à sa station</td></tr>
           <tr><td><b>Retenues</b></td><td>Combien d’eau est retenue, et à quel point la retenue est-elle pleine ?</td><td>225 barrages sous surveillance fédérale, et une série hebdomadaire de remplissage depuis 2000</td></tr>
           <tr><td><b>Glace</b></td><td>Qu’a perdu la glace, et à quelle vitesse ?</td><td>Six inventaires glaciaires datés, de 1850 à 2023</td></tr>
           <tr><td><b>Débit résiduel</b></td><td>Que donne le calcul de l’art.&nbsp;31, al.&nbsp;1 ?</td><td>1 041 points Q<sub>347</sub> publiés ; illustration, non détermination cantonale</td></tr>
           <tr><td><b>Usages de l’eau</b></td><td>Qui prélève de l’eau, et qui y apporte de la chaleur ?</td><td>Quatre registres fédéraux : force hydraulique, prélèvements, sites nucléaires, stations d’épuration</td></tr>
+          <tr><td><b>Zones humides</b></td><td>Quels lieux dépendant de l’eau bénéficient d’une protection fédérale ?</td><td>Cinq inventaires fédéraux, représentés en conservant leur classe juridique et leur identité d’inventaire</td></tr>
           <tr><td><b>Ressources en eau</b></td><td>D’où vient l’eau ?</td><td>Corps d’eaux souterraines, têtes de bassin, sous-bassins versants et les zones de protection en vigueur</td></tr>
         </tbody>
       </table></div>
 
-      <h3>Pointer, et ce qui revient</h3>
-      <p>Pointez n’importe quelle eau et la carte la nomme et dit ce qu’elle porte, avec la classe de preuve à laquelle ce chiffre appartient. Cliquez ou touchez, et la lecture complète s’ouvre : le débit, la moyenne de longue durée, la part qu’il en représente, le bassin versant amont, et une phrase qui dit en mots simples sur quoi repose le chiffre. Défilez ou pincez pour zoomer ; faites glisser pour déplacer. La barre d’adresse conserve la couche et la vue : un lien vers un cours d’eau est donc un lien vers ce cours d’eau.</p>
+      <h3>Sélectionner l’eau</h3>
+      <p>Survolez l’eau pour voir son nom, sa valeur et sa classe de preuve. Sélectionnez-la pour le dossier complet : débit, moyenne à long terme, débit relatif, bassin amont et base du chiffre. Faites défiler ou pincez pour zoomer ; faites glisser pour déplacer. L’adresse conserve couche et vue, de sorte qu’un lien copié revient au même endroit.</p>
       <p>Les noms vivent sur le pointeur plutôt que sur le plan. Une étiquette sur une carte doit bien être <em>quelque part</em>, et tous les endroits où elle peut aller sont déjà pris : sur l’eau elle cache l’eau, à côté de l’eau elle est dans le canton voisin, écartée sur le côté elle tombe sous la légende. Attacher le nom à la lecture ne coûte rien, n’entre en collision avec rien, et a l’avantage que le nom obtenu est le nom du tronçon sur lequel vous avez posé la question. Les lacs et les glaciers gardent leurs noms sur le plan, car un nom de lac se tient dans une forme qui est la sienne et ne concurrence rien.</p>
 
       <h3>Le temps, et l’interrupteur qui dépouille la carte</h3>
@@ -137,6 +140,16 @@
       <p>Le débit, le niveau et la température de l’eau proviennent du réseau de mesure de l’Office fédéral de l’environnement, interrogé via LINDAS, le service fédéral de données liées, par une seule requête SPARQL contre le graphe <code>&lt;https://lindas.admin.ch/foen/hydro&gt;</code>. La série fédérale est mise à jour environ toutes les dix minutes et la page la relit à ce rythme, tant qu’elle est l’onglet regardé. Un onglet masqué cesse de demander et, au retour, laisse s’écouler ce qui reste du rythme. Le bouton force une lecture à tout moment.</p>
       <p>Le fichier compte <span class="num">233</span> stations uniques ; <span class="num">227</span> sont rattachées à un tronçon. <span class="num">187</span> donnent un débit sur <span class="num">173</span> tronçons. L’unité de cinq stations de débit n’est pas vérifiable ; au plus <span class="num">168</span> tronçons peuvent donc être acceptés comme mesurés.</p>
       <div class="flag"><b>Règle d’acceptation.</b> La requête choisit l’horodatage le plus récent de chaque station. Le navigateur n’accepte un débit que s’il est fini, non négatif, vieux de 30 minutes au plus et doté d’une unité vérifiée dans le graphique hydrodaten de la station. Les valeurs anciennes, invalides ou sans unité restent consultables mais n’alimentent aucun tronçon ni estimation.</div>
+    </section>
+
+    <section id="quality">
+      <h2>Qualité de l’eau : des mesures, pas un verdict</h2>
+      <p>La couche qualité contient l’intégralité du relevé NAWA TREND préparé actuel : <span class="num">1'543'996</span> résultats publiés à <span class="num">144</span> stations de cours d’eau, de 2011 à 2024. Ses <span class="num">724</span> séries paramètre-unité restent séparées. Une même substance exprimée dans une autre unité n’est pas fusionnée silencieusement.</p>
+      <p>La vue nationale pose une seule question précise à la fois : un paramètre, une unité, une année. Un losange plein est la médiane des résultats quantifiés de cette station cette année-là. Un losange vide signifie qu’elle a été échantillonnée mais que tous les résultats valides étaient sous la limite de quantification. Un losange pâle non rempli signifie qu’elle ne l’a pas été pour cette sélection. Les valeurs sous la limite sont des observations censurées, non des zéros ; elles sont comptées et jamais imputées dans la médiane. Les valeurs manquantes restent manquantes.</p>
+      <p>Les couleurs sont comparables entre années. Chaque paramètre utilise une plage fixe tirée des 5e, 50e et 95e percentiles de toutes les médianes station-année de la version ; les grandes plages positives utilisent une échelle logarithmique. Les valeurs au-delà des bornes gardent la couleur de la borne. L’échelle montre la distribution des mesures. Ce n’est ni une classe d’état, ni un indice composite, ni un seuil juridique.</p>
+      <p>Aucune valeur de station n’est propagée le long d’un cours d’eau et aucune lacune n’est interpolée. Ouvrez une station : le navigateur lit les lignes exactes dans l’API publique de l’OFEV — période et type d’échantillonnage, valeur, limites de quantification et de détection, méthode, incertitude et remarque du laboratoire. Le résumé annuel intégré reste disponible si cette lecture échoue.</p>
+      <div class="flag"><b>La mesure précède la conclusion juridique.</b> La conformité d’un résultat au droit de la protection des eaux dépend de l’exigence propre au paramètre, de la durée d’échantillonnage, de l’usage de l’eau, de la méthode et du contexte juridique. La carte ne colore donc pas une station en rouge pour « infraction ». Elle conserve les preuves nécessaires à cette appréciation et renvoie à la source officielle.</div>
+      <p class="fine">NAWA est un programme national à long terme pour les cours d’eau. Il ne remplace pas les réseaux cantonaux plus denses et cette couche ne couvre ni les lacs, ni l’état biologique, ni un tronçon non mesuré. Voir la <a href="sources.html#table">source, la licence et l’état des données</a>.</p>
     </section>
 
     <section id="evidence">
@@ -208,12 +221,12 @@
         <li>Les <b>barrages</b> sont des ouvrages : 225 d’entre eux sous surveillance fédérale, chacun avec le volume que sa retenue contient à pleine retenue. C’est une propriété fixe et elle est dessinée comme telle, par la surface.</li>
         <li>Le <b>taux de remplissage</b> est un chiffre hebdomadaire en gigawattheures — électricité stockée, non eau stockée — publié pour quatre régions et pour rien de plus petit, depuis le 3 janvier 2000.</li>
       </ul>
-      <div class="flag">Cette couche peut donc dire ce qu’une retenue contient à pleine retenue, et elle peut dire à quel point une région est remplie cette semaine. <b>Elle ne peut pas dire à quel point la Grande Dixence est remplie aujourd’hui.</b> Personne ne le publie. La teinte d’un disque est le niveau de sa région, appliqué à l’identique à chaque barrage de cette région, et la légende le dit sur sa propre face.</div>
+      <div class="flag">La couche montre le volume à pleine capacité de chaque retenue et le remplissage hebdomadaire de sa région. <b>Elle ne peut pas montrer le niveau actuel de la Grande Dixence ni d’un autre barrage individuel.</b> La source publie quatre régions ; chaque barrage d’une région reçoit donc la même couleur.</div>
     </section>
 
     <section id="wetlands">
       <h2>Zones humides protégées</h2>
-      <p>Cinq inventaires fédéraux, et ils figurent sur une carte de l’eau pour une raison qui n’est pas qu’ils sont humides. Chaque ordonnance énonce son but de protection en termes d’eau. L’<b>ordonnance sur les zones alluviales</b> exige que la dynamique naturelle du régime des eaux et du charriage soit conservée — un devoir portant sur la quantité d’eau qui passe et sur le moment où elle passe. Un marais meurt si le niveau de la nappe baisse. Ce sont des lieux où une quantité d’eau fait déjà l’objet d’un devoir fédéral, dessinés sur la même toile que la quantité elle-même.</p>
+      <p>Cinq inventaires fédéraux figurent sur cette carte parce que leurs objectifs de protection dépendent de l’eau. L’<b>ordonnance sur les zones alluviales</b> exige de préserver la dynamique naturelle de l’eau et des sédiments. Les marais dépendent de leur nappe. La carte place ces obligations auprès de l’eau qu’elles protègent.</p>
       <div class="tWrap"><table>
         <thead><tr><th>Inventaire</th><th>Objets</th><th class="num">km²</th><th>Protection</th></tr></thead>
         <tbody>
@@ -263,7 +276,7 @@
           <tr><td>Précipitations, neige, sol</td><td>Non cartographié</td><td>Précipitations observées, équivalent en eau de la neige et humidité du sol</td></tr>
           <tr><td>Glace</td><td>Six inventaires de surface</td><td>Bilan de masse annuel et volume</td></tr>
           <tr><td>Eaux souterraines et sources</td><td>Contexte des masses d’eau souterraine seulement</td><td>Niveaux NAQUA, débit des sources et recharge</td></tr>
-          <tr><td>Cours d’eau et lacs</td><td>Observations actuelles aux stations sur un réseau modélisé</td><td>Petits cours d’eau, sédiments, qualité NAWA et profils lacustres</td></tr>
+          <tr><td>Cours d’eau et lacs</td><td>Observations actuelles aux stations sur un réseau modélisé ; résultats de laboratoire NAWA TREND, 2011–2024</td><td>Petits cours d’eau, sédiments, qualité cantonale, profils lacustres et état biologique</td></tr>
           <tr><td>Stockage</td><td>Barrages et énergie stockée par région</td><td>Niveaux des retenues nommées et stockage lacustre</td></tr>
           <tr><td>Usages et retours</td><td>Quatre registres historiques</td><td>Volumes sectoriels, transferts, retours et autorisations actuelles</td></tr>
           <tr><td>Protection juridique</td><td>Débits résiduels, zones humides et zones de protection</td><td>Concessions, échéance, décisions, exécution et décisions cantonales</td></tr>
@@ -274,7 +287,7 @@
 
     <section id="limits">
       <h2>Ce que cette carte ne peut pas faire</h2>
-      <p>Ce qu’elle fait de plus utile pour un dossier est plus étroit et plus fiable qu’une preuve : elle vous dit quel registre est vieux, quelle quantité personne ne publie, et sur quel tronçon la question se pose réellement. Voici l’autre face de cela.</p>
+      <p>La carte ne prouve pas un dossier. Elle identifie le tronçon concerné, l’âge de chaque registre et les quantités absentes des données fédérales ouvertes. Voici ses limites.</p>
       <ul>
         <li><b>Ce n’est pas un tableau complet de l’eau en Suisse.</b> Le tableau ci-dessus est la feuille de route du développement, non un contenu revendiqué par la carte actuelle.</li>
         <li><b>Elle ne couvre pas tous les cours d’eau.</b> HydroRIVERS omet de nombreuses petites têtes de bassin ou têtes sèches ; l’absence sur cette carte ne signifie pas l’absence sur le terrain.</li>
@@ -282,7 +295,7 @@
         <li><b>Elle ne peut pas vous dire le volume de refroidissement ni la charge thermique d’une centrale nucléaire.</b> Aucun jeu de données ouvertes de la Confédération ne publie l’un ou l’autre. Ces chiffres se trouvent dans la concession cantonale et dans les rapports des exploitants eux-mêmes.</li>
         <li><b>Elle ne peut pas vous dire à quel point une retenue nommée est remplie.</b> Voir plus haut.</li>
         <li><b>Elle ne peut pas établir la causalité.</b> Les inventaires glaciaires et la série des retenues sont une preuve forte d’un changement d’état. Ils ne sont pas, à eux seuls, la preuve qu’une partie nommée l’a causé. L’attribution est une question distincte qui exige des sources distinctes.</li>
-        <li><b>Elle ne peut pas constater une violation.</b> Une donnée ici est un fait sur un cours d’eau. Le pas vers une constatation appartient au juriste, et il exige la concession, l’autorisation et le lieu.</li>
+        <li><b>Elle ne peut constater une infraction.</b> Une donnée est ici un fait sur un cours d’eau. Le passage à une constatation relève de l’analyse juridique et exige la norme applicable, le plan d’échantillonnage, la concession, l’autorisation et le site.</li>
       </ul>
     </section>
 
@@ -306,9 +319,14 @@
           <tr><td class="n">11</td><td>Les vingt-six dates de livraison cantonales</td><td><b>hebdomadaire</b></td></tr>
           <tr><td class="n">12</td><td>Les cinq inventaires fédéraux de zones humides protégées</td><td><b>hebdomadaire</b></td></tr>
           <tr><td class="n">13</td><td>Les quatre bassins maritimes, leurs parts, stations et glace</td><td>à la main</td></tr>
+          <tr><td class="n">14</td><td>La publication en cinq langues</td><td>à chaque version</td></tr>
+          <tr><td class="n">15</td><td>L’image d’aperçu social</td><td>à la main</td></tr>
+          <tr><td class="n">16</td><td>Provenance des sources lisible par machine</td><td><b>hebdomadaire</b></td></tr>
+          <tr><td class="n">17</td><td>Le dossier de qualité de l’eau NAWA TREND</td><td><b>hebdomadaire</b></td></tr>
+          <tr><td class="n">18</td><td>L’audit des preuves de suivi cantonal</td><td><b>hebdomadaire</b></td></tr>
         </tbody>
       </table></div>
-      <p class="fine">Quatre étapes tournent chaque lundi dans l’intégration continue et leur sortie est commitée : le dépôt, et non seulement le déploiement, reste ainsi le relevé. L’étape 11 doit tourner avant l’étape 8, parce que l’âge des zones de protection est la plus ancienne livraison cantonale et que l’étape 8 la lit. L’étape 10 n’est délibérément pas automatisée : swissNAMES3D est une édition annuelle d’environ 32&nbsp;MB et elle est reconstruite à la main quand une nouvelle paraît. L’étape 13 ne lit que les étapes 01 à 04 et est déterministe : elle est donc reconstruite quand elles le sont et non à l’horloge. L’étape 8 s’exécute en outre dans le navigateur à chaque visite de la page des sources, de sorte qu’un état des données qui a bougé entre deux lundis est corrigé à l’écran sans attendre une compilation.</p>
+      <p class="fine">L’actualisation du lundi reconstruit stations, retenues, dates cantonales, zones humides, qualité de l’eau, preuves de suivi, ancienneté des sources et provenance ; elle vérifie puis enregistre le résultat. Les noms annuels et la géométrie déterministe des bassins sont reconstruits lorsque leurs entrées changent. La page des sources vérifie aussi les états fédéraux dans le navigateur, afin qu’une date puisse évoluer entre deux builds planifiés.</p>
     </section>
 
     <p><a class="toMapBig" href="./"><svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg> Retour à la carte</a></p>
