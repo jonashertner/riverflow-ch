@@ -1,0 +1,37 @@
+name: Scientific or data review
+description: Report a measurement, source, method, unit, geography or coverage issue.
+title: "[Data] "
+labels: [data, review]
+body:
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is wrong or missing?
+      description: Name the layer, station, reach or place and the smallest claim affected.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Primary source
+      description: Link to the official dataset, paper or documentation.
+    validations:
+      required: true
+  - type: input
+    id: state
+    attributes:
+      label: Source version or data state
+    validations:
+      required: true
+  - type: textarea
+    id: check
+    attributes:
+      label: Reproducible check
+      description: Include identifiers, units, expected values or steps where possible.
+  - type: dropdown
+    id: evidence
+    attributes:
+      label: Evidence class
+      options: [Measurement, Survey, Register, Model output, Inference, Unsure]
+    validations:
+      required: true

@@ -113,6 +113,7 @@ async function drawSpine() {
   for (const s of v.sources) {
     s.name = D(s.name); s.holder = D(s.holder); s.cadence = D(s.cadence);
     s.cls = D(s.cls); s.note = D(s.note); s.licence = D(s.licence);
+    for (const link of s.links ?? []) link.label = D(link.label);
   }
   const day = 86400000;
 
@@ -171,14 +172,20 @@ async function drawSpine() {
           <th scope="col">${T('src.thSource')}</th><th scope="col">${T('src.thClass')}</th>
           <th scope="col">${T('src.thState')}</th><th scope="col">${T('src.thAge')}</th>
         </tr></thead>
-        <tbody>${rows.map(s => `<tr>
+        <tbody>${rows.map(s => {
+          const links = (s.links?.length ? s.links : [{ label: T('src.linkSource'), url: s.url }])
+            .filter(link => link?.url)
+            .map(link => `<a href="${esc(link.url)}" target="_blank" rel="noopener">${esc(link.label)}</a>`)
+            .join(' · ');
+          return `<tr>
           <td><b>${esc(s.name)}</b><br>${esc(s.holder)} · ${esc(s.cadence)}${
-            s.url ? ` · <a href="${esc(s.url)}" target="_blank" rel="noopener">${T('src.linkSource')}</a>` : ''}
+            links ? ` · ${links}` : ''}
             <br><span class="fine">${esc(s.note)} ${T('src.licence', { l: esc(s.licence ?? T('src.seeSource')) })}</span></td>
           <td>${esc(s.cls)}</td>
           <td class="n">${s.datenstand ? fmtDate(s.datenstand) : s.live ? T('src.readLive') : T('src.notStated')}</td>
           <td class="n">${s.live ? T('src.live') : s.datenstand ? ageText(s.ageDays) : '—'}</td>
-        </tr>`).join('')}</tbody></table>`;
+        </tr>`;
+        }).join('')}</tbody></table>`;
     }
 
     const built = document.getElementById('vintageBuilt');

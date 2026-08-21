@@ -39,16 +39,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Rebuild the reservoir series, the cantonal dates, the wetland inventories and the vintage audit
+      - name: Refresh federal stations, reservoirs, cantonal dates, wetlands and source states
         id: build
-        continue-on-error: true
         run: |
+          node build/01-stations.mjs
           node build/06-reservoirs.mjs
           node build/11-cantons.mjs
           node build/12-wetlands.mjs
           node build/08-vintage.mjs
+          node build/16-provenance.mjs
+          node scripts/verify-site.mjs
       - name: Commit if anything moved
-        if: steps.build.outcome == 'success'
+        if: success()
         run: |
           if git diff --quiet -- site/data; then
             echo "no change this week"
@@ -57,17 +59,16 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add site/data
-          git commit -m "Weekly refresh: reservoir series, cantonal deliveries, source vintages"
+          git commit -m "Weekly refresh: stations, reservoirs and source states"
           git push
       - name: Say so if the refresh failed
-        if: steps.build.outcome != 'success'
+        if: failure()
         run: |
-          echo "::warning::The weekly data refresh failed. The site still deploys" \
-               "with the previously baked files, which now carry an older date."
+          echo "::error::The weekly data refresh or evidence validation failed. Nothing will deploy."
   deploy:
     needs: [refresh, validate]
     # Runs on a push too, where refresh is skipped.
-    if: always() && needs.validate.result == 'success'
+    if: always() && needs.validate.result == 'success' && (needs.refresh.result == 'success' || needs.refresh.result == 'skipped')
     runs-on: ubuntu-latest
     environment:
       name: github-pages

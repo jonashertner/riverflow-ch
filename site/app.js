@@ -69,7 +69,7 @@ let glaciers = null;          // {glaciers[], pastRings[], length[], now, past}
 let users = null;             // {hydro[], abstraction[], npp[], ara[]}, each point in world coords
 let reservoirs = null;        // {dams[], totals, fill{weeks[], envelope[], max, latest}}
 let residual = null;          // {points[], counts, datenstand}
-let iceFrames = null;         // five dated states, each with a Path2D in world coords
+let iceFrames = null;         // six dated states, each with a Path2D in world coords
 let vintage = null;           // what every source is and how old it is
 const useOn = { hydro: true, abstraction: true, npp: true, ara: true };
 
@@ -177,8 +177,9 @@ let reaches = [];          // {id,next,main,ord,upland,mean,px[],py[], live, est
 let lakes = [], border = [];
 let byId = new Map();
 let stations = [];         // {id,name,lon,lat,factor,reach,meanQ,...}
-let gaugeByReach = new Map();
+let gaugeByReach = new Map();        // reach id -> every station snapped there
 let liveStamp = null;
+let liveSummary = { current: 0, stale: 0, invalid: 0, unit: 0 };
 let liveTimer = null, liveBackoff = 0, lastTry = 0;
 let hovered = null;        // {kind:'reach'|'station', ref}
 let selected = null;
@@ -215,7 +216,14 @@ async function load() {
   });
   byId = new Map(reaches.map((r, i) => [r.id, i]));
   stations = st.stations;
-  for (const s of stations) if (s.reach !== undefined) gaugeByReach.set(s.reach, s);
+  for (const s of stations) {
+    if (s.reach === undefined) continue;
+    const list = gaugeByReach.get(s.reach);
+    if (list) list.push(s); else gaugeByReach.set(s.reach, [s]);
+  }
+  for (const list of gaugeByReach.values()) {
+    list.sort((a, b) => String(a.id).localeCompare(String(b.id), 'en', { numeric: true }));
+  }
   fit();
   updateEvidence();          // true from the first frame: before the live read every
                              // reach carries its long-term mean and nothing more
@@ -413,6 +421,11 @@ PREFIX h: <https://environment.ld.admin.ch/foen/hydro/dimension/>
 SELECT ?id ?time ?discharge ?level ?temp ?danger
 FROM <https://lindas.admin.ch/foen/hydro>
 WHERE {
+  {
+    SELECT ?st (MAX(?observedAt) AS ?time)
+    WHERE { ?latest h:station ?st ; h:measurementTime ?observedAt . }
+    GROUP BY ?st
+  }
   ?obs h:station ?st ; h:measurementTime ?time .
   OPTIONAL { ?obs h:discharge ?discharge }
   OPTIONAL { ?obs h:waterLevel ?level }
@@ -420,6 +433,61 @@ WHERE {
   OPTIONAL { ?obs h:dangerLevel ?danger }
   ?st schema:identifier ?id .
 }`;
+
+// "Live" is a data contract, not a description of the endpoint. BAFU publishes
+// these observations as raw and unvalidated, on a roughly ten-minute cadence.
+// Three cadences allow for ordinary telemetry delay without letting an old value
+// inherit the timestamp of a different station.
+const LIVE_MAX_AGE = 30 * 60 * 1000;
+const LIVE_FUTURE_TOLERANCE = 5 * 60 * 1000;
+const valueOf = binding => binding ? Number(binding.value) : null;
+
+function validateLive(now = Date.now()) {
+  const summary = { current: 0, stale: 0, invalid: 0, unit: 0 };
+  let newest = null;
+  for (const s of stations) {
+    const raw = s.rawObs;
+    s.q = null;
+    s.obs = null;
+    s.dischargeState = raw ? 'missing' : 'absent';
+    if (!raw) continue;
+
+    const at = Date.parse(raw.time ?? '');
+    const timed = Number.isFinite(at);
+    const fresh = timed && at <= now + LIVE_FUTURE_TOLERANCE && now - at <= LIVE_MAX_AGE;
+    // Level and temperature share the station timestamp. Stale values are not
+    // allowed to remain current merely because only discharge is being mapped.
+    s.obs = {
+      time: raw.time,
+      level: fresh && Number.isFinite(raw.level) ? raw.level : null,
+      temp: fresh && Number.isFinite(raw.temp) ? raw.temp : null,
+      danger: fresh && Number.isFinite(raw.danger) ? raw.danger : null,
+    };
+
+    if (raw.q === null) continue;
+    if (!fresh) {
+      s.dischargeState = timed && at <= now + LIVE_FUTURE_TOLERANCE ? 'stale' : 'invalid-time';
+      summary[s.dischargeState === 'stale' ? 'stale' : 'invalid']++;
+      continue;
+    }
+    if (!Number.isFinite(raw.q) || raw.q < 0) {
+      s.dischargeState = 'invalid-value';
+      summary.invalid++;
+      continue;
+    }
+    if (!Number.isFinite(s.factor)) {
+      s.dischargeState = 'unknown-unit';
+      summary.unit++;
+      continue;
+    }
+    s.q = raw.q * s.factor;
+    s.dischargeState = 'current';
+    summary.current++;
+    if (!newest || raw.time > newest) newest = raw.time;
+  }
+  liveStamp = newest;
+  liveSummary = summary;
+}
 
 // The cube publishes every ten minutes; a map left open used to show whatever it
 // read on load until somebody pressed the button, so a reading could be hours old
@@ -442,24 +510,20 @@ async function refresh(auto = false) {
     const obs = new Map();
     for (const b of rows) {
       const id = b.id.value;
-      obs.set(id, {
+      const next = {
         time: b.time?.value ?? null,
-        q: b.discharge ? +b.discharge.value : null,
-        level: b.level ? +b.level.value : null,
-        temp: b.temp ? +b.temp.value : null,
+        q: valueOf(b.discharge),
+        level: valueOf(b.level),
+        temp: valueOf(b.temp),
         danger: b.danger && /\/(\d)$/.test(b.danger.value) ? +RegExp.$1 : null,
-      });
+      };
+      const previous = obs.get(id);
+      if (!previous || String(next.time) > String(previous.time)) obs.set(id, next);
     }
-    let newest = null;
     for (const s of stations) {
-      const o = obs.get(s.id);
-      s.obs = o ?? null;
-      // The LINDAS cube gives no usable unit, so the factor comes from the
-      // station's own plot axis, resolved at build time. Nine gauges read in l/s.
-      s.q = o && o.q !== null ? o.q * s.factor : null;
-      if (o?.time && (!newest || o.time > newest)) newest = o.time;
+      s.rawObs = obs.get(s.id) ?? null;
     }
-    liveStamp = newest;
+    validateLive();
     liveBackoff = 0;
     applyLive();
     stampText();
@@ -468,8 +532,11 @@ async function refresh(auto = false) {
     // A failed automatic re-read must not wipe a good reading off the screen. The
     // last one that arrived is still the best the page has; what changes is that it
     // is now ageing, and stampText says so once it outlives its own cadence.
-    if (auto) { stampText(); }
-    else { document.getElementById('stamp').textContent = T('m.liveFail', { e: e.message }); updateEvidence(); }
+    validateLive();
+    applyLive();
+    invalidate(); dirtyAlloc = true;
+    if (auto) stampText();
+    else document.getElementById('stamp').textContent = T('m.liveFail', { e: e.message });
     liveBackoff = Math.min(liveBackoff ? liveBackoff * 2 : 60000, LIVE_CADENCE);
   } finally {
     if (!auto) { btn.disabled = false; btn.textContent = T('m.refresh'); }
@@ -505,28 +572,24 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* Anomaly propagation. ratio = measured / long-term mean at the gauge's own reach.
- * A reach inherits the ratio of the first gauge found walking downstream. Where the
- * walk leaves the country before it meets a gauge, the national median stands in. */
+ * A reach inherits the first downstream gauge, or the closest connected gauge on
+ * any upstream branch. This is an indicative spatial scaling, not a mass balance. */
 function applyLive() {
   const ratio = new Map();
-  const ratios = [];
-  for (const s of stations) {
-    if (s.reach === undefined || s.q === null || !s.meanQ) continue;
+  const currentGauge = new Map();
+  for (const [reach, list] of gaugeByReach) {
+    const valid = list.filter(s => s.dischargeState === 'current' && s.q !== null)
+      .sort((a, b) => String(b.rawObs?.time).localeCompare(String(a.rawObs?.time)) ||
+        (a.snapKm ?? Infinity) - (b.snapKm ?? Infinity) ||
+        String(a.id).localeCompare(String(b.id), 'en', { numeric: true }));
+    if (valid.length) currentGauge.set(reach, valid[0]);
+  }
+  for (const [reach, s] of currentGauge) {
+    if (!s.meanQ) continue;
     const rr = s.q / s.meanQ;
     if (!isFinite(rr) || rr <= 0) continue;
-    ratio.set(s.reach, rr);
-    ratios.push(rr);
+    ratio.set(reach, rr);
   }
-  ratios.sort((a, b) => a - b);
-
-  // children of each reach, biggest tributary first
-  const kids = new Map();
-  for (const r of reaches) {
-    if (!byId.has(r.next)) continue;
-    const a = kids.get(r.next);
-    if (a) a.push(r); else kids.set(r.next, [r]);
-  }
-  for (const a of kids.values()) a.sort((x, y) => y.upland - x.upland);
 
   const seek = (start, step) => {
     let cur = start, guard = 0;
@@ -537,18 +600,30 @@ function applyLive() {
     return null;
   };
   const down = r => { const i = byId.get(r.next); return i === undefined ? null : reaches[i]; };
-  const up = r => (kids.get(r.id) ?? [null])[0];
+  // For reaches with no gauge below, consider every upstream branch. Propagating
+  // each gauge downstream once finds the closest connected upstream gauge without
+  // silently ignoring a second-largest tributary at a confluence.
+  const upstream = new Map();
+  for (const [id, rr] of ratio) {
+    let cur = reaches[byId.get(id)], dist = 0, guard = 0;
+    while (cur && guard++ < 600) {
+      const old = upstream.get(cur.id);
+      if (!old || dist < old.dist || (dist === old.dist && id < old.id)) upstream.set(cur.id, { rr, dist, id });
+      dist += cur.len;
+      cur = down(cur);
+    }
+  }
 
   for (const r of reaches) {
-    const g = gaugeByReach.get(r.id);
-    if (g && g.q !== null && g.q !== undefined) { r.live = g.q; r.est = false; r.basis = 'measured'; continue; }
+    const g = currentGauge.get(r.id);
+    r.gauge = g ?? null;
+    if (g) { r.live = g.q; r.est = false; r.basis = 'measured'; continue; }
     r.est = true;
-    // A reach takes the anomaly of the first gauge downstream, because that is the
-    // water it will become. Failing that, of the largest gauged river above it.
-    // Failing both, it has no basis: it is drawn as unknown, not guessed.
+    // Prefer the first gauge downstream. Failing that, use the closest connected
+    // upstream gauge across all tributaries. With neither, show no current basis.
     let rr = seek(r, down);
     let basis = rr === null ? null : 'downstream';
-    if (rr === null) { rr = seek(r, up); basis = rr === null ? null : 'upstream'; }
+    if (rr === null) { rr = upstream.get(r.id)?.rr ?? null; basis = rr === null ? null : 'upstream'; }
     if (rr === null) { r.live = r.mean; r.basis = 'none'; }
     else { r.live = r.mean * rr; r.basis = basis; }
   }
@@ -584,15 +659,17 @@ function updateEvidence() {
 
 function stampText() {
   const el = document.getElementById('stamp');
-  if (!liveStamp) { el.textContent = T('m.noLive'); return; }
+  if (!liveStamp) {
+    const rejected = liveSummary.stale + liveSummary.invalid + liveSummary.unit;
+    el.textContent = rejected ? T('m.noValidLive', { n: rejected }) : T('m.noLive');
+    return;
+  }
   const d = new Date(liveStamp);
   const t = fmtStamp(d);
-  const n = stations.filter(s => s.q !== null && s.q !== undefined).length;
-  // Silence while the reading is current is the right silence: a timestamp inside
-  // its own cadence needs no gloss. Past two cadences the re-read is not arriving,
-  // and then the age is the thing the reader needs, not the hour of the reading.
-  const behind = Math.round((Date.now() - d.getTime()) / 60000);
-  el.textContent = behind > 20 ? T('m.stampStale', { n, t, a: lagText(behind) }) : T('m.stamp', { n, t });
+  const excluded = liveSummary.stale + liveSummary.invalid + liveSummary.unit;
+  el.textContent = excluded
+    ? T('m.stampExcluded', { n: liveSummary.current, t, x: excluded })
+    : T('m.stamp', { n: liveSummary.current, t });
 
   const withT = stations.filter(s => s.obs?.temp !== null && s.obs?.temp !== undefined);
   const c = document.getElementById('tempCount');
@@ -1249,8 +1326,10 @@ function tip(mx, my) {
   } else if (hovered.kind === 'station') {
     const s = hovered.ref;
     tt.innerHTML = `<div class="tName">${esc(s.name)}</div>` +
-      `<div class="tVal">${s.q !== null && s.q !== undefined ? fmtQ(s.q) + ' m³/s' : T('m.noDischargeSeries')}</div>` +
-      `<div class="tEst">${T('m.bafuGauge', { id: esc(s.id) })}</div>`;
+      `<div class="tVal">${s.q !== null && s.q !== undefined ? fmtQ(s.q) + ' m³/s' : T('m.sUnavailable')}</div>` +
+      `<div class="tEst">${s.dischargeState === 'current'
+        ? T('m.bafuGauge', { id: esc(s.id) })
+        : T(`m.state.${s.dischargeState}`)}</div>`;
   } else {
     const r = hovered.ref;
     const nm = nameOf(r);
@@ -1393,9 +1472,10 @@ function select(h, moveFocus = false) {
   }
 
   if (h.kind === 'station') {
-    const s = h.ref, o = s.obs ?? {};
+    const s = h.ref, o = s.obs ?? {}, raw = s.rawObs ?? {};
     titleEl.textContent = s.name;
-    let html = row(T('m.sDischarge'), fmtQ(s.q), 'm³/s');
+    let html = row(T('m.sDischarge'), s.q === null ? T('m.sUnavailable') : fmtQ(s.q), s.q === null ? '' : 'm³/s');
+    if (raw.time) html += row(T('m.sObserved'), fmtStamp(new Date(raw.time)), '');
     if (s.meanQ) html += row(T('m.sMean'), fmtQ(s.meanQ), 'm³/s');
     if (s.q !== null && s.q !== undefined && s.meanQ) html += row(T('m.sShare'), nf(100 * s.q / s.meanQ), '%');
     if (o.level !== null && o.level !== undefined) html += row(T('m.sLevel'), nfd(o.level, 2), 'm');
@@ -1433,11 +1513,12 @@ function select(h, moveFocus = false) {
       }
       document.getElementById('panelExtra').innerHTML = extra;
     }
-    N.innerHTML = T('m.sNote', {
-      unit: esc(s.unit ?? T('m.sUnstated')),
-      conv: s.factor !== 1 ? T('m.sConverted') : '',
-      km: s.snapKm === undefined || s.snapKm === null ? '?' : nfd(s.snapKm, 2),
-    });
+    N.innerHTML = s.dischargeState === 'current'
+      ? T('m.sNote', {
+        unit: esc(s.unit), conv: s.factor !== 1 ? T('m.sConverted') : '',
+        km: s.snapKm === undefined || s.snapKm === null ? '?' : nfd(s.snapKm, 2),
+      })
+      : T('m.sRejected', { reason: T(`m.state.${s.dischargeState}`) });
   } else {
     const r = h.ref;
     const nm = nameOf(r);
@@ -2131,8 +2212,8 @@ function pickWetland(mx, my) {
 const wetSheet = o => (o.pdf && wetlands ? wetlands.inventories[o.k].sheet + o.pdf : null);
 
 /* ===========================================================================
-   ICE, FIVE SURVEYS
-   1850, 1931, 1973, 2010, 2023. The intervals are 81, 42, 37 and 13 years, and
+   ICE, SIX SURVEYS
+   1850, 1931, 1973, 2010, 2016, 2023. The intervals are 81, 42, 37, 6 and 7 years, and
    the ribbon holds each frame for its own interval, so the acceleration is in
    the motion and not only in the caption. Between two surveys the outline is
    interpolated by dissolve, which is honest about there being no measurement in
@@ -2225,7 +2306,7 @@ function drawIce() {
    THE TIME RIBBON
    Empty on the layers that describe only now. On the layers that describe a
    change it carries the record itself: twenty-six years of weekly filling, or
-   five glacier surveys on a real time axis. It is a chart and a control at once,
+   six glacier surveys on a real time axis. It is a chart and a control at once,
    and the map is bound to its playhead.
    =========================================================================== */
 const RESNOTE = T('m.resNote');
@@ -2836,7 +2917,7 @@ async function loadNames() {
 
    swissNAMES3D places a label, not a river. The Aare is written sixteen times
    across a map of Switzerland and the water between the writings is anonymous,
-   so an index built from the anchors alone names 1,691 of 8,716 reaches and a
+   so an index built from the anchors alone names 1,691 of 8,711 reaches and a
    reader pointing between two labels is told nothing about a river they can see
    is the Aare.
 
@@ -3068,7 +3149,8 @@ function drawPlaces() {
    nothing else. The rest of the network goes, the four archival layers go, and
    what is left is the country as it is measured rather than as it is modelled.
 
-   It is meant to be uncomfortable. 171 reaches out of 8,716 survive it.
+   It is meant to be uncomfortable. At most 168 of 8,711 reaches survive it,
+   and only while their observations pass the live-data contract.
    =========================================================================== */
 const ARCHIVAL = {
   res:      T('m.archRes'),

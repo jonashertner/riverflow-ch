@@ -82,7 +82,7 @@
       <p class="lede">Switzerland is upstream of four European sea basins, and almost everything
         published about that water is inference over registers that are years old. The inference is
         unavoidable. <b>Hiding it is not.</b></p>
-      <p class="dateline">Last revised <b>19.08.2026</b>. Prior art checked the same day, by fetching rather than from memory.</p>
+      <p class="dateline">Last revised <b>21.08.2026</b>. Prior art was checked by fetching, not from memory.</p>
     </header>
 
     <section id="europe">
@@ -193,12 +193,12 @@
 
     <section id="what">
       <h2>What this is</h2>
-      <p>A live map of Swiss water and ice, built as a base dataset for legal work on climate. It
-        draws the discharge of 8'716 river reaches from the federal gauging network, the water
-        temperature of every gauge that carries a thermometer against the statutory ceiling, the
-        storage of 225 dams against twenty-six years of their own record, the area of Swiss
-        glaciers across five dated inventories running back to 1850, and the 3'211 objects of the
-        five federal inventories of protected wetland.</p>
+      <p>The goal is to understand water through its whole cycle and the law protecting its essential
+        pathways: precipitation, snow and ice, soil, groundwater, rivers, lakes, storage, use, return
+        flows and water leaving Switzerland. The purpose is practical: protect wetlands and these
+        pathways, and support evidence-led legal action when protection is not enforced. This release
+        is the surface-water foundation. It joins current river observations, reservoir history,
+        glacier inventories, water-use registers and protected wetland on one map.</p>
       <p>The organising idea is not the drawing. It is this: <b>every figure states its class of
         evidence and its age.</b> A reading from a gauge and an inference from a register two
         decades old are both on the screen, and they are never allowed to look alike. The bar at the
@@ -208,11 +208,9 @@
 
     <section id="who">
       <h2>Who it is for</h2>
-      <p>Anyone who has to know where a number came from before they can use it. In practice that
-        is three groups, and the site is arranged so that each can get to what it needs in one
-        click: a litigator who needs to know which register governs a reach and how old it is; a
-        journalist who needs a figure that will survive being checked; and anyone who wants to see
-        what has happened to the ice.</p>
+      <p>Anyone who must know where a number came from before using it: scientists, lawyers,
+        journalists, public authorities and communities living with the water. The repository is
+        public and contributions from scientific and legal reviewers are invited.</p>
       <p>It is also, deliberately, an argument aimed at the people who publish the underlying data:
         that a data state belongs on the face of a layer, not three clicks away in metadata.</p>
     </section>
@@ -223,8 +221,8 @@
         registers of water use and the glacier inventories all exist as official federal layers,
         and the official products are authoritative. Two things are added.</p>
       <ul>
-        <li><b>Propagation onto the network.</b> The federal map draws 199 points. This one draws
-          8'716 reaches and states which of three bases each one has.</li>
+        <li><b>Propagation onto the network.</b> The federal source publishes station points. This
+          map draws 8'711 unique reaches and states which of three evidence classes each one has.</li>
         <li><b>One canvas, and one reading.</b> Flow and use and law are never on a single surface
           federally; they are separate toggles in separate products.</li>
         <li><b>The overlaps, stated.</b> 415 reaches here run through an alluvial zone of national
@@ -261,7 +259,7 @@
         live layers change by the minute and the baked ones change weekly.</p>
       <div class="cite-box">Water and ice in Switzerland. riverflow-ch.<br>
         https://jonashertner.github.io/riverflow-ch/<br>
-        Read <span data-today>19.08.2026</span>.</div>
+        Read <span data-today>21.08.2026</span>.</div>
       <p class="fine">A permanent link to a particular river and layer is the address bar: the map
         writes the layer and the view into the URL, so copying it copies the view.</p>
     </section>
@@ -292,10 +290,10 @@
       <p>Built by Jonas Hertner. The source is on
         <a href="https://github.com/jonashertner/riverflow-ch">GitHub</a>, including every build
         script and the reasoning behind the numbers that had to be tuned.</p>
-      <p>No framework, no build step for the page itself, no dependencies in the data pipeline
-        beyond Node. Two canvases: the base map redraws when the view or the data changes, and the
+      <p>The static publication uses Bash, Node and pinned mapshaper for its data build. Two canvases:
+        the base map redraws when the view or the data changes, and the
         current runs on its own canvas at sixty frames a second over the top, so 3'200 particles
-        never force a redraw of 8'716 reaches.</p>
+        never force a redraw of 8'711 reaches.</p>
       <p>Type is set in three registers, one per kind of statement. Prose is Archivo. Every measured
         figure is IBM Plex Mono with tabular figures, so that a column of readings lines up and a
         number never has to be read as a word. Anything the law requires is Source Serif 4 in a warm

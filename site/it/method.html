@@ -75,6 +75,7 @@
       <li><a href="#reservoirs">I bacini</a></li>
       <li><a href="#wetlands">Zone umide protette</a></li>
       <li><a href="#pictures">Immagini, e dati</a></li>
+      <li><a href="#cycle">Copertura del ciclo dell’acqua</a></li>
       <li><a href="#limits">Che cosa non può fare</a></li>
       <li><a href="#build">Come viene ricostruita</a></li>
     </ol>
@@ -85,7 +86,7 @@
       <p class="eyebrow">Metodo</p>
       <h1>Come è fatta questa carta, e come leggerla</h1>
       <p class="lede">Ogni cifra di questa carta sta alla fine di una catena: un registro federale, un collegamento, una proiezione, un’inferenza. Questa pagina percorre ogni catena nell’ordine in cui la percorre la carta, e dice <b>dove ciascuna si rompe</b>.</p>
-      <p class="dateline">Scritto sul build del <b>19.08.2026</b>. Le cifre indicate come strutturali sono contate dai file di dati stessi e cambiano solo quando una fonte viene ricostruita.</p>
+      <p class="dateline">I dati strutturali sono verificati a ogni pubblicazione rispetto ai dati registrati. Un valore in diretta è accettato per stazione solo se tempo, valore e unità superano le regole seguenti.</p>
     </header>
 
     <section id="reading">
@@ -94,12 +95,12 @@
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Livello</th><th scope="col">La domanda cui risponde</th><th scope="col">Da che cosa è disegnato</th></tr></thead>
         <tbody>
-          <tr><td><b>Portata</b></td><td>Quanta acqua si muove, proprio adesso?</td><td>236 stazioni della Confederazione, lette ogni dieci minuti, propagate su 8716 tratti</td></tr>
+          <tr><td><b>Portata</b></td><td>Quanta acqua scorre ora?</td><td>187 serie federali di portata; solo misure attuali e valide alimentano 8'711 tratti</td></tr>
           <tr><td><b>Contro la norma</b></td><td>È molto o poco per questo fiume?</td><td>Oggi contro una media pluriennale modellata. Non citabile, e il livello lo dice</td></tr>
           <tr><td><b>Temperatura</b></td><td>Dove è in gioco il limite di 25&nbsp;°C?</td><td>Le stazioni che portano un termometro, contro l’OPAc allegato&nbsp;2 n.&nbsp;12 cpv.&nbsp;4</td></tr>
           <tr><td><b>Bacini</b></td><td>Quanta acqua è trattenuta, e quanto è pieno?</td><td>225 sbarramenti sotto vigilanza federale, e una serie settimanale di riempimento dal 2000</td></tr>
-          <tr><td><b>Ghiaccio</b></td><td>Che cosa ha perso il ghiaccio, e quanto in fretta?</td><td>Cinque inventari glaciali datati, dal 1850 al 2023</td></tr>
-          <tr><td><b>Deflusso residuale</b></td><td>Che cosa esigerebbe la legge in questo alveo?</td><td>1041 punti Q<sub>347</sub> pubblicati, con il minimo dell’art.&nbsp;31 cpv.&nbsp;1 calcolato</td></tr>
+          <tr><td><b>Ghiaccio</b></td><td>Che cosa ha perso il ghiaccio, e quanto in fretta?</td><td>Sei inventari glaciali datati, dal 1850 al 2023</td></tr>
+          <tr><td><b>Deflusso residuale</b></td><td>Cosa dà il calcolo dell’art.&nbsp;31 cpv.&nbsp;1?</td><td>1'041 punti Q<sub>347</sub> pubblicati; illustrazione, non determinazione cantonale</td></tr>
           <tr><td><b>Usi dell’acqua</b></td><td>Chi preleva acqua, e chi immette calore?</td><td>Quattro registri federali: forza idrica, prelievi, siti nucleari, impianti di depurazione</td></tr>
           <tr><td><b>Risorse idriche</b></td><td>Da dove viene l’acqua?</td><td>Corpi d’acqua sotterranea, tratti sorgentizi, sottobacini e le zone di protezione in vigore</td></tr>
         </tbody>
@@ -110,13 +111,13 @@
       <p>I nomi vivono sul puntatore e non sulla superficie. Un’etichetta su una carta deve pur stare <em>da qualche parte</em>, e ogni posto in cui può andare è già occupato: sopra l’acqua nasconde l’acqua, accanto all’acqua sta nel cantone vicino, spostata di lato finisce sotto la legenda. Attaccare invece il nome alla lettura non costa nulla, non collide con nulla e ha il vantaggio che il nome che si ottiene è il nome del tratto di cui si è chiesto. Laghi e ghiacciai tengono i loro nomi sulla superficie, perché il nome di un lago sta dentro una forma che è sua e non fa concorrenza a nulla.</p>
 
       <h3>Il tempo, e l’interruttore che spoglia la carta</h3>
-      <p>Due livelli descrivono un cambiamento e non uno stato, e ricevono un nastro del tempo: i bacini percorrono ventisei anni di riempimento settimanale, il ghiaccio percorre cinque rilievi tenuti nei loro intervalli reali di 81, 42, 37 e 13 anni. Prema riproduci, o trascini il cursore.</p>
-      <p><b>Solo dati in diretta</b> è l’interruttore che vale la pena conoscere. Toglie tutto ciò che oggi non è misurato: spariscono i quattro livelli d’archivio, e con essi gli 8545 tratti la cui cifra è un’inferenza. Restano 171 tratti e le stazioni che riferiscono su di essi. Deve essere scomodo, ed è l’immagine più onesta di questo sito.</p>
+      <p>Due livelli descrivono un cambiamento anziché uno stato e hanno un nastro temporale: gli invasi percorrono 26 anni di riempimento settimanale, il ghiaccio sei rilievi distanziati di 81, 42, 37, 6 e 7 anni. Avvia o trascina il cursore.</p>
+      <p><b>Solo dati in diretta</b> rimuove ogni stima e livello d’archivio. Ciò che resta cambia con il flusso: un tratto rimane solo finché la stazione scelta ha una portata finita e non negativa, un’unità verificata e un’osservazione vecchia al massimo di 30 minuti.</p>
     </section>
 
     <section id="network">
       <h2>La rete</h2>
-      <p>Le linee dei fiumi sono HydroRIVERS v1.0, la rete idrografica di HydroSHEDS, ritagliata sulla Svizzera e sui tratti con un bacino di 5&nbsp;km² o più. Restano <span class="num">8716</span> tratti, ciascuno con un identificatore, il tratto immediatamente a valle, un ordine di Strahler, una superficie del bacino a monte e una portata media pluriennale modellata.</p>
+      <p>Le linee fluviali sono HydroRIVERS v1.0, ritagliate sulla Svizzera e poi filtrate a 5&nbsp;km² di bacino a monte. La fonte include i corsi d’acqua solo da 10&nbsp;km² di bacino o 0,1&nbsp;m³/s di portata media modellata. Non è quindi un inventario completo dei corsi da 5–10&nbsp;km². L’estratto ha <span class="num">8'711</span> tratti unici con identificatore, tratto immediatamente a valle, ordine di Strahler, bacino a monte e portata media di lungo periodo modellata.</p>
       <p><b>È una geometria modellata e non il livello dei corsi d’acqua della Confederazione.</b> HydroRIVERS è un prodotto globale derivato da un modello digitale del terreno, ed è generalizzato assai più grossolanamente di una carta topografica svizzera: un solo tratto può tagliare un’ansa che il fiume reale percorre, e due alvei distanti 200&nbsp;m possono essere una linea sola. Alla scala del Paese ciò è invisibile. Alla scala della valle è il motivo per cui una linea non sta esattamente dove sta l’acqua, ed è il motivo per cui il collegamento dei nomi descritto più sotto ha il tipo di errore che ha.</p>
       <p>La carta è disegnata in Web Mercator, che è anche la proiezione in cui rispondono i servizi WMS della Confederazione: lo sfondo facoltativo del rilievo e quello della carta grigia, e le quattro sovrapposizioni delle risorse idriche non hanno dunque bisogno di riproiezione; il rettangolo sullo schermo è chiesto nelle coordinate in cui già si trova.</p>
     </section>
@@ -134,26 +135,26 @@
     <section id="live">
       <h2>La lettura in diretta</h2>
       <p>Portata, livello e temperatura dell’acqua provengono dalla rete di misurazione dell’Ufficio federale dell’ambiente, interrogata tramite LINDAS, il servizio linked data della Confederazione, con una sola richiesta SPARQL contro il grafo <code>&lt;https://lindas.admin.ch/foen/hydro&gt;</code>. La serie federale è aggiornata all’incirca ogni dieci minuti e la pagina la rilegge con questa cadenza, finché è la scheda che si sta guardando. Una scheda nascosta smette di chiedere e, al ritorno, lascia scorrere ciò che resta della cadenza. Il pulsante forza una lettura in qualsiasi momento.</p>
-      <p>La risposta contiene <span class="num">236</span> stazioni. <span class="num">229</span> di esse si agganciano a un tratto di corso d’acqua, e cadono su <span class="num">208</span> tratti distinti, perché più di una stazione può stare sulla stessa linea modellata.</p>
-      <div class="flag"><b>Una trappola, ed è nei dati della Confederazione.</b> LINDAS pubblica per ogni stazione un contrassegno che dice se la serie di portata è in litri al secondo. Su ognuna delle 190 righe che lo portano, il contrassegno è sbagliato. L’unità è invece ricavata dalla serie osservata e dall’unità che essa dichiara, e il fattore di conversione di ogni stazione è mostrato nel pannello della stazione stessa: chi legge può così verificare il calcolo invece di fidarsene.</div>
+      <p>Il file contiene <span class="num">233</span> stazioni uniche; <span class="num">227</span> sono associate a un tratto. <span class="num">187</span> forniscono portata su <span class="num">173</span> tratti. Per cinque stazioni di portata l’unità non è verificabile; al massimo <span class="num">168</span> tratti possono quindi essere accettati come misurati.</p>
+      <div class="flag"><b>Regola di accettazione.</b> La query seleziona l’ora più recente per ogni stazione. Il browser accetta la portata solo se è finita, non negativa, vecchia al massimo di 30 minuti e con unità verificata dal grafico hydrodaten della stazione. I valori vecchi, non validi o con unità ignota restano ispezionabili ma non alimentano tratti né stime.</div>
     </section>
 
     <section id="evidence">
       <h2>Tre classi di prova</h2>
       <p>È questa l’affermazione che la carta fa su sé stessa, ed è la ragione per cui l’intero progetto esiste: <b>la maggior parte di ciò che vede è inferenza.</b> Ogni tratto sullo schermo appartiene esattamente a una di tre classi, e la barra in cima alla carta le conta dal disegno stesso a ogni lettura in diretta: non può quindi allontanarsi da ciò che è sullo schermo.</p>
       <div class="evPage">
-        <div class="evBar" role="img" aria-label="208 tratti misurati, 5010 stimati, 3498 senza base">
-          <span class="evMeasured" style="flex:208"></span>
-          <span class="evEstimated" style="flex:5010"></span>
-          <span class="evNone" style="flex:3498"></span>
+        <div class="evBar" role="img" aria-label="168 tratti idonei alla misura, 5'125 stimati, 3'418 senza base">
+          <span class="evMeasured" style="flex:168"></span>
+          <span class="evEstimated" style="flex:5125"></span>
+          <span class="evNone" style="flex:3418"></span>
         </div>
         <ul class="evKeys">
-          <li><i class="evMeasured"></i>Misurati &mdash; <span class="num">208</span> (2.4&#8201;%)</li>
-          <li><i class="evEstimated"></i>Stimati &mdash; <span class="num">5010</span> (57.5&#8201;%)</li>
-          <li><i class="evNone"></i>Senza base &mdash; <span class="num">3498</span> (40.1&#8201;%)</li>
+          <li><i class="evMeasured"></i>Tratto idoneo alla misura &mdash; <span class="num">168</span> (1,9&#8201;%)</li>
+          <li><i class="evEstimated"></i>Stima connessa &mdash; <span class="num">5'125</span> (58,8&#8201;%)</li>
+          <li><i class="evNone"></i>Nessuna base attuale &mdash; <span class="num">3'418</span> (39,2&#8201;%)</li>
         </ul>
       </div>
-      <p class="fine">Queste sono le cifre <b>strutturali</b>: come si divide la rete non appena si chiede quali tratti potrebbero mai portare una cifra misurata. Le cifre in diretta sulla carta sono più basse nella prima classe, di regola intorno a 171, perché non ogni stazione segnala una portata in ogni istante. La differenza fra le due merita essa stessa di essere conosciuta.</p>
+      <p class="fine">Sono limiti superiori strutturali, supponendo attuale ogni stazione di portata con unità verificata. La barra sulla carta è in diretta e normalmente più bassa.</p>
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Classe</th><th scope="col">Che cosa è la cifra</th><th scope="col">Che cosa regge</th></tr></thead>
         <tbody>
@@ -167,8 +168,8 @@
     <section id="estimate">
       <h2>Stimare un tratto</h2>
       <p>Un tratto non misurato riceve la sua cifra in un solo passo, e il passo è grossolano di proposito: una regola grossolana che si può dire in una frase è più facile da contestare di una raffinata che non si può dire.</p>
-      <p>Ogni stazione dà un’<em>anomalia</em>: ciò che misura adesso, diviso per la propria media pluriennale. Un tratto senza stazione prende l’anomalia del <b>primo tratto misurato a valle</b> di sé, perché quella è l’acqua che sta per diventare, e vi moltiplica la propria media pluriennale. In mancanza, prende l’anomalia del più grande fiume misurato a monte. In mancanza di entrambi, è senza base ed è disegnato come tale.</p>
-      <div class="aside">La media pluriennale usata qui è HydroRIVERS <code>DIS_AV_CMS</code>, che è <b>modellata</b> e non è la statistica federale. Ogni cifra che ne dipende — la stima, e l’intero livello <em>Contro la norma</em> — lo eredita. Il livello lo dice sulla propria faccia, e le parole recitano <b>non citabile</b>.</div>
+      <p>Ogni stazione accettata produce un’<em>anomalia</em>: la portata attuale divisa per la media di lungo periodo. Un tratto senza stazione prende l’anomalia del <b>primo tratto misurato a valle</b> e la moltiplica per la propria media di lungo periodo. In mancanza, prende la stazione connessa più vicina su qualsiasi ramo a monte. Senza entrambe non ha base.</p>
+      <div class="aside">La media di lungo periodo usata è <code>DIS_AV_CMS</code> di HydroRIVERS: un valore <b>modellato</b>, non una statistica di una stazione federale. La scala non modella deviazioni, accumulo o tempi di percorrenza e non impone il bilancio di massa alle confluenze. È un segnale direzionale, non una misura di portata o un indice di siccità.</div>
     </section>
 
     <section id="names">
@@ -183,7 +184,7 @@
         <li><b>Tre collocazioni prima di credere a un gruppo.</b> Un gruppo di tre o più prende il tratto più grande raggiunto da uno dei suoi punti di ancoraggio; un gruppo di uno o due prende il più piccolo. È ciò che impedisce all’Erzbach, scritto due volte accanto all’Aare, di rivendicare 10'706&nbsp;km² sulla forza di una sola collocazione caduta a 131&nbsp;m dall’asta principale.</li>
       </ul>
       <h3>Portare un nome lungo la propria acqua</h3>
-      <p>I soli punti di ancoraggio denominano 1691 tratti su 8716; un lettore che punta fra due collocazioni non saprebbe dunque nulla di un fiume che vede chiaramente essere l’Aare. Ogni nome è perciò portato lungo il proprio alveo, secondo la regola con cui i fiumi sono davvero denominati: <b>il socio di maggioranza tiene il nome</b>. Verso valle corre finché il tratto da cui viene fornisce ancora almeno la metà di ciò che scorre più sotto, e si ferma alla confluenza dove non lo fa più. Verso monte segue il ramo che porta più acqua e si ferma quando l’unica scelta rimasta è un affluente grande meno della metà. I nomi sono trattati dal più grande in giù e una pretesa già avanzata non è mai sovrascritta. Ciò porta il conto a <span class="num">3433</span> tratti.</p>
+      <p>I soli ancoraggi nominano 1'691 degli 8'711 tratti. Tra due posizioni persino l’Aare chiaramente visibile resterebbe senza nome. Ogni nome è quindi propagato lungo il proprio alveo secondo la regola reale: <b>il partner di maggioranza conserva il nome</b>. Verso valle continua finché il tratto d’origine fornisce almeno metà della portata successiva e termina alla confluenza dove non è più così. Verso monte segue il ramo con più acqua e termina quando resta soltanto un affluente inferiore alla metà. I nomi maggiori sono elaborati per primi e un’assegnazione esistente non viene mai sovrascritta. Il totale sale a <span class="num">3'433</span> tratti.</p>
       <h3>Negare il Reno a un ruscello</h3>
       <p>Un canale che corre a circa 200&nbsp;m da un’asta principale non si lascia distinguere da quel fiume in una rete generalizzata così grossolanamente, e l’aggancio non ha nulla da soppesare: entro 500&nbsp;m dall’Aare il repertorio ha scritto anche il Rothkanal, l’Erzbach e un Dorfbach, e nessuna etichetta Aare cade abbastanza vicino da opporsi. Nemmeno la conferma lo decide — il repertorio scrive il Reno sei volte in tutto il Paese e la Töss una.</p>
       <p>A deciderlo è il vocabolario del repertorio stesso. Un <i>Bach</i> è un ruscello, un <i>Riale</i> un ruscello di montagna, un <i>Kanal</i> un alveo scavato, un <i>Aalte Rii</i> e un <i>Vieux Rhône</i> sono corsi che il fiume ha lasciato. Nessuno di essi drena quattro cifre di Paese. A un nome che si dichiara piccolo è perciò <b>negato</b> un tratto sopra i 500&nbsp;km², e il tratto resta libero perché vi sia portato il nome dell’asta principale.</p>
@@ -193,9 +194,11 @@
 
     <section id="ice">
       <h2>Il ghiaccio</h2>
-      <p>Cinque inventari datati di GLAMOS — 1850, 1931, 1973, 2010 e 2023 — con i corpi del 2023 disegnati sopra i contorni del 1850: resta perciò a colori il ghiaccio che se n’è andato. La linea della lingua nel pannello di un ghiacciaio è la serie svizzera delle variazioni di lunghezza dei ghiacciai, misurata ogni autunno dagli anni 1880.</p>
+      <p>Sei inventari datati GLAMOS — 1850, 1931, 1973, 2010, 2016 e 2023. I corpi del 2023 sono disegnati sui contorni del 1850; resta colorato il ghiaccio scomparso. La linea della lingua nel pannello del ghiacciaio viene dalla serie Swiss Glacier Length Change, misurata ogni autunno dagli anni 1880.</p>
       <div class="aside"><b>Questa è superficie, non volume, e le due non si sono mosse insieme.</b> Negli ultimi decenni il ghiaccio si è assottigliato più in fretta di quanto si sia ritirato in pianta, perché un ghiacciaio perde spessore su tutta la sua superficie prima di perdere il proprio contorno. Le cifre di superficie su questa carta sono misurate. Ogni cifra di volume riportata è citata e proviene da lavori distinti, con metodi distinti.</div>
-      <p class="fine">Cinque rilievi eseguiti fra il 1850 e il 2023 sono cinque strumenti diversi: un rilievo alla tavoletta pretoriana, uno fotogrammetrico aereo e uno con laser da aereo non sono la stessa misura, e i contorni più antichi portano l’incertezza del proprio secolo. Ciò di cui la serie è prova forte è un cambiamento di stato, la sua entità e il suo momento.</p>
+      <div class="aside"><b>L’aumento apparente dal 2010 al 2016 è una discontinuità di metodo, non crescita del ghiaccio.</b> SGI2010 riporta 944,4&nbsp;km&#178;. GLAMOS ha constatato che applicare alle immagini del 2010 le regole di delimitazione successive dà circa 1'009&nbsp;km&#178;, anziché 944,4&nbsp;km&#178;. La carta conserva invariati entrambi gli inventari pubblicati e non tratta la differenza di 16,9&nbsp;km&#178; come cambiamento fisico. Si veda la <a href="https://doi.glamos.ch/pubs/glrep/glrep_141-142.pdf" target="_blank" rel="noopener">valutazione metodologica GLAMOS</a>.</div>
+      <p class="fine">I sei rilievi tra il 1850 e il 2023 usano strumenti e regole di delimitazione diversi: tavoletta pretoriana, fotogrammetria aerea e laser aviotrasportato non sono la stessa misura; i contorni antichi portano l’incertezza della loro epoca. La serie documenta il cambiamento di lungo periodo. Il segmento 2010–2016 non è un tasso.</p>
+      <p class="fine">Per funzionare bene sui telefoni, le sagome del 1931, 1973, 2010 e 2016 omettono i corpi inferiori a 0,05&nbsp;km&#178;. I totali li includono tutti. Le forme disegnate rappresentano rispettivamente il 98,7, 97,7, 98,1 e 98,7&nbsp;% della superficie inventariata.</p>
     </section>
 
     <section id="reservoirs">
@@ -234,7 +237,7 @@
       <p>I paesaggi palustri sono disegnati come contorno e mai riempiti. Sono contenitori, 875 km² di essi, e un riempimento seppellirebbe le torbiere attorno a cui sono disegnati.</p>
 
       <h3>Dove i due livelli cadono sulla stessa acqua</h3>
-      <div class="flag"><b>415 degli 8716 tratti di questa carta attraversano una zona golenale d’importanza nazionale.</b> Su quei tratti si incontrano due obblighi: l’art. 4 dell’ordinanza sulle zone golenali esige che sia conservata la dinamica naturale del regime delle acque, e l’art. 31 LPAc fissa un minimo per la quantità che resta nell’alveo dove l’acqua viene prelevata. Il livello dei deflussi residuali disegna il secondo. Questo disegna dove vale anche il primo. Chi passa sopra un tale tratto lo legge nella sua propria lettura, qualunque livello sia acceso.</div>
+      <div class="flag"><b>415 degli 8'711 tratti di questa carta attraversano una zona golenale d’importanza nazionale.</b> Vi si incontrano due obblighi: l’art. 4 dell’ordinanza sulle zone golenali esige di preservare la dinamica naturale del regime delle acque e l’art. 31 LPAc pone una soglia alla quantità lasciata nell’alveo. Il livello dei deflussi residuali mostra il secondo; questo mostra dove vale anche il primo. La scheda del tratto lo segnala con qualsiasi livello attivo.</div>
       <p class="fine">Un tratto conta come passante per una zona quando un vertice della sua linea cade dentro il confine della zona. È un criterio grossolano ed è la grossolanità giusta: la rete è generalizzata a un centinaio di metri, un criterio più fine risponderebbe dunque a una domanda che la geometria non regge. Individua la sovrapposizione; non la misura.</p>
 
       <h3>Che cosa è disegnato, e che cosa aspetta lo zoom</h3>
@@ -251,10 +254,30 @@
       <p class="fine">L’ombreggiatura è composta in modo diverso su ciascuna superficie, e la differenza non è un ornamento. Il rilievo di swissALTI3D è disegnato per il foglio bianco: grigio medio dove il terreno è piatto, cioè sulla maggior parte dell’immagine. Sulla superficie diurna resta come è disegnato ed è moltiplicato nella pagina: può quindi solo togliere luce, e il terreno piatto segna appena il foglio. Sulla superficie notturna è invertito e composto con <span class="num">lighten</span>: può quindi solo aggiungere luce; il terreno piatto ricade nel nero proprio della superficie e restano solo i pendii illuminati. Posato inalterato, farebbe del Paese una lastra grigia in un caso come nell’altro, e si porterebbe via il contrasto della rampa delle portate.</p>
     </section>
 
+    <section id="cycle">
+      <h2>Copertura del ciclo dell’acqua</h2>
+      <p>Il progetto mira a seguire l’acqua nell’intero ciclo e a individuare il diritto che protegge ogni percorso essenziale. Questa versione copre solo una parte della catena.</p>
+      <div class="tWrap"><table>
+        <thead><tr><th scope="col">Percorso</th><th scope="col">Copertura attuale</th><th scope="col">Prossimo passo</th></tr></thead>
+        <tbody>
+          <tr><td>Precipitazioni, neve, suolo</td><td>Non cartografato</td><td>Precipitazioni osservate, equivalente in acqua della neve e umidità del suolo</td></tr>
+          <tr><td>Ghiaccio</td><td>Sei inventari di superficie</td><td>Bilancio di massa annuale e volume</td></tr>
+          <tr><td>Acque sotterranee e sorgenti</td><td>Solo contesto dei corpi idrici sotterranei</td><td>Livelli NAQUA, portata delle sorgenti e ricarica</td></tr>
+          <tr><td>Corsi d’acqua e laghi</td><td>Osservazioni attuali alle stazioni su una rete modellata</td><td>Piccoli corsi d’acqua, sedimenti, qualità NAWA e profili lacustri</td></tr>
+          <tr><td>Accumulo</td><td>Sbarramenti ed energia immagazzinata per regione</td><td>Livelli dei singoli invasi e accumulo lacustre</td></tr>
+          <tr><td>Uso e restituzione</td><td>Quattro registri storici</td><td>Volumi settoriali, trasferimenti, restituzioni e permessi attuali</td></tr>
+          <tr><td>Protezione giuridica</td><td>Deflussi residuali, zone umide e zone di protezione</td><td>Concessioni, scadenza, ordini, esecuzione e decisioni cantonali</td></tr>
+          <tr><td>Oltre il confine</td><td>Contesto dei bacini marini e stazioni di frontiera</td><td>Osservazioni coordinate a valle e obblighi transfrontalieri</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
     <section id="limits">
       <h2>Che cosa questa carta non può fare</h2>
       <p>La cosa più utile che fa per un incarto è più stretta e più affidabile di una prova: le dice quale registro è vecchio, quale quantità nessuno pubblica e su quale tratto la domanda sta davvero. Ecco l’altra faccia.</p>
       <ul>
+        <li><b>Non è un quadro completo dell’acqua svizzera.</b> La tabella sopra è il percorso di sviluppo, non un contenuto che la carta attuale pretende di avere.</li>
+        <li><b>Non copre ogni corso d’acqua.</b> HydroRIVERS omette molte sorgenti piccole o asciutte; l’assenza da questa carta non significa assenza sul terreno.</li>
         <li><b>Non può dirle la data di scadenza di una concessione.</b> Per un prelievo esistente è quella data, e non il giorno d’oggi, a essere determinante. Sta nella concessione, e nessun set di dati aperti della Confederazione la porta.</li>
         <li><b>Non può dirle il volume di raffreddamento o il carico termico di una centrale nucleare.</b> Nessun set di dati aperti della Confederazione pubblica né l’uno né l’altro. Quelle cifre stanno nella concessione cantonale e nella rendicontazione degli esercenti stessi.</li>
         <li><b>Non può dirle quanto è pieno un singolo invaso nominato.</b> Si veda sopra.</li>
@@ -265,7 +288,7 @@
 
     <section id="build">
       <h2>Come viene ricostruita</h2>
-      <p>I dati sono cotti da una sequenza numerata di script senza dipendenze oltre a Node, ciascuno dei quali scrive un file in <code>site/data</code>. La numerazione è un ordine reale: i passi successivi leggono ciò che i precedenti hanno scritto.</p>
+      <p>La compilazione usa Bash, curl, unzip, Node e una versione fissata di mapshaper. Le fasi numerate scrivono in <code>site/data</code>; quelle successive leggono gli output precedenti.</p>
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Passo</th><th scope="col">Che cosa costruisce</th><th scope="col">Quando gira</th></tr></thead>
         <tbody>

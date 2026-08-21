@@ -266,11 +266,11 @@ Object.assign(DSTR, {
 
   // ---- the note under each source -----------------------------------------
   // What the source does not contain, which is the half a legend never states.
-  'The low-flow reference the Water Protection Act runs on. Its age is not simply a defect: Art. 4(h) defines Q347 as a ten-year average, and the decade the cantons worked from is the one in this file. It is the legally operative figure and an obsolete description of the river at the same time.': {
-    de: 'Der Niedrigwasser-Bezugswert, auf dem das Gewässerschutzgesetz beruht. Sein Alter ist nicht einfach ein Mangel: Art. 4 Bst. h GSchG definiert Q347 als Zehnjahresmittel, und das Jahrzehnt, mit dem die Kantone gearbeitet haben, ist jenes in dieser Datei. Es ist zugleich die rechtlich massgebende Zahl und eine überholte Beschreibung des Flusses.',
-    fr: 'La référence d’étiage sur laquelle repose la loi sur la protection des eaux. Son âge n’est pas simplement un défaut : l’art. 4, let. h LEaux définit le Q347 comme une moyenne décennale, et la décennie sur laquelle les cantons ont travaillé est celle de ce fichier. C’est à la fois le chiffre juridiquement déterminant et une description périmée de la rivière.',
-    it: 'Il riferimento di magra su cui poggia la legge sulla protezione delle acque. La sua età non è semplicemente un difetto: l’art. 4 lett. h LPAc definisce il Q347 come una media decennale, e il decennio su cui hanno lavorato i Cantoni è quello di questo file. È allo stesso tempo la cifra giuridicamente determinante e una descrizione superata del fiume.',
-    rm: 'La referenza da l’aua bassa sin la quala la lescha davart la protecziun da las auas sa basa. Sia vegliadetgna n’è betg simplamain in mancament: l’art. 4 lit. h LPAuas definescha il Q347 sco media da diesch onns, e la decada cun la quala ils chantuns han lavurà è quella en quest file. Quai è a medem temp la cifra giuridicamain determinanta ed ina descripziun surpassada dal flum.',
+  'A historical basis for determining Q347, not a binding site decision. Art. 4(h) defines Q347 as a ten-year average; BAFU says model values are rough estimates that generally need local measurement. The canton determines the adequate residual flow.': {
+    de: 'Eine historische Grundlage zur Bestimmung von Q347, kein verbindlicher Standortentscheid. Art. 4 Bst. h GSchG definiert Q347 als Zehnjahresmittel; das BAFU bezeichnet Modellwerte als grobe Schätzungen, die in der Regel örtlich gemessen werden müssen. Der Kanton bestimmt die angemessene Restwassermenge.',
+    fr: 'Une base historique pour déterminer le Q347, non une décision contraignante pour le site. L’art. 4, let. h LEaux définit le Q347 comme une moyenne décennale ; l’OFEV qualifie les valeurs modélisées d’estimations grossières qui doivent en général être mesurées localement. Le canton détermine le débit résiduel adéquat.',
+    it: 'Una base storica per determinare il Q347, non una decisione vincolante per il sito. L’art. 4 lett. h LPAc definisce il Q347 come media decennale; l’UFAM definisce i valori modellati stime grossolane che di regola richiedono una misura locale. Il Cantone determina il deflusso residuale adeguato.',
+    rm: 'Ina basa istorica per determinar Q347 e betg ina decisiun lianta per il lieu. L’art. 4 lit. h LPAuas definescha Q347 sco media da diesch onns; l’UFAM numna las valurs modeladas estimaziuns grossas che dovran per regla ina mesiraziun locala. Il chantun determinescha la quantitad adequata d’aua restanta.',
   },
   'The inventory the cantons filed under GSchG Art. 80 ff. A licence granted, changed or restored since the data state is not in it. It carries no volume.': {
     de: 'Das Inventar, das die Kantone nach Art. 80 ff. GSchG eingereicht haben. Eine Konzession, die seit dem Datenstand erteilt, geändert oder saniert wurde, steht nicht darin. Es trägt keine Menge.',
@@ -588,5 +588,29 @@ Object.assign(DSTR, {
     de: 'im üblichen Bereich', fr: 'dans la fourchette habituelle',
     it: 'nell’intervallo abituale', rm: 'en il diapason usità',
   },
+  // ---- component source links added to the complete source catalogue ------
+  'Six Swiss Glacier Inventories and glacier length change': {
+    de: 'Sechs Schweizer Gletscherinventare und Gletscherlängenänderung',
+    fr: 'Six inventaires des glaciers suisses et variation de longueur',
+    it: 'Sei inventari dei ghiacciai svizzeri e variazione della lunghezza',
+    rm: 'Sis inventaris dals glatschers svizzers e midada da lunghezza',
+  },
+  'The only live source on the page. LINDAS supplies observations and coordinates; hydrodaten station plots supply the discharge unit. The age of the last accepted reading is shown in the title bar.': {
+    de: 'Die einzige Livequelle der Seite. LINDAS liefert Beobachtungen und Koordinaten; die Stationsgrafiken von hydrodaten liefern die Abflusseinheit. Das Alter der letzten akzeptierten Messung steht in der Titelleiste.',
+    fr: 'La seule source en direct de la page. LINDAS fournit les observations et coordonnées ; les graphiques de station hydrodaten fournissent l’unité de débit. L’âge de la dernière mesure acceptée figure dans la barre de titre.',
+    it: 'L’unica fonte in diretta della pagina. LINDAS fornisce osservazioni e coordinate; i grafici di stazione hydrodaten forniscono l’unità di portata. L’età dell’ultima misura accettata appare nella barra del titolo.',
+    rm: 'La suletta funtauna live da la pagina. LINDAS furnescha observaziuns e coordinatas; ils diagrams da staziun da hydrodaten furneschan l’unitad dal debit. La vegliadetgna da l’ultima mesiraziun acceptada stat en la trav dal titel.',
+  },
+  'Six linked inventories describe 1850, 1931, 1973, 2010, 2016 and 2023; a seventh linked dataset supplies annual tongue-length change. The 2023 inventory was released in 2026 and describes acquisition years 2021–2024, centred on 2023.': {
+    de: 'Sechs verlinkte Inventare beschreiben 1850, 1931, 1973, 2010, 2016 und 2023; ein siebter verlinkter Datensatz liefert die jährliche Zungenlängenänderung. Das Inventar 2023 wurde 2026 veröffentlicht und beschreibt Aufnahmejahre 2021–2024 mit Schwerpunkt 2023.',
+    fr: 'Six inventaires liés décrivent 1850, 1931, 1973, 2010, 2016 et 2023 ; un septième jeu lié fournit la variation annuelle de longueur des langues. L’inventaire 2023 a été publié en 2026 et décrit des acquisitions de 2021–2024, centrées sur 2023.',
+    it: 'Sei inventari collegati descrivono il 1850, 1931, 1973, 2010, 2016 e 2023; un settimo set collegato fornisce la variazione annua della lunghezza delle lingue. L’inventario 2023 è stato pubblicato nel 2026 e descrive acquisizioni 2021–2024, centrate sul 2023.',
+    rm: 'Sis inventaris colliads descrivan 1850, 1931, 1973, 2010, 2016 e 2023; in settavel set collià furnescha la midada annuala da la lunghezza da las lieungas. L’inventari 2023 è vegnì publitgà il 2026 e descriva registraziuns 2021–2024 cun center 2023.',
+  },
+  'LINDAS observations': { de: 'LINDAS-Beobachtungen', fr: 'Observations LINDAS', it: 'Osservazioni LINDAS', rm: 'Observaziuns LINDAS' },
+  'hydrodaten station plots and units': { de: 'hydrodaten-Stationsgrafiken und Einheiten', fr: 'Graphiques de station et unités hydrodaten', it: 'Grafici di stazione e unità hydrodaten', rm: 'Diagrams da staziun ed unitads hydrodaten' },
+  'length change': { de: 'Längenänderung', fr: 'variation de longueur', it: 'variazione della lunghezza', rm: 'midada da lunghezza' },
+  '10m lakes': { de: 'Seen 1:10 Mio.', fr: 'lacs 1:10 M', it: 'laghi 1:10 M', rm: 'lais 1:10 miu.' },
+  '10m countries': { de: 'Länder 1:10 Mio.', fr: 'pays 1:10 M', it: 'paesi 1:10 M', rm: 'pajais 1:10 miu.' },
   'unknown': { de: 'unbekannt', fr: 'inconnu', it: 'sconosciuto', rm: 'nunenconuschent' },
 });

@@ -172,7 +172,13 @@ def keys_of(page):
 
 def load(lang):
     p = os.path.join(TRANS, lang + '.json')
-    return json.load(open(p, encoding='utf-8')) if os.path.exists(p) else {}
+    table = json.load(open(p, encoding='utf-8')) if os.path.exists(p) else {}
+    additions = os.path.join(TRANS, 'updates.json')
+    if os.path.exists(additions):
+        for key, row in json.load(open(additions, encoding='utf-8')).items():
+            if row.get(lang):
+                table[key] = row[lang]
+    return table
 
 
 # --- the mechanical half ---------------------------------------------------

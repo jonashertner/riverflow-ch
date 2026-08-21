@@ -75,7 +75,7 @@ const reaches = net.reaches.map(r => {
   return { i: r.i, u: r.u, d: r.d, o: r.o, xs, ys };
 });
 
-// A coarse grid over the country so the snap is not 7,826 x 8,716 segment tests.
+// A coarse grid over the country so the snap is not 7,826 x 8,711 segment tests.
 const CELL = 0.02;                       // about 1.5 km east-west at 47 N
 const grid = new Map();
 const key = (a, b) => a + ':' + b;
