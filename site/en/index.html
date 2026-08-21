@@ -7,10 +7,10 @@
      needs the text bigger. A map is not a reason to break zoom. -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Water and ice in Switzerland — a measured base layer</title>
-<meta name="description" content="Live discharge in Swiss rivers from the federal gauging network, reservoir storage against 26 years of its own record, and Swiss glacier area across six dated inventories. Every figure carries its source, evidence class and age.">
+<meta name="description" content="Live Swiss rivers, water quality by station, reservoir history and six glacier inventories—with every source, date and evidence class disclosed.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0d0d0d">
-<link rel="canonical" href="https://jonashertner.github.io/riverflow-ch/en/">
+<link rel="canonical" href="https://opengovclimate.ch/riverflow/en/">
 <link rel="alternate" hreflang="en" href="./">
 <link rel="alternate" hreflang="de" href="../">
 <link rel="alternate" hreflang="fr" href="../fr/">
@@ -19,11 +19,11 @@
 <link rel="alternate" hreflang="x-default" href="../">
 <link rel="icon" href="../favicon.svg?v=20260821" type="image/svg+xml">
 <meta property="og:title" content="Water and ice in Switzerland">
-<meta property="og:description" content="Swiss rivers, live. Reservoirs against 26 years of record. Glaciers across six inventories. Evidence for understanding water and protecting its pathways.">
+<meta property="og:description" content="Swiss rivers, water quality, reservoirs and glaciers. Evidence for understanding water and protecting its essential pathways.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Water and ice in Switzerland">
-<meta property="og:url" content="https://jonashertner.github.io/riverflow-ch/en/">
-<meta property="og:image" content="https://jonashertner.github.io/riverflow-ch/og-image.jpg">
+<meta property="og:url" content="https://opengovclimate.ch/riverflow/en/">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -32,8 +32,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="../tokens.css?v=20260821">
-<link rel="stylesheet" href="../style.css?v=20260821">
+<link rel="stylesheet" href="../tokens.css?v=20260821b">
+<link rel="stylesheet" href="../style.css?v=20260821b">
 <script src="../i18n.js?v=20260821"></script>
 <script src="../i18n-data.js?v=20260821"></script>
 <script src="../i18n-map.js?v=20260821"></script>
@@ -45,7 +45,7 @@
 
 <header id="titlebar">
   <h1>Water and ice in Switzerland</h1>
-  <p class="sub">Rivers read live from federal gauges. Ice across six surveys. Reservoirs against their own record.</p>
+  <p class="sub">River flow now. Water quality by station. Reservoirs and glaciers through time.</p>
   <p class="stamp" id="stamp" role="status" aria-live="polite">Loading&#8230;</p>
 
   <!-- The page's one claim about itself, drawn rather than asserted. -->
@@ -65,7 +65,7 @@
 
   <!-- First visit only. The map answers when it is pointed at, and nothing on a
        still screen says so. -->
-  <p class="hint" id="hint" hidden>Point at the water to read it.
+  <p class="hint" id="hint" hidden>Select a river or marker for details.
     <a href="../method.html#reading">How to read this map</a></p>
 
   <nav id="siteNav" aria-label="Site">
@@ -103,6 +103,10 @@
     <button type="button" data-mode="flow" class="on">Flow</button>
     <button type="button" data-mode="normal">Against normal</button>
     <button type="button" data-mode="temp">Temperature</button>
+  </div>
+  <div class="modeGroup" role="group" aria-label="Water quality">
+    <span class="modeGroupLabel">Condition</span>
+    <button type="button" data-mode="quality" id="modeQuality">Water quality</button>
   </div>
   <div class="modeGroup" role="group" aria-label="Water stored">
     <span class="modeGroupLabel">Stored</span>
@@ -143,11 +147,10 @@
   <div class="lg" id="lgNormal" hidden>
     <div class="ramp ramp-div"></div>
     <div class="rampLabels"><span>25%</span><span>50%</span><span>100%</span><span>200%</span><span>400%</span></div>
-    <p class="lgNote">Discharge now against the long-term mean of the same reach. The mean is an
-      annual figure, so a summer reading below 100&nbsp;% is in part the season and not only the year.
-      Read it as a ratio, not as a drought index.</p>
-    <p class="lgNote">The mean is HydroRIVERS <span class="num">DIS_AV_CMS</span>, which is modelled and
-      not the federal statistic. <b>Not quotable.</b></p>
+    <p class="lgNote">Current discharge divided by the reach&rsquo;s annual long-term mean. A summer
+      value below 100&nbsp;% may reflect the season as well as the year. This is a ratio, not a drought index.</p>
+    <p class="lgNote">The mean is modelled HydroRIVERS <span class="num">DIS_AV_CMS</span>, not a
+      federal statistic. <b>Not quotable.</b></p>
   </div>
 
   <div class="lg" id="lgTemp" hidden>
@@ -155,12 +158,44 @@
     <div class="rampLabels"><span>0</span><span>10</span><span>20</span><span>25&nbsp;&deg;C</span></div>
     <p class="threshold"><i></i>At or above 25&nbsp;&deg;C, the ceiling in GSchV Annex&nbsp;2 No.&nbsp;12(4)</p>
     <p class="lgNote" id="tempCount">&nbsp;</p>
-    <p class="lgNote">A filled disc is a gauge with a temperature series, and it is filled from the
-      ramp. A hollow ring is a gauge with none: an absent reading is not a cold one. The rivers keep
-      their discharge colour under this layer, dimmed, because temperature is measured at the gauge
-      and nowhere else.</p>
-    <p class="lgNote">One reading is one sensor. Open a gauge to see it against the others nearby
-      before you rely on it.</p>
+    <p class="lgNote">A filled circle is a gauge with a temperature reading; colour follows the
+      scale. A hollow ring has no reading. Rivers retain their discharge colour, dimmed, because
+      temperature is known only at the gauge.</p>
+    <p class="lgNote">One reading comes from one sensor. Compare nearby gauges before relying on it.</p>
+  </div>
+
+  <div class="lg" id="lgQuality" hidden>
+    <div class="qualityPicker">
+      <label for="qualityParameter">Measured parameter</label>
+      <select id="qualityParameter" aria-describedby="qualityScaleNote"></select>
+    </div>
+    <div class="qualityPresets" role="group" aria-label="Selected water-quality parameters">
+      <button type="button" data-quality="ortho-Phosphat-Phosphor (filtriert)\u0000mg/l">Phosphate-P</button>
+      <button type="button" data-quality="Nitrat-Stickstoff\u0000mg/l">Nitrate-N</button>
+      <button type="button" data-quality="Sauerstoff\u0000mg/l">Oxygen</button>
+      <button type="button" data-quality="Diclofenac\u0000µg/l">Diclofenac</button>
+      <button type="button" data-quality="Cypermethrin\u0000µg/l">Cypermethrin</button>
+    </div>
+    <div class="qualityYear">
+      <label for="qualityYear">Sampling year <output id="qualityYearRead">2024</output></label>
+      <input id="qualityYear" type="range" min="2011" max="2024" value="2024" step="1">
+    </div>
+    <div class="ramp ramp-quality"></div>
+    <div class="rampLabels"><span id="qualityScaleLow">&nbsp;</span><span id="qualityScaleMid">&nbsp;</span><span id="qualityScaleHigh">&nbsp;</span></div>
+    <ul class="notes qualityKeys">
+      <li><span class="swatch qualityValue"></span>Annual median of quantified samples</li>
+      <li><span class="swatch qualityBelow"></span>Sampled; every result below the determination limit</li>
+      <li><span class="swatch qualityNone"></span>Not sampled for this parameter and year</li>
+    </ul>
+    <p class="lgNote" id="qualityCount">Loading the federal measurement record…</p>
+    <p class="lgNote" id="qualityRelease"></p>
+    <p class="lgNote" id="qualityScaleNote"><b>One parameter, one fixed scale.</b> Colours use its
+      5th–95th percentile range across 2011–2024. Years remain comparable. The scale is not a legal threshold.</p>
+    <p class="lgNote"><b>Values stay at the station.</b> Results below the determination limit remain
+      “below limit” and are excluded from the median. Open a station for exact results and metadata.</p>
+    <p class="lgNote">NAWA is a national long-term network for flowing waters. It does not cover lakes
+      or unmeasured reaches, or replace denser cantonal monitoring. <a href="../sources.html#table">Source,
+      licence and data state</a>.</p>
   </div>
 
   <div class="lg" id="lgRes" hidden>
@@ -170,14 +205,12 @@
     </ul>
     <div class="ramp ramp-res"></div>
     <div class="rampLabels"><span>empty</span><span>half</span><span>full</span></div>
-    <p class="lgNote">The tint is the level of the dam's <b>region</b> in the week at the playhead, so
-      every dam in a region moves as one body. Press play to run twenty-six years of it.</p>
+    <p class="lgNote">Colour shows weekly filling for the dam&rsquo;s <b>region</b>. Every dam in a
+      region receives the same value. Play animates twenty-six years.</p>
     <p class="lgNote" id="resTotals">&nbsp;</p>
-    <p class="lgNote"><b>Two registers, and they do not describe the same objects.</b> The dams are
-      structures, with the volume each reservoir holds when full. The filling level is a weekly figure in
-      GWh &mdash; stored electricity, not stored water &mdash; and it is published for four regions, not for
-      225 dams. So this layer can say what a reservoir holds when full, and it can say how full the region
-      is this week. <b>It cannot say how full the Grande Dixence is today.</b> Nobody publishes that.</p>
+    <p class="lgNote"><b>Size and colour come from different registers.</b> Size shows reservoir
+      volume at full capacity. Colour shows stored energy in GWh for one of four regions. The source
+      does not report the current level of each of the 225 dams.</p>
     <p class="lgNote" id="resRank">&nbsp;</p>
   </div>
 
@@ -189,11 +222,9 @@
     <p class="lgNote">The 2023 bodies are drawn over the 1850 outlines. What stays in colour is
       the ice that has gone. Press play to run six dated surveys in their real intervals.</p>
     <p class="lgNote" id="iceTotals">&nbsp;</p>
-    <p class="lgNote"><b>This is area, not volume.</b> The 2010 and 2016 totals use different
-      delineation methods; their apparent increase is not ice growth. Through recent
-      decades the ice thinned faster than it shrank in plan, because a glacier loses thickness over its
-      whole surface before it loses its outline. The area figures here are measured. The volume figures
-      are cited, and they come from separate work by separate methods.</p>
+    <p class="lgNote"><b>This is area, not volume.</b> Different delineation methods make the apparent
+      2010–2016 increase a method break, not ice growth. Area is measured here; cited volume estimates
+      come from separate studies.</p>
   </div>
 
   <div class="lg" id="lgResidual" hidden>
@@ -221,16 +252,13 @@
     <ul class="notes useKeys">
       <li><label><input type="checkbox" data-use="ara" checked><span class="swatch useAra"></span>Treatment plant, sized by population equivalents</label></li>
     </ul>
-    <p class="lgNote">Two colours, because the direction is what the law turns on: Art.&nbsp;31 GSchG
-      governs taking water out, GSchV Annex&nbsp;2 No.&nbsp;12(4) governs putting heat in. Which register
-      a mark belongs to is carried by the shape of the mark, not by a third and fourth colour.</p>
-    <p class="lgNote"><b>A filled disc carries a quantity. An open ring carries a place and nothing
-      more.</b> Of the four federal registers only the hydropower statistic yields a discharge, and it
-      yields it by arithmetic, not by measurement: capacity divided by head. The residual-flow map holds
-      no volume at all, and no cooling volume for the nuclear sites is published as open data.
-      Treatment plants carry a ratio instead: their discharge against the receiving water at
-      Q<sub>347</sub>. For 39 of them it is above 100&#8201;%, which is to say the brook at low flow
-      carries less than the plant puts into it.</p>
+    <p class="lgNote">Colour shows direction: water taken out or returned. Shape identifies the
+      register. Art.&nbsp;31 GSchG governs abstraction; GSchV Annex&nbsp;2 No.&nbsp;12(4) governs heat input.</p>
+    <p class="lgNote"><b>A filled mark carries a quantity; an open ring locates an object only.</b>
+      Hydropower design discharge is derived from capacity and head, not measured. The residual-flow
+      register contains no abstraction volume; open federal data give no nuclear cooling volume.
+      Treatment plants show discharge relative to the receiving water at Q<sub>347</sub>. At 39 plants,
+      discharge exceeds the stream&rsquo;s low flow.</p>
     <p class="lgNote" id="useCount">&#160;</p>
   </div>
 
@@ -238,17 +266,12 @@
   <div class="lg" id="lgWet" hidden>
     <ul class="notes wetKeys" id="wetTotals"></ul>
     <p class="lgNote" id="wetCount">&nbsp;</p>
-    <p class="lgNote"><b>The water register is protected by ordinance, the statutory one by the
-      Constitution.</b> Alluvial zones and amphibian spawning sites state their aim as water, so
-      they are drawn in the water's hue. Bogs, fens and mire landscapes are held by
-      Art.&nbsp;78(5)&nbsp;BV, the Rothenthurm article, which forbids building and any alteration of
-      the ground save for the mires&rsquo; own protection and their existing agricultural use
-      &mdash; with no balancing test to lose, and so they wear the ink every
-      statutory quantity here wears. <a href="../method.html#wetlands">How this is drawn</a>.</p>
-    <p class="lgNote"><b>The ages disagree with the aims.</b> The amphibian inventory was revised
-      months ago; the alluvial-zone inventory, whose aim is a quantity of water, carries a federal data
-      state of November 2017 &mdash; and so does the inventory holding Rothenthurm.
-      <a href="../sources.html#table">Every date</a>.</p>
+    <p class="lgNote"><b>Colour separates the legal basis.</b> Alluvial zones and amphibian sites use
+      water blue; their ordinances state water-related protection aims. Bogs, fens and mire landscapes
+      use statutory ink because Art.&nbsp;78(5)&nbsp;BV protects them. <a href="../method.html#wetlands">How this is drawn</a>.</p>
+    <p class="lgNote"><b>The inventories do not age together.</b> The amphibian inventory was revised
+      in May 2026. The alluvial-zone and mire-landscape inventories still state November 2017.
+      <a href="../sources.html#table">See every date</a>.</p>
   </div>
 
   <div class="lg" id="lgSource" hidden>
@@ -258,14 +281,12 @@
       <li><label><input type="checkbox" data-src="zone" checked><span class="swatch srcZone"></span>Drinking-water protection zones S1&ndash;S3, in force</label></li>
       <li><label><input type="checkbox" data-src="catch"><span class="swatch srcCatch"></span>Sub-catchments</label></li>
     </ul>
-    <p class="lgNote"><b>Three of these four are pictures, not data.</b> The groundwater bodies, the
-      protection zones and the catchments are drawn by a federal or cantonal server for the rectangle on
-      screen and arrive as an image: this map cannot query them, date them from the picture, or check
-      them. The headwaters are the exception, and are drawn in this map&rsquo;s own ink.</p>
-    <p class="lgNote"><b>A headwater is not a spring.</b> It is a reach with nothing above it, clipped at
-      5&nbsp;km&#178; of upstream area &mdash; the top of the network as this map draws it, and the part of
-      the country with no gauge anywhere above it. The named springs and waterfalls that appear from zoom
-      are swissNAMES3D&rsquo;s 86 and 157 <em>named</em> ones, not a count of Switzerland&rsquo;s springs.</p>
+    <p class="lgNote"><b>Three overlays arrive as images.</b> This map cannot query or verify the
+      groundwater bodies, protection zones or catchments. Headwaters are the exception: they are drawn
+      from this map&rsquo;s network.</p>
+    <p class="lgNote"><b>A headwater is not a spring.</b> It is the top of the drawn river network,
+      clipped at 5&nbsp;km&#178; of upstream area. At closer zoom, swissNAMES3D adds 86 named springs and
+      157 named waterfalls—not a complete national inventory.</p>
     <p class="lgNote"><b>Only zones in force are drawn.</b> geodienste.ch serves planned and future zones
       too; a planned zone is not yet a legal constraint. S1 is the fenced ground at the wellhead, S2 the
       close zone, S3 the outer one &mdash; Art.&nbsp;20 GSchG, GSchV Annex&nbsp;4 No.&nbsp;1. They are
@@ -332,11 +353,10 @@
     <span class="langs introLangs" data-langswitch></span>
   </div>
   <h2 id="introTitle">Follow the water. Protect its pathways.</h2>
-  <p class="introLead" id="introLead">The goal is to trace water through Switzerland—from ice and
-    groundwater to rivers, storage, use, return and the border—and show the law protecting each
-    essential path. The project exists to help protect wetlands and support legal action when
-    protection fails. This release begins with surface water. Every figure states its source, age
-    and evidence class.</p>
+  <p class="introLead" id="introLead">Trace water through Switzerland—from ice and groundwater to
+    rivers, storage, use, return and the border—and identify the law protecting each essential
+    pathway. The aim is to protect wetlands and enable legal action when those protections fail.
+    This first release focuses on surface water. Every figure states its source, date and evidence class.</p>
   <div class="introActions">
     <button type="button" id="introEnter" autofocus>Explore the map</button>
     <a href="../method.html">How the evidence works</a>
@@ -358,11 +378,12 @@
       <circle class="cycleSource" cx="300" cy="158" r="7"/>
       <circle class="cycleUse" cx="704" cy="178" r="9"/>
     </svg>
-    <figcaption id="cycleCaption">From mountain precipitation through ice, springs and groundwater to rivers, wetlands, storage, use, return flow and the atmosphere.</figcaption>
+    <figcaption id="cycleCaption">Mountain precipitation becomes ice, groundwater, springs, rivers and wetlands. Water is stored, used, returned and evaporated.</figcaption>
     <ol class="cycleStages" aria-label="Open mapped parts of the water cycle">
       <li><button type="button" data-cycle-mode="ice"><b>Glaciers</b><span>mapped inventories</span></button></li>
-      <li><button type="button" data-cycle-mode="source"><b>Mountain springs &amp; groundwater</b><span>partly mapped</span></button></li>
+      <li><button type="button" data-cycle-mode="source"><b>Springs &amp; groundwater</b><span>partly mapped</span></button></li>
       <li><button type="button" data-cycle-mode="flow"><b>Streams &amp; rivers</b><span>live and modelled</span></button></li>
+      <li><button type="button" data-cycle-mode="quality"><b>Water quality</b><span>station by station</span></button></li>
       <li><button type="button" data-cycle-mode="wet"><b>Wetlands &amp; lakes</b><span>inventories and outlines</span></button></li>
       <li><button type="button" data-cycle-mode="res"><b>Reservoirs</b><span>weekly regional series</span></button></li>
       <li><button type="button" data-cycle-mode="use"><b>Use &amp; return</b><span>federal registers</span></button></li>
@@ -373,6 +394,7 @@
     <li><strong>Live</strong><span>Federal river gauges</span></li>
     <li><strong>26 years</strong><span>Reservoir history</span></li>
     <li><strong>1850&ndash;2023</strong><span>Glacier inventories</span></li>
+    <li><strong>2011&ndash;2024</strong><span>Federal water-quality results</span></li>
   </ul>
   <p class="introNote">Measured and modelled water. Not a forecast.</p>
 </dialog>
@@ -381,7 +403,7 @@
   <p><strong>Rivers</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), filtered at 5&nbsp;km&#178; after
   HydroRIVERS' own 10&nbsp;km&#178; or 0.1&nbsp;m&#179;/s source threshold, carrying current valid
   discharge from the BAFU gauging network through LINDAS.
-  <strong>Ice</strong> GLAMOS, six dated inventories. <strong>Reservoirs</strong> BFE.
+  <strong>Quality</strong> BAFU NAWA TREND. <strong>Ice</strong> GLAMOS, six dated inventories. <strong>Reservoirs</strong> BFE.
   <strong>Residual flow and water use</strong> BAFU and BFE. <strong>Names</strong> swissNAMES3D,
   swisstopo. Every source, its licence and its data state is on the
   <a href="../sources.html">sources page</a>. Measured and modelled water, not a forecast.</p>

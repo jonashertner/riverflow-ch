@@ -39,13 +39,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Refresh federal stations, reservoirs, cantonal dates, wetlands and source states
+      - name: Refresh federal stations, reservoirs, quality, cantonal dates, wetlands and source states
         id: build
         run: |
           node build/01-stations.mjs
           node build/06-reservoirs.mjs
           node build/11-cantons.mjs
           node build/12-wetlands.mjs
+          node build/17-quality.mjs
+          node build/18-monitoring.mjs
           node build/08-vintage.mjs
           node build/16-provenance.mjs
           node scripts/verify-site.mjs
@@ -59,7 +61,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add site/data
-          git commit -m "Weekly refresh: stations, reservoirs and source states"
+          git commit -m "Weekly refresh: stations, reservoirs, quality and source states"
           git push
       - name: Say so if the refresh failed
         if: failure()

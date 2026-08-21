@@ -186,7 +186,7 @@ def load(lang):
 ASSETS = ('tokens.css', 'style.css', 'site.css', 'favicon.svg', 'i18n.js',
           'i18n-data.js', 'i18n-map.js', 'theme.js', 'fmt.js', 'gschg31.js',
           'site.js', 'app.js')
-BASE = 'https://jonashertner.github.io/riverflow-ch/'
+BASE = 'https://opengovclimate.ch/riverflow/'
 
 
 def source_path(page):

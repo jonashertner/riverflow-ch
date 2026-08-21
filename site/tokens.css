@@ -104,6 +104,14 @@
      categories rather than one rising quantity. */
   --temp-1: #9a5518; --temp-2: #c4731f; --temp-3: #dd9436; --temp-4: #eeb96a; --temp-5: #f8d79c;
 
+  /* Water quality. One violet hue, used for one analyte at a time. A diamond is
+     a laboratory station rather than a live hydrological gauge; fill carries the
+     annual median of quantified results, while a hollow diamond means that the
+     analyte was sought but remained below the determination limit. */
+  --quality-1: #32205d; --quality-2: #4f3180; --quality-3: #7246aa;
+  --quality-4: #956cc9; --quality-5: #b99ae0; --quality-6: #dbc8f2;
+  --quality-hi: #eadffc;
+
   /* Evidence classes. Ordinal, one hue, plus a neutral for absence.
      Validated dark/ordinal: monotone L, gaps >= 0.06, dark end 2.15:1. */
   --ev-measured:  #9ec5f4;
@@ -231,6 +239,10 @@
 
   --temp-1: #e0cdae; --temp-2: #cda877; --temp-3: #b4823c; --temp-4: #95601f; --temp-5: #6f4212;
 
+  --quality-1: #d9cce9; --quality-2: #b9a2d2; --quality-3: #9678bc;
+  --quality-4: #7555a4; --quality-5: #573989; --quality-6: #3c236d;
+  --quality-hi: #32195f;
+
   --ev-measured:  #123e6d;
   --ev-estimated: #4f83bd;
   --ev-none:      #c2c9d0;
@@ -283,9 +295,9 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-button, input, select { font: inherit; }
+button, input, select, textarea { font: inherit; }
 
-:where(button, input, [tabindex]):focus-visible {
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--seq-300);
   outline-offset: 2px;
   border-radius: 4px;
@@ -359,13 +371,11 @@ button, input, select { font: inherit; }
    error mark. */
 .langs abbr { text-decoration: none; border-bottom: 0; cursor: default; }
 
-/* On a phone the bar wraps to two rows: the places this site goes on the first,
-   the five languages and the surface on the second. That is a legible split rather
-   than a wrapping accident, but it costs a row, so the row is made shallow. */
+/* Compact defaults for narrow headers; the map and document layouts enlarge the
+   actual touch targets in their own stylesheets. */
 @media (max-width: 560px) {
   .langs { margin-left: 4px; padding-left: 5px; font-size: 10px; }
   .langs [lang], #siteNav .langs [lang] { padding: 5px 3px; }
   .themeBtn { width: 26px; height: 26px; }
   .themeBtn svg { width: 14px; height: 14px; }
-}
 }

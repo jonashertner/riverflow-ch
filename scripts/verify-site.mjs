@@ -16,7 +16,7 @@ const root = resolve(dirname(new URL(import.meta.url).pathname), '..');
 const site = join(root, 'site');
 const languages = ['en', 'de', 'fr', 'it', 'rm'];
 const hreflangs = [...languages, 'x-default'];
-const base = 'https://jonashertner.github.io/riverflow-ch/';
+const base = 'https://opengovclimate.ch/riverflow/';
 const errors = [];
 const fail = (file, message) => errors.push(`${relative(root, file)}: ${message}`);
 
@@ -135,7 +135,7 @@ const landingFiles = ['index.html', 'en/index.html', 'de/index.html', 'fr/index.
 const rootLanding = htmlByFile.get(join(site, 'index.html')) ?? '';
 const englishLanding = htmlByFile.get(join(site, 'en', 'index.html')) ?? '';
 if (!/<html\b[^>]*\blang=["']de["']/i.test(rootLanding)) fail(join(site, 'index.html'), 'publication root must be German');
-if (!/<link\s+[^>]*rel=["']canonical["'][^>]*href=["']https:\/\/jonashertner\.github\.io\/riverflow-ch\/["']/i.test(rootLanding)) {
+if (!/<link\s+[^>]*rel=["']canonical["'][^>]*href=["']https:\/\/opengovclimate\.ch\/riverflow\/["']/i.test(rootLanding)) {
   fail(join(site, 'index.html'), 'German landing canonical must own the publication root');
 }
 if (!/<html\b[^>]*\blang=["']en["']/i.test(englishLanding)) fail(join(site, 'en', 'index.html'), 'English landing page is missing');
@@ -144,7 +144,7 @@ for (const file of landingFiles) {
   const switches = (raw.match(/\bdata-langswitch\b/g) ?? []).length;
   if (switches < 2) fail(file, 'language switch must be present in both the masthead and landing brief');
   const cycleModes = [...raw.matchAll(/\bdata-cycle-mode=["']([^"']+)["']/g)].map(match => match[1]);
-  const expectedModes = ['ice', 'source', 'flow', 'wet', 'res', 'use'];
+  const expectedModes = ['ice', 'source', 'flow', 'quality', 'wet', 'res', 'use'];
   if (cycleModes.join(',') !== expectedModes.join(',')) fail(file, 'water-cycle stages are missing or out of order');
   if (!/precipitation|Niederschlag|précipitations|precipitazioni|precipitaziun/i.test(raw) ||
       !/groundwater recharge|Grundwasserneubildung|recharge des nappes|ricarica delle falde|regeneraziun da l’aua sutterrana/i.test(raw)) {
@@ -159,7 +159,7 @@ for (const [label, pattern] of [
   ['44 px mobile legend controls', /\.controls label\s*\{\s*min-height:\s*44px/],
   ['dynamic mobile sheet height', /max-height:\s*76dvh/],
   ['dynamic mobile dialog height', /max-height:\s*calc\(100dvh - 12px\)/],
-  ['large landing language targets', /#intro \.introLangs \[lang\][^{]*\{[^}]*min-width:\s*40px;[^}]*min-height:\s*40px/s],
+  ['large landing language targets', /#intro \.introLangs \[lang\][^{]*\{[^}]*min-width:\s*40px;[^}]*min-height:\s*44px/s],
 ]) if (!pattern.test(responsiveCss)) fail(responsiveCssFile, `missing responsive contract: ${label}`);
 if (!/window\.visualViewport\?\.addEventListener\(['"]resize['"]/.test(readFileSync(join(site, 'app.js'), 'utf8'))) {
   fail(join(site, 'app.js'), 'map does not relayout with the mobile visual viewport');
@@ -179,6 +179,22 @@ for (const file of [...walk(join(site, 'data'), f => extname(f) === '.json'), ..
   catch (error) { fail(file, `invalid JSON: ${error.message}`); }
 }
 
+// An unmatched closing brace is legal enough for a browser to skip, but it can
+// silently discard the responsive rules that follow it. Check the shared CSS as
+// one more publication artifact rather than relying on visual spot checks.
+for (const file of walk(site, f => extname(f) === '.css')) {
+  const css = readFileSync(file, 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, '');
+  let depth = 0, earlyClose = false;
+  for (const char of css) {
+    if (char === '{') depth++;
+    if (char === '}' && --depth < 0) { earlyClose = true; break; }
+  }
+  if (earlyClose) fail(file, 'unmatched closing brace');
+  else if (depth !== 0) fail(file, `${depth} unclosed CSS block${depth === 1 ? '' : 's'}`);
+}
+
 // Domain contracts. Syntax alone can publish a plausible-looking falsehood; these
 // checks bind the prose and the runtime assumptions to the committed evidence.
 try {
@@ -188,13 +204,75 @@ try {
   const residualFile = join(site, 'data', 'residual.json');
   const reservoirFile = join(site, 'data', 'reservoirs.json');
   const iceFile = join(site, 'data', 'icehistory.json');
+  const qualityFile = join(site, 'data', 'quality.json');
+  const monitoringFile = join(site, 'data', 'canton-monitoring.json');
   const provenanceFile = join(site, 'data', 'provenance.json');
   const stations = data('stations.json').stations;
   const reaches = data('network.json').reaches;
   const residual = data('residual.json');
   const reservoirs = data('reservoirs.json');
   const ice = data('icehistory.json');
+  const quality = data('quality.json');
+  const monitoring = data('canton-monitoring.json');
   const unique = values => new Set(values).size;
+
+  if (data('vintage.json').sources.length !== 22) fail(join(site, 'data', 'vintage.json'), 'published source count is no longer 22');
+
+  // NAWA TREND is deliberately reduced for the country view, but no category is
+  // allowed to disappear in that reduction. Every source row is either quantified,
+  // below the determination limit, or missing; censored values never acquire a
+  // median. Parameter and unit together remain the identity of a series.
+  if (quality.meta.schema !== 1) fail(qualityFile, `unsupported NAWA schema ${quality.meta.schema}`);
+  if (quality.meta.rows < 1_000_000) fail(qualityFile, `implausibly small NAWA release (${quality.meta.rows} rows)`);
+  if (quality.meta.stations !== quality.stations.length || quality.meta.locatedStations !== quality.stations.length) fail(qualityFile, 'station counts or coordinates disagree with metadata');
+  if (quality.meta.parameters !== quality.parameters.length) fail(qualityFile, 'parameter count disagrees with metadata');
+  if (quality.stations.length !== unique(quality.stations.map(s => String(s.id)))) fail(qualityFile, 'NAWA station identifiers are not unique');
+  if (quality.parameters.length !== unique(quality.parameters.map(p => `${p.de}\u0000${p.unit}`))) fail(qualityFile, 'NAWA parameter/unit series are not unique');
+  if (!quality.meta.years.length || quality.meta.years.some((y, i, a) => i && y !== a[i - 1] + 1)) fail(qualityFile, 'NAWA years are not a continuous series');
+  if (quality.meta.featured.some(i => !Number.isInteger(i) || !quality.parameters[i])) fail(qualityFile, 'featured parameter index is invalid');
+  let qualityRows = 0;
+  for (const station of quality.stations) {
+    if (!Number.isFinite(station.x) || !Number.isFinite(station.y)) fail(qualityFile, `station ${station.id} has no usable coordinate`);
+    for (const a of station.values) {
+      if (a.length !== 13 || !quality.parameters[a[0]] || !quality.meta.years[a[1]]) { fail(qualityFile, `station ${station.id} has an invalid annual cell`); continue; }
+      const [pi, yi, total, quantified, below, missing, median, min, max] = a;
+      qualityRows += total;
+      if (total !== quantified + below + missing) fail(qualityFile, `station ${station.id}, parameter ${pi}, year ${yi}: result classes do not sum`);
+      if ((quantified === 0) !== (median === null)) fail(qualityFile, `station ${station.id}, parameter ${pi}, year ${yi}: median contradicts quantified count`);
+      if (quantified && (!(Number.isFinite(median) && Number.isFinite(min) && Number.isFinite(max)) || median < min || median > max)) fail(qualityFile, `station ${station.id}, parameter ${pi}, year ${yi}: invalid quantified summary`);
+    }
+  }
+  if (qualityRows !== quality.meta.rows) fail(qualityFile, `annual cells contain ${qualityRows} rows, metadata says ${quality.meta.rows}`);
+  for (const p of quality.parameters) {
+    const blank = p.domain?.slice(0, 3).every(v => v === null);
+    const numeric = p.domain?.slice(0, 3).every(Number.isFinite);
+    if (!Array.isArray(p.domain) || p.domain.length !== 4 || !['linear', 'log'].includes(p.domain[3]) ||
+        (p.quantified === 0 ? !blank : !numeric) ||
+        (numeric && (p.domain[0] > p.domain[1] || p.domain[1] > p.domain[2]))) {
+      fail(qualityFile, `parameter ${p.i} has an invalid fixed scale`);
+    }
+  }
+
+  // Art. 58 GSchG is not a one-size-fits-all measurement checklist, so this
+  // artifact validates public evidence rather than inventing compliance scores.
+  // The only computed field is NAWA coverage, bound to the exact quality release.
+  const cantonCodes = monitoring.cantons.map(c => c.ct);
+  if (monitoring.cantons.length !== 26 || unique(cantonCodes) !== 26) fail(monitoringFile, 'monitoring audit must contain 26 unique cantons');
+  const nawaByCanton = new Map();
+  for (const station of quality.stations) nawaByCanton.set(station.canton, (nawaByCanton.get(station.canton) ?? 0) + 1);
+  const allowedScopes = new Set(['chemistry', 'biology', 'groundwater', 'lakes', 'data']);
+  for (const canton of monitoring.cantons) {
+    if (!['results', 'programme', 'partial'].includes(canton.record)) fail(monitoringFile, `${canton.ct} has an invalid evidence class`);
+    if (!/^https:\/\//.test(canton.url ?? '')) fail(monitoringFile, `${canton.ct} has no primary HTTPS evidence link`);
+    if (canton.year !== null && (!Number.isInteger(canton.year) || canton.year < 2000 || canton.year > 2026)) fail(monitoringFile, `${canton.ct} has an invalid evidence year`);
+    if (!Array.isArray(canton.scope) || !canton.scope.length || canton.scope.some(s => !allowedScopes.has(s))) fail(monitoringFile, `${canton.ct} has an invalid evidence scope`);
+    const expected = nawaByCanton.get(canton.ct) ?? 0;
+    if (canton.nawaStations !== expected) fail(monitoringFile, `${canton.ct} states ${canton.nawaStations} NAWA stations, expected ${expected}`);
+  }
+  if (monitoring.meta.nationalVersion !== quality.meta.sourceVersion || monitoring.meta.nationalStations !== quality.meta.stations) fail(monitoringFile, 'national release metadata disagrees with quality.json');
+  if (monitoring.meta.cantonsWithNationalStations !== nawaByCanton.size || nawaByCanton.size !== 25) fail(monitoringFile, `expected NAWA stations in 25 cantons, found ${nawaByCanton.size}`);
+  const ar = monitoring.cantons.find(c => c.ct === 'AR');
+  if (!ar || ar.nawaStations !== 0 || ar.record !== 'results' || ar.year !== 2024) fail(monitoringFile, 'AR counterexample is missing or no longer matches the audited record');
 
   if (stations.length !== unique(stations.map(s => String(s.id)))) fail(stationFile, 'station identifiers are not unique');
   if (reaches.length !== unique(reaches.map(r => r.i))) fail(networkFile, 'reach identifiers are not unique');
@@ -288,7 +366,7 @@ try {
     const file = join(root, name);
     if (statSync(file).size !== stated.bytes || hash(file) !== stated.sha256) fail(provenanceFile, `generator hash mismatch for ${name}; rebuild provenance`);
   }
-  for (const [key, expected] of Object.entries({ stations: 233, uniqueStationIds: 233, boundStations: 227, dischargeStations: 187, unresolvedDischargeUnits: 5, dischargeReaches: 173, eligibleDischargeReaches: 168, reaches: 8711, uniqueReachIds: 8711, q347Points: 1041, reservoirWeeks: 1390 })) {
+  for (const [key, expected] of Object.entries({ stations: 233, uniqueStationIds: 233, boundStations: 227, dischargeStations: 187, unresolvedDischargeUnits: 5, dischargeReaches: 173, eligibleDischargeReaches: 168, reaches: 8711, uniqueReachIds: 8711, q347Points: 1041, reservoirWeeks: 1390, qualityRows: quality.meta.rows, qualityStations: quality.meta.stations, qualityParameters: quality.meta.parameters, monitoringCantons: 26, monitoringCantonsWithNawa: 25 })) {
     if (provenance.facts[key] !== expected) fail(provenanceFile, `fact ${key} is ${provenance.facts[key]}, expected ${expected}`);
   }
 

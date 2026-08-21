@@ -80,6 +80,22 @@ const SOURCES = [
     note: 'The only live source on the page. LINDAS supplies observations and coordinates; hydrodaten station plots supply the discharge unit. The age of the last accepted reading is shown in the title bar.',
   },
   {
+    key: 'quality', layer: null,
+    name: 'NAWA TREND surface-water quality: individual laboratory results',
+    holder: 'BAFU and the cantons', cls: 'measured', cadence: 'annual prepared files; programme continues', live: false,
+    url: 'https://api.data-platform-stg.cloud.bafu.admin.ch/en/dataproduct-water-nawa-trend',
+    links: [
+      { label: 'NAWA programme', url: 'https://www.bafu.admin.ch/de/nawa' },
+      { label: 'dataset and field definitions', url: 'https://api.data-platform-stg.cloud.bafu.admin.ch/en/dataproduct-water-nawa-trend' },
+      { label: 'prepared annual files', url: 'https://data.bafu.admin.ch/download?list-type=2&prefix=water/nawa-trend/' },
+      { label: 'public GraphQL API', url: 'https://data.bafu.admin.ch/api' },
+      { label: 'licence and source', url: 'https://api.data-platform-stg.cloud.bafu.admin.ch/en/lizenz-und-quelle' },
+    ],
+    licence: 'Open use. Must provide the source. Commercial and non-commercial use permitted with attribution.',
+    fixed: null, // filled below from quality.json: the date of the newest sample, not the build day
+    note: 'Every published result in the current prepared release. The map keeps parameter, unit, sampling year, censored results and station separate; exact rows remain at BAFU and are read when a station opens. NAWA covers flowing waters and does not replace the denser cantonal monitoring networks.',
+  },
+  {
     key: 'reservoirFill', layer: null,
     name: 'Filling level of the storage reservoirs, weekly, in GWh',
     holder: 'BFE', cls: 'measured', cadence: 'weekly', live: false,
@@ -273,6 +289,12 @@ try {
   fillLatest = r.fill?.latest?.d ?? null;
 } catch { /* reservoirs not built yet; the field stays null and the page says so */ }
 
+let qualityLatest = null;
+try {
+  const q = JSON.parse(await fs.readFile(new URL('../site/data/quality.json', import.meta.url), 'utf8'));
+  qualityLatest = q.meta?.sourceLast ?? null;
+} catch { /* quality not built yet; the field stays null and the page says so */ }
+
 const sources = [];
 // The protection zones have no data state of their own. A national picture made of
 // 26 cantonal deliveries is exactly as current as the canton that delivered last,
@@ -292,6 +314,7 @@ for (const s of SOURCES) {
     ds = got.iso;
   }
   if (s.key === 'reservoirFill') ds = fillLatest;
+  if (s.key === 'quality') ds = qualityLatest;
   if (s.key === 'zones') ds = zoneOldest;
   sources.push({
     key: s.key,

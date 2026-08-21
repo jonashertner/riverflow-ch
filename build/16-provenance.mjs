@@ -46,6 +46,8 @@ const reaches = JSON.parse(await fs.readFile(path.join(dataDir, 'network.json'))
 const residual = JSON.parse(await fs.readFile(path.join(dataDir, 'residual.json')));
 const reservoirs = JSON.parse(await fs.readFile(path.join(dataDir, 'reservoirs.json')));
 const vintage = JSON.parse(await fs.readFile(path.join(dataDir, 'vintage.json')));
+const quality = JSON.parse(await fs.readFile(path.join(dataDir, 'quality.json')));
+const monitoring = JSON.parse(await fs.readFile(path.join(dataDir, 'canton-monitoring.json')));
 
 let upstreamArchives = [];
 try {
@@ -69,6 +71,11 @@ const manifest = {
     uniqueReachIds: new Set(reaches.map(r => r.i)).size,
     q347Points: residual.points.length,
     reservoirWeeks: reservoirs.fill.weeks.length,
+    qualityRows: quality.meta.rows,
+    qualityStations: quality.meta.stations,
+    qualityParameters: quality.meta.parameters,
+    monitoringCantons: monitoring.cantons.length,
+    monitoringCantonsWithNawa: monitoring.meta.cantonsWithNationalStations,
   },
   sources: vintage.sources.map(({ key, holder, datenstand, live, url, links, licence }) =>
     ({ key, holder, datenstand, live, url, links, licence })),

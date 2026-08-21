@@ -29,7 +29,7 @@ const SCALARS = ['plane', 'ink', 'ink-2', 'ink-muted', 'halo', 'trail', 'hi', 'f
                  'law', 'law-dim', 'law-hi', 'ev-measured', 'ev-estimated', 'ev-none',
                  'ev-none-dim', 'lake', 'lake-line', 'ice', 'res-full', 'res-mid',
                  'res-hi', 'res-head', 'res-flood', 'use-out', 'use-in',
-                 'good', 'warning', 'serious', 'critical'];
+                 'good', 'warning', 'serious', 'critical', 'quality-hi'];
 const TRIPLETS = ['plane-rgb', 'ink-rgb', 'halo-rgb', 'law-rgb', 'wet-water-rgb',
                   'ice-past-rgb', 'label-water', 'label-ice', 'label-res'];
 function readPalette() {
@@ -45,6 +45,7 @@ function readPalette() {
   // ceiling of GSchV Annex 2 No. 12(4) is a status and not a value, so it is drawn
   // as a rim on the gauge and stated in words in the legend, never by the ramp.
   PAL.temp = [1, 2, 3, 4, 5].map(k => v('temp-' + k));
+  PAL.quality = [1, 2, 3, 4, 5, 6].map(k => v('quality-' + k));
   PAL.res  = [1, 2, 3, 4, 5, 6].map(k => v('res-' + k));
   for (const k of SCALARS)  PAL[CAMEL(k)] = v(k);
   for (const k of TRIPLETS) PAL[CAMEL(k)] = v(k);
@@ -69,11 +70,16 @@ let glaciers = null;          // {glaciers[], pastRings[], length[], now, past}
 let users = null;             // {hydro[], abstraction[], npp[], ara[]}, each point in world coords
 let reservoirs = null;        // {dams[], totals, fill{weeks[], envelope[], max, latest}}
 let residual = null;          // {points[], counts, datenstand}
+let quality = null;           // NAWA TREND annual station summaries, exact samples stay at BAFU
+let qualityParam = null;
+let qualityYear = null;
+let qualityLoadPromise = null;
+const qualitySampleCache = new Map();
 let iceFrames = null;         // six dated states, each with a Path2D in world coords
 let vintage = null;           // what every source is and how old it is
 const useOn = { hydro: true, abstraction: true, npp: true, ara: true };
 
-const LG = { flow: 'lgFlow', normal: 'lgNormal', temp: 'lgTemp', res: 'lgRes', ice: 'lgIce',
+const LG = { flow: 'lgFlow', normal: 'lgNormal', temp: 'lgTemp', quality: 'lgQuality', res: 'lgRes', ice: 'lgIce',
              residual: 'lgResidual', use: 'lgUse', wet: 'lgWet', source: 'lgSource' };
 // Read once, at load, from the catalogue in i18n-map.js. The language of a page
 // does not change without a reload, so neither does this table.
@@ -88,7 +94,7 @@ const MODES = Object.keys(LG);
 // The layers where the water is context and not the reading. The current is
 // dimmed under them, never stopped: a river that froze the moment you asked a
 // question about a dam would be a worse lie than a river drawn faintly.
-const DIMWATER = new Set(['use', 'res', 'residual', 'ice', 'wet', 'source']);
+const DIMWATER = new Set(['quality', 'use', 'res', 'residual', 'ice', 'wet', 'source']);
 // The reservoir regions of the BFE filling statistic, in the column order of the
 // weekly file. The statistic is published for these four and for nothing smaller.
 const RESREG = ['vs', 'gr', 'ti', 'rest'];
@@ -126,7 +132,7 @@ function reachColor(r) {
   // Under the three register layers the water is context, not the reading. It is
   // dimmed and not removed: a dam, an abstraction or a minimum flow means nothing
   // without the river it is a fact about.
-  if (mode === 'ice' || mode === 'temp' || mode === 'res' || mode === 'residual') {
+  if (mode === 'ice' || mode === 'temp' || mode === 'quality' || mode === 'res' || mode === 'residual') {
     if (r.basis === 'none') return { c: PAL.evNoneDim, a: 0.26 };
     return { c: rampColor(r.live), a: r.est ? 0.30 : 0.46 };
   }
@@ -685,6 +691,292 @@ function stampText() {
   });
 }
 
+/* ===========================================================================
+   WATER QUALITY — NAWA TREND
+
+   The country view is a summary, never an interpolation. A diamond sits at the
+   station that produced the samples. Its fill is the annual median of quantified
+   results for one parameter and one unit. Censored observations are counted but
+   are not assigned a made-up concentration; a year with only censored results is
+   therefore hollow. Opening a station asks BAFU for the exact rows, including the
+   sampling interval, determination limit, method, uncertainty and remark.
+   =========================================================================== */
+const QUALITY_NAMES = {
+  'ortho-Phosphat-Phosphor (filtriert)': 'm.qPhosphate',
+  'Nitrat-Stickstoff': 'm.qNitrate',
+  'Ammonium-Stickstoff': 'm.qAmmonium',
+  'Sauerstoff': 'm.qOxygen',
+  'pH-Wert': 'm.qPh',
+  'Elektrische Leitfähigkeit': 'm.qConductivity',
+  'Chlorid': 'm.qChloride',
+  'DOC': 'm.qDoc',
+  'Gesamtphosphor (unfiltriert)': 'm.qTotalP',
+  'Diclofenac': 'm.qDiclofenac',
+  'Clarithromycin': 'm.qClarithromycin',
+  'Cypermethrin': 'm.qCypermethrin',
+  'Kupfer (gelöst)': 'm.qCopper',
+};
+
+function qualityParameterName(p) {
+  const key = QUALITY_NAMES[p.de];
+  if (key) return T(key);
+  if (LANG === 'fr' && p.fr) return p.fr;
+  return p.de; // The federal parameter register publishes official DE and FR labels only.
+}
+const qualityUnit = p => p.unit === '---' ? '' : p.unit;
+function qualityNumber(v, p = quality?.parameters[qualityParam]) {
+  if (v === null || v === undefined || !Number.isFinite(+v)) return '—';
+  const a = Math.abs(+v);
+  const d = a === 0 ? 0 : Math.max(0, Math.min(8, 2 - Math.floor(Math.log10(a))));
+  return nf(+v, d);
+}
+
+async function loadQuality() {
+  if (quality) return quality;
+  if (qualityLoadPromise) return qualityLoadPromise;
+  const count = document.getElementById('qualityCount');
+  const button = document.getElementById('modeQuality');
+  button.disabled = true;
+  button.setAttribute('aria-busy', 'true');
+  qualityLoadPromise = (async () => {
+    const j = await readJSON(ROOT + 'data/quality.json');
+    for (const s of j.stations) {
+      s.kind = 'quality'; s.wx = mercX(s.x); s.wy = mercY(s.y);
+      s.by = new Map(s.values.map(a => [`${a[0]}:${a[1]}`, a]));
+      s.values = null;
+    }
+    quality = j;
+    qualityParam = j.meta.featured[0] ?? 0;
+    qualityYear = j.meta.years.at(-1);
+
+    const select = document.getElementById('qualityParameter');
+    select.replaceChildren();
+    const featured = new Set(j.meta.featured);
+    const appendGroup = (label, indices) => {
+      const group = document.createElement('optgroup'); group.label = label;
+      for (const i of indices) {
+        const p = j.parameters[i], o = document.createElement('option');
+        o.value = String(i);
+        o.textContent = `${qualityParameterName(p)}${qualityUnit(p) ? ` · ${qualityUnit(p)}` : ''}`;
+        group.appendChild(o);
+      }
+      select.appendChild(group);
+    };
+    appendGroup(T('m.qFeatured'), j.meta.featured);
+    appendGroup(T('m.qAllParameters'), j.parameters.map((_, i) => i).filter(i => !featured.has(i))
+      .sort((a, b) => qualityParameterName(j.parameters[a]).localeCompare(qualityParameterName(j.parameters[b]), LANG)));
+    select.value = String(qualityParam);
+    select.onchange = () => setQualityParameter(+select.value);
+
+    const year = document.getElementById('qualityYear');
+    year.min = String(j.meta.years[0]); year.max = String(j.meta.years.at(-1)); year.value = String(qualityYear);
+    year.oninput = () => setQualityYear(+year.value);
+
+    for (const b of document.querySelectorAll('.qualityPresets button[data-quality]')) {
+      const [name, unit] = b.dataset.quality.split('\\u0000');
+      const i = j.parameters.findIndex(p => p.de === name && p.unit === unit);
+      if (i < 0) { b.hidden = true; continue; }
+      b.dataset.parameterIndex = String(i);
+      b.onclick = () => setQualityParameter(i);
+    }
+
+    button.disabled = false;
+    button.removeAttribute('aria-busy');
+    qualityLegend();
+    if (wantMode === 'quality' && setMode('quality')) wantMode = null;
+    return quality;
+  })();
+  try {
+    return await qualityLoadPromise;
+  } catch (e) {
+    button.disabled = false;
+    button.removeAttribute('aria-busy');
+    if (count) count.textContent = T('m.failQuality', { e: e.message });
+    return null;
+  } finally {
+    qualityLoadPromise = null;
+  }
+}
+
+function qualityCell(s, p = qualityParam, year = qualityYear) {
+  if (!quality || !s?.by) return null;
+  const yi = quality.meta.years.indexOf(year);
+  return yi < 0 ? null : s.by.get(`${p}:${yi}`) ?? null;
+}
+
+function setQualityParameter(i) {
+  if (!quality || !quality.parameters[i]) return;
+  qualityParam = i;
+  document.getElementById('qualityParameter').value = String(i);
+  qualityLegend();
+  if (selected?.kind === 'quality') select(selected, false);
+  invalidate();
+}
+function setQualityYear(y) {
+  if (!quality || !quality.meta.years.includes(y)) return;
+  qualityYear = y;
+  document.getElementById('qualityYear').value = String(y);
+  qualityLegend();
+  if (selected?.kind === 'quality') select(selected, false);
+  invalidate();
+}
+
+function qualityLegend() {
+  if (!quality) return;
+  const p = quality.parameters[qualityParam], cells = quality.stations.map(s => qualityCell(s)).filter(Boolean);
+  const withMedian = cells.filter(a => a[6] !== null).length;
+  const below = cells.filter(a => a[6] === null && a[4] > 0).length;
+  const samples = cells.reduce((n, a) => n + a[2], 0);
+  document.getElementById('qualityYearRead').textContent = String(qualityYear);
+  const unit = qualityUnit(p), [lo, mid, hi] = p.domain;
+  const noScale = !(Number.isFinite(lo) && Number.isFinite(mid) && Number.isFinite(hi));
+  document.getElementById('qualityScaleLow').textContent = noScale ? '—' : `${qualityNumber(lo, p)}${unit ? ' ' + unit : ''}`;
+  document.getElementById('qualityScaleMid').textContent = noScale ? T('m.qNoMedian') : qualityNumber(mid, p);
+  document.getElementById('qualityScaleHigh').textContent = noScale ? '—' : qualityNumber(hi, p);
+  document.getElementById('qualityCount').innerHTML = T('m.qCount', {
+    year: qualityYear, stations: cells.length, medians: withMedian, below,
+    absent: quality.stations.length - cells.length, samples: nf(samples),
+    parameter: esc(qualityParameterName(p)), unit: unit ? ` · ${esc(unit)}` : '',
+  });
+  const release = document.getElementById('qualityRelease');
+  if (release) release.innerHTML = T('m.qRelease', {
+    rows: nf(quality.meta.rows), stations: nf(quality.meta.stations),
+    from: quality.meta.years[0], to: quality.meta.years.at(-1),
+    version: esc(quality.meta.sourceVersion), modified: fmtDate(quality.meta.sourceModified),
+    newest: fmtDate(quality.meta.sourceLast),
+  });
+  for (const b of document.querySelectorAll('.qualityPresets button[data-parameter-index]')) {
+    b.classList.toggle('on', +b.dataset.parameterIndex === qualityParam);
+    b.setAttribute('aria-pressed', String(+b.dataset.parameterIndex === qualityParam));
+  }
+}
+
+function qualityPosition(v, p) {
+  const [lo, , hi, scale] = p.domain;
+  if (!(Number.isFinite(lo) && Number.isFinite(hi)) || hi === lo) return 0.5;
+  if (scale === 'log' && v > 0 && lo > 0) return (Math.log(v) - Math.log(lo)) / (Math.log(hi) - Math.log(lo));
+  return (v - lo) / (hi - lo);
+}
+const qualityColor = (v, p) => stepColor(PAL.quality, qualityPosition(v, p));
+function diamond(x, y, r) {
+  ctx.beginPath(); ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y); ctx.closePath();
+}
+function drawQuality() {
+  const p = quality.parameters[qualityParam];
+  const z = Math.min(2, Math.max(0.9, Math.sqrt(zoom())));
+  for (const s of quality.stations) {
+    const x = sx(s.wx), y = sy(s.wy);
+    if (x < -18 || y < -18 || x > W + 18 || y > H + 18) continue;
+    const a = qualityCell(s), on = hovered?.kind === 'quality' && hovered.ref === s;
+    const r = (a ? 4 : 2.6) * z * (on ? 1.45 : 1);
+    diamond(x, y, r);
+    if (a?.[6] !== null && a?.[6] !== undefined) {
+      ctx.globalAlpha = on ? 1 : 0.9;
+      ctx.fillStyle = qualityColor(a[6], p); ctx.fill();
+      ctx.globalAlpha = 1; ctx.lineWidth = on ? 2 : 1;
+      ctx.strokeStyle = on ? PAL.qualityHi : halo(0.8); ctx.stroke();
+    } else {
+      ctx.globalAlpha = a?.[4] > 0 ? 0.95 : 0.35;
+      ctx.fillStyle = PAL.plane; ctx.fill();
+      ctx.lineWidth = on ? 2 : (a?.[4] > 0 ? 1.5 : 1);
+      ctx.strokeStyle = a?.[4] > 0 ? PAL.qualityHi : PAL.inkMuted; ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+function pickQuality(mx, my) {
+  let best = null, bd = Infinity;
+  for (const s of quality.stations) {
+    const d = Math.hypot(sx(s.wx) - mx, sy(s.wy) - my);
+    if (d < 10 && d < bd) { bd = d; best = s; }
+  }
+  return best;
+}
+
+function qualitySampleYear(r) {
+  const iso = r.nawaSamplingEndTs || r.nawaSamplingStartTs;
+  if (iso) return +iso.slice(0, 4);
+  const m = /(\d{2})\.(\d{2})\.(\d{4})/.exec(r.naquaSamplingDate || '');
+  return m ? +m[3] : null;
+}
+async function qualitySamples(s, p) {
+  const key = `${s.id}\u0000${p.de}\u0000${p.unit}`;
+  if (qualitySampleCache.has(key)) return qualitySampleCache.get(key);
+  const promise = (async () => {
+    const query = `query QualitySamples($station:String!,$parameter:String!,$unit:String!){water{nawa_trend{data(where:{stationId:{_eq:$station} measuredParameter:{_eq:$parameter} unit:{_eq:$unit}},limit:5000){stationId stationName samplingLocation samplingType naquaSamplingDate naquaSamplingTime nawaSamplingStartTs nawaSamplingEndTs nawaSamplingDurationHours measuredParameter measuredValue determinationLimit nawaDetectionLimit unit measurementUncertaintyAbsoluteRelative measurementUncertainty deviceMethod measuredValueRemark}}}}`;
+    const r = await fetch(quality.meta.api, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, variables: { station: s.id, parameter: p.de, unit: p.unit } }) });
+    if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+    const j = await r.json();
+    if (j.errors?.length) throw new Error(j.errors.map(x => x.message).join('; '));
+    return j.data?.water?.nawa_trend?.data ?? [];
+  })();
+  qualitySampleCache.set(key, promise);
+  try { return await promise; } catch (e) { qualitySampleCache.delete(key); throw e; }
+}
+
+function qualityDateRange(r) {
+  const a = r.nawaSamplingStartTs?.slice(0, 10), b = r.nawaSamplingEndTs?.slice(0, 10);
+  if (a && b) return a === b ? fmtDate(a) : `${fmtDate(a)}–${fmtDate(b)}`;
+  if (b || a) return fmtDate(b || a);
+  const m = /(\d{2})\.(\d{2})\.(\d{4})/.exec(r.naquaSamplingDate || '');
+  return m ? fmtDate(`${m[3]}-${m[2]}-${m[1]}`) : '—';
+}
+function renderQualitySamples(rows, p) {
+  const unit = qualityUnit(p);
+  const items = rows.map(r => {
+    const raw = r.measuredValue ?? '—', below = /^[<≤]/.test(raw) || (raw === '0' && r.measuredValueRemark?.startsWith('Messwert berechnet'));
+    const meta = [D(r.samplingType), r.nawaSamplingDurationHours ? T('m.qHours', { n: esc(r.nawaSamplingDurationHours) }) : '',
+      r.determinationLimit ? T('m.qLoq', { v: esc(r.determinationLimit), unit: esc(unit) }) : '',
+      r.nawaDetectionLimit ? T('m.qLod', { v: esc(r.nawaDetectionLimit), unit: esc(unit) }) : '',
+      r.deviceMethod && r.deviceMethod !== '---' ? r.deviceMethod : '',
+      r.measurementUncertainty ? T('m.qUncertainty', { v: esc(r.measurementUncertainty), kind: esc(r.measurementUncertaintyAbsoluteRelative || '') }) : '',
+    ].filter(Boolean).join(' · ');
+    const remark = r.measuredValueRemark ? `<small>${esc(r.measuredValueRemark)}</small>` : '';
+    return `<li><time>${qualityDateRange(r)}</time><strong class="${below ? 'below' : ''}">${esc(raw)}${unit ? ' ' + esc(unit) : ''}</strong>` +
+      (meta ? `<small>${meta}</small>` : '') + remark + `</li>`;
+  }).join('');
+  return `<section class="qualityExact"><h3>${T('m.qExactTitle', { n: rows.length })}</h3><ol class="qualitySamples">${items}</ol>` +
+    `<p class="qualityApi">${T('m.qExactSource')} <a href="${esc(quality.meta.dataset)}" target="_blank" rel="noopener">BAFU NAWA TREND</a>.</p></section>`;
+}
+
+function panelQuality(s, titleEl, B, N, X) {
+  const p = quality.parameters[qualityParam], a = qualityCell(s), unit = qualityUnit(p);
+  const row = (k, v, u) => `<dt>${k}</dt><dd>${v}${u ? `<span class="unit">${u}</span>` : ''}</dd>`;
+  titleEl.textContent = s.name;
+  let html = row(T('m.qParameter'), esc(qualityParameterName(p)), unit ? esc(unit) : '');
+  html += row(T('m.qYear'), qualityYear, '');
+  if (s.water) html += row(T('m.qWater'), esc(s.water), '');
+  if (s.canton) html += row(T('m.uCanton'), esc(s.canton), '');
+  html += row(T('m.qStation'), esc(s.id), '');
+  if (!a) {
+    html += row(T('m.qResult'), T('m.qNotSampled', { y: qualityYear }), '');
+    B.innerHTML = html; X.innerHTML = '';
+    N.innerHTML = T('m.qPanelNoData');
+    return;
+  }
+  html += row(T('m.qSamples'), nf(a[2]), '');
+  html += row(T('m.qQuantified'), nf(a[3]), '');
+  html += row(T('m.qBelowLimit'), nf(a[4]), '');
+  if (a[5]) html += row(T('m.qMissing'), nf(a[5]), '');
+  html += row(T('m.qMedian'), a[6] === null ? T('m.qNoMedian') : qualityNumber(a[6]), a[6] === null ? '' : esc(unit));
+  if (a[10] || a[11]) html += row(T('m.qPeriod'), `${a[10] ? fmtDate(a[10]) : '—'}–${a[11] ? fmtDate(a[11]) : '—'}`, '');
+  B.innerHTML = html;
+  N.innerHTML = T('m.qPanelNote');
+  X.innerHTML = `<p class="aside">${T('m.qLoadingExact')}</p>`;
+  const signature = `${s.id}:${qualityParam}:${qualityYear}`;
+  qualitySamples(s, p).then(all => {
+    if (selected?.kind !== 'quality' || `${selected.ref.id}:${qualityParam}:${qualityYear}` !== signature) return;
+    const rows = all.filter(r => qualitySampleYear(r) === qualityYear)
+      .sort((a, b) => String(b.nawaSamplingEndTs || b.nawaSamplingStartTs || b.naquaSamplingDate || '')
+        .localeCompare(String(a.nawaSamplingEndTs || a.nawaSamplingStartTs || a.naquaSamplingDate || '')));
+    X.innerHTML = rows.length ? renderQualitySamples(rows, p) : `<p class="aside">${T('m.qExactEmpty')}</p>`;
+  }).catch(e => {
+    if (selected?.kind === 'quality' && `${selected.ref.id}:${qualityParam}:${qualityYear}` === signature)
+      X.innerHTML = `<p class="aside">${T('m.qExactFail', { e: esc(e.message) })}</p>`;
+  });
+}
+
 // ---- view -------------------------------------------------------------------
 function fit() {
   resize();
@@ -846,6 +1138,7 @@ function drawBase() {
   if (mode === 'ice' && glaciers) drawIce();
   if (mode === 'res' && reservoirs) drawDams();
   if (mode === 'residual' && residual) drawResidual();
+  if (mode === 'quality' && quality && showStations) drawQuality();
   if (mode === 'wet' && wetlands) drawWetlands();
   if (mode === 'use') drawUsers();
   if (mode === 'source') drawSources();
@@ -1219,6 +1512,12 @@ function pickGlacier(mx, my) {
 }
 
 function pick(mx, my) {
+  if (mode === 'quality' && quality) {
+    const q = showStations ? pickQuality(mx, my) : null;
+    if (hovered?.ref !== q) dirty = true;
+    hovered = q ? { kind: 'quality', ref: q } : null;
+    tip(mx, my); return;
+  }
   if (mode === 'res' && reservoirs) {
     const d = pickDam(mx, my);
     if (hovered?.ref !== d) dirty = true;
@@ -1334,6 +1633,14 @@ function tip(mx, my) {
       `<div class="tEst">${s.dischargeState === 'current'
         ? T('m.bafuGauge', { id: esc(s.id) })
         : T(`m.state.${s.dischargeState}`)}</div>`;
+  } else if (hovered.kind === 'quality') {
+    const s = hovered.ref, a = qualityCell(s), p = quality.parameters[qualityParam];
+    const label = qualityParameterName(p), unit = qualityUnit(p);
+    const status = !a ? T('m.qNotSampled', { y: qualityYear })
+      : a[6] === null ? T('m.qAllBelow', { n: a[4], total: a[2] - a[5] })
+      : T('m.qTipMedian', { v: qualityNumber(a[6]), unit, q: a[3], total: a[2] - a[5] });
+    tt.innerHTML = `<div class="tName">${esc(s.name)}${s.water ? ' · ' + esc(s.water) : ''}</div>` +
+      `<div class="tVal">${esc(label)}</div><div class="tEst">${status}</div>`;
   } else {
     const r = hovered.ref;
     const nm = nameOf(r);
@@ -1382,6 +1689,7 @@ function select(h, moveFocus = false) {
   if (h.kind === 'dam') { panelDam(h.ref, titleEl, B, N, X); revealPanel(moveFocus); return; }
   if (h.kind === 'residual') { panelResidual(h.ref, titleEl, B, N, X); revealPanel(moveFocus); return; }
   if (h.kind === 'wetland') { panelWetland(h.ref, titleEl, B, N, X); revealPanel(moveFocus); return; }
+  if (h.kind === 'quality') { panelQuality(h.ref, titleEl, B, N, X); revealPanel(moveFocus); return; }
 
   if (h.kind === 'glacier') {
     const g = h.ref;
@@ -1653,7 +1961,7 @@ window.__diag = () => {
 // change a number; it changes which number the colour carries.
 // One control, seven readings of the same country. Switching a layer must never
 // change a number; it changes which number the colour carries.
-const OWNS = { glacier: 'ice', use: 'use', dam: 'res', residual: 'residual' };
+const OWNS = { glacier: 'ice', use: 'use', dam: 'res', residual: 'residual', quality: 'quality' };
 function setMode(m) {
   // Returns whether the layer was actually shown. A layer whose data is still on
   // the wire is not a layer that is empty, and the caller has to be able to tell
@@ -1669,6 +1977,13 @@ function setMode(m) {
       note.classList.add('flash');
       setTimeout(() => note.classList.remove('flash'), 900);
     }
+    return false;
+  }
+  // The complete chemical record is the largest optional file. Keep the live
+  // map light and ask for it only when the reader asks the quality question.
+  if (m === 'quality' && !quality) {
+    wantMode = 'quality';
+    loadQuality();
     return false;
   }
   mode = m;
@@ -3163,6 +3478,7 @@ function drawPlaces() {
    and only while their observations pass the live-data contract.
    =========================================================================== */
 const ARCHIVAL = {
+  quality:  T('m.archQuality'),
   res:      T('m.archRes'),
   ice:      T('m.archIce'),
   residual: T('m.archResidual'),
