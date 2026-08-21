@@ -13,7 +13,30 @@
  */
 Object.assign(STR, {
 
+  // ---- the keyboard-readable map -------------------------------------------
+  'm.mapAria': {
+    en: 'Interactive map of water and ice in Switzerland. Layer: {layer}.',
+    de: 'Interaktive Karte von Wasser und Eis in der Schweiz. Ebene: {layer}.',
+    fr: 'Carte interactive de l’eau et de la glace en Suisse. Couche : {layer}.',
+    it: 'Carta interattiva dell’acqua e del ghiaccio in Svizzera. Livello: {layer}.',
+    rm: 'Charta interactiva da l’aua e dal glatsch en Svizra. Nivel: {layer}.',
+  },
+  'm.mapHelp': {
+    en: 'Use the map buttons, a wheel or two-finger pinch to zoom. Drag or use the arrow keys to pan. Home resets the view, and Enter opens the nearest feature at the centre of the map.',
+    de: 'Mit den Kartenknöpfen, dem Mausrad oder zwei Fingern zoomen. Durch Ziehen oder mit den Pfeiltasten verschieben. Home setzt die Ansicht zurück, Enter öffnet das nächstgelegene Objekt in der Kartenmitte.',
+    fr: 'Zoomez avec les boutons de la carte, la molette ou un pincement à deux doigts. Faites glisser la carte ou utilisez les flèches pour la déplacer. Début réinitialise la vue et Entrée ouvre l’objet le plus proche du centre.',
+    it: 'Ingrandire con i pulsanti della carta, la rotellina o il gesto a due dita. Trascinare o usare i tasti freccia per spostarsi. Home ripristina la vista e Invio apre l’oggetto più vicino al centro.',
+    rm: 'Zoomar cun ils buttuns da la charta, cun la roda da la mieur u cun dus dets. Trer u duvrar las tastas cun frizzas per spustar. Home restabilescha la vista ed Enter avra l’object il pli datiers dal center.',
+  },
+
   // ---- the layers that can fail to arrive ----
+  'm.failBase': {
+    en: 'The river map failed to load: {e}',
+    de: 'Die Flusskarte konnte nicht geladen werden: {e}',
+    fr: 'La carte des cours d’eau n’a pas pu être chargée : {e}',
+    it: 'La carta dei corsi d’acqua non ha potuto essere caricata: {e}',
+    rm: 'La charta dals flums na pudeva betg vegnir chargiada: {e}',
+  },
   'm.failIce':  { en: 'Glacier layer failed to load: {e}', de: 'Die Gletscherebene konnte nicht geladen werden: {e}', fr: 'La couche des glaciers n’a pas pu être chargée : {e}', it: 'Il livello dei ghiacciai non ha potuto essere caricato: {e}', rm: 'Il nivel dals glatschers na pudeva betg vegnir chargià: {e}' },
   'm.failUse':  { en: 'Use layer failed to load: {e}', de: 'Die Nutzungsebene konnte nicht geladen werden: {e}', fr: 'La couche des utilisations n’a pas pu être chargée : {e}', it: 'Il livello degli utilizzi non ha potuto essere caricato: {e}', rm: 'Il nivel da las utilisaziuns na pudeva betg vegnir chargià: {e}' },
   'm.failRes':  { en: 'Reservoir layer failed to load: {e}', de: 'Die Speicherebene konnte nicht geladen werden: {e}', fr: 'La couche des retenues n’a pas pu être chargée : {e}', it: 'Il livello dei bacini di accumulazione non ha potuto essere caricato: {e}', rm: 'Il nivel dals lais da serra na pudeva betg vegnir chargià: {e}' },

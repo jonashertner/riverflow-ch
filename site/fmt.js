@@ -21,6 +21,14 @@ const fmtClock = d => `${p2(d.getHours())}:${p2(d.getMinutes())}`;
 const fmtStamp = d =>
   `${p2(d.getDate())}.${p2(d.getMonth() + 1)}.${d.getFullYear()} ${fmtClock(d)}`;
 
+// A local data file that answered with a 404 page is not JSON that happened to be
+// malformed. Keep that distinction in every layer's visible failure message.
+async function readJSON(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
+  return response.json();
+}
+
 // How far behind a live reading has fallen. The same principle as ageText below,
 // at the other end of the scale: minutes while minutes still mean something, hours
 // once they stop.

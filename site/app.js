@@ -165,10 +165,13 @@ const cv = document.getElementById('map');
 const ctx = cv.getContext('2d');
 const fcv = document.getElementById('flow');
 const fctx = fcv.getContext('2d');
+document.getElementById('mapHelp').textContent = T('m.mapHelp');
+cv.setAttribute('aria-label', T('m.mapAria', { layer: LGTITLE[mode] }));
 let dirty = true;                     // base map needs a redraw
 const invalidate = () => { dirty = true; clearFlow(); };
 const view = { k: 1, x: 0, y: 0 };          // k = pixels per world unit
 let dpr = 1, W = 0, H = 0, K0 = 0;   // K0 = the scale at which the whole country fits
+let mapBounds = null;
 
 let reaches = [];          // {id,next,main,ord,upland,mean,px[],py[], live, est, basis}
 let lakes = [], border = [];
@@ -187,9 +190,9 @@ let phase = 0;
 // ---- load -------------------------------------------------------------------
 async function load() {
   const [net, st, cx] = await Promise.all([
-    fetch(ROOT + 'data/network.json').then(r => r.json()),
-    fetch(ROOT + 'data/stations.json').then(r => r.json()),
-    fetch(ROOT + 'data/context.json').then(r => r.json()),
+    readJSON(ROOT + 'data/network.json'),
+    readJSON(ROOT + 'data/stations.json'),
+    readJSON(ROOT + 'data/context.json'),
   ]);
   lakes = cx.lakes.map(l => ({ n: l.n, r: l.r.map(([lon, lat]) => [mercX(lon), mercY(lat)]) }));
   border = cx.border.map(p => p.map(([lon, lat]) => [mercX(lon), mercY(lat)]));
@@ -235,7 +238,7 @@ async function load() {
 // because a layer that is not loaded must not look like a layer that is empty.
 async function loadIce() {
   try {
-    const g = await fetch(ROOT + 'data/glaciers.json').then(r => r.json());
+    const g = await readJSON(ROOT + 'data/glaciers.json');
     const P = g.p;
     const decode = rings => rings.map(([xs, ys]) => {
       const n = xs.length;
@@ -291,7 +294,7 @@ async function loadIce() {
 // transform carries it to the screen.
 async function loadUsers() {
   try {
-    const u = await fetch(ROOT + 'data/users.json').then(r => r.json());
+    const u = await readJSON(ROOT + 'data/users.json');
     for (const k of Object.keys(USE)) {
       for (const p of u[k]) { p.kind = k; p.wx = mercX(p.x); p.wy = mercY(p.y); }
     }
@@ -389,9 +392,10 @@ function applyHash() {
   const m = /^#(-?[\d.]+),(-?[\d.]+),([\d.]+)(?:,(\w+))?$/.exec(location.hash);
   if (!m) return false;
   resize();
-  view.k = +m[3];
+  view.k = clampK(+m[3]);
   view.x = W / 2 - view.k * mercX(+m[1]);
   view.y = H / 2 - view.k * mercY(+m[2]);
+  clampView();
   if (m[4] && LG[m[4]]) wantMode = m[4];
   return true;
 }
@@ -612,6 +616,7 @@ function fit() {
     if (r.px[i] < x0) x0 = r.px[i]; if (r.px[i] > x1) x1 = r.px[i];
     if (r.py[i] < y0) y0 = r.py[i]; if (r.py[i] > y1) y1 = r.py[i];
   }
+  mapBounds = { x0, x1, y0, y1 };
   // On a phone the header and the sheet own real estate at the top and the bottom,
   // and a country fitted to the whole viewport lands as a band in the middle with
   // black above and below it. Fit to the strip that is actually visible instead,
@@ -627,6 +632,7 @@ function fit() {
   // cannot fill on a portrait screen collects at the bottom, which is exactly where
   // the sheet opens into. Opening the legend then costs no map.
   view.y = box.t + availH * (isPhone() ? 0.4 : 0.5) - view.k * (y0 + y1) / 2;
+  updateZoomControls();
 }
 // Everything here is looked up rather than closed over, because fit() runs during
 // load and the furniture it measures is declared further down the file.
@@ -945,7 +951,39 @@ function onScreen(r, m) {
 let drag = null;
 const ptrs = new Map();
 let pinch = null;
-const clampK = k => Math.max(K0 * 0.5, Math.min(K0 * 24, k));
+const clampK = k => K0 > 0 ? Math.max(K0, Math.min(K0 * 24, k)) : Math.max(1, k);
+
+// Keep the country in the usable part of the screen at every scale. If its
+// bounding box is smaller than that space it stays centred; once it is larger,
+// each axis is limited so dragging can never reveal empty space beyond it.
+function clampView() {
+  if (!mapBounds || !(view.k > 0) || !(W > 0) || !(H > 0)) return;
+  view.k = clampK(view.k);
+  const box = fitBox();
+  const top = Math.max(0, box.t), bottom = Math.max(top + 1, H - box.b);
+  const axis = (pos, a, b, lo, hi, bias) => {
+    const span = Math.max(1, hi - lo), size = (b - a) * view.k;
+    const pad = Math.min(36, span * 0.06);
+    if (size <= span - 2 * pad) return lo + span * bias - view.k * (a + b) / 2;
+    const minPos = hi - pad - view.k * b;
+    const maxPos = lo + pad - view.k * a;
+    return Math.max(minPos, Math.min(maxPos, pos));
+  };
+  view.x = axis(view.x, mapBounds.x0, mapBounds.x1, 0, W, 0.5);
+  view.y = axis(view.y, mapBounds.y0, mapBounds.y1, top, bottom, isPhone() ? 0.4 : 0.5);
+  updateZoomControls();
+}
+
+function updateZoomControls() {
+  const zin = document.getElementById('zoomIn');
+  const zout = document.getElementById('zoomOut');
+  const level = document.getElementById('zoomLevel');
+  if (!zin || !zout || !level || !(K0 > 0)) return;
+  const z = zoom();
+  zin.disabled = z >= 23.99;
+  zout.disabled = z <= 1.001;
+  level.textContent = `${nf(z, z < 2 ? 1 : 0)}×`;
+}
 
 // Anchor the zoom on a point in the world and keep that point under the cursor or
 // under the midpoint of the two fingers, whichever is driving.
@@ -954,6 +992,7 @@ function zoomAbout(k2, cx, cy, from) {
   view.k = k;
   view.x = cx - (from.cx - from.vx) * s;
   view.y = cy - (from.cy - from.vy) * s;
+  clampView();
   invalidate(); dirtyAlloc = true;
 }
 function twoFingers() {
@@ -984,6 +1023,7 @@ cv.addEventListener('pointermove', e => {
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
     if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
     view.x = drag.vx + dx; view.y = drag.vy + dy;
+    clampView();
     invalidate(); dirtyAlloc = true;
     return;
   }
@@ -1011,6 +1051,62 @@ cv.addEventListener('wheel', e => {
   clearTimeout(window.__hashT);
   window.__hashT = setTimeout(writeHash, 350);
 }, { passive: false });
+cv.addEventListener('dblclick', e => {
+  e.preventDefault();
+  zoomAbout(view.k * 1.7, e.clientX, e.clientY,
+            { k: view.k, cx: e.clientX, cy: e.clientY, vx: view.x, vy: view.y });
+  writeHash();
+});
+
+function controlZoom(factor) {
+  zoomAbout(view.k * factor, W / 2, H / 2,
+            { k: view.k, cx: W / 2, cy: H / 2, vx: view.x, vy: view.y });
+  cv.focus({ preventScroll: true });
+  writeHash();
+}
+document.getElementById('zoomIn').onclick = () => controlZoom(1.6);
+document.getElementById('zoomOut').onclick = () => controlZoom(1 / 1.6);
+document.getElementById('zoomFit').onclick = () => {
+  fit(); invalidate(); dirtyAlloc = true;
+  cv.focus({ preventScroll: true });
+  writeHash();
+};
+
+// The canvas is not a mouse-only instrument. Keyboard movement follows the same
+// transform as dragging and zooming; the live status at the centre is then written
+// through the existing tooltip, whose status role reads it aloud. Enter opens that
+// feature and moves focus into the same evidence panel a pointer opens.
+cv.addEventListener('keydown', e => {
+  const step = Math.max(44, Math.min(W, H) * 0.09);
+  let moved = true;
+  if (e.key === 'ArrowLeft')       view.x += step;
+  else if (e.key === 'ArrowRight') view.x -= step;
+  else if (e.key === 'ArrowUp')    view.y += step;
+  else if (e.key === 'ArrowDown')  view.y -= step;
+  else if (e.key === '+' || e.key === '=') {
+    zoomAbout(view.k * 1.35, W / 2, H / 2,
+      { k: view.k, cx: W / 2, cy: H / 2, vx: view.x, vy: view.y });
+  } else if (e.key === '-' || e.key === '_') {
+    zoomAbout(view.k / 1.35, W / 2, H / 2,
+      { k: view.k, cx: W / 2, cy: H / 2, vx: view.x, vy: view.y });
+  } else if (e.key === 'Home' || e.key === '0') {
+    fit(); invalidate(); dirtyAlloc = true;
+  } else if (e.key === 'Enter' || e.key === ' ') {
+    pick(W / 2, H / 2);
+    select(hovered, true);
+    moved = false;
+  } else {
+    moved = false;
+  }
+  if (!moved && e.key !== 'Enter' && e.key !== ' ') return;
+  e.preventDefault();
+  if (moved) {
+    clampView();
+    invalidate(); dirtyAlloc = true;
+    pick(W / 2, H / 2);
+    writeHash();
+  }
+});
 
 // Even-odd crossing over every ring of the body, so a nunatak counts as a hole
 // and a hole is not the glacier.
@@ -1175,9 +1271,23 @@ function tip(mx, my) {
 }
 
 const panel = document.getElementById('panel');
-function select(h) {
+let panelReturnFocus = null;
+function revealPanel(moveFocus) {
+  panel.hidden = false;
+  if (moveFocus) requestAnimationFrame(() => panel.focus({ preventScroll: true }));
+}
+function closePanel(returnFocus = true) {
+  panel.hidden = true;
+  selected = null;
+  dirty = true;
+  const target = panelReturnFocus;
+  panelReturnFocus = null;
+  if (returnFocus && target?.isConnected) target.focus({ preventScroll: true });
+}
+function select(h, moveFocus = false) {
   selected = h;
-  if (!h) { panel.hidden = true; return; }
+  if (!h) { closePanel(false); return; }
+  if (!panel.contains(document.activeElement)) panelReturnFocus = document.activeElement;
   const titleEl = document.getElementById('panelTitle');
   const B = document.getElementById('panelBody');
   const N = document.getElementById('panelNote');
@@ -1186,9 +1296,9 @@ function select(h) {
   const X = document.getElementById('panelExtra');
   X.innerHTML = '';
 
-  if (h.kind === 'dam') { panelDam(h.ref, titleEl, B, N, X); panel.hidden = false; return; }
-  if (h.kind === 'residual') { panelResidual(h.ref, titleEl, B, N, X); panel.hidden = false; return; }
-  if (h.kind === 'wetland') { panelWetland(h.ref, titleEl, B, N, X); panel.hidden = false; return; }
+  if (h.kind === 'dam') { panelDam(h.ref, titleEl, B, N, X); revealPanel(moveFocus); return; }
+  if (h.kind === 'residual') { panelResidual(h.ref, titleEl, B, N, X); revealPanel(moveFocus); return; }
+  if (h.kind === 'wetland') { panelWetland(h.ref, titleEl, B, N, X); revealPanel(moveFocus); return; }
 
   if (h.kind === 'glacier') {
     const g = h.ref;
@@ -1211,7 +1321,7 @@ function select(h) {
 
     N.innerHTML = T('m.gNote') + T(g.a0 !== undefined ? 'm.gNotePair' : 'm.gNoteGap') +
       (g.gn ? T('m.gNoteGauge') : '');
-    panel.hidden = false;
+    revealPanel(moveFocus);
     return;
   }
 
@@ -1278,7 +1388,7 @@ function select(h) {
     }
     B.innerHTML = html;
     N.innerHTML = note;
-    panel.hidden = false;
+    revealPanel(moveFocus);
     return;
   }
 
@@ -1363,7 +1473,7 @@ function select(h) {
         T(nm.carried ? 'm.rCarried' : 'm.rPlaced')
       : T('m.rUnnamed'));
   }
-  panel.hidden = false;
+  revealPanel(moveFocus);
 }
 // A tongue measured every autumn since the 1880s. Cumulative metres, so the line
 // is where the ice front stands against where it stood at the first survey.
@@ -1385,7 +1495,7 @@ function spark(ser) {
   </figure>`;
 }
 
-document.getElementById('panelClose').onclick = () => { panel.hidden = true; selected = null; };
+document.getElementById('panelClose').onclick = () => closePanel();
 // Bound through a wrapper: onclick hands the listener a MouseEvent, and refresh's
 // first parameter is the flag that decides whether the read is a silent one.
 document.getElementById('refresh').onclick = () => refresh();
@@ -1429,6 +1539,7 @@ function relayout() {
   // network comes back, fits the country into a scale of zero and draws nothing.
   // The moment there is a real box, fit again.
   if (!(view.k > 0)) fit();
+  clampView();
   layoutSheet(); ribbonResize();
 }
 if (window.ResizeObserver) new ResizeObserver(() => relayout()).observe(cv);
@@ -1473,15 +1584,20 @@ function setMode(m) {
   // The sheets take their accent from the layer, so a checkbox or a focus ring in
   // the legend is in the colour of the thing the legend is about.
   document.body.dataset.layer = m;
-  for (const b of document.querySelectorAll('#modes button')) b.classList.toggle('on', b.dataset.mode === m);
+  for (const b of document.querySelectorAll('#modes button')) {
+    const active = b.dataset.mode === m;
+    b.classList.toggle('on', active);
+    b.setAttribute('aria-pressed', String(active));
+  }
   for (const [k, id] of Object.entries(LG)) document.getElementById(id).hidden = k !== m;
   document.getElementById('legendTitle').textContent = LGTITLE[m];
   document.getElementById('sheetTitle').textContent = LGTITLE[m];
+  cv.setAttribute('aria-label', T('m.mapAria', { layer: LGTITLE[m] }));
   // A selection made on one layer is a fact about that layer. Carrying a glacier
   // panel into the reservoir layer would leave a reading on screen that the map
   // beneath it no longer supports.
   for (const [kind, owner] of Object.entries(OWNS)) {
-    if (selected?.kind === kind && m !== owner) { panel.hidden = true; selected = null; }
+    if (selected?.kind === kind && m !== owner) closePanel(false);
     if (hovered?.kind === kind && m !== owner) hovered = null;
   }
   const nav = document.getElementById('modes');
@@ -1493,7 +1609,10 @@ function setMode(m) {
   dirty = true;
   return true;
 }
-for (const b of document.querySelectorAll('#modes button')) b.onclick = () => setMode(b.dataset.mode);
+for (const b of document.querySelectorAll('#modes button')) {
+  b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
+  b.onclick = () => setMode(b.dataset.mode);
+}
 
 // ---- Art. 31(1) GSchG -------------------------------------------------------
 // The statute states a base figure at the foot of each band and a rate above it.
@@ -1501,7 +1620,7 @@ for (const b of document.querySelectorAll('#modes button')) b.onclick = () => se
 // shared with the law page, so the statute is transcribed once and not twice.
 window.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (!panel.hidden) { panel.hidden = true; selected = null; dirty = true; }
+  if (!panel.hidden) closePanel();
 });
 
 /* ===========================================================================
@@ -1525,7 +1644,7 @@ const resColor = f => stepColor(PAL.res, f);
 
 async function loadReservoirs() {
   try {
-    const j = await fetch(ROOT + 'data/reservoirs.json').then(r => r.json());
+    const j = await readJSON(ROOT + 'data/reservoirs.json');
     for (const d of j.dams) {
       d.wx = mercX(d.x); d.wy = mercY(d.y); d.kind = 'dam';
       d.t = D(d.t); d.a = D(d.a);
@@ -1663,7 +1782,7 @@ const residualMeasured = p => p.src === 'q8493' || p.src === 'qp';
 
 async function loadResidual() {
   try {
-    const j = await fetch(ROOT + 'data/residual.json').then(r => r.json());
+    const j = await readJSON(ROOT + 'data/residual.json');
     for (const p of j.points) { p.wx = mercX(p.x); p.wy = mercY(p.y); p.kind = 'residual'; }
     j.points.sort((a, b) => (a.min ?? 0) - (b.min ?? 0));
     residual = j;
@@ -1805,7 +1924,7 @@ let alluvialByReach = new Map();      // reach id -> the zone it runs through
 
 async function loadWetlands() {
   try {
-    const w = await fetch(ROOT + 'data/wetlands.json').then(r => r.json());
+    const w = await readJSON(ROOT + 'data/wetlands.json');
     const P = w.p;
     for (const i of Object.values(w.inventories)) { i.name = D(i.name); i.ord = D(i.ord); }
     for (const o of w.objects) if (o.t) o.t = D(o.t);
@@ -2024,7 +2143,7 @@ const ICE_Y0 = 1850, ICE_Y1 = 2023;
 async function loadIceHistory() {
   if (!glaciers) return;
   try {
-    const j = await fetch(ROOT + 'data/icehistory.json').then(r => r.json());
+    const j = await readJSON(ROOT + 'data/icehistory.json');
     const P = j.p;
     for (const f of j.frames) {
       if (f.from === 'glaciers.pastRings') { f.path = glaciers.pathPast; continue; }
@@ -2328,7 +2447,7 @@ scrub.addEventListener('input', () => {
    =========================================================================== */
 async function loadVintage() {
   try {
-    vintage = await fetch(ROOT + 'data/vintage.json').then(r => r.json());
+    vintage = await readJSON(ROOT + 'data/vintage.json');
     // The file was written on build day and is read on some later day. sources.html
     // ages every source to the reader's own clock; this legend names two of the same
     // registers, so it ages them the same way — otherwise the two pages disagree by
@@ -2692,7 +2811,7 @@ let nameByReach = new Map();     // reach id -> { n, alt[], carried }
 // the picture itself does not say who that is, so the page does.
 async function loadCantons() {
   try {
-    const c = await fetch(ROOT + 'data/cantons.json').then(r => r.json());
+    const c = await readJSON(ROOT + 'data/cantons.json');
     const el = document.getElementById('srcCoverage');
     if (!el) return;
     const old = new Date(c.oldest), now = new Date();
@@ -2706,7 +2825,7 @@ async function loadCantons() {
 
 async function loadNames() {
   try {
-    names = await fetch(ROOT + 'data/names.json').then(r => r.json());
+    names = await readJSON(ROOT + 'data/names.json');
     indexNames();
     dirty = true;
   } catch (e) { names = null; }
@@ -3012,6 +3131,34 @@ function setLiveOnly(v) {
   cv.addEventListener('pointermove', done);
 })();
 
+/* ===========================================================================
+   THE PROJECT BRIEF, ONCE
+   The first visit explains the instrument before asking the reader to operate
+   it. Citation links with a map hash go straight to their cited view; the brief
+   remains available from the masthead on every visit.
+   =========================================================================== */
+(function projectBrief() {
+  const dialog = document.getElementById('intro');
+  const open = document.getElementById('introOpen');
+  if (!dialog || !open) return;
+  const KEY = 'riverflow.intro.v1';
+  let seen = false;
+  try { seen = localStorage.getItem(KEY) === '1'; } catch (e) { /* private mode */ }
+  const show = () => {
+    if (!dialog.open) dialog.showModal();
+  };
+  const close = () => {
+    try { localStorage.setItem(KEY, '1'); } catch (e) { /* private mode */ }
+    if (dialog.open) dialog.close();
+    cv.focus({ preventScroll: true });
+  };
+  open.onclick = show;
+  document.getElementById('introEnter').onclick = close;
+  document.getElementById('introClose').onclick = close;
+  dialog.addEventListener('cancel', e => { e.preventDefault(); close(); });
+  if (!seen && !location.hash) show();
+})();
+
 /* A change of surface is a change of every colour on both canvases. The base map
    only repaints when something asks it to, and the particle pool caches a colour
    per reach, so both have to be told. */
@@ -3026,4 +3173,8 @@ window.addEventListener('themechange', () => {
 
 // ---- go ---------------------------------------------------------------------
 layoutSheet();
-load();
+load().catch(e => {
+  const message = T('m.failBase', { e: e.message });
+  document.getElementById('stamp').textContent = message;
+  cv.setAttribute('aria-label', message);
+});

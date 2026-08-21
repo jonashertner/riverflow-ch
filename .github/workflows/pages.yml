@@ -17,6 +17,16 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify the complete publication surface
+        run: node scripts/verify-site.mjs
+
   # The weekly filling series is baked at build time because the BFE file allows
   # only map.geo.admin.ch to read it from a browser. Baked data goes stale in a
   # way live data cannot, so it is rebuilt on a schedule and the result is
@@ -55,9 +65,9 @@ jobs:
           echo "::warning::The weekly data refresh failed. The site still deploys" \
                "with the previously baked files, which now carry an older date."
   deploy:
-    needs: [refresh]
+    needs: [refresh, validate]
     # Runs on a push too, where refresh is skipped.
-    if: always()
+    if: always() && needs.validate.result == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

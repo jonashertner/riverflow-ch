@@ -32,12 +32,12 @@ BARRIER = {'html', 'head', 'body', 'p', 'ul', 'ol', 'li', 'div', 'section', 'art
            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'dl', 'dt', 'dd', 'table', 'thead',
            'tbody', 'tr', 'td', 'th', 'nav', 'header', 'footer', 'aside', 'figure',
            'figcaption', 'form', 'fieldset', 'main', 'blockquote', 'details',
-           'summary', 'button', 'label', 'option', 'select', 'caption', 'title',
+           'summary', 'button', 'label', 'option', 'select', 'caption', 'title', 'dialog',
            'svg', 'script', 'style'}
 OPAQUE = {'svg', 'script', 'style'}
 VOID = {'meta', 'link', 'br', 'hr', 'img', 'input', 'source', 'wbr', 'col', 'area'}
 ATTRS = ('title', 'aria-label', 'alt', 'placeholder')
-META = ('description', 'og:title', 'og:description')
+META = ('description', 'og:title', 'og:description', 'og:site_name', 'og:image:alt')
 
 ENTITY = re.compile(r'&(?:#\d+|#x[0-9a-fA-F]+|[a-zA-Z]+);')
 HAS_LETTER = re.compile(r'[A-Za-zÀ-ÿ]')
@@ -188,10 +188,13 @@ def relocate(raw, lang, page):
     raw = raw.replace('<html lang="en" data-root="./">',
                       '<html lang="%s" data-root="../">' % lang)
     for a in ASSETS:
-        raw = raw.replace('href="%s"' % a, 'href="../%s"' % a)
-        raw = raw.replace('src="%s"' % a, 'src="../%s"' % a)
+        for attr in ('href', 'src'):
+            raw = re.sub(r'%s="%s(\?[^"#]*)?"' % (attr, re.escape(a)),
+                         lambda m: '%s="../%s%s"' % (attr, a, m.group(1) or ''), raw)
     raw = raw.replace('<link rel="canonical" href="%s%s">' % (BASE, tail),
                       '<link rel="canonical" href="%s%s/%s">' % (BASE, lang, tail))
+    raw = raw.replace('<meta property="og:url" content="%s%s">' % (BASE, tail),
+                      '<meta property="og:url" content="%s%s/%s">' % (BASE, lang, tail))
     alts = ['<link rel="alternate" hreflang="en" href="../%s">' % tail]
     for L in LANGS:
         href = (tail or './') if L == lang else '../%s/%s' % (L, tail)

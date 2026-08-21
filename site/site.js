@@ -102,7 +102,7 @@ async function drawSpine() {
   if (!spineEl && !tableEl) return;
   let v;
   try {
-    v = await fetch(ROOT + 'data/vintage.json').then(r => r.json());
+    v = await readJSON(ROOT + 'data/vintage.json');
   } catch (e) {
     if (spineEl) spineEl.textContent = T('src.loadFail', { e: e.message });
     return;
@@ -226,7 +226,7 @@ async function drawCantons() {
   if (!el) return;
   let c;
   try {
-    c = await fetch(ROOT + 'data/cantons.json').then(r => r.json());
+    c = await readJSON(ROOT + 'data/cantons.json');
   } catch (e) { el.textContent = T('ct.loadFail', { e: e.message }); return; }
   const cut = Date.parse(c.newest) - 3 * 365.25 * 86400000;
   el.innerHTML = `<ul class="strip">${c.cantons.map(ct => {
@@ -264,7 +264,7 @@ async function drawBasins() {
   if (!figEl && !tabEl && !iceEl && !derEl) return;
   let b;
   try {
-    b = await fetch(ROOT + 'data/basins.json').then(r => r.json());
+    b = await readJSON(ROOT + 'data/basins.json');
   } catch (e) {
     if (figEl) figEl.textContent = T('bs.loadFail', { e: e.message });
     return;

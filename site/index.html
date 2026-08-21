@@ -17,31 +17,36 @@
 <link rel="alternate" hreflang="it" href="it/">
 <link rel="alternate" hreflang="rm" href="rm/">
 <link rel="alternate" hreflang="x-default" href="./">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.svg?v=20260821" type="image/svg+xml">
 <meta property="og:title" content="Water and ice in Switzerland">
 <meta property="og:description" content="Swiss rivers, live. Reservoirs against 26 years of their own record. Glaciers across five dated inventories. A measured base layer for legal work on climate.">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="Water and ice in Switzerland">
+<meta property="og:url" content="https://jonashertner.github.io/riverflow-ch/">
+<meta property="og:image" content="https://jonashertner.github.io/riverflow-ch/og-image.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Swiss river network beside the title Water and ice in Switzerland, with counts for river reaches, dams and glacier bodies.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="tokens.css">
-<link rel="stylesheet" href="style.css">
-<script src="i18n.js"></script>
-<script src="i18n-data.js"></script>
-<script src="i18n-map.js"></script>
-<script src="theme.js"></script>
+<link rel="stylesheet" href="tokens.css?v=20260821">
+<link rel="stylesheet" href="style.css?v=20260821">
+<script src="i18n.js?v=20260821"></script>
+<script src="i18n-data.js?v=20260821"></script>
+<script src="i18n-map.js?v=20260821"></script>
+<script src="theme.js?v=20260821"></script>
 </head>
 <body class="viz-root" data-layer="flow">
-
-<canvas id="map"></canvas>
-<canvas id="flow"></canvas>
 
 <a class="skip" href="#modes">Skip to the layer controls</a>
 
 <header id="titlebar">
   <h1>Water and ice in Switzerland</h1>
   <p class="sub">Rivers read live from the federal gauges. Ice across five surveys. Reservoirs against their own record.</p>
-  <p class="stamp" id="stamp">Loading&#8230;</p>
+  <p class="stamp" id="stamp" role="status" aria-live="polite">Loading&#8230;</p>
 
   <!-- The page's one claim about itself, drawn rather than asserted. -->
   <div id="evidence">
@@ -64,6 +69,7 @@
     <a href="method.html#reading">How to read this map</a></p>
 
   <nav id="siteNav" aria-label="Site">
+    <button type="button" id="introOpen">Project brief</button>
     <a href="method.html">Method</a>
     <a href="sources.html">Sources</a>
     <a href="law.html">Law</a>
@@ -76,6 +82,20 @@
     </button>
   </nav>
 </header>
+
+<main id="main">
+<canvas id="map" tabindex="0" aria-label="Interactive map of water and ice in Switzerland" aria-describedby="mapHelp"></canvas>
+<canvas id="flow" aria-hidden="true"></canvas>
+<p class="srOnly" id="mapHelp"></p>
+
+<nav id="mapControls" aria-label="Map controls">
+  <div class="zoomGroup">
+    <button type="button" id="zoomIn" aria-label="Zoom in" title="Zoom in"><span aria-hidden="true">+</span></button>
+    <span id="zoomLevel" aria-hidden="true">1×</span>
+    <button type="button" id="zoomOut" aria-label="Zoom out" title="Zoom out"><span aria-hidden="true">−</span></button>
+  </div>
+  <button type="button" id="zoomFit" aria-label="Fit Switzerland in view" title="Fit Switzerland in view">Fit</button>
+</nav>
 
 <nav id="modes" aria-label="Layer">
   <div class="modeGroup" role="group" aria-label="Water now">
@@ -293,12 +313,12 @@
     <h2 id="ribbonTitle">&nbsp;</h2>
     <output id="ribbonRead">&nbsp;</output>
   </div>
-  <canvas id="ribbonCv"></canvas>
+  <canvas id="ribbonCv" aria-hidden="true"></canvas>
   <input id="scrub" type="range" min="0" max="1000" value="1000" step="1" aria-label="Scrub through time">
   <p class="ribbonNote" id="ribbonNote">&nbsp;</p>
 </section>
 
-<aside id="panel" hidden>
+<aside id="panel" role="dialog" aria-modal="false" aria-labelledby="panelTitle" tabindex="-1" hidden>
   <button id="panelClose" type="button" aria-label="Close">&times;</button>
   <h2 id="panelTitle"></h2>
   <dl id="panelBody"></dl>
@@ -307,6 +327,26 @@
 </aside>
 
 <div id="tooltip" role="status" hidden></div>
+</main>
+
+<dialog id="intro" aria-labelledby="introTitle" aria-describedby="introLead">
+  <button type="button" id="introClose" aria-label="Close project brief">&times;</button>
+  <p class="introEyebrow">A measured picture of Swiss water</p>
+  <h2 id="introTitle">Switzerland&rsquo;s water, read as evidence.</h2>
+  <p class="introLead" id="introLead">One map brings together live river discharge, reservoir history,
+    glacier retreat and the law that governs water. Every figure tells you where it came from, how old
+    it is, and whether it was measured or inferred.</p>
+  <ul class="introFacts">
+    <li><strong>Live</strong><span>Federal river gauges</span></li>
+    <li><strong>26 years</strong><span>Reservoir history</span></li>
+    <li><strong>1850&ndash;2023</strong><span>Glacier inventories</span></li>
+  </ul>
+  <div class="introActions">
+    <button type="button" id="introEnter" autofocus>Explore the map</button>
+    <a href="method.html">How the evidence works</a>
+  </div>
+  <p class="introNote">Measured and modelled water. Not a forecast.</p>
+</dialog>
 
 <footer id="credits">
   <p><strong>Rivers</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), reaches with a catchment of
@@ -317,8 +357,8 @@
   <a href="sources.html">sources page</a>. Measured and modelled water, not a forecast.</p>
 </footer>
 
-<script src="fmt.js"></script>
-<script src="gschg31.js"></script>
-<script src="app.js"></script>
+<script src="fmt.js?v=20260821"></script>
+<script src="gschg31.js?v=20260821"></script>
+<script src="app.js?v=20260821"></script>
 </body>
 </html>

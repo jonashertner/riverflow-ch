@@ -21,6 +21,23 @@ the URL hash as `#lon,lat,scale,layer`, so a link is a citation: this place, thi
 reading, this scale. A bare layer name works too — `#ice`, `#res`, `#residual`,
 `#use` — and opens that layer at the country view.
 
+## Verify it
+
+```bash
+node scripts/verify-site.mjs
+```
+
+The release check treats the five pages in five languages as one publication. It
+checks every local link and fragment, canonical and hreflang set, social card,
+landmark and canvas accessibility contract, duplicate identifier, external-link
+safety attribute, JSON file, JavaScript source and runtime translation. The same
+check gates the Pages deployment in CI.
+
+The map itself is keyboard-operable: focus it, use the arrow keys to pan, plus and
+minus to zoom, Home to return to the country view, and Enter to open the nearest
+feature at the centre. Escape closes the evidence panel and returns focus to the
+map.
+
 ## The nine layers
 
 | Layer | What the colour carries | Class of evidence |
