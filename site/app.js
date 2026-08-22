@@ -41,6 +41,19 @@ for (const [side, arrow] of [['start', '\u2039'], ['end', '\u203a']]) {
   modeRail.append(cue);
 }
 
+// The compact project index appears only where the full row of links cannot fit.
+// It remains native <details> for keyboard and screen-reader semantics, with the
+// two expected menu behaviours added explicitly: click away and Escape close it.
+const siteMenu = document.getElementById('siteMenu');
+document.addEventListener('pointerdown', event => {
+  if (siteMenu?.open && !siteMenu.contains(event.target)) siteMenu.open = false;
+});
+siteMenu?.addEventListener('keydown', event => {
+  if (event.key !== 'Escape') return;
+  siteMenu.open = false;
+  siteMenu.querySelector('summary')?.focus();
+});
+
 const ENDPOINT = 'https://lindas.admin.ch/query';
 
 /* ---- the palette -----------------------------------------------------------

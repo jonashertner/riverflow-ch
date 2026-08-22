@@ -8,6 +8,41 @@
  * the same way and the statutory table is transcribed once.
  */
 
+// A deep link can arrive before an earlier, data-built figure has its final
+// height. Keep the named section aligned while that initial layout settles, then
+// stop at the reader's first interaction. Without this, #collaborate can drift
+// several screens below the viewport after the basin figures are inserted.
+(function restoreDeepLink() {
+  if (!location.hash) return;
+  let id;
+  try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+  const target = document.getElementById(id);
+  const doc = document.querySelector('.doc');
+  if (!target || !doc) return;
+  let stopped = false;
+  let frame = 0;
+  const align = () => {
+    if (stopped || frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      if (!stopped) target.scrollIntoView({ block: 'start' });
+    });
+  };
+  const observer = new ResizeObserver(align);
+  observer.observe(doc);
+  const stop = () => {
+    stopped = true;
+    observer.disconnect();
+    if (frame) cancelAnimationFrame(frame);
+  };
+  for (const type of ['pointerdown', 'touchstart', 'wheel', 'keydown']) {
+    addEventListener(type, stop, { once: true, capture: true, passive: true });
+  }
+  addEventListener('load', align, { once: true });
+  align();
+  setTimeout(stop, 5000);
+})();
+
 // ---- the contents rail ------------------------------------------------------
 // The rail marks where the reader is. It is an observer rather than a scroll
 // handler because the answer wanted is "which section is on the screen", and that
