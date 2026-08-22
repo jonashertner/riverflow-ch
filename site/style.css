@@ -143,7 +143,7 @@ html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 .modeGroup { display: flex; align-items: center; gap: 2px; }
 .modeGroup + .modeGroup { border-left: 1px solid var(--rule); padding-left: 5px; margin-left: 2px; }
 .modeGroupLabel {
-  font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--ink-muted); padding: 0 5px 0 3px; user-select: none;
 }
 #modes button {
@@ -851,9 +851,26 @@ body.hasRibbon #credits { display: none; }
 
   #dataView { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; padding: 22px 16px 16px; border: 0; border-radius: 0; }
   #dataViewLead { font-size: 13px; }
-  .dataTableWrap { max-height: calc(100dvh - 375px); }
-  #dataView th, #dataView td { min-width: 112px; padding: 9px 10px 9px 0; }
-  #dataView th:first-child, #dataView td:first-child { min-width: 170px; }
+  .dataTableWrap { max-height: calc(100dvh - 340px); overflow-x: hidden; overflow-y: auto; border: 0; }
+  #dataView table, #dataView tbody { display: block; width: 100%; }
+  #dataView thead {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  #dataView tbody { display: grid; gap: 9px; }
+  #dataView tr {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 14px;
+    padding: 12px; background: var(--surface-2); border: 1px solid var(--rule); border-radius: 8px;
+  }
+  #dataView td {
+    display: block; min-width: 0; padding: 0; border: 0;
+    overflow-wrap: anywhere; word-break: normal;
+  }
+  #dataView td:first-child, #dataView td:nth-child(4), #dataView td:only-child { grid-column: 1 / -1; }
+  #dataView td[data-label]::before {
+    display: block; margin-bottom: 3px; color: var(--ink-muted); content: attr(data-label);
+    font: 600 10px/1.2 var(--sans); letter-spacing: .07em; text-transform: uppercase;
+  }
   .dataFooter { flex-wrap: wrap; }
   #dataStatus { flex-basis: 100%; }
 
@@ -1118,7 +1135,7 @@ body.hasRibbon #credits { display: none; }
 #workspace #titlebar .stamp { margin-top: 6px; }
 #workspace #evidence { display: none; }
 #workspace #modeRail {
-  position: sticky; z-index: 7; top: 0;
+  position: static; z-index: 7;
   display: block; min-width: 0;
   background: var(--surface-1); border-bottom: 1px solid var(--rule);
 }
@@ -1139,6 +1156,7 @@ body.hasRibbon #credits { display: none; }
 }
 #workspace #modeRail.canScrollBack .modeRailCue-start,
 #workspace #modeRail.canScrollForward .modeRailCue-end { opacity: 1; }
+#mobileModePicker { display: none; }
 @media (min-width: 1100px) and (min-height: 860px) {
   #workspace #evidence { display: block; }
 }
@@ -1155,19 +1173,19 @@ body.hasRibbon #credits { display: none; }
   border: 0; border-radius: 0;
 }
 #workspace .modeGroup {
-  display: grid; grid-template-columns: 68px minmax(0, 1fr);
+  display: grid; grid-template-columns: 82px minmax(0, 1fr);
   align-items: stretch; gap: 3px; min-width: 0;
   padding: 3px 4px;
 }
 #workspace .modeGroup:first-child,
-#workspace .modeGroup:nth-child(4) { grid-template-columns: 68px repeat(3, minmax(0, 1fr)); }
-#workspace .modeGroup:nth-child(3) { grid-template-columns: 68px repeat(2, minmax(0, 1fr)); }
+#workspace .modeGroup:nth-child(4) { grid-template-columns: 82px repeat(3, minmax(0, 1fr)); }
+#workspace .modeGroup:nth-child(3) { grid-template-columns: 82px repeat(2, minmax(0, 1fr)); }
 #workspace .modeGroup + .modeGroup {
   margin: 0; border-left: 0; border-top: 1px solid var(--rule); padding-left: 4px;
 }
 #workspace .modeGroupLabel {
   display: flex; align-items: center; grid-column: auto; padding: 0 5px;
-  font-size: 8.5px; line-height: 1.2;
+  font-size: 10px; line-height: 1.2;
 }
 #workspace #modes button {
   min-width: 0; min-height: 38px; padding: 7px 6px;
@@ -1433,6 +1451,22 @@ body.hasRibbon #workspace #credits { display: block; }
   #workspace #introTitle { font-size: clamp(31px, 9vw, 43px); }
   #workspace .introLangs [lang] { min-width: 40px; min-height: 44px; }
 }
+@media (max-width: 480px) {
+  #workspace #modeRail { display: none; }
+  #workspace #mobileModePicker {
+    position: sticky; z-index: 7; top: 0;
+    display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px;
+    padding: 7px calc(10px + var(--safe-r)) 7px calc(10px + var(--safe-l));
+    color: var(--ink-muted); background: var(--surface-1); border-bottom: 1px solid var(--rule);
+    font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+  }
+  #workspace #modeSelect {
+    width: 100%; min-width: 0; min-height: 44px; padding: 7px 34px 7px 11px;
+    color: var(--ink); background: var(--surface-2); border: 1px solid var(--control-border);
+    border-radius: 6px; font: 600 14px/1.2 var(--sans); letter-spacing: 0; text-transform: none;
+  }
+  #workspace #modeSelect:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+}
 @media (max-width: 480px) and (max-height: 650px) and (orientation: portrait) {
   :root { --workspace-h: 62dvh; }
   #workspace #titlebar { padding-top: 6px; padding-bottom: 4px; }
@@ -1506,6 +1540,7 @@ body.workspaceReading #workspaceRead { display: none; }
 body.workspaceReading #dataViewOpen { margin-left: auto; }
 body.workspaceReading #workspaceScroll > #titlebar,
 body.workspaceReading #workspaceScroll > #modeRail,
+body.workspaceReading #workspaceScroll > #mobileModePicker,
 body.workspaceReading #workspaceScroll > #mapControls,
 body.workspaceReading #workspaceScroll > #liveAlerts,
 body.workspaceReading #workspaceScroll > #tooltip,

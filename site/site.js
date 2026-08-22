@@ -66,6 +66,12 @@
 (function toc() {
   const rail = document.querySelector('.toc');
   if (!rail) return;
+  const disclosure = rail.closest('details');
+  const wide = window.matchMedia('(min-width: 1080px)');
+  // English source pages stay open in markup as a progressive-enhancement
+  // fallback. Once JavaScript is available, a narrow screen starts with the
+  // contents folded so the page heading and purpose are immediately visible.
+  if (disclosure && !wide.matches) disclosure.open = false;
   const links = new Map();
   for (const a of rail.querySelectorAll('a[href^="#"]')) links.set(a.getAttribute('href').slice(1), a);
   const secs = [...links.keys()].map(id => document.getElementById(id)).filter(Boolean);
@@ -87,17 +93,14 @@
   for (const s of secs) io.observe(s);
   // A rail that folds shut on a phone should not fold shut again on every tap.
   for (const a of links.values()) a.addEventListener('click', () => {
-    const d = rail.closest('details');
-    if (d && window.matchMedia('(max-width: 1079px)').matches) d.open = false;
+    if (disclosure && !wide.matches) disclosure.open = false;
   });
   // ...and having folded shut, it has to come back when the window widens. At
   // 1080 px the summary is display:none, because the rail is meant to be a
   // permanently open column there — so a rail left closed by a tap at phone width
   // would have neither list nor control, and no way back short of a reload.
-  const wide = window.matchMedia('(min-width: 1080px)');
-  const reopen = e => { const d = rail.closest('details'); if (d && e.matches) d.open = true; };
-  wide.addEventListener('change', reopen);
-  reopen(wide);
+  const resizeDisclosure = e => { if (disclosure) disclosure.open = e.matches; };
+  wide.addEventListener('change', resizeDisclosure);
 })();
 
 // ---- Art. 31(1) GSchG, with the reader's own figure --------------------------

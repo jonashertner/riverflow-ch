@@ -86,6 +86,30 @@ for (const [side, arrow] of [['start', '\u2039'], ['end', '\u203a']]) {
   modeRail.append(cue);
 }
 
+// A phone does not have enough width for ten layer names in a horizontal strip.
+// Mirror the same grouped controls in one native selector: it is compact, fully
+// keyboard accessible and opens as the platform's own touch-sized choice sheet.
+const mobileModePicker = document.createElement('label');
+mobileModePicker.id = 'mobileModePicker';
+const mobileModeLabel = document.createElement('span');
+mobileModeLabel.textContent = T('m.chooseLayer');
+const mobileModeSelect = document.createElement('select');
+mobileModeSelect.id = 'modeSelect';
+mobileModeSelect.setAttribute('aria-label', T('m.chooseLayer'));
+for (const group of layerModes.querySelectorAll('.modeGroup')) {
+  const options = document.createElement('optgroup');
+  options.label = group.querySelector('.modeGroupLabel')?.textContent.trim() || T('m.chooseLayer');
+  for (const button of group.querySelectorAll('button[data-mode]')) {
+    const option = document.createElement('option');
+    option.value = button.dataset.mode;
+    option.textContent = button.textContent.trim();
+    options.append(option);
+  }
+  mobileModeSelect.append(options);
+}
+mobileModePicker.append(mobileModeLabel, mobileModeSelect);
+modeRail.before(mobileModePicker);
+
 // The map remains the working surface; prose can become a reading surface on
 // demand. The same full-screen mode is used for legal review, selected features
 // and the first-visit brief, so users learn one way in and one way back.
@@ -664,7 +688,10 @@ async function refresh(auto = false) {
     applyLive();
     invalidate(); dirtyAlloc = true;
     if (auto) stampText();
-    else document.getElementById('stamp').textContent = T('m.liveFail', { e: e.message });
+    else {
+      liveFlowStatus = T('m.liveFail', { e: e.message });
+      updateLayerStatus();
+    }
     liveBackoff = Math.min(liveBackoff ? liveBackoff * 2 : 60000, LIVE_CADENCE);
   } finally {
     if (!auto) { btn.disabled = false; btn.textContent = T('m.refresh'); }
@@ -785,20 +812,82 @@ function updateEvidence() {
   }));
 }
 
-function stampText() {
+let liveFlowStatus = T('m.reading');
+
+function updateLayerStatus() {
   const el = document.getElementById('stamp');
+  if (!el) return;
+  if (mode === 'flow' || mode === 'normal') {
+    el.textContent = liveFlowStatus;
+    return;
+  }
+  if (mode === 'temp') {
+    const current = stations.filter(s => Number.isFinite(s.obs?.temp));
+    const newest = current.map(s => s.rawObs?.time).filter(Boolean).sort().at(-1);
+    el.textContent = current.length
+      ? T('m.statusTemp', { n: nf(current.length), t: newest ? fmtStamp(new Date(newest)) : T('m.unstated') })
+      : T('m.noTemp');
+    return;
+  }
+  if (mode === 'quality' && quality) {
+    const cells = quality.stations.map(s => qualityCell(s)).filter(Boolean);
+    const samples = cells.reduce((n, a) => n + a[2], 0);
+    el.textContent = T('m.statusQuality', {
+      parameter: qualityParameterName(quality.parameters[qualityParam]), year: qualityYear,
+      samples: nf(samples), stations: nf(cells.length),
+    });
+    return;
+  }
+  if (mode === 'res' && reservoirs) {
+    el.textContent = T('m.statusReservoirs', {
+      n: nf(reservoirs.totals.count), d: fmtDate(reservoirs.fill.latest.d),
+      pct: nfd(reservoirs.fill.latest.pct, 1),
+    });
+    return;
+  }
+  if (mode === 'ice' && glaciers) {
+    el.textContent = T('m.statusIce', {
+      n: nf(glaciers.now.count), from: glaciers.past.year, to: glaciers.now.year,
+    });
+    return;
+  }
+  if (mode === 'residual' && residual) {
+    el.textContent = T('m.statusResidual', { n: nf(residual.points.length), d: fmtDate(residual.datenstand) });
+    return;
+  }
+  if (mode === 'use' && users) {
+    const n = ['hydro', 'abstraction', 'npp', 'ara'].reduce((sum, key) => sum + users[key].length, 0);
+    el.textContent = T('m.statusUse', { n: nf(n) });
+    return;
+  }
+  if (mode === 'wet' && wetlands) {
+    el.textContent = T('m.statusWet', { n: nf(wetlands.objects.length), inventories: nf(Object.keys(wetlands.inventories).length) });
+    return;
+  }
+  if (mode === 'source') {
+    el.textContent = vintage
+      ? T('m.statusSource', { n: nf(vintage.sources.length) })
+      : T('m.statusSourceLoading');
+    return;
+  }
+  el.textContent = T('m.readingLayer');
+}
+
+function stampText() {
   if (!liveStamp) {
     const rejected = liveSummary.stale + liveSummary.invalid + liveSummary.unit;
-    el.textContent = rejected ? T('m.noValidLive', { n: rejected }) : T('m.noLive');
+    liveFlowStatus = rejected ? T('m.noValidLive', { n: rejected }) : T('m.noLive');
+    updateLayerStatus();
     updateLiveLegalScreen();
     return;
   }
   const d = new Date(liveStamp);
   const t = fmtStamp(d);
   const excluded = liveSummary.stale + liveSummary.invalid + liveSummary.unit;
-  el.textContent = excluded
+  liveFlowStatus = excluded
     ? T('m.stampExcluded', { n: liveSummary.current, t, x: excluded })
     : T('m.stamp', { n: liveSummary.current, t });
+  updateLayerStatus();
 
   const withT = stations.filter(s => s.obs?.temp !== null && s.obs?.temp !== undefined);
   const c = document.getElementById('tempCount');
@@ -1059,6 +1148,7 @@ function qualityLegend() {
     b.classList.toggle('on', +b.dataset.parameterIndex === qualityParam);
     b.setAttribute('aria-pressed', String(+b.dataset.parameterIndex === qualityParam));
   }
+  updateLayerStatus();
 }
 
 function qualityPosition(v, p) {
@@ -2242,6 +2332,8 @@ function setMode(m) {
   document.getElementById('legendTitle').textContent = LGTITLE[m];
   document.getElementById('sheetTitle').textContent = LGTITLE[m];
   cv.setAttribute('aria-label', T('m.mapAria', { layer: LGTITLE[m] }));
+  mobileModeSelect.value = m;
+  updateLayerStatus();
   // A selection made on one layer is a fact about that layer. Carrying a glacier
   // panel into the reservoir layer would leave a reading on screen that the map
   // beneath it no longer supports.
@@ -2263,6 +2355,11 @@ for (const b of document.querySelectorAll('#modes button')) {
   b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
   b.onclick = () => setMode(b.dataset.mode);
 }
+mobileModeSelect.value = mode;
+mobileModeSelect.addEventListener('change', () => {
+  const requested = mobileModeSelect.value;
+  if (!setMode(requested)) mobileModeSelect.value = mode;
+});
 
 /* Between phone and wide desktop the translated layer names form a horizontal
    rail. Touch and trackpads scroll it natively; a vertical mouse wheel should be
@@ -2315,7 +2412,8 @@ function dataRowsForMode() {
     const value = !current ? T('m.dataNoCurrent')
       : mode === 'normal' && r.mean > 0 ? nfd(100 * r.live / r.mean, 0) + ' %'
       : fmtQ(r.live) + ' m³/s';
-    return [nm?.n || T('m.dataReach', { id: r.id }), value, reachEvidence(r),
+    const identity = T('m.dataReach', { id: r.id });
+    return [nm?.n ? `${nm.n} · ${identity}` : identity, value, reachEvidence(r),
       r.basis === 'measured' ? 'BAFU · LINDAS' : 'HydroRIVERS · BAFU'];
   });
   if (mode === 'temp') return stations.map(s => [
@@ -2390,14 +2488,18 @@ function renderDataView() {
   if (!shown.length) {
     const tr = document.createElement('tr'), td = document.createElement('td');
     td.colSpan = 4; td.textContent = T('m.dataEmpty'); tr.appendChild(td); dataBody.appendChild(tr);
-  } else for (const row of shown) {
-    const tr = document.createElement('tr');
-    for (const value of row) {
-      const td = document.createElement('td');
-      td.textContent = value || '—';
-      tr.appendChild(td);
+  } else {
+    const headers = [...dataView.querySelectorAll('thead th')].map(th => th.textContent.trim());
+    for (const row of shown) {
+      const tr = document.createElement('tr');
+      for (const [index, value] of row.entries()) {
+        const td = document.createElement('td');
+        td.textContent = value || '—';
+        td.dataset.label = headers[index] || '';
+        tr.appendChild(td);
+      }
+      dataBody.appendChild(tr);
     }
-    dataBody.appendChild(tr);
   }
   document.getElementById('dataCaption').textContent = T('m.dataCaption', { layer: LGTITLE[mode], n: nf(rows.length) });
   document.getElementById('dataStatus').textContent = rows.length
@@ -3287,6 +3389,7 @@ function renderVintage() {
     ca: vintageOf('catchments'),
     caAge: ca?.ageDays ? T('m.srcAgeBare', { a: ageText(ca.ageDays) }) : '',
   });
+  updateLayerStatus();
 }
 
 /* ===========================================================================

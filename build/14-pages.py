@@ -37,7 +37,7 @@ BARRIER = {'html', 'head', 'body', 'p', 'ul', 'ol', 'li', 'div', 'section', 'art
            'svg', 'script', 'style'}
 OPAQUE = {'svg', 'script', 'style'}
 VOID = {'meta', 'link', 'br', 'hr', 'img', 'input', 'source', 'wbr', 'col', 'area'}
-ATTRS = ('title', 'aria-label', 'alt', 'placeholder')
+ATTRS = ('title', 'aria-label', 'aria-roledescription', 'alt', 'placeholder')
 META = ('description', 'og:title', 'og:description', 'og:site_name', 'og:image:alt')
 
 ENTITY = re.compile(r'&(?:#\d+|#x[0-9a-fA-F]+|[a-zA-Z]+);')
