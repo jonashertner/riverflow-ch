@@ -24,6 +24,23 @@ for (const id of ['titlebar', 'modes', 'mapControls', 'tooltip', 'legend', 'ribb
 const publicationCredits = document.getElementById('credits');
 if (publicationCredits) document.getElementById('legendBody')?.append(publicationCredits);
 
+// On narrow screens the layers form a real horizontal rail. Give that rail a
+// stable shell so its two quiet edge cues can stay fixed while the buttons move
+// beneath them. The cues are visual only: touch, trackpad, wheel and keyboard
+// navigation keep operating on the native scroll container.
+const layerModes = document.getElementById('modes');
+const modeRail = document.createElement('div');
+modeRail.id = 'modeRail';
+layerModes.before(modeRail);
+modeRail.append(layerModes);
+for (const [side, arrow] of [['start', '\u2039'], ['end', '\u203a']]) {
+  const cue = document.createElement('span');
+  cue.className = `modeRailCue modeRailCue-${side}`;
+  cue.setAttribute('aria-hidden', 'true');
+  cue.textContent = arrow;
+  modeRail.append(cue);
+}
+
 const ENDPOINT = 'https://lindas.admin.ch/query';
 
 /* ---- the palette -----------------------------------------------------------
@@ -2063,6 +2080,12 @@ for (const b of document.querySelectorAll('#modes button')) {
 (function practicalModeRail() {
   const modeNav = document.getElementById('modes');
   if (!modeNav) return;
+  const rail = document.getElementById('modeRail');
+  const syncCues = () => {
+    const max = Math.max(0, modeNav.scrollWidth - modeNav.clientWidth);
+    rail?.classList.toggle('canScrollBack', max > 4 && modeNav.scrollLeft > 6);
+    rail?.classList.toggle('canScrollForward', max > 4 && modeNav.scrollLeft < max - 6);
+  };
   modeNav.addEventListener('wheel', event => {
     const max = modeNav.scrollWidth - modeNav.clientWidth;
     if (max <= 2 || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
@@ -2070,6 +2093,10 @@ for (const b of document.querySelectorAll('#modes button')) {
     modeNav.scrollLeft = Math.max(0, Math.min(max, before + event.deltaY));
     if (modeNav.scrollLeft !== before) event.preventDefault();
   }, { passive: false });
+  modeNav.addEventListener('scroll', syncCues, { passive: true });
+  window.addEventListener('resize', syncCues, { passive: true });
+  if ('ResizeObserver' in window) new ResizeObserver(syncCues).observe(modeNav);
+  requestAnimationFrame(syncCues);
 })();
 
 // ---- accessible data view --------------------------------------------------

@@ -172,6 +172,8 @@ for (const [label, pattern] of [
   ['independently scrolling evidence', /#workspace #legend\s*\{[^}]*flex:\s*1 1 auto;[^}]*overflow-y:\s*auto/s],
   ['stacked portrait workspace', /@media \(max-width:\s*900px\) and \(orientation:\s*portrait\)[\s\S]*?#workspace\s*\{[^}]*height:\s*var\(--workspace-h\)[\s\S]*?#map, #flow\s*\{[^}]*width:\s*100vw;[^}]*height:\s*calc\(100dvh - var\(--workspace-h\)\)/s],
   ['compact short-landscape rail', /@media \(max-height:\s*560px\) and \(orientation:\s*landscape\)[\s\S]*?#workspace #modes\s*\{[^}]*overflow-x:\s*auto/s],
+  ['discoverable narrow layer rail', /#workspace #modeRail\.canScrollForward \.modeRailCue-end\s*\{\s*opacity:\s*1/s],
+  ['useful smallest-phone evidence height', /@media \(max-width:\s*480px\) and \(max-height:\s*650px\) and \(orientation:\s*portrait\)\s*\{[\s\S]*?--workspace-h:\s*62dvh/s],
   ['sidebar project brief', /#workspace #intro\s*\{[^}]*position:\s*absolute;[^}]*inset:\s*0;[^}]*height:\s*100%/s],
   ['sidebar map readout', /#workspace #tooltip\s*\{[^}]*position:\s*static;[^}]*border-bottom:/s],
   ['high-contrast control boundary token', /--control-border:\s*#[0-9a-f]{6}/i],
@@ -182,6 +184,10 @@ if (!/window\.visualViewport\?\.addEventListener\(['"]resize['"]/.test(appSource
 }
 if (!/modeNav\.addEventListener\(['"]wheel['"]/.test(appSource)) {
   fail(join(site, 'app.js'), 'intermediate mode rail has no practical mouse-wheel navigation');
+}
+if (!/modeNav\.addEventListener\(['"]scroll['"],\s*syncCues/.test(appSource) ||
+    !/classList\.toggle\(['"]canScrollForward['"]/.test(appSource)) {
+  fail(join(site, 'app.js'), 'narrow mode rail does not disclose additional layers');
 }
 if (!/workspace\.append\(el\)/.test(appSource) || !/dialog\.show\(\)/.test(appSource) || /dialog\.showModal\(\)/.test(appSource)) {
   fail(join(site, 'app.js'), 'project brief must occupy the evidence workspace without covering the map');
