@@ -184,6 +184,8 @@ for (const [label, pattern] of [
   ['sidebar map readout', /#workspace #tooltip\s*\{[^}]*position:\s*static;[^}]*border-bottom:/s],
   ['sidebar legal screen', /#workspace #liveAlerts\s*\{[^}]*flex:\s*none;[^}]*border-bottom:/s],
   ['touch-sized legal screen', /#workspace #liveAlertsToggle\s*\{[^}]*min-height:\s*44px/s],
+  ['viewport-bound legal details', /#workspace #liveAlertsBody\s*\{[^}]*max-height:\s*clamp\(100px,\s*18dvh,\s*180px\);[^}]*overflow-y:\s*auto/s],
+  ['smallest-phone legal details', /@media \(max-width:\s*480px\) and \(max-height:\s*650px\) and \(orientation:\s*portrait\)[\s\S]*?#workspace #liveAlertsBody\s*\{[^}]*max-height:\s*70px/s],
   ['high-contrast control boundary token', /--control-border:\s*#[0-9a-f]{6}/i],
 ]) if (!pattern.test(responsiveCss)) fail(responsiveCssFile, `missing responsive contract: ${label}`);
 const appSource = readFileSync(join(site, 'app.js'), 'utf8');
