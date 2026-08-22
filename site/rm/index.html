@@ -97,6 +97,16 @@
   <button type="button" id="dataViewOpen" aria-label="Explorar quest nivel sco datas" title="Explorar quest nivel sco datas">Datas</button>
 </nav>
 
+<section id="liveAlerts" aria-labelledby="liveAlertsTitle">
+  <button type="button" id="liveAlertsToggle" aria-expanded="false" aria-controls="liveAlertsBody"><span class="liveAlertHeading"><i aria-hidden="true"></i><span id="liveAlertsTitle">Examinaziun giuridica</span></span> <span id="liveAlertsSummary" role="status" aria-live="polite">Las mesiraziuns actualas vegnan examinadas…</span> <span class="liveAlertChevron" aria-hidden="true"></span></button>
+  <div id="liveAlertsBody" hidden>
+    <p class="liveAlertScope">Las temperaturas actualas dals flums da l’UFAM vegnan cumparegliadas cun la pretensiun da 25&nbsp;°C tenor l’agiunta&nbsp;2 cifra&nbsp;12 al.&nbsp;4 GSchV.</p>
+    <ol id="liveAlertsList"></ol>
+    <p class="liveAlertLimit">Ina mesiraziun sur 25&nbsp;°C pretenda in’examinaziun; ella na cumprova nagina violaziun. La regla pertutga in stgaudament chaschunà da l’uman suenter ina vasta maschaida. Las datas en direct n’identifitgeschan nagin apport da chalur, stadi da referenza, maschaida, permissiun u excepziun. Per examinar l’aua restanta e la qualitad dovri cumprovas specificas dal lieu u betg disponiblas en direct.</p>
+    <p class="liveAlertLinks"><a href="https://www.fedlex.admin.ch/eli/cc/1998/2863_2863_2863/de" target="_blank" rel="noopener">Basa giuridica</a><a href="https://lindas.admin.ch/query" target="_blank" rel="noopener">Datas en direct</a><a href="method.html#live">Metoda</a></p>
+  </div>
+</section>
+
 <nav id="modes" aria-label="Nivel">
   <div class="modeGroup" role="group" aria-label="L’aua ussa">
     <span class="modeGroupLabel">Ussa</span>
@@ -393,6 +403,7 @@
 
 <script src="../fmt.js?v=20260822"></script>
 <script src="../gschg31.js?v=20260821"></script>
-<script src="../app.js?v=20260822c"></script>
+<script src="../legal-alerts.js?v=20260822"></script>
+<script src="../app.js?v=20260822d"></script>
 </body>
 </html>

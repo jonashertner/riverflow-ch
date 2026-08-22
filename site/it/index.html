@@ -97,6 +97,16 @@
   <button type="button" id="dataViewOpen" aria-label="Esplorare questo livello come dati" title="Esplorare questo livello come dati">Dati</button>
 </nav>
 
+<section id="liveAlerts" aria-labelledby="liveAlertsTitle">
+  <button type="button" id="liveAlertsToggle" aria-expanded="false" aria-controls="liveAlertsBody"><span class="liveAlertHeading"><i aria-hidden="true"></i><span id="liveAlertsTitle">Verifica giuridica</span></span> <span id="liveAlertsSummary" role="status" aria-live="polite">Verifica delle misure attuali…</span> <span class="liveAlertChevron" aria-hidden="true"></span></button>
+  <div id="liveAlertsBody" hidden>
+    <p class="liveAlertScope">Le temperature attuali dei corsi d’acqua dell’UFAM sono confrontate con il requisito di 25&nbsp;°C dell’allegato&nbsp;2 n.&nbsp;12 cpv.&nbsp;4 OPAc.</p>
+    <ol id="liveAlertsList"></ol>
+    <p class="liveAlertLimit">Una misura sopra i 25&nbsp;°C richiede una verifica; non prova una violazione. La norma riguarda un riscaldamento antropico dopo ampia miscelazione. Il flusso in diretta non identifica apporto di calore, stato di riferimento, miscelazione, autorizzazione o eccezione. Il rispetto dei requisiti di deflusso residuale e qualità richiede prove specifiche del sito o non disponibili in diretta.</p>
+    <p class="liveAlertLinks"><a href="https://www.fedlex.admin.ch/eli/cc/1998/2863_2863_2863/de" target="_blank" rel="noopener">Base giuridica</a><a href="https://lindas.admin.ch/query" target="_blank" rel="noopener">Dati in diretta</a><a href="method.html#live">Metodo</a></p>
+  </div>
+</section>
+
 <nav id="modes" aria-label="Livello">
   <div class="modeGroup" role="group" aria-label="L’acqua adesso">
     <span class="modeGroupLabel">Adesso</span>
@@ -393,6 +403,7 @@
 
 <script src="../fmt.js?v=20260822"></script>
 <script src="../gschg31.js?v=20260821"></script>
-<script src="../app.js?v=20260822c"></script>
+<script src="../legal-alerts.js?v=20260822"></script>
+<script src="../app.js?v=20260822d"></script>
 </body>
 </html>

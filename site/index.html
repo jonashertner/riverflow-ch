@@ -97,6 +97,16 @@
   <button type="button" id="dataViewOpen" aria-label="Diese Ebene als Daten erkunden" title="Diese Ebene als Daten erkunden">Daten</button>
 </nav>
 
+<section id="liveAlerts" aria-labelledby="liveAlertsTitle">
+  <button type="button" id="liveAlertsToggle" aria-expanded="false" aria-controls="liveAlertsBody"><span class="liveAlertHeading"><i aria-hidden="true"></i><span id="liveAlertsTitle">Rechtsprüfung</span></span> <span id="liveAlertsSummary" role="status" aria-live="polite">Aktuelle Messwerte werden geprüft…</span> <span class="liveAlertChevron" aria-hidden="true"></span></button>
+  <div id="liveAlertsBody" hidden>
+    <p class="liveAlertScope">Aktuelle Flusstemperaturen des BAFU werden an der Anforderung von 25&nbsp;°C nach Anhang&nbsp;2 Ziff.&nbsp;12 Abs.&nbsp;4 GSchV geprüft.</p>
+    <ol id="liveAlertsList"></ol>
+    <p class="liveAlertLimit">Eine Messung über 25&nbsp;°C löst eine Prüfung aus; sie beweist keine Rechtsverletzung. Die Regel betrifft eine menschengemachte Erwärmung nach weitgehender Durchmischung. Der Live-Datenstrom nennt weder Wärmeeintrag noch Referenzzustand, Durchmischung, Bewilligung oder Ausnahme. Die Einhaltung von Restwasser- und Qualitätsanforderungen braucht standortspezifische oder nicht aktuelle Belege.</p>
+    <p class="liveAlertLinks"><a href="https://www.fedlex.admin.ch/eli/cc/1998/2863_2863_2863/de" target="_blank" rel="noopener">Rechtsgrundlage</a><a href="https://lindas.admin.ch/query" target="_blank" rel="noopener">Livedaten</a><a href="de/method.html#live">Methode</a></p>
+  </div>
+</section>
+
 <nav id="modes" aria-label="Ebene">
   <div class="modeGroup" role="group" aria-label="Wasser jetzt">
     <span class="modeGroupLabel">Jetzt</span>
@@ -393,6 +403,7 @@
 
 <script src="fmt.js?v=20260822"></script>
 <script src="gschg31.js?v=20260821"></script>
-<script src="app.js?v=20260822c"></script>
+<script src="legal-alerts.js?v=20260822"></script>
+<script src="app.js?v=20260822d"></script>
 </body>
 </html>

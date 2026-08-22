@@ -158,6 +158,12 @@ for (const file of landingFiles) {
       !/<label\b[^>]*for=["']dataSearch["']/i.test(raw)) {
     fail(file, 'active layers need a searchable semantic data-table alternative to the canvases');
   }
+  if (!/<section\b[^>]*id=["']liveAlerts["'][\s\S]*?<button\b[^>]*id=["']liveAlertsToggle["'][\s\S]*?<ol\b[^>]*id=["']liveAlertsList["']/i.test(raw) ||
+      !/fedlex\.admin\.ch\/eli\/cc\/1998\/2863_2863_2863\/de/i.test(raw) ||
+      !/lindas\.admin\.ch\/query/i.test(raw) ||
+      !/method\.html#live/.test(raw)) {
+    fail(file, 'live legal screen is missing its accessible list, legal basis or method source');
+  }
 }
 const responsiveCssFile = join(site, 'style.css');
 const responsiveCss = readFileSync(join(site, 'tokens.css'), 'utf8') + '\n' + readFileSync(responsiveCssFile, 'utf8');
@@ -176,6 +182,8 @@ for (const [label, pattern] of [
   ['useful smallest-phone evidence height', /@media \(max-width:\s*480px\) and \(max-height:\s*650px\) and \(orientation:\s*portrait\)\s*\{[\s\S]*?--workspace-h:\s*62dvh/s],
   ['sidebar project brief', /#workspace #intro\s*\{[^}]*position:\s*absolute;[^}]*inset:\s*0;[^}]*height:\s*100%/s],
   ['sidebar map readout', /#workspace #tooltip\s*\{[^}]*position:\s*static;[^}]*border-bottom:/s],
+  ['sidebar legal screen', /#workspace #liveAlerts\s*\{[^}]*flex:\s*none;[^}]*border-bottom:/s],
+  ['touch-sized legal screen', /#workspace #liveAlertsToggle\s*\{[^}]*min-height:\s*44px/s],
   ['high-contrast control boundary token', /--control-border:\s*#[0-9a-f]{6}/i],
 ]) if (!pattern.test(responsiveCss)) fail(responsiveCssFile, `missing responsive contract: ${label}`);
 const appSource = readFileSync(join(site, 'app.js'), 'utf8');
@@ -193,7 +201,7 @@ if (!/workspace\.append\(el\)/.test(appSource) || !/dialog\.show\(\)/.test(appSo
   fail(join(site, 'app.js'), 'project brief must occupy the evidence workspace without covering the map');
 }
 const workspaceComposition = /for \(const id of \[([^\]]+)\]\)/.exec(appSource.slice(0, 3500))?.[1] ?? '';
-for (const id of ['titlebar', 'modes', 'mapControls', 'tooltip', 'legend', 'ribbon', 'panel', 'intro']) {
+for (const id of ['titlebar', 'modes', 'mapControls', 'liveAlerts', 'tooltip', 'legend', 'ribbon', 'panel', 'intro']) {
   if (!new RegExp(`['"]${id}['"]`).test(workspaceComposition)) {
     fail(join(site, 'app.js'), `${id} is not composed into the evidence workspace`);
   }
@@ -224,6 +232,35 @@ try {
   }
 } catch (error) {
   fail(join(site, 'fmt.js'), `date-format validation failed: ${error.message}`);
+}
+
+// The only automatic legal screen is intentionally strict and freshness-bound:
+// 25.0 C is the ceiling, not an exceedance; stale, future and invalid readings
+// cannot become alerts. This executable contract guards the legal semantics from
+// a visually plausible off-by-one or timestamp regression.
+try {
+  const alertFile = join(site, 'legal-alerts.js');
+  const alertSandbox = {};
+  vm.createContext(alertSandbox);
+  vm.runInContext(readFileSync(alertFile, 'utf8'), alertSandbox);
+  const screen = alertSandbox.RiverflowLegalScreen;
+  const now = Date.parse('2026-08-22T12:00:00Z');
+  const result = screen.evaluateTemperature([
+    { id: 'above', name: 'Above', temperature: 25.1, observedAt: '2026-08-22T11:50:00Z' },
+    { id: 'at', name: 'At', temperature: 25.0, observedAt: '2026-08-22T11:51:00Z' },
+    { id: 'below', name: 'Below', temperature: 24.9, observedAt: '2026-08-22T11:52:00Z' },
+    { id: 'stale', name: 'Stale', temperature: 30, observedAt: '2026-08-22T11:29:59Z' },
+    { id: 'future', name: 'Future', temperature: 30, observedAt: '2026-08-22T12:05:01Z' },
+    { id: 'invalid', name: 'Invalid', temperature: 'not-a-number', observedAt: '2026-08-22T11:55:00Z' },
+    { id: 'missing', name: 'Missing', temperature: null, observedAt: '2026-08-22T11:56:00Z' },
+  ], { now });
+  if (screen.TEMPERATURE_LIMIT_C !== 25 || result.eligible.length !== 3 ||
+      result.above.length !== 1 || result.above[0].id !== 'above' ||
+      result.at.length !== 1 || result.at[0].id !== 'at') {
+    fail(alertFile, 'temperature screen is not strict, fresh-only and 25 C bound');
+  }
+} catch (error) {
+  fail(join(site, 'legal-alerts.js'), `legal-screen validation failed: ${error.message}`);
 }
 
 // The sitemap must describe exactly the canonical publication surface.

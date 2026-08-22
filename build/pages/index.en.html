@@ -98,6 +98,20 @@
   <button type="button" id="dataViewOpen" aria-label="Explore this layer as data" title="Explore this layer as data">Data</button>
 </nav>
 
+<section id="liveAlerts" aria-labelledby="liveAlertsTitle">
+  <button type="button" id="liveAlertsToggle" aria-expanded="false" aria-controls="liveAlertsBody">
+    <span class="liveAlertHeading"><i aria-hidden="true"></i><span id="liveAlertsTitle">Legal screen</span></span>
+    <span id="liveAlertsSummary" role="status" aria-live="polite">Checking current readings…</span>
+    <span class="liveAlertChevron" aria-hidden="true"></span>
+  </button>
+  <div id="liveAlertsBody" hidden>
+    <p class="liveAlertScope">Fresh BAFU river-temperature readings are screened against the 25&nbsp;°C requirement in GSchV Annex&nbsp;2 No.&nbsp;12(4).</p>
+    <ol id="liveAlertsList"></ol>
+    <p class="liveAlertLimit">A reading above 25&nbsp;°C triggers review; it does not prove a breach. The rule concerns human-caused warming after substantial mixing. The live feed does not identify a heat input, reference state, mixing, permit or exception. Residual-flow and water-quality compliance need site-specific or non-live evidence.</p>
+    <p class="liveAlertLinks"><a href="https://www.fedlex.admin.ch/eli/cc/1998/2863_2863_2863/de" target="_blank" rel="noopener">Legal basis</a><a href="https://lindas.admin.ch/query" target="_blank" rel="noopener">Live data</a><a href="method.html#live">Method</a></p>
+  </div>
+</section>
+
 <nav id="modes" aria-label="Layer">
   <div class="modeGroup" role="group" aria-label="Water now">
     <span class="modeGroupLabel">Now</span>
@@ -442,6 +456,7 @@
 
 <script src="fmt.js?v=20260822"></script>
 <script src="gschg31.js?v=20260821"></script>
-<script src="app.js?v=20260822c"></script>
+<script src="legal-alerts.js?v=20260822"></script>
+<script src="app.js?v=20260822d"></script>
 </body>
 </html>
