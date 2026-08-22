@@ -163,13 +163,17 @@ const responsiveCssFile = join(site, 'style.css');
 const responsiveCss = readFileSync(join(site, 'tokens.css'), 'utf8') + '\n' + readFileSync(responsiveCssFile, 'utf8');
 for (const [label, pattern] of [
   ['safe-area top inset', /--safe-t:\s*env\(safe-area-inset-top/],
-  ['44 px mobile layer controls', /#modes button\s*\{[^}]*min-height:\s*44px/s],
+  ['44 px mobile layer controls', /#workspace #modes button\s*\{[^}]*min-height:\s*44px/s],
   ['44 px mobile legend controls', /\.controls label\s*\{\s*min-height:\s*44px/],
-  ['dynamic mobile sheet height', /max-height:\s*76dvh/],
   ['dynamic mobile dialog height', /max-height:\s*calc\(100dvh - 12px\)/],
   ['large landing language targets', /#intro \.introLangs \[lang\][^{]*\{[^}]*min-width:\s*40px;[^}]*min-height:\s*44px/s],
-  ['contained intermediate mode rail', /@media \(min-width:\s*701px\) and \(max-width:\s*1340px\)[\s\S]*?#modes\s*\{[^}]*overflow-x:\s*auto/],
-  ['collision-free wide mode rail', /@media \(min-width:\s*1900px\)[\s\S]*?#modes\s*\{[^}]*left:\s*calc\(var\(--pad\) \+ 484px\)/],
+  ['persistent evidence workspace', /#workspace\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;[^}]*width:\s*var\(--workspace-w\)/s],
+  ['unobstructed desktop map surface', /#map, #flow\s*\{[^}]*left:\s*var\(--workspace-w\);[^}]*width:\s*calc\(100vw - var\(--workspace-w\)\);[^}]*height:\s*100dvh/s],
+  ['independently scrolling evidence', /#workspace #legend\s*\{[^}]*flex:\s*1 1 auto;[^}]*overflow-y:\s*auto/s],
+  ['stacked portrait workspace', /@media \(max-width:\s*900px\) and \(orientation:\s*portrait\)[\s\S]*?#workspace\s*\{[^}]*height:\s*var\(--workspace-h\)[\s\S]*?#map, #flow\s*\{[^}]*width:\s*100vw;[^}]*height:\s*calc\(100dvh - var\(--workspace-h\)\)/s],
+  ['compact short-landscape rail', /@media \(max-height:\s*560px\) and \(orientation:\s*landscape\)[\s\S]*?#workspace #modes\s*\{[^}]*overflow-x:\s*auto/s],
+  ['sidebar project brief', /#workspace #intro\s*\{[^}]*position:\s*absolute;[^}]*inset:\s*0;[^}]*height:\s*100%/s],
+  ['sidebar map readout', /#workspace #tooltip\s*\{[^}]*position:\s*static;[^}]*border-bottom:/s],
   ['high-contrast control boundary token', /--control-border:\s*#[0-9a-f]{6}/i],
 ]) if (!pattern.test(responsiveCss)) fail(responsiveCssFile, `missing responsive contract: ${label}`);
 const appSource = readFileSync(join(site, 'app.js'), 'utf8');
@@ -178,6 +182,24 @@ if (!/window\.visualViewport\?\.addEventListener\(['"]resize['"]/.test(appSource
 }
 if (!/modeNav\.addEventListener\(['"]wheel['"]/.test(appSource)) {
   fail(join(site, 'app.js'), 'intermediate mode rail has no practical mouse-wheel navigation');
+}
+if (!/workspace\.append\(el\)/.test(appSource) || !/dialog\.show\(\)/.test(appSource) || /dialog\.showModal\(\)/.test(appSource)) {
+  fail(join(site, 'app.js'), 'project brief must occupy the evidence workspace without covering the map');
+}
+const workspaceComposition = /for \(const id of \[([^\]]+)\]\)/.exec(appSource.slice(0, 3500))?.[1] ?? '';
+for (const id of ['titlebar', 'modes', 'mapControls', 'tooltip', 'legend', 'ribbon', 'panel', 'intro']) {
+  if (!new RegExp(`['"]${id}['"]`).test(workspaceComposition)) {
+    fail(join(site, 'app.js'), `${id} is not composed into the evidence workspace`);
+  }
+}
+if (/tt\.style\.(?:left|top)\s*=/.test(appSource)) {
+  fail(join(site, 'app.js'), 'map readout must live in the evidence workspace instead of floating over geography');
+}
+if (!/function canvasPoint\(e\)/.test(appSource) || !/e\.clientX - box\.left/.test(appSource)) {
+  fail(join(site, 'app.js'), 'pointer coordinates are not translated into the offset canvas');
+}
+if (!/function fitBox\(\)\s*\{[\s\S]*?return \{ t: 0, b: 0 \};[\s\S]*?\n\}/.test(appSource)) {
+  fail(join(site, 'app.js'), 'map fit still reserves space for controls that no longer overlay the canvas');
 }
 const initialLoad = /async function load\(\)\s*\{([\s\S]*?)\n\}\n\n\/\/ The ice/.exec(appSource)?.[1] ?? '';
 for (const name of ['loadIce', 'loadUsers', 'loadReservoirs', 'loadResidual', 'loadWetlands', 'loadCantons']) {
