@@ -158,6 +158,10 @@ for (const file of landingFiles) {
       !/<label\b[^>]*for=["']dataSearch["']/i.test(raw)) {
     fail(file, 'active layers need a searchable semantic data-table alternative to the canvases');
   }
+  if (!/<a\b[^>]*class=["']skip["'][^>]*href=["']#map["']/i.test(raw) ||
+      !/<canvas\b[^>]*id=["']map["'][^>]*tabindex=["']0["'][^>]*role=["']application["'][^>]*aria-roledescription=/i.test(raw)) {
+    fail(file, 'interactive map needs a direct skip link and an explicit keyboard-operable role');
+  }
   if (!/<section\b[^>]*id=["']liveAlerts["'][\s\S]*?<button\b[^>]*id=["']liveAlertsToggle["'][\s\S]*?<ol\b[^>]*id=["']liveAlertsList["']/i.test(raw) ||
       !/fedlex\.admin\.ch\/eli\/cc\/1998\/2863_2863_2863\/de/i.test(raw) ||
       !/lindas\.admin\.ch\/query/i.test(raw) ||
@@ -225,6 +229,9 @@ for (const [label, pattern] of [
   ['stacked portrait workspace', /@media \(max-width:\s*900px\) and \(orientation:\s*portrait\)[\s\S]*?#workspace\s*\{[^}]*height:\s*var\(--workspace-h\)[\s\S]*?#map, #flow\s*\{[^}]*width:\s*100vw;[^}]*height:\s*calc\(100dvh - var\(--workspace-h\)\)/s],
   ['compact short-landscape rail', /@media \(max-height:\s*560px\) and \(orientation:\s*landscape\)[\s\S]*?#workspace #modes\s*\{[^}]*overflow-x:\s*auto/s],
   ['discoverable narrow layer rail', /#workspace #modeRail\.canScrollForward \.modeRailCue-end\s*\{\s*opacity:\s*1/s],
+  ['non-overlapping column layer index', /#workspace #modeRail\s*\{[^}]*position:\s*static/s],
+  ['compact smallest-phone layer picker', /@media \(max-width:\s*480px\)[\s\S]*?#workspace #modeRail\s*\{\s*display:\s*none;[\s\S]*?#workspace #mobileModePicker\s*\{[^}]*display:\s*grid/s],
+  ['mobile data cards without horizontal clipping', /#dataView tr\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:[^}]*minmax\(0,\s*1fr\)/s],
   ['useful smallest-phone evidence height', /@media \(max-width:\s*480px\) and \(max-height:\s*650px\) and \(orientation:\s*portrait\)\s*\{[\s\S]*?--workspace-h:\s*62dvh/s],
   ['sidebar project brief', /#workspace #intro\s*\{[^}]*position:\s*absolute;[^}]*inset:\s*0;[^}]*height:\s*100%/s],
   ['sidebar map readout', /#workspace #tooltip\s*\{[^}]*position:\s*static;[^}]*border-bottom:/s],
@@ -284,6 +291,10 @@ const siteSource = readFileSync(join(site, 'site.js'), 'utf8');
 if (!/function restoreDeepLink\(\)[\s\S]*?target\.scrollIntoView\(\{ block: 'start' \}\)[\s\S]*?new ResizeObserver\(align\)/.test(siteSource)) {
   fail(join(site, 'site.js'), 'late data layout can displace direct section links');
 }
+if (!/if \(disclosure && !wide\.matches\) disclosure\.open = false/.test(siteSource) ||
+    !/resizeDisclosure[\s\S]*?disclosure\.open = e\.matches/.test(siteSource)) {
+  fail(join(site, 'site.js'), 'narrow reading pages do not start with a compact contents disclosure');
+}
 if (/tt\.style\.(?:left|top)\s*=/.test(appSource)) {
   fail(join(site, 'app.js'), 'map readout must live in the evidence workspace instead of floating over geography');
 }
@@ -299,6 +310,21 @@ for (const name of ['loadIce', 'loadUsers', 'loadReservoirs', 'loadResidual', 'l
 }
 if (!/const DATA_PAGE\s*=\s*50/.test(appSource) || !/function renderDataView\(/.test(appSource)) {
   fail(join(site, 'app.js'), 'accessible data view is not implemented or paginated');
+}
+if (!/mobileModeSelect\.addEventListener\(['"]change['"]/.test(appSource) ||
+    !/function updateLayerStatus\(\)/.test(appSource)) {
+  fail(join(site, 'app.js'), 'compact layer choice or layer-specific publication status is missing');
+}
+if (!/td\.dataset\.label\s*=\s*headers\[index\]/.test(appSource) ||
+    !/`\$\{nm\.n\} · \$\{identity\}`/.test(appSource)) {
+  fail(join(site, 'app.js'), 'mobile data cards lack field labels or river rows lack unique reach identity');
+}
+
+const workflowFile = join(root, '.github', 'workflows', 'pages.yml');
+const workflow = readFileSync(workflowFile, 'utf8');
+const validateJob = /\n  validate:\n([\s\S]*?)(?=\n  [a-z][\w-]*:\n)/.exec(workflow)?.[1] ?? '';
+if (!/npm test/.test(validateJob) || !/npm run check:links/.test(validateJob)) {
+  fail(workflowFile, 'pull-request validation must run both publication and primary external-link checks');
 }
 try {
   const fmtFile = join(site, 'fmt.js');

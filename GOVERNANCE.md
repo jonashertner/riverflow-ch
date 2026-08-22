@@ -7,9 +7,12 @@ publication process; no maintainer owns the underlying facts.
 
 - Scientific claims require a primary source, data date and stated limitation.
 - Legal claims require the operative text, jurisdiction and date checked.
-- Material data, method and copy changes are made by pull request.
-- At least one review is required before `main` changes. Authors do not approve
-  their own pull requests.
+- Material data, method and copy changes require a pull request and passing
+  publication checks.
+- Independent scientific or legal review is required before a contribution is
+  described as reviewed or relied upon; authors do not certify their own
+  specialist review. Until independent reviewers participate, merges are
+  maintainer decisions and the review status remains explicit.
 - Generated data refreshes receive the same review as hand-written changes.
 - Uncertainty is disclosed next to the claim it qualifies.
 

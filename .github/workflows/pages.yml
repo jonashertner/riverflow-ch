@@ -33,6 +33,8 @@ jobs:
       - run: npm ci
       - name: Verify the complete publication surface
         run: npm test
+      - name: Check primary external links
+        run: npm run check:links
 
   refresh-review:
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.refresh_data)
