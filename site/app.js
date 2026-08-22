@@ -17,7 +17,7 @@
 const workspace = document.createElement('aside');
 workspace.id = 'workspace';
 document.getElementById('main').before(workspace);
-for (const id of ['titlebar', 'modes', 'mapControls', 'tooltip', 'legend', 'ribbon', 'panel', 'intro']) {
+for (const id of ['titlebar', 'modes', 'mapControls', 'liveAlerts', 'tooltip', 'legend', 'ribbon', 'panel', 'intro']) {
   const el = document.getElementById(id);
   if (el) workspace.append(el);
 }
@@ -691,6 +691,7 @@ function stampText() {
   if (!liveStamp) {
     const rejected = liveSummary.stale + liveSummary.invalid + liveSummary.unit;
     el.textContent = rejected ? T('m.noValidLive', { n: rejected }) : T('m.noLive');
+    updateLiveLegalScreen();
     return;
   }
   const d = new Date(liveStamp);
@@ -702,17 +703,99 @@ function stampText() {
 
   const withT = stations.filter(s => s.obs?.temp !== null && s.obs?.temp !== undefined);
   const c = document.getElementById('tempCount');
-  if (!withT.length) { c.textContent = T('m.noTemp'); return; }
+  if (!withT.length) {
+    c.textContent = T('m.noTemp');
+    updateLiveLegalScreen();
+    return;
+  }
   const temps = withT.map(s => s.obs.temp).sort((a, b) => a - b);
   const med = temps[temps.length >> 1];
-  const over = temps.filter(v => v >= 25).length;
+  const above = temps.filter(v => v > 25).length;
+  const at = temps.filter(v => v === 25).length;
   const warm = temps.filter(v => v >= 20).length;
   const top = withT.reduce((a, b) => (b.obs.temp > a.obs.temp ? b : a));
   c.innerHTML = T('m.tempCount', {
-    n: withT.length, med: nfd(med, 1), warm, over,
+    n: withT.length, med: nfd(med, 1), warm, above, at,
     top: nfd(top.obs.temp, 1), where: esc(top.name),
   });
+  updateLiveLegalScreen();
 }
+
+/* ---- live legal screen -----------------------------------------------------
+ * This is intentionally not a compliance engine. It compares only fresh,
+ * reported river temperatures with the one national numeric requirement the
+ * live feed can meaningfully screen. The result says where review should start;
+ * attribution, reference state, mixing, permits and exceptions remain outside
+ * the feed and therefore outside the finding.
+ */
+const legalAlertRoot = document.getElementById('liveAlerts');
+const legalAlertToggle = document.getElementById('liveAlertsToggle');
+const legalAlertBody = document.getElementById('liveAlertsBody');
+const legalAlertSummary = document.getElementById('liveAlertsSummary');
+const legalAlertList = document.getElementById('liveAlertsList');
+
+function updateLiveLegalScreen() {
+  if (!legalAlertRoot || !window.RiverflowLegalScreen) return;
+  const result = window.RiverflowLegalScreen.evaluateTemperature(
+    stations.map(station => ({
+      id: station.id,
+      name: station.name,
+      temperature: station.rawObs?.temp,
+      observedAt: station.rawObs?.time,
+    })),
+    { maxAgeMs: LIVE_MAX_AGE, futureToleranceMs: LIVE_FUTURE_TOLERANCE },
+  );
+
+  let summary;
+  if (result.above.length) {
+    summary = T(result.above.length === 1 ? 'm.alertAbove.one' : 'm.alertAbove.other', {
+      n: result.above.length,
+    });
+  } else if (result.at.length) {
+    summary = T(result.at.length === 1 ? 'm.alertAt.one' : 'm.alertAt.other', {
+      n: result.at.length,
+    });
+  } else {
+    summary = T(result.eligible.length ? 'm.alertNone' : 'm.alertUnavailable');
+  }
+  if (legalAlertSummary.textContent !== summary) legalAlertSummary.textContent = summary;
+  legalAlertRoot.dataset.state = result.above.length ? 'alert' : (result.eligible.length ? 'clear' : 'unavailable');
+
+  legalAlertList.replaceChildren();
+  for (const alert of result.above) {
+    const station = stations.find(candidate => String(candidate.id) === alert.id);
+    if (!station) continue;
+    const item = document.createElement('li');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('aria-label', T('m.alertOpenStation', {
+      station: alert.name, v: nfd(alert.temperature, 1),
+    }));
+    const name = document.createElement('strong');
+    name.textContent = alert.name;
+    const value = document.createElement('span');
+    value.className = 'liveAlertValue';
+    value.textContent = T('m.alertItem', {
+      v: nfd(alert.temperature, 1), t: fmtStamp(new Date(alert.observedAt)),
+    });
+    const reason = document.createElement('span');
+    reason.className = 'liveAlertReason';
+    reason.textContent = T('m.alertReview');
+    button.append(name, value, reason);
+    button.onclick = () => {
+      setMode('temp');
+      select({ kind: 'station', ref: station }, true);
+    };
+    item.append(button);
+    legalAlertList.append(item);
+  }
+}
+
+legalAlertToggle?.addEventListener('click', () => {
+  const open = legalAlertToggle.getAttribute('aria-expanded') === 'true';
+  legalAlertToggle.setAttribute('aria-expanded', String(!open));
+  legalAlertBody.hidden = open;
+});
 
 /* ===========================================================================
    WATER QUALITY — NAWA TREND
@@ -1841,7 +1924,7 @@ function select(h, moveFocus = false) {
         })}${Math.abs(d) >= 4 ? T('m.sInstrument') : ''}</p>`;
       }
       if (o.temp >= 25) {
-        extra += `<p class="flag">${T('m.sOverCeiling')}</p>` +
+        extra += `<p class="${o.temp > 25 ? 'flag' : 'aside'}">${T(o.temp > 25 ? 'm.sAboveCeiling' : 'm.sAtCeiling')}</p>` +
           `<p class="statute">${T('m.sCoolingException')}</p>`;
       }
       document.getElementById('panelExtra').innerHTML = extra;

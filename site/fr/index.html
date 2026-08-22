@@ -97,6 +97,16 @@
   <button type="button" id="dataViewOpen" aria-label="Explorer cette couche sous forme de données" title="Explorer cette couche sous forme de données">Données</button>
 </nav>
 
+<section id="liveAlerts" aria-labelledby="liveAlertsTitle">
+  <button type="button" id="liveAlertsToggle" aria-expanded="false" aria-controls="liveAlertsBody"><span class="liveAlertHeading"><i aria-hidden="true"></i><span id="liveAlertsTitle">Contrôle juridique</span></span> <span id="liveAlertsSummary" role="status" aria-live="polite">Vérification des mesures actuelles…</span> <span class="liveAlertChevron" aria-hidden="true"></span></button>
+  <div id="liveAlertsBody" hidden>
+    <p class="liveAlertScope">Les températures actuelles des cours d’eau de l’OFEV sont comparées à l’exigence de 25&nbsp;°C de l’annexe&nbsp;2 ch.&nbsp;12 al.&nbsp;4 OEaux.</p>
+    <ol id="liveAlertsList"></ol>
+    <p class="liveAlertLimit">Une mesure au-dessus de 25&nbsp;°C appelle un examen ; elle ne prouve pas une violation. La règle vise un réchauffement humain après large mélange. Le flux en direct n’identifie ni apport de chaleur, ni état de référence, ni mélange, ni autorisation, ni exception. Le respect des exigences de débit résiduel et de qualité requiert des preuves propres au site ou non disponibles en direct.</p>
+    <p class="liveAlertLinks"><a href="https://www.fedlex.admin.ch/eli/cc/1998/2863_2863_2863/de" target="_blank" rel="noopener">Base légale</a><a href="https://lindas.admin.ch/query" target="_blank" rel="noopener">Données en direct</a><a href="method.html#live">Méthode</a></p>
+  </div>
+</section>
+
 <nav id="modes" aria-label="Couche">
   <div class="modeGroup" role="group" aria-label="L’eau maintenant">
     <span class="modeGroupLabel">Maintenant</span>
@@ -393,6 +403,7 @@
 
 <script src="../fmt.js?v=20260822"></script>
 <script src="../gschg31.js?v=20260821"></script>
-<script src="../app.js?v=20260822c"></script>
+<script src="../legal-alerts.js?v=20260822"></script>
+<script src="../app.js?v=20260822d"></script>
 </body>
 </html>

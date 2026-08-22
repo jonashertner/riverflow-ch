@@ -23,6 +23,7 @@ primary law and reproducible methods that can support legal action when needed.
 | River flow | Current BAFU discharge where a station passes the live-data rules; indicative estimates elsewhere |
 | Relative to mean | Current discharge divided by a modelled annual mean; not a drought index |
 | Temperature | Current BAFU station readings |
+| Live legal screen | Fresh temperatures strictly above 25.0 °C, as review triggers under GSchV Annex 2 No. 12(4)—not findings of breach |
 | Water quality | The current prepared NAWA TREND release, reduced to station-year summaries with exact laboratory rows on demand |
 | Reservoirs | Federally supervised dam structures and a separate weekly regional energy-storage series |
 | Ice | Glacier area in six inventories: 1850, 1931, 1973, 2010, 2016 and 2023 |
@@ -41,6 +42,11 @@ complete account of Swiss water. Important omissions are listed on the
 - A discharge is **current** only when its station timestamp is valid, no more
   than 30 minutes old, its value is finite and non-negative, and its unit is
   verified. Stale or invalid observations remain inspectable but drive nothing.
+- The live legal screen accepts the same 30-minute temperature window and flags
+  only reported values strictly above 25.0 °C. The ordinance concerns
+  human-caused temperature change after substantial mixing; the feed contains
+  no causation, reference-state, mixing, permit or exception evidence. An alert
+  starts review and never declares a violation.
 - The station and river files contain unique identifiers. Where several valid
   gauges share a model reach, the newest wins, then the closest snap, then the
   station identifier.
