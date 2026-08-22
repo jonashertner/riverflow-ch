@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "updated": "2026-08-23",
+  "scope": "Public starting points for collaborative water-cycle and water-quality research. These records identify questions and primary sources; they are not findings of breach.",
+  "statusVocabulary": {
+    "official-record": "A statement or decision located in a current primary authority record.",
+    "measurement": "A value reported for a stated method, place and time.",
+    "field-observation": "A contributor's dated account requiring validation before wider inference.",
+    "model-screen": "A reproducible indication under stated assumptions, not a measured or binding boundary.",
+    "inference": "A reasoned question or connection whose support must remain cited.",
+    "not-assessed": "Relevant evidence has not yet been reviewed here; absence is not established."
+  },
+  "campaigns": [
+    {
+      "id": "water-cycle-wetlands",
+      "state": "active",
+      "question": "Where can operative protection instruments, separate functional buffers, field hydrology and restoration evidence be joined object by object?",
+      "mapMode": "wet"
+    },
+    {
+      "id": "water-quality-context",
+      "state": "open",
+      "question": "Where can station results be joined to exact laboratory rows, flow context, possible inputs, permits and authority assessments without converting concentration alone into a compliance claim?",
+      "mapMode": "quality"
+    }
+  ],
+  "startingPoints": [
+    {
+      "id": "zh-neeracherried",
+      "canton": "ZH",
+      "kind": "object-question",
+      "evidenceStatus": "official-record",
+      "publicRecordSummary": "The Zürich government reported in 2025 that the 1956 ordinance covers only the core fen, adequate buffers are outstanding, and revision is coordinated with a road project. Early road-project participation is announced for 2027.",
+      "contributionNeeds": [
+        "public drafts and maps of the revised protection instrument",
+        "separate hydrological, nutrient and disturbance assessments",
+        "drainage and water-level evidence",
+        "restoration and interim measures",
+        "original notice and live deadline when participation opens"
+      ],
+      "sources": [
+        {
+          "holder": "Kanton Zürich",
+          "title": "RRB 1302/2025",
+          "date": "2025-12-17",
+          "url": "https://www.zh.ch/bin/zhweb/publish/regierungsratsbeschluss-unterlagen./2025/1302/RRB-2025-1302.pdf",
+          "locator": "pp. 2–4"
+        },
+        {
+          "holder": "Kanton Zürich",
+          "title": "Strassenprojekt Höri–Neerach–Niederglatt",
+          "date": null,
+          "url": "https://www.zh.ch/de/planen-bauen/tiefbau/geplante-strassenprojekte/geplantes-strassenprojekt-hoeri-neerach-niederglatt.html",
+          "locator": "project overview and schedule; live date must be rechecked"
+        }
+      ],
+      "limits": "Active revision and potentially beneficial project measures are material counterevidence. Coordinate with organisations and authorities already involved."
+    },
+    {
+      "id": "sz-protection-instruments",
+      "canton": "SZ",
+      "kind": "programme-question",
+      "evidenceStatus": "official-record",
+      "publicRecordSummary": "The canton’s May 2026 nature-protection concept describes deficits at contract-only national wetland objects and schedules generally binding rules and buffer work over several years.",
+      "contributionNeeds": [
+        "one object and exact federal inventory identity",
+        "operative plan or executed contract",
+        "current buffer and hydrology material",
+        "third-party effect and measures already taken",
+        "live procedure and participation status"
+      ],
+      "sources": [
+        {
+          "holder": "Kanton Schwyz",
+          "title": "Naturschutzgesamtkonzept",
+          "date": "2026-05-01",
+          "url": "https://www.sz.ch/public/upload/assets/92849/Naturschutzgesamtkonzept.pdf?fp=4",
+          "locator": "pp. 33–36 and 61"
+        }
+      ],
+      "limits": "A canton-level programme statement is not an object-specific finding. Contracts must be read before their effect is characterised."
+    },
+    {
+      "id": "be-mhp-workflow",
+      "canton": "BE",
+      "kind": "method-comparator",
+      "evidenceStatus": "model-screen",
+      "publicRecordSummary": "Bern publishes the federal moor-hydrological indication perimeter as a screening product and uses specialist review or a hydrological report where effects cannot be excluded.",
+      "contributionNeeds": [
+        "test model indication before field validation in another canton",
+        "link each indication to the object and operative instrument",
+        "record both resolved concerns and remaining questions"
+      ],
+      "sources": [
+        {
+          "holder": "Kanton Bern",
+          "title": "Moorhydrologischer Puffer — Geoprodukt",
+          "date": null,
+          "url": "https://www.agi.dij.be.ch/de/start/geoportal/geodaten/detail.html?code=MHP&type=geoproduct",
+          "locator": "geoproduct metadata"
+        },
+        {
+          "holder": "Kanton Bern",
+          "title": "Arbeitshilfe Moorhydrologischer Puffer",
+          "date": null,
+          "url": "https://www.weu.be.ch/content/dam/weu/dokumente/lanat/de/umwelt/naturschutz/moore/lanat-anf-arbeitshilfe-mhp-DE.pdf",
+          "locator": "triage workflow"
+        }
+      ],
+      "limits": "The indication perimeter is a model and screening geometry, not a binding legal buffer."
+    }
+  ]
+}

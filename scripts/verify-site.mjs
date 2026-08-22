@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* Dependency-free release gate for the static site.
  *
- * The publication surface is 26 HTML documents with 25 canonical URLs, fourteen
+ * The publication surface is 31 HTML documents with 30 canonical URLs, fourteen
  * JSON datasets and three shared string catalogues. A broken relative link or one
  * missing translation can therefore hide in a page nobody happened to open. This
  * check treats the site as one artifact and verifies the contracts that make those
@@ -168,7 +168,7 @@ for (const file of landingFiles) {
       !/method\.html#live/.test(raw)) {
     fail(file, 'live legal screen is missing its accessible list, legal basis or method source');
   }
-  if (!/<nav\b[^>]*id=["']siteNav["'][\s\S]*?href=["'][^"']*method\.html["'][\s\S]*?href=["'][^"']*sources\.html["'][\s\S]*?href=["'][^"']*law\.html["'][\s\S]*?href=["'][^"']*about\.html["'][\s\S]*?href=["'][^"']*#collaborate["']/i.test(raw)) {
+  if (!/<nav\b[^>]*id=["']siteNav["'][\s\S]*?href=["'][^"']*about\.html["'][\s\S]*?href=["'][^"']*method\.html["'][\s\S]*?href=["'][^"']*sources\.html["'][\s\S]*?href=["'][^"']*law\.html["'][\s\S]*?href=["'][^"']*collaborate\.html["']/i.test(raw)) {
     fail(file, 'primary project navigation is incomplete');
   }
   const primaryNav = /<nav\b[^>]*id=["']siteNav["'][^>]*>([\s\S]*?)<\/nav>/i.exec(raw)?.[1] ?? '';
@@ -180,7 +180,7 @@ for (const file of landingFiles) {
       /<button\b[^>]*id=["']introOpen["']/i.test(primaryNav)) {
     fail(file, 'map navigation must begin with an active Map link followed by Project, without a competing dialog action');
   }
-  if (!/<nav\b[^>]*class=["']creditsNav["'][\s\S]*?#collaborate/i.test(raw)) {
+  if (!/<nav\b[^>]*class=["']creditsNav["'][\s\S]*?collaborate\.html/i.test(raw)) {
     fail(file, 'persistent project documentation and contribution links are missing');
   }
 }
@@ -188,10 +188,10 @@ for (const file of landingFiles) {
 // Every reading page exposes the collaborative path in its primary navigation.
 // About is the durable statement of scope and links directly to the public guide.
 const readingFiles = ['', 'de', 'fr', 'it', 'rm'].flatMap(lang =>
-  ['about.html', 'method.html', 'sources.html', 'law.html'].map(page => join(site, lang, page)));
+  ['about.html', 'collaborate.html', 'method.html', 'sources.html', 'law.html'].map(page => join(site, lang, page)));
 for (const file of readingFiles) {
   const raw = htmlByFile.get(file) ?? '';
-  if (!/<nav\b[^>]*class=["']siteNav["'][\s\S]*?<a\b[^>]*class=["']contributeLink["'][^>]*href=["'][^"']*#collaborate["']/i.test(raw)) {
+  if (!/<nav\b[^>]*class=["']siteNav["'][\s\S]*?<a\b[^>]*class=["']contributeLink["'][^>]*href=["'][^"']*collaborate\.html["']/i.test(raw)) {
     fail(file, 'primary navigation does not expose the contribution path');
   }
   const nav = /<nav\b[^>]*class=["'][^"']*siteNav[^"']*["'][^>]*>([\s\S]*?)<\/nav>/i.exec(raw)?.[1] ?? '';
@@ -201,6 +201,7 @@ for (const file of readingFiles) {
   if (links.length !== 6 || !/^(?:en\/|\.\.\/|\.\/)$/i.test(hrefs[0]) ||
       !/about\.html$/.test(hrefs[1]) || !/method\.html$/.test(hrefs[2]) ||
       !/sources\.html$/.test(hrefs[3]) || !/law\.html$/.test(hrefs[4]) ||
+      !/collaborate\.html$/.test(hrefs[5]) ||
       active.length !== 1) {
     fail(file, 'reading-page navigation order, map return or active route is inconsistent');
   }
@@ -210,9 +211,27 @@ for (const file of readingFiles) {
 }
 for (const file of ['', 'de', 'fr', 'it', 'rm'].map(lang => join(site, lang, 'about.html'))) {
   const raw = htmlByFile.get(file) ?? '';
-  if (!/<section\b[^>]*id=["']collaborate["'][\s\S]*?CONTRIBUTING\.md[\s\S]*?github\.com\/jonashertner\/riverflow-ch\/issues/i.test(raw)) {
+  if (!/<section\b[^>]*id=["']collaborate["'][\s\S]*?CONTRIBUTING\.md[\s\S]*?collaborate\.html/i.test(raw)) {
     fail(file, 'collaboration statement, guide or public correction route is missing');
   }
+}
+for (const file of ['', 'de', 'fr', 'it', 'rm'].map(lang => join(site, lang, 'collaborate.html'))) {
+  const raw = htmlByFile.get(file) ?? '';
+  for (const template of ['field-observation.yml', 'public-record.yml', 'scientific-review.yml', 'legal-review.yml']) {
+    if (!raw.includes(`template=${template}`)) fail(file, `public contribution route ${template} is missing`);
+  }
+  if (!/<ol\b[^>]*class=["']workflowList["'][\s\S]*?<li[\s\S]*?<li[\s\S]*?<li[\s\S]*?<li[\s\S]*?<li[\s\S]*?<li/i.test(raw)) {
+    fail(file, 'contribution-to-protection workflow is incomplete');
+  }
+  for (const evidenceClass of ['measured', 'observed', 'official', 'model', 'inferred', 'open']) {
+    if (!new RegExp(`evidenceTag ${evidenceClass}`).test(raw)) fail(file, `evidence label ${evidenceClass} is missing`);
+  }
+  if (!/RRB-2025-1302\.pdf|RRB 1302\/2025/.test(raw) ||
+      !/Naturschutzgesamtkonzept\.pdf/.test(raw) ||
+      !/code=MHP&amp;type=geoproduct/.test(raw)) {
+    fail(file, 'canton starting points are missing their primary records');
+  }
+  if (!/security\/advisories\/new/.test(raw)) fail(file, 'private reporting route is missing');
 }
 const responsiveCssFile = join(site, 'style.css');
 const responsiveCss = readFileSync(join(site, 'tokens.css'), 'utf8') + '\n' + readFileSync(responsiveCssFile, 'utf8');
@@ -373,7 +392,7 @@ const sitemap = readFileSync(sitemapFile, 'utf8');
 const sitemapUrls = new Set([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]));
 for (const url of canonicalUrls) if (!sitemapUrls.has(url)) fail(sitemapFile, `missing canonical URL ${url}`);
 for (const url of sitemapUrls) if (!canonicalUrls.has(url)) fail(sitemapFile, `URL has no HTML canonical ${url}`);
-if (sitemapUrls.size !== 25) fail(sitemapFile, `expected 25 URLs, found ${sitemapUrls.size}`);
+if (sitemapUrls.size !== 30) fail(sitemapFile, `expected 30 URLs, found ${sitemapUrls.size}`);
 
 // Parse every committed JSON artifact and syntax-check every JavaScript source.
 for (const file of [...walk(join(site, 'data'), f => extname(f) === '.json'), ...walk(join(root, 'build', 'pages'), f => extname(f) === '.json')]) {
@@ -408,6 +427,7 @@ try {
   const iceFile = join(site, 'data', 'icehistory.json');
   const qualityFile = join(site, 'data', 'quality.json');
   const monitoringFile = join(site, 'data', 'canton-monitoring.json');
+  const collaborationFile = join(site, 'data', 'collaboration.json');
   const provenanceFile = join(site, 'data', 'provenance.json');
   const stations = data('stations.json').stations;
   const reaches = data('network.json').reaches;
@@ -416,7 +436,20 @@ try {
   const ice = data('icehistory.json');
   const quality = data('quality.json');
   const monitoring = data('canton-monitoring.json');
+  const collaboration = data('collaboration.json');
   const unique = values => new Set(values).size;
+
+  const contributionStates = new Set(['official-record', 'measurement', 'field-observation', 'model-screen', 'inference', 'not-assessed']);
+  if (collaboration.schema !== 1 || !/^\d{4}-\d{2}-\d{2}$/.test(collaboration.updated ?? '')) fail(collaborationFile, 'collaboration schema or update date is invalid');
+  if (collaboration.campaigns?.length !== 2 || unique(collaboration.campaigns.map(c => c.id)) !== 2) fail(collaborationFile, 'two unique campaign records are required');
+  if (!collaboration.campaigns?.some(c => c.id === 'water-cycle-wetlands') || !collaboration.campaigns?.some(c => c.id === 'water-quality-context')) fail(collaborationFile, 'water-cycle or water-quality campaign is missing');
+  if (collaboration.startingPoints?.length !== 3 || unique(collaboration.startingPoints.map(p => p.id)) !== 3) fail(collaborationFile, 'three unique public starting points are required');
+  for (const point of collaboration.startingPoints ?? []) {
+    if (!contributionStates.has(point.evidenceStatus)) fail(collaborationFile, `${point.id} has an invalid evidence status`);
+    if (!Array.isArray(point.contributionNeeds) || !point.contributionNeeds.length) fail(collaborationFile, `${point.id} has no bounded contribution need`);
+    if (!Array.isArray(point.sources) || !point.sources.length || point.sources.some(source => !/^https:\/\//.test(source.url ?? '') || !source.holder || !source.title || !source.locator)) fail(collaborationFile, `${point.id} has an incomplete primary-source record`);
+    if (!point.limits) fail(collaborationFile, `${point.id} does not state its limits`);
+  }
 
   if (data('vintage.json').sources.length < 10) fail(join(site, 'data', 'vintage.json'), 'source register is implausibly small');
 

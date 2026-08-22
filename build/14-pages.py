@@ -24,7 +24,7 @@ from html.parser import HTMLParser
 HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.join(os.path.dirname(HERE), 'site')
 TRANS = os.path.join(HERE, 'pages')
-PAGES = ['index.html', 'about.html', 'method.html', 'law.html', 'sources.html']
+PAGES = ['index.html', 'about.html', 'collaborate.html', 'method.html', 'law.html', 'sources.html']
 LANGS = ['de', 'fr', 'it', 'rm']
 
 # A chunk stops at any of these. Inline markup (b, i, em, a, code, sub, abbr, br)
@@ -174,11 +174,12 @@ def keys_of(page):
 def load(lang):
     p = os.path.join(TRANS, lang + '.json')
     table = json.load(open(p, encoding='utf-8')) if os.path.exists(p) else {}
-    additions = os.path.join(TRANS, 'updates.json')
-    if os.path.exists(additions):
-        for key, row in json.load(open(additions, encoding='utf-8')).items():
-            if row.get(lang):
-                table[key] = row[lang]
+    for name in ('updates.json', 'collaborate.json'):
+        additions = os.path.join(TRANS, name)
+        if os.path.exists(additions):
+            for key, row in json.load(open(additions, encoding='utf-8')).items():
+                if row.get(lang):
+                    table[key] = row[lang]
     return table
 
 
@@ -214,7 +215,7 @@ def relocate(raw, lang, page):
         # English reading pages keep their stable root URLs, while the English
         # map now lives at /en/.
         if lang == 'en':
-            for target in ('method.html', 'sources.html', 'law.html', 'about.html'):
+            for target in ('method.html', 'sources.html', 'law.html', 'about.html', 'collaborate.html'):
                 raw = raw.replace('href="%s' % target, 'href="../%s' % target)
         alts = [
             '<link rel="alternate" hreflang="en" href="%s">' % ('./' if lang == 'en' else '../en/'),
@@ -231,6 +232,7 @@ def relocate(raw, lang, page):
         # two map destinations when a reading page moves under /de, /fr, /it or /rm.
         map_href = '../' if lang == 'de' else './'
         raw = raw.replace('href="en/"', 'href="%s"' % map_href)
+        raw = raw.replace('href="data/', 'href="../data/')
         raw = raw.replace('<link rel="canonical" href="%s%s">' % (BASE, tail),
                           '<link rel="canonical" href="%s%s/%s">' % (BASE, lang, tail))
         raw = raw.replace('<meta property="og:url" content="%s%s">' % (BASE, tail),
@@ -252,7 +254,7 @@ def root_german(raw):
         for attr in ('href', 'src'):
             raw = re.sub(r'%s="\.\./%s' % (attr, re.escape(asset)),
                          '%s="%s' % (attr, asset), raw)
-    for target in ('method.html', 'sources.html', 'law.html', 'about.html'):
+    for target in ('method.html', 'sources.html', 'law.html', 'about.html', 'collaborate.html'):
         raw = raw.replace('href="%s' % target, 'href="de/%s' % target)
     alts = [
         '<link rel="alternate" hreflang="en" href="en/">',
@@ -332,7 +334,7 @@ def build():
                 print('%s/%s: %d chunk(s) untranslated' % (lang, page, len(todo)))
                 owed += len(todo)
             open(os.path.join(SITE, lang, page), 'w', encoding='utf-8').write(out)
-        print('%s: five pages written' % lang)
+        print('%s: six pages written' % lang)
     open(os.path.join(SITE, 'index.html'), 'w', encoding='utf-8').write(
         root_german(open(os.path.join(SITE, 'de', 'index.html'), encoding='utf-8').read()))
     sitemap()

@@ -1,0 +1,86 @@
+name: Official record or data source
+description: Add a public instrument, plan, permit, dataset, consultation or restoration record.
+title: "[Record] "
+labels: [source, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Add the original public record where possible. A record establishes what its issuer published; it does not automatically verify every statement within it.
+  - type: input
+    id: place
+    attributes:
+      label: Place, waterbody or scope
+      description: Name the object, station, municipality, canton or national scope.
+    validations:
+      required: true
+  - type: dropdown
+    id: record_type
+    attributes:
+      label: Record type
+      options:
+        - Protection instrument or plan
+        - Permit, concession or decision
+        - Official geodata or register
+        - Monitoring or laboratory dataset
+        - Public consultation or notice
+        - Restoration or implementation report
+        - Court decision
+        - Method or technical guidance
+        - Other official record
+    validations:
+      required: true
+  - type: input
+    id: authority
+    attributes:
+      label: Issuing authority or data holder
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: Exact title and identifier
+      description: Include an object, station, decision, layer or file identifier where available.
+    validations:
+      required: true
+  - type: input
+    id: date
+    attributes:
+      label: Version, decision or data date
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Stable public link
+      description: Prefer Fedlex, admin.ch, a published court decision or an official cantonal source.
+    validations:
+      required: true
+  - type: input
+    id: licence
+    attributes:
+      label: Licence or reuse terms
+      description: Required for datasets or files proposed for republication; otherwise state not assessed.
+    validations:
+      required: true
+  - type: textarea
+    id: proposition
+    attributes:
+      label: Smallest proposition this record supports
+      description: Add a page, section, feature or row locator. State if the record supports only an inference.
+    validations:
+      required: true
+  - type: textarea
+    id: limits
+    attributes:
+      label: Known limits or conflicts
+      description: Note age, incomplete coverage, later versions, contrary records or unresolved interpretation.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Source checks
+      options:
+        - label: This is an original public source or I have explained why it is not.
+          required: true
+        - label: I have not presented a map overlap, model or missing public record as proof of a breach.
+          required: true

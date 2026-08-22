@@ -1,0 +1,708 @@
+{
+ "Contribute — Water and ice in Switzerland": {
+  "de": "Mitwirken — Wasser und Eis in der Schweiz",
+  "fr": "Contribuer — L’eau et la glace en Suisse",
+  "it": "Contribuire — Acqua e ghiaccio in Svizzera",
+  "rm": "Contribuir — Aua e glatsch en Svizra"
+ },
+ "Help protect Switzerland’s water cycle: contribute a local observation, an official record, scientific review or legal expertise through a transparent public workflow.": {
+  "de": "Helfen Sie, den Wasserkreislauf der Schweiz zu schützen: mit einer lokalen Beobachtung, einem amtlichen Dokument, wissenschaftlicher Prüfung oder juristischer Expertise in einem transparenten öffentlichen Ablauf.",
+  "fr": "Aidez à protéger le cycle de l’eau en Suisse : apportez une observation locale, un document officiel, une revue scientifique ou une expertise juridique dans un processus public transparent.",
+  "it": "Aiuta a proteggere il ciclo dell’acqua in Svizzera: contribuisci con un’osservazione locale, un documento ufficiale, una revisione scientifica o competenza giuridica attraverso un processo pubblico trasparente.",
+  "rm": "Gidai a proteger il ciclus da l’aua en Svizra: cun ina observaziun locala, in document uffizial, ina revisiun scientifica u savida giuridica en in process public transparent."
+ },
+ "A public, evidence-led way to help protect Switzerland’s waterways and water cycle.": {
+  "de": "Ein öffentlicher, evidenzbasierter Weg, um die Wasserwege und den Wasserkreislauf der Schweiz zu schützen.",
+  "fr": "Une démarche publique fondée sur les preuves pour protéger les voies de l’eau et le cycle de l’eau en Suisse.",
+  "it": "Un percorso pubblico basato sulle prove per proteggere le vie dell’acqua e il ciclo idrico svizzero.",
+  "rm": "Ina via publica basada sin cumprovas per proteger ils curs d’aua ed il ciclus da l’aua en Svizra."
+ },
+ "<a href=\"#help\">How you can help</a>": {
+  "de": "<a href=\"#help\">So können Sie helfen</a>",
+  "fr": "<a href=\"#help\">Comment aider</a>",
+  "it": "<a href=\"#help\">Come puoi aiutare</a>",
+  "rm": "<a href=\"#help\">Co che Vus pudais gidar</a>"
+ },
+ "<a href=\"#campaigns\">Two connected campaigns</a>": {
+  "de": "<a href=\"#campaigns\">Zwei verbundene Kampagnen</a>",
+  "fr": "<a href=\"#campaigns\">Deux campagnes liées</a>",
+  "it": "<a href=\"#campaigns\">Due campagne collegate</a>",
+  "rm": "<a href=\"#campaigns\">Duas campagnas colliadas</a>"
+ },
+ "<a href=\"#places\">Places and questions</a>": {
+  "de": "<a href=\"#places\">Orte und Fragen</a>",
+  "fr": "<a href=\"#places\">Lieux et questions</a>",
+  "it": "<a href=\"#places\">Luoghi e domande</a>",
+  "rm": "<a href=\"#places\">Lieus e dumondas</a>"
+ },
+ "<a href=\"#workflow\">From contribution to protection</a>": {
+  "de": "<a href=\"#workflow\">Vom Beitrag zum Schutz</a>",
+  "fr": "<a href=\"#workflow\">De la contribution à la protection</a>",
+  "it": "<a href=\"#workflow\">Dal contributo alla protezione</a>",
+  "rm": "<a href=\"#workflow\">Da la contribuziun a la protecziun</a>"
+ },
+ "<a href=\"#evidence\">How contributions are labelled</a>": {
+  "de": "<a href=\"#evidence\">Wie Beiträge gekennzeichnet werden</a>",
+  "fr": "<a href=\"#evidence\">Comment les contributions sont qualifiées</a>",
+  "it": "<a href=\"#evidence\">Come sono etichettati i contributi</a>",
+  "rm": "<a href=\"#evidence\">Co che contribuziuns vegnan marcadas</a>"
+ },
+ "<a href=\"#care\">Publish with care</a>": {
+  "de": "<a href=\"#care\">Sorgfältig veröffentlichen</a>",
+  "fr": "<a href=\"#care\">Publier avec soin</a>",
+  "it": "<a href=\"#care\">Pubblicare con cura</a>",
+  "rm": "<a href=\"#care\">Publitgar cun precauziun</a>"
+ },
+ "Public collaboration": {
+  "de": "Öffentliche Zusammenarbeit",
+  "fr": "Collaboration publique",
+  "it": "Collaborazione pubblica",
+  "rm": "Collavuraziun publica"
+ },
+ "Help the water tell its whole story.": {
+  "de": "Helfen Sie dem Wasser, seine ganze Geschichte zu erzählen.",
+  "fr": "Aidez l’eau à raconter toute son histoire.",
+  "it": "Aiuta l’acqua a raccontare tutta la sua storia.",
+  "rm": "Gidai l’aua a raquintar sia entira istorgia."
+ },
+ "A stream, a wetland and a laboratory result are parts of one water cycle. Riverflow turns local knowledge, official records and specialist review into a shared evidence base—so people can find what is known, what is missing and what can be protected next.": {
+  "de": "Ein Bach, ein Feuchtgebiet und ein Laborresultat sind Teile eines Wasserkreislaufs. Riverflow macht aus lokalem Wissen, amtlichen Dokumenten und fachlicher Prüfung eine gemeinsame Evidenzbasis – damit sichtbar wird, was bekannt ist, was fehlt und was als Nächstes geschützt werden kann.",
+  "fr": "Un ruisseau, une zone humide et un résultat de laboratoire font partie d’un même cycle de l’eau. Riverflow transforme connaissances locales, documents officiels et revue spécialisée en une base de preuves commune, afin de montrer ce qui est connu, ce qui manque et ce qui peut ensuite être protégé.",
+  "it": "Un ruscello, una zona umida e un risultato di laboratorio fanno parte dello stesso ciclo dell’acqua. Riverflow trasforma conoscenze locali, documenti ufficiali e revisione specialistica in una base di prove condivisa, affinché sia chiaro ciò che si sa, ciò che manca e ciò che può essere protetto dopo.",
+  "rm": "In aual, ina zona umida ed in resultat da labor fan part d’in unic ciclus da l’aua. Riverflow transfurma savida locala, documents uffizials e revisiun spezialisada en ina basa cuminaivla da cumprovas, per ch’ins vesia tge ch’è enconuschent, tge che manca e tge che po vegnir protegì sco proxim."
+ },
+ "Public research questions last checked <b>23.08.2026</b>. A listed question is not a finding of breach.": {
+  "de": "Öffentliche Forschungsfragen zuletzt geprüft am <b>23.08.2026</b>. Eine aufgeführte Frage ist keine Feststellung einer Rechtsverletzung.",
+  "fr": "Questions de recherche publiques vérifiées le <b>23.08.2026</b>. Une question mentionnée n’est pas un constat de violation.",
+  "it": "Domande di ricerca pubbliche verificate il <b>23.08.2026</b>. Una domanda elencata non è l’accertamento di una violazione.",
+  "rm": "Dumondas publicas da perscrutaziun controlladas l’ultima giada ils <b>23-08-2026</b>. Ina dumonda n’è betg ina constataziun d’ina violaziun."
+ },
+ "How you can help now": {
+  "de": "So können Sie jetzt helfen",
+  "fr": "Comment aider maintenant",
+  "it": "Come puoi aiutare ora",
+  "rm": "Co che Vus pudais gidar ussa"
+ },
+ "You do not need to complete an investigation. The most useful contribution is often one precise observation or one primary record, tied to a place and date. Choose the route that matches what you actually know.": {
+  "de": "Sie müssen keine ganze Untersuchung abschliessen. Am wertvollsten ist oft eine präzise Beobachtung oder eine Primärquelle mit Ort und Datum. Wählen Sie den Weg, der zu Ihrem tatsächlichen Wissen passt.",
+  "fr": "Vous n’avez pas à mener une enquête entière. La contribution la plus utile est souvent une observation précise ou une source primaire liée à un lieu et à une date. Choisissez la voie correspondant à ce que vous savez réellement.",
+  "it": "Non devi completare un’intera indagine. Il contributo più utile è spesso un’osservazione precisa o una fonte primaria legata a un luogo e a una data. Scegli il percorso che corrisponde a ciò che sai davvero.",
+  "rm": "Vus na stuais betg far in’entira investigaziun. Savens è ina observaziun precisa u ina funtauna primara cun lieu e data la contribuziun la pli utila. Tschernai la via che correspunda a quai che Vus savais propi."
+ },
+ "Local knowledge": {
+  "de": "Lokales Wissen",
+  "fr": "Connaissance locale",
+  "it": "Conoscenza locale",
+  "rm": "Savida locala"
+ },
+ "Record an observation": {
+  "de": "Beobachtung erfassen",
+  "fr": "Consigner une observation",
+  "it": "Registra un’osservazione",
+  "rm": "Registrar ina observaziun"
+ },
+ "Report a drain, dry area, barrier, discharge, restoration measure or change you observed. State when and where; separate what you saw from what you think it means.": {
+  "de": "Melden Sie einen Graben, eine trockene Fläche, ein Hindernis, eine Einleitung, eine Wiederherstellungsmassnahme oder eine beobachtete Veränderung. Nennen Sie Zeitpunkt und Ort; trennen Sie Wahrnehmung und Deutung.",
+  "fr": "Signalez un drain, une zone sèche, un obstacle, un rejet, une mesure de restauration ou un changement observé. Indiquez où et quand ; distinguez ce que vous avez vu de votre interprétation.",
+  "it": "Segnala un drenaggio, un’area secca, una barriera, uno scarico, un intervento di ripristino o un cambiamento osservato. Indica dove e quando; separa ciò che hai visto da ciò che pensi significhi.",
+  "rm": "Annunziai in drenadi, ina surfatscha sitga, ina barriera, in sbuccament, ina mesira da restauraziun u ina midada observada. Inditgai cura e nua; separai quai che Vus avais vesì da Vossa interpretaziun."
+ },
+ "Submit an observation": {
+  "de": "Beobachtung einreichen",
+  "fr": "Soumettre une observation",
+  "it": "Invia un’osservazione",
+  "rm": "Trametter ina observaziun"
+ },
+ "Public administration": {
+  "de": "Öffentliche Verwaltung",
+  "fr": "Administration publique",
+  "it": "Amministrazione pubblica",
+  "rm": "Administraziun publica"
+ },
+ "Add an official record": {
+  "de": "Amtliches Dokument ergänzen",
+  "fr": "Ajouter un document officiel",
+  "it": "Aggiungi un documento ufficiale",
+  "rm": "Agiuntar in document uffizial"
+ },
+ "Point to a protection instrument, plan, permit, monitoring series, consultation or restoration report. Give the issuing authority, date and stable public link.": {
+  "de": "Verweisen Sie auf Schutzinstrument, Plan, Bewilligung, Messreihe, Mitwirkung oder Wiederherstellungsbericht. Nennen Sie Behörde, Datum und stabilen öffentlichen Link.",
+  "fr": "Indiquez un instrument de protection, un plan, une autorisation, une série de mesures, une consultation ou un rapport de restauration. Donnez l’autorité, la date et un lien public stable.",
+  "it": "Indica uno strumento di protezione, un piano, un’autorizzazione, una serie di monitoraggio, una consultazione o un rapporto di ripristino. Fornisci autorità, data e link pubblico stabile.",
+  "rm": "Inditgai in instrument da protecziun, in plan, ina permissiun, ina seria da mesiraziuns, ina consultaziun u in rapport da restauraziun. Dai l’autoritad, la data ed in link public stabil."
+ },
+ "Add a public record": {
+  "de": "Amtliches Dokument ergänzen",
+  "fr": "Ajouter un document public",
+  "it": "Aggiungi un documento pubblico",
+  "rm": "Agiuntar in document public"
+ },
+ "Science and data": {
+  "de": "Wissenschaft und Daten",
+  "fr": "Science et données",
+  "it": "Scienza e dati",
+  "rm": "Scienza e datas"
+ },
+ "Review the evidence": {
+  "de": "Evidenz prüfen",
+  "fr": "Examiner les preuves",
+  "it": "Esamina le prove",
+  "rm": "Examinar las cumprovas"
+ },
+ "Check a measurement, method, join, unit, model or missing dataset. Include a reproducible check and say what the evidence can—and cannot—show.": {
+  "de": "Prüfen Sie Messung, Methode, Verknüpfung, Einheit, Modell oder fehlenden Datensatz. Fügen Sie eine reproduzierbare Prüfung hinzu und sagen Sie, was die Evidenz zeigen kann – und was nicht.",
+  "fr": "Vérifiez une mesure, une méthode, une jointure, une unité, un modèle ou un jeu de données manquant. Ajoutez un contrôle reproductible et dites ce que les preuves montrent — et ne montrent pas.",
+  "it": "Controlla una misura, un metodo, un collegamento, un’unità, un modello o un set di dati mancante. Includi un controllo riproducibile e indica ciò che le prove possono — e non possono — mostrare.",
+  "rm": "Controllai ina mesiraziun, ina metoda, ina colliaziun, in’unitad, in model u in set da datas mancant. Agiuntai in test reproducibel e ditgai tge che las cumprovas pon mussar — e tge betg."
+ },
+ "Start a scientific review": {
+  "de": "Wissenschaftliche Prüfung starten",
+  "fr": "Lancer une revue scientifique",
+  "it": "Avvia una revisione scientifica",
+  "rm": "Cumenzer ina revisiun scientifica"
+ },
+ "Law and procedure": {
+  "de": "Recht und Verfahren",
+  "fr": "Droit et procédure",
+  "it": "Diritto e procedura",
+  "rm": "Dretg e procedura"
+ },
+ "Review a legal proposition": {
+  "de": "Rechtssatz prüfen",
+  "fr": "Examiner une proposition juridique",
+  "it": "Esamina una proposizione giuridica",
+  "rm": "Examinar ina proposiziun giuridica"
+ },
+ "Identify the exact rule, decision, instrument or procedural step. A map overlap can start a legal question; it cannot answer one.": {
+  "de": "Bezeichnen Sie die genaue Norm, den Entscheid, das Instrument oder den Verfahrensschritt. Eine Kartenüberlagerung kann eine Rechtsfrage auslösen; beantworten kann sie diese nicht.",
+  "fr": "Identifiez la règle, la décision, l’instrument ou l’étape procédurale exacte. Une superposition cartographique peut soulever une question juridique ; elle ne peut pas y répondre.",
+  "it": "Individua la norma, la decisione, lo strumento o il passaggio procedurale esatto. Una sovrapposizione cartografica può porre una domanda giuridica; non può rispondervi.",
+  "rm": "Inditgai la norma, la decisiun, l’instrument u il pass procedural exact. Ina surposiziun da chartas po far nascher ina dumonda giuridica; ella na po betg respunder a quella."
+ },
+ "Start a legal review": {
+  "de": "Rechtliche Prüfung starten",
+  "fr": "Lancer une revue juridique",
+  "it": "Avvia una revisione giuridica",
+  "rm": "Cumenzer ina revisiun giuridica"
+ },
+ "Two connected campaigns": {
+  "de": "Zwei verbundene Kampagnen",
+  "fr": "Deux campagnes liées",
+  "it": "Due campagne collegate",
+  "rm": "Duas campagnas colliadas"
+ },
+ "Active · water cycle": {
+  "de": "Aktiv · Wasserkreislauf",
+  "fr": "Active · cycle de l’eau",
+  "it": "Attiva · ciclo dell’acqua",
+  "rm": "Activa · ciclus da l’aua"
+ },
+ "Keep water in the landscape": {
+  "de": "Wasser in der Landschaft halten",
+  "fr": "Garder l’eau dans le paysage",
+  "it": "Trattenere l’acqua nel paesaggio",
+  "rm": "Salvar l’aua en la cuntrada"
+ },
+ "Wetlands depend on more than an inventory boundary. Their hydrology can also depend on surrounding drains, groundwater, inflows, land use and restoration. The current work asks where the operative protection instrument, functional buffers and field evidence can be brought together without treating a model as a legal boundary.": {
+  "de": "Feuchtgebiete hängen von mehr als einer Inventargrenze ab. Ihre Hydrologie kann auch von umliegenden Drainagen, Grundwasser, Zuflüssen, Landnutzung und Wiederherstellung abhängen. Die aktuelle Arbeit fragt, wo geltendes Schutzinstrument, funktionale Puffer und Felddaten zusammengeführt werden können, ohne ein Modell als Rechtsgrenze zu behandeln.",
+  "fr": "Les zones humides dépendent de plus qu’une limite d’inventaire. Leur hydrologie peut aussi dépendre des drains voisins, des nappes, des apports, de l’usage du sol et de la restauration. Le travail actuel cherche où réunir instrument de protection applicable, zones tampons fonctionnelles et données de terrain sans traiter un modèle comme une limite juridique.",
+  "it": "Le zone umide dipendono da più di un confine d’inventario. La loro idrologia può dipendere anche da drenaggi circostanti, falde, afflussi, uso del suolo e ripristino. Il lavoro attuale chiede dove riunire strumento di protezione vigente, fasce funzionali e dati sul campo senza trattare un modello come confine giuridico.",
+  "rm": "Zonas umidas dependan da dapli che d’in cunfin d’inventari. Lur idrologia po era depender da drenaschas vischinas, aua sutterrana, affluents, utilisaziun dal terren e restauraziun. La lavur actuala dumonda nua ch’ins po colliar l’instrument da protecziun valaivel, zonas da protecziun funcziunalas e datas dal terren senza tractar in model sco cunfin giuridic."
+ },
+ "Connect each national wetland object to its current protection instrument.": {
+  "de": "Jedes nationale Feuchtgebietsobjekt mit seinem aktuellen Schutzinstrument verbinden.",
+  "fr": "Relier chaque zone humide nationale à son instrument de protection actuel.",
+  "it": "Collegare ogni zona umida nazionale al suo strumento di protezione attuale.",
+  "rm": "Colliar mintga zona umida naziunala cun ses instrument da protecziun actual."
+ },
+ "Keep hydrological, nutrient and disturbance functions separate.": {
+  "de": "Hydrologische, Nährstoff- und Störungsfunktionen getrennt halten.",
+  "fr": "Distinguer les fonctions hydrologiques, nutritives et de protection contre les dérangements.",
+  "it": "Mantenere separate le funzioni idrologiche, dei nutrienti e di disturbo.",
+  "rm": "Tegair separadas las funcziuns idrologicas, nutritivas e da protecziun cunter disturbis."
+ },
+ "Record restoration and current planning as evidence, including evidence of progress.": {
+  "de": "Wiederherstellung und laufende Planung als Evidenz erfassen, einschliesslich Fortschritten.",
+  "fr": "Consigner la restauration et la planification en cours comme preuves, y compris les progrès.",
+  "it": "Registrare ripristino e pianificazione in corso come prove, compresi i progressi.",
+  "rm": "Registrar restauraziun e planisaziun currenta sco cumprovas, inclus progress."
+ },
+ "<a href=\"https://opengovclimate.ch/riverflow/#wet\">Explore protected wetlands</a><a href=\"method.html#wetlands\">Read the method</a>": {
+  "de": "<a href=\"https://opengovclimate.ch/riverflow/#wet\">Geschützte Feuchtgebiete erkunden</a><a href=\"method.html#wetlands\">Methode lesen</a>",
+  "fr": "<a href=\"https://opengovclimate.ch/riverflow/#wet\">Explorer les zones humides protégées</a><a href=\"method.html#wetlands\">Lire la méthode</a>",
+  "it": "<a href=\"https://opengovclimate.ch/riverflow/#wet\">Esplora le zone umide protette</a><a href=\"method.html#wetlands\">Leggi il metodo</a>",
+  "rm": "<a href=\"https://opengovclimate.ch/riverflow/#wet\">Explorar zonas umidas protegidas</a><a href=\"method.html#wetlands\">Leger la metoda</a>"
+ },
+ "Open · water quality": {
+  "de": "Offen · Wasserqualität",
+  "fr": "Ouverte · qualité de l’eau",
+  "it": "Aperta · qualità dell’acqua",
+  "rm": "Averta · qualitad da l’aua"
+ },
+ "Follow a substance to its context": {
+  "de": "Einen Stoff in seinen Kontext verfolgen",
+  "fr": "Suivre une substance dans son contexte",
+  "it": "Seguire una sostanza nel suo contesto",
+  "rm": "Suandar ina substanza en ses context"
+ },
+ "Riverflow already publishes station-level NAWA results without interpolation or a composite score. The next collaborative step is to add the denser cantonal networks and connect a result to sampling method, flow conditions, possible inputs, permits and authority assessments—without turning concentration alone into a compliance claim.": {
+  "de": "Riverflow veröffentlicht bereits NAWA-Ergebnisse je Messstelle, ohne Interpolation oder Gesamtindex. Als Nächstes sollen die dichteren kantonalen Netze ergänzt und Resultate mit Probenahme, Abflussbedingungen, möglichen Einträgen, Bewilligungen und Behördenbeurteilungen verbunden werden – ohne aus einer Konzentration allein eine Aussage zur Rechtskonformität zu machen.",
+  "fr": "Riverflow publie déjà les résultats NAWA par station, sans interpolation ni indice composite. L’étape collaborative suivante consiste à ajouter les réseaux cantonaux plus denses et à relier un résultat à la méthode d’échantillonnage, au débit, aux apports possibles, aux autorisations et aux évaluations des autorités — sans transformer une concentration seule en constat de conformité.",
+  "it": "Riverflow pubblica già i risultati NAWA per stazione, senza interpolazione né indice composito. Il prossimo passo collaborativo è aggiungere le reti cantonali più dense e collegare un risultato a metodo di campionamento, condizioni di portata, possibili apporti, autorizzazioni e valutazioni delle autorità — senza trasformare la sola concentrazione in un giudizio di conformità.",
+  "rm": "Riverflow publitgescha gia resultats NAWA per staziun, senza interpolaziun ni index cumponì. Il proxim pass collaborativ è d’agiuntar las raits chantunalas pli spessas e da colliar in resultat cun la metoda da prelevaziun, las cundiziuns da deflussiun, pussaivels apports, permissiuns e valitaziuns da las autoritads — senza far d’ina concentraziun suletta ina constataziun da conformitad."
+ },
+ "Locate downloadable cantonal station series and their reuse terms.": {
+  "de": "Herunterladbare kantonale Messreihen und ihre Nutzungsbedingungen finden.",
+  "fr": "Trouver les séries cantonales téléchargeables et leurs conditions de réutilisation.",
+  "it": "Trovare serie cantonali scaricabili e relative condizioni di riutilizzo.",
+  "rm": "Chattar serias chantunalas telechargiablas e lur cundiziuns da reutilisaziun."
+ },
+ "Preserve exact laboratory rows, censoring and determination limits.": {
+  "de": "Exakte Laborzeilen, Zensierung und Bestimmungsgrenzen erhalten.",
+  "fr": "Préserver les lignes exactes du laboratoire, la censure et les limites de détermination.",
+  "it": "Conservare righe esatte di laboratorio, censura e limiti di determinazione.",
+  "rm": "Mantegnair las lingias exactas dal labor, la censura ed ils cunfins da determinaziun."
+ },
+ "Separate a measured result from source attribution and legal assessment.": {
+  "de": "Messresultat, Quellenzuordnung und rechtliche Beurteilung trennen.",
+  "fr": "Séparer résultat mesuré, attribution de source et appréciation juridique.",
+  "it": "Separare risultato misurato, attribuzione della fonte e valutazione giuridica.",
+  "rm": "Separar resultat mesirà, attribuziun da la funtauna e valitaziun giuridica."
+ },
+ "<a href=\"https://opengovclimate.ch/riverflow/#quality\">Explore water quality</a><a href=\"method.html#quality\">Read the method</a>": {
+  "de": "<a href=\"https://opengovclimate.ch/riverflow/#quality\">Wasserqualität erkunden</a><a href=\"method.html#quality\">Methode lesen</a>",
+  "fr": "<a href=\"https://opengovclimate.ch/riverflow/#quality\">Explorer la qualité de l’eau</a><a href=\"method.html#quality\">Lire la méthode</a>",
+  "it": "<a href=\"https://opengovclimate.ch/riverflow/#quality\">Esplora la qualità dell’acqua</a><a href=\"method.html#quality\">Leggi il metodo</a>",
+  "rm": "<a href=\"https://opengovclimate.ch/riverflow/#quality\">Explorar la qualitad da l’aua</a><a href=\"method.html#quality\">Leger la metoda</a>"
+ },
+ "Places and questions—not verdicts": {
+  "de": "Orte und Fragen – keine Urteile",
+  "fr": "Des lieux et des questions — pas des verdicts",
+  "it": "Luoghi e domande — non verdetti",
+  "rm": "Lieus e dumondas — betg verdets"
+ },
+ "These starting points come from current official records. They show where a bounded public contribution could close an evidence gap. They do not rank cantons, establish unlawfulness or replace coordination with organisations and authorities already involved.": {
+  "de": "Diese Ausgangspunkte stammen aus aktuellen amtlichen Dokumenten. Sie zeigen, wo ein begrenzter öffentlicher Beitrag eine Evidenzlücke schliessen könnte. Sie bewerten keine Kantone, stellen keine Rechtswidrigkeit fest und ersetzen nicht die Koordination mit bereits beteiligten Organisationen und Behörden.",
+  "fr": "Ces points de départ proviennent de documents officiels actuels. Ils montrent où une contribution publique ciblée pourrait combler une lacune de preuve. Ils ne classent pas les cantons, ne constatent aucune illégalité et ne remplacent pas la coordination avec les organisations et autorités déjà engagées.",
+  "it": "Questi punti di partenza provengono da documenti ufficiali attuali. Mostrano dove un contributo pubblico circoscritto potrebbe colmare una lacuna probatoria. Non classificano i cantoni, non accertano illeciti e non sostituiscono il coordinamento con organizzazioni e autorità già coinvolte.",
+  "rm": "Quests puncts da partenza derivan da documents uffizials actuals. Els mussan nua ch’ina contribuziun publica limitada pudess serrar ina largia da cumprova. Els na rangheschan betg chantuns, na constateschan betg illegalitad e na remplazzan betg la coordinaziun cun organisaziuns ed autoritads gia involvidas."
+ },
+ "Zürich · object question": {
+  "de": "Zürich · Objektfrage",
+  "fr": "Zurich · question liée à un objet",
+  "it": "Zurigo · domanda su un oggetto",
+  "rm": "Turitg · dumonda davart in object"
+ },
+ "Official record": {
+  "de": "Amtliches Dokument",
+  "fr": "Document officiel",
+  "it": "Documento ufficiale",
+  "rm": "Document uffizial"
+ },
+ "Neeracherried": {
+  "de": "Neeracherried",
+  "fr": "Neeracherried",
+  "it": "Neeracherried",
+  "rm": "Neeracherried"
+ },
+ "<b>What the public record says.</b> The Zürich government reported in 2025 that the 1956 ordinance covers only the core fen, that ecologically adequate buffers are outstanding and that a revision is being coordinated with a road project. Early public participation for the road project is announced for 2027.": {
+  "de": "<b>Was das amtliche Dokument sagt.</b> Der Zürcher Regierungsrat berichtete 2025, dass die Verordnung von 1956 nur die Kernfläche des Flachmoors erfasst, ökologisch ausreichende Puffer noch ausstehen und eine Revision mit einem Strassenprojekt koordiniert wird. Für das Strassenprojekt ist eine frühe öffentliche Mitwirkung 2027 angekündigt.",
+  "fr": "<b>Ce que dit le document officiel.</b> Le gouvernement zurichois a indiqué en 2025 que l’ordonnance de 1956 ne couvre que le noyau du bas-marais, que des zones tampons écologiquement suffisantes restent à définir et qu’une révision est coordonnée avec un projet routier. Une participation publique précoce au projet routier est annoncée pour 2027.",
+  "it": "<b>Cosa dice il documento ufficiale.</b> Nel 2025 il governo zurighese ha riferito che l’ordinanza del 1956 copre solo il nucleo della palude bassa, che mancano ancora fasce ecologicamente sufficienti e che una revisione è coordinata con un progetto stradale. Una partecipazione pubblica iniziale al progetto è annunciata per il 2027.",
+  "rm": "<b>Quai che di il document uffizial.</b> La regenza da Turitg ha rapportà il 2025 che l’ordinaziun dal 1956 cuvra mo il coc da la palì bassa, che zonas da protecziun ecologicamain suffizientas mancan anc e ch’ina revisiun vegn coordinada cun in project da via. Ina participaziun publica tempriva al project è annunziada per il 2027."
+ },
+ "<b>What would help.</b> Public drafts and maps of the revised instrument; separate hydrological, nutrient and disturbance assessments; drainage and water-level evidence; restoration and interim measures; and the original notice when a participation period opens.": {
+  "de": "<b>Was helfen würde.</b> Öffentliche Entwürfe und Karten des revidierten Instruments; getrennte Beurteilungen zu Hydrologie, Nährstoffen und Störungen; Drainage- und Wasserstandsdaten; Wiederherstellungs- und Zwischenmassnahmen; sowie die Originalpublikation, sobald eine Mitwirkungsfrist beginnt.",
+  "fr": "<b>Ce qui serait utile.</b> Projets publics et cartes de l’instrument révisé ; évaluations séparées de l’hydrologie, des nutriments et des dérangements ; données sur le drainage et les niveaux d’eau ; restauration et mesures intermédiaires ; publication originale à l’ouverture d’un délai de participation.",
+  "it": "<b>Cosa sarebbe utile.</b> Bozze pubbliche e carte dello strumento riveduto; valutazioni separate di idrologia, nutrienti e disturbo; dati su drenaggio e livello dell’acqua; ripristino e misure intermedie; pubblicazione originale quando si apre un termine di partecipazione.",
+  "rm": "<b>Quai che gidass.</b> Sbozs publics e chartas da l’instrument revedì; valitaziuns separadas da l’idrologia, dals nutrients e dals disturbis; datas da drenadi e nivel d’aua; restauraziun e mesiras intermediaras; e la publicaziun originala cura ch’in termin da participaziun cumenza."
+ },
+ "Primary records: <a href=\"https://www.zh.ch/bin/zhweb/publish/regierungsratsbeschluss-unterlagen./2025/1302/RRB-2025-1302.pdf\">RRB 1302/2025</a> · <a href=\"https://www.zh.ch/de/planen-bauen/tiefbau/geplante-strassenprojekte/geplantes-strassenprojekt-hoeri-neerach-niederglatt.html\">road project</a>": {
+  "de": "Primärdokumente: <a href=\"https://www.zh.ch/bin/zhweb/publish/regierungsratsbeschluss-unterlagen./2025/1302/RRB-2025-1302.pdf\">RRB 1302/2025</a> · <a href=\"https://www.zh.ch/de/planen-bauen/tiefbau/geplante-strassenprojekte/geplantes-strassenprojekt-hoeri-neerach-niederglatt.html\">Strassenprojekt</a>",
+  "fr": "Documents primaires : <a href=\"https://www.zh.ch/bin/zhweb/publish/regierungsratsbeschluss-unterlagen./2025/1302/RRB-2025-1302.pdf\">RRB 1302/2025</a> · <a href=\"https://www.zh.ch/de/planen-bauen/tiefbau/geplante-strassenprojekte/geplantes-strassenprojekt-hoeri-neerach-niederglatt.html\">projet routier</a>",
+  "it": "Documenti primari: <a href=\"https://www.zh.ch/bin/zhweb/publish/regierungsratsbeschluss-unterlagen./2025/1302/RRB-2025-1302.pdf\">RRB 1302/2025</a> · <a href=\"https://www.zh.ch/de/planen-bauen/tiefbau/geplante-strassenprojekte/geplantes-strassenprojekt-hoeri-neerach-niederglatt.html\">progetto stradale</a>",
+  "rm": "Documents primars: <a href=\"https://www.zh.ch/bin/zhweb/publish/regierungsratsbeschluss-unterlagen./2025/1302/RRB-2025-1302.pdf\">RRB 1302/2025</a> · <a href=\"https://www.zh.ch/de/planen-bauen/tiefbau/geplante-strassenprojekte/geplantes-strassenprojekt-hoeri-neerach-niederglatt.html\">project da via</a>"
+ },
+ "Schwyz · programme question": {
+  "de": "Schwyz · Programmfrage",
+  "fr": "Schwytz · question de programme",
+  "it": "Svitto · domanda di programma",
+  "rm": "Sviz · dumonda da program"
+ },
+ "Protection instruments and buffers": {
+  "de": "Schutzinstrumente und Puffer",
+  "fr": "Instruments de protection et zones tampons",
+  "it": "Strumenti di protezione e fasce",
+  "rm": "Instruments da protecziun e zonas da protecziun"
+ },
+ "<b>What the public record says.</b> The canton’s 2026 nature-protection concept describes deficits at contract-only national wetland objects and schedules generally binding rules and buffer work over several years. This is a cantonal programme statement, not an object-specific finding.": {
+  "de": "<b>Was das amtliche Dokument sagt.</b> Das Naturschutzgesamtkonzept 2026 des Kantons beschreibt Defizite bei nationalen Feuchtgebietsobjekten, die nur vertraglich geschützt sind, und plant über mehrere Jahre allgemeinverbindliche Regeln und Pufferarbeiten. Das ist eine kantonale Programmaussage, keine objektspezifische Feststellung.",
+  "fr": "<b>Ce que dit le document officiel.</b> Le concept cantonal de protection de la nature de 2026 décrit des lacunes pour des zones humides nationales protégées uniquement par contrat et planifie sur plusieurs années des règles généralement contraignantes et des travaux sur les zones tampons. C’est une déclaration de programme cantonal, non un constat propre à un objet.",
+  "it": "<b>Cosa dice il documento ufficiale.</b> Il piano cantonale di protezione della natura del 2026 descrive lacune per zone umide nazionali protette solo da contratti e programma su più anni norme generalmente vincolanti e lavori sulle fasce. È una dichiarazione programmatica cantonale, non un accertamento relativo a un oggetto.",
+  "rm": "<b>Quai che di il document uffizial.</b> Il concept chantunal da protecziun da la natira dal 2026 descriva mancanzas tar zonas umidas naziunalas protegidas mo cun contracts e planisescha reglas generalmain liantas e lavurs vi da zonas da protecziun sur plirs onns. Quai è ina decleraziun da program chantunala, betg ina constataziun specifica ad in object."
+ },
+ "<b>What would help.</b> For one object at a time: the operative plan or contract, exact inventory identity, current buffer and hydrology material, third-party effects, measures already taken and any live procedure. Recreation-pressure objects named in the concept are useful records targets.": {
+  "de": "<b>Was helfen würde.</b> Objekt für Objekt: geltender Plan oder Vertrag, genaue Inventaridentität, aktuelles Puffer- und Hydrologiematerial, Wirkungen gegenüber Dritten, bereits getroffene Massnahmen und laufende Verfahren. Die im Konzept genannten Objekte mit Erholungsdruck sind sinnvolle Aktenziele.",
+  "fr": "<b>Ce qui serait utile.</b> Pour un objet à la fois : plan ou contrat applicable, identité exacte dans l’inventaire, éléments actuels sur les zones tampons et l’hydrologie, effets envers les tiers, mesures déjà prises et toute procédure en cours. Les objets soumis à la pression des loisirs cités dans le concept sont des cibles documentaires utiles.",
+  "it": "<b>Cosa sarebbe utile.</b> Un oggetto alla volta: piano o contratto vigente, identità esatta nell’inventario, materiale attuale su fasce e idrologia, effetti verso terzi, misure già adottate e procedimenti in corso. Gli oggetti sottoposti a pressione ricreativa citati nel piano sono utili obiettivi documentali.",
+  "rm": "<b>Quai che gidass.</b> Per in object suenter l’auter: plan u contract valaivel, identitad exacta en l’inventari, material actual davart zonas da protecziun ed idrologia, effects envers terzs, mesiras gia prendidas e proceduras currentas. Ils objects cun pressiun da recreaziun numnads en il concept èn buns objects per tschertgar actas."
+ },
+ "Primary record: <a href=\"https://www.sz.ch/public/upload/assets/92849/Naturschutzgesamtkonzept.pdf?fp=4\">Nature-protection concept, May 2026</a>": {
+  "de": "Primärdokument: <a href=\"https://www.sz.ch/public/upload/assets/92849/Naturschutzgesamtkonzept.pdf?fp=4\">Naturschutzgesamtkonzept, Mai 2026</a>",
+  "fr": "Document primaire : <a href=\"https://www.sz.ch/public/upload/assets/92849/Naturschutzgesamtkonzept.pdf?fp=4\">concept de protection de la nature, mai 2026</a>",
+  "it": "Documento primario: <a href=\"https://www.sz.ch/public/upload/assets/92849/Naturschutzgesamtkonzept.pdf?fp=4\">piano di protezione della natura, maggio 2026</a>",
+  "rm": "Document primar: <a href=\"https://www.sz.ch/public/upload/assets/92849/Naturschutzgesamtkonzept.pdf?fp=4\">concept da protecziun da la natira, matg 2026</a>"
+ },
+ "Bern · method comparator": {
+  "de": "Bern · Methodenvergleich",
+  "fr": "Berne · comparaison méthodologique",
+  "it": "Berna · confronto metodologico",
+  "rm": "Berna · cumparegliaziun da metoda"
+ },
+ "Model workflow": {
+  "de": "Modellgestützter Ablauf",
+  "fr": "Processus fondé sur un modèle",
+  "it": "Processo basato su modello",
+  "rm": "Process basà sin in model"
+ },
+ "Moor hydrological perimeter": {
+  "de": "Moorhydrologischer Puffer",
+  "fr": "Périmètre hydrologique des marais",
+  "it": "Perimetro idrologico delle torbiere",
+  "rm": "Perimeter idrologic da palids"
+ },
+ "<b>What the public record says.</b> Bern publishes the federal moor-hydrological indication perimeter as a screening product. If effects cannot be excluded, the workflow calls for specialist review or a hydrological report. The perimeter is not presented as a binding buffer.": {
+  "de": "<b>Was das amtliche Dokument sagt.</b> Bern veröffentlicht den Moorhydrologischen Puffer des Bundes als Screeningprodukt. Lassen sich Auswirkungen nicht ausschliessen, sieht der Ablauf eine fachliche Prüfung oder ein hydrologisches Gutachten vor. Der Perimeter wird nicht als verbindlicher Puffer dargestellt.",
+  "fr": "<b>Ce que dit le document officiel.</b> Berne publie le périmètre hydrologique indicatif fédéral des marais comme produit de dépistage. Si des effets ne peuvent être exclus, le processus prévoit un examen spécialisé ou une expertise hydrologique. Le périmètre n’est pas présenté comme une zone tampon contraignante.",
+  "it": "<b>Cosa dice il documento ufficiale.</b> Berna pubblica il perimetro idrologico indicativo federale delle torbiere come prodotto di screening. Se non si possono escludere effetti, il processo prevede una verifica specialistica o una perizia idrologica. Il perimetro non è presentato come fascia vincolante.",
+  "rm": "<b>Quai che di il document uffizial.</b> Berna publitgescha il perimeter idrologic indicativ federal da palids sco product da screening. Sch’ins na po betg excluder effects, prevesa il process ina examinaziun spezialisada u in’expertisa idrologica. Il perimeter na vegn betg preschentà sco zona da protecziun lianta."
+ },
+ "<b>What would help.</b> Test the same transparent triage elsewhere: model indication first, object and instrument check second, field validation third. Document where the workflow resolves a concern as carefully as where it identifies a remaining question.": {
+  "de": "<b>Was helfen würde.</b> Dieselbe transparente Triage andernorts testen: zuerst Modellhinweis, dann Objekt- und Instrumentenprüfung, danach Feldvalidierung. Ebenso sorgfältig dokumentieren, wo der Ablauf einen Verdacht ausräumt, wie dort, wo eine Frage offenbleibt.",
+  "fr": "<b>Ce qui serait utile.</b> Tester ailleurs le même tri transparent : indication du modèle, puis vérification de l’objet et de l’instrument, enfin validation sur le terrain. Documenter aussi soigneusement les cas où le processus écarte une préoccupation que ceux où une question demeure.",
+  "it": "<b>Cosa sarebbe utile.</b> Provare altrove lo stesso triage trasparente: prima indicazione del modello, poi verifica di oggetto e strumento, infine validazione sul campo. Documentare con pari cura dove il processo risolve un dubbio e dove lascia una domanda aperta.",
+  "rm": "<b>Quai che gidass.</b> Empruvar altrove la medema selecziun transparenta: indicaziun dal model, lura controlla da l’object e da l’instrument, la finala validaziun sin il terren. Documentar uschè conscienziusamain nua ch’il process sclerescha ina preoccupaziun sco nua ch’ina dumonda resta averta."
+ },
+ "Primary records: <a href=\"https://www.agi.dij.be.ch/de/start/geoportal/geodaten/detail.html?code=MHP&amp;type=geoproduct\">geoproduct</a> · <a href=\"https://www.weu.be.ch/content/dam/weu/dokumente/lanat/de/umwelt/naturschutz/moore/lanat-anf-arbeitshilfe-mhp-DE.pdf\">work aid</a>": {
+  "de": "Primärdokumente: <a href=\"https://www.agi.dij.be.ch/de/start/geoportal/geodaten/detail.html?code=MHP&amp;type=geoproduct\">Geoprodukt</a> · <a href=\"https://www.weu.be.ch/content/dam/weu/dokumente/lanat/de/umwelt/naturschutz/moore/lanat-anf-arbeitshilfe-mhp-DE.pdf\">Arbeitshilfe</a>",
+  "fr": "Documents primaires : <a href=\"https://www.agi.dij.be.ch/de/start/geoportal/geodaten/detail.html?code=MHP&amp;type=geoproduct\">géoproduit</a> · <a href=\"https://www.weu.be.ch/content/dam/weu/dokumente/lanat/de/umwelt/naturschutz/moore/lanat-anf-arbeitshilfe-mhp-DE.pdf\">guide de travail</a>",
+  "it": "Documenti primari: <a href=\"https://www.agi.dij.be.ch/de/start/geoportal/geodaten/detail.html?code=MHP&amp;type=geoproduct\">geoprodotto</a> · <a href=\"https://www.weu.be.ch/content/dam/weu/dokumente/lanat/de/umwelt/naturschutz/moore/lanat-anf-arbeitshilfe-mhp-DE.pdf\">guida operativa</a>",
+  "rm": "Documents primars: <a href=\"https://www.agi.dij.be.ch/de/start/geoportal/geodaten/detail.html?code=MHP&amp;type=geoproduct\">geoproduct</a> · <a href=\"https://www.weu.be.ch/content/dam/weu/dokumente/lanat/de/umwelt/naturschutz/moore/lanat-anf-arbeitshilfe-mhp-DE.pdf\">agid da lavur</a>"
+ },
+ "<b>Why these three?</b> One concrete object, one cantonal programme and one positive method comparator make the first public work testable without converting a nationwide implementation concern into a nationwide accusation.": {
+  "de": "<b>Warum diese drei?</b> Ein konkretes Objekt, ein kantonales Programm und ein positiver Methodenvergleich machen die erste öffentliche Arbeit prüfbar, ohne aus einem landesweiten Vollzugsproblem einen landesweiten Vorwurf zu machen.",
+  "fr": "<b>Pourquoi ces trois ?</b> Un objet concret, un programme cantonal et un comparateur méthodologique positif rendent le premier travail public vérifiable sans transformer un problème national d’exécution en accusation nationale.",
+  "it": "<b>Perché questi tre?</b> Un oggetto concreto, un programma cantonale e un confronto metodologico positivo rendono verificabile il primo lavoro pubblico senza trasformare un problema nazionale di attuazione in un’accusa nazionale.",
+  "rm": "<b>Pertge quests trais?</b> In object concret, in program chantunal ed ina cumparegliaziun positiva da metoda fan l’emprima lavur publica controllabla senza transfurmar in problem naziunal d’execuziun en in’accusaziun naziunala."
+ },
+ "From contribution to protection": {
+  "de": "Vom Beitrag zum Schutz",
+  "fr": "De la contribution à la protection",
+  "it": "Dal contributo alla protezione",
+  "rm": "Da la contribuziun a la protecziun"
+ },
+ "Locate": {
+  "de": "Verorten",
+  "fr": "Localiser",
+  "it": "Localizza",
+  "rm": "Localisar"
+ },
+ "Name the place, waterbody, station or protected object and the date relevant to your contribution.": {
+  "de": "Nennen Sie Ort, Gewässer, Messstelle oder Schutzobjekt und das für den Beitrag relevante Datum.",
+  "fr": "Nommez le lieu, le plan d’eau, la station ou l’objet protégé et la date pertinente.",
+  "it": "Indica luogo, corpo idrico, stazione od oggetto protetto e la data rilevante.",
+  "rm": "Numnai il lieu, il curs d’aua, la staziun u l’object protegì e la data relevanta."
+ },
+ "Classify": {
+  "de": "Klassifizieren",
+  "fr": "Classer",
+  "it": "Classifica",
+  "rm": "Classifitgar"
+ },
+ "Say whether it is a measurement, field observation, official register, model, legal text or inference.": {
+  "de": "Sagen Sie, ob es sich um Messung, Feldbeobachtung, amtliches Register, Modell, Rechtstext oder Schlussfolgerung handelt.",
+  "fr": "Indiquez s’il s’agit d’une mesure, d’une observation de terrain, d’un registre officiel, d’un modèle, d’un texte juridique ou d’une inférence.",
+  "it": "Indica se si tratta di misura, osservazione sul campo, registro ufficiale, modello, testo giuridico o inferenza.",
+  "rm": "Ditgai sch’i sa tracta d’ina mesiraziun, observaziun dal terren, register uffizial, model, text giuridic u inferenza."
+ },
+ "Trace": {
+  "de": "Zurückverfolgen",
+  "fr": "Retracer",
+  "it": "Traccia",
+  "rm": "Documentar la derivanza"
+ },
+ "Add the original source, identifier, version, licence and smallest proposition it supports.": {
+  "de": "Fügen Sie Originalquelle, Kennung, Version, Lizenz und den kleinsten belegten Satz hinzu.",
+  "fr": "Ajoutez la source originale, l’identifiant, la version, la licence et la proposition minimale qu’elle étaye.",
+  "it": "Aggiungi fonte originale, identificatore, versione, licenza e la minima proposizione supportata.",
+  "rm": "Agiuntai la funtauna originala, l’identificatur, la versiun, la licenza e la pli pitschna proposiziun ch’ella sustegna."
+ },
+ "Review": {
+  "de": "Prüfen",
+  "fr": "Examiner",
+  "it": "Esamina",
+  "rm": "Examinar"
+ },
+ "A maintainer checks reproducibility and scope. Scientific and legal review remain separate and independent.": {
+  "de": "Die Projektpflege prüft Reproduzierbarkeit und Reichweite. Wissenschaftliche und rechtliche Prüfung bleiben getrennt und unabhängig.",
+  "fr": "La maintenance vérifie la reproductibilité et la portée. Les revues scientifique et juridique restent séparées et indépendantes.",
+  "it": "La manutenzione verifica riproducibilità e portata. La revisione scientifica e quella giuridica restano separate e indipendenti.",
+  "rm": "La tgira dal project controlla la reproducibladad e la dimensiun. Revisiun scientifica e giuridica restan separadas ed independentas."
+ },
+ "Publish or hold": {
+  "de": "Veröffentlichen oder zurückhalten",
+  "fr": "Publier ou retenir",
+  "it": "Pubblica o trattieni",
+  "rm": "Publitgar u retegnair"
+ },
+ "Accepted evidence enters the public record with its limit. Sensitive, personal or unresolved material stays out.": {
+  "de": "Akzeptierte Evidenz gelangt mit ihrer Grenze in den öffentlichen Bestand. Sensibles, persönliches oder ungeklärtes Material bleibt draussen.",
+  "fr": "Les preuves acceptées entrent dans le dossier public avec leur limite. Les éléments sensibles, personnels ou non résolus restent exclus.",
+  "it": "Le prove accettate entrano nel registro pubblico con i loro limiti. Il materiale sensibile, personale o irrisolto resta escluso.",
+  "rm": "Cumprovas acceptadas entran en il register public cun lur limit. Material sensibel, persunal u nunsclerì resta ordvart."
+ },
+ "Protect": {
+  "de": "Schützen",
+  "fr": "Protéger",
+  "it": "Proteggi",
+  "rm": "Proteger"
+ },
+ "Only an object-specific record can support dialogue, participation, restoration or legal assessment. Riverflow itself does not declare a breach.": {
+  "de": "Nur ein objektspezifischer Bestand kann Dialog, Mitwirkung, Wiederherstellung oder rechtliche Beurteilung tragen. Riverflow selbst stellt keine Rechtsverletzung fest.",
+  "fr": "Seul un dossier propre à un objet peut soutenir dialogue, participation, restauration ou évaluation juridique. Riverflow ne constate lui-même aucune violation.",
+  "it": "Solo un dossier relativo a un oggetto può sostenere dialogo, partecipazione, ripristino o valutazione giuridica. Riverflow non dichiara una violazione.",
+  "rm": "Mo in dossier specific ad in object po sustegnair dialog, participaziun, restauraziun u valitaziun giuridica. Riverflow na constatescha sez nagina violaziun."
+ },
+ "How contributions are labelled": {
+  "de": "Wie Beiträge gekennzeichnet werden",
+  "fr": "Comment les contributions sont qualifiées",
+  "it": "Come sono etichettati i contributi",
+  "rm": "Co che contribuziuns vegnan marcadas"
+ },
+ "The label follows the evidence, not the importance of the concern. Status can change after review, but the original contribution and the reason for the change remain visible in the repository.": {
+  "de": "Die Kennzeichnung folgt der Evidenz, nicht der Bedeutung eines Anliegens. Der Status kann sich nach der Prüfung ändern; der ursprüngliche Beitrag und der Grund bleiben im Repository sichtbar.",
+  "fr": "Le libellé suit la preuve, non l’importance de la préoccupation. Le statut peut changer après examen, mais la contribution originale et le motif restent visibles dans le dépôt.",
+  "it": "L’etichetta segue la prova, non l’importanza della preoccupazione. Lo stato può cambiare dopo la revisione, ma il contributo originale e il motivo restano visibili nel repository.",
+  "rm": "La marcaziun suonda la cumprova, betg l’impurtanza da la preoccupaziun. Il status po sa midar suenter la revisiun, ma la contribuziun originala ed il motiv restan visibels en il repository."
+ },
+ "Label": {
+  "de": "Kennzeichnung",
+  "fr": "Libellé",
+  "it": "Etichetta",
+  "rm": "Marcaziun"
+ },
+ "What it establishes": {
+  "de": "Was damit belegt ist",
+  "fr": "Ce qu’il établit",
+  "it": "Cosa stabilisce",
+  "rm": "Tge ch’ella cumprova"
+ },
+ "What it does not establish": {
+  "de": "Was damit nicht belegt ist",
+  "fr": "Ce qu’il n’établit pas",
+  "it": "Cosa non stabilisce",
+  "rm": "Tge ch’ella na cumprova betg"
+ },
+ "<span class=\"evidenceTag measured\">Measurement</span>": {
+  "de": "<span class=\"evidenceTag measured\">Messung</span>",
+  "fr": "<span class=\"evidenceTag measured\">Mesure</span>",
+  "it": "<span class=\"evidenceTag measured\">Misura</span>",
+  "rm": "<span class=\"evidenceTag measured\">Mesiraziun</span>"
+ },
+ "A value reported for a method, place and time.": {
+  "de": "Ein gemeldeter Wert für Methode, Ort und Zeit.",
+  "fr": "Une valeur rapportée pour une méthode, un lieu et un moment.",
+  "it": "Un valore riportato per un metodo, un luogo e un momento.",
+  "rm": "Ina valur rapportada per ina metoda, in lieu ed in temp."
+ },
+ "Cause, representativeness or legal compliance.": {
+  "de": "Ursache, Repräsentativität oder Rechtskonformität.",
+  "fr": "Cause, représentativité ou conformité juridique.",
+  "it": "Causa, rappresentatività o conformità giuridica.",
+  "rm": "Causa, represchentativitad u conformitad giuridica."
+ },
+ "<span class=\"evidenceTag observed\">Field observation</span>": {
+  "de": "<span class=\"evidenceTag observed\">Feldbeobachtung</span>",
+  "fr": "<span class=\"evidenceTag observed\">Observation de terrain</span>",
+  "it": "<span class=\"evidenceTag observed\">Osservazione sul campo</span>",
+  "rm": "<span class=\"evidenceTag observed\">Observaziun dal terren</span>"
+ },
+ "What a contributor saw, where and when.": {
+  "de": "Was eine Person wann und wo beobachtet hat.",
+  "fr": "Ce qu’une personne a vu, où et quand.",
+  "it": "Ciò che una persona ha visto, dove e quando.",
+  "rm": "Quai ch’ina persuna ha vesì, nua e cura."
+ },
+ "Hydrological effect or responsibility without validation.": {
+  "de": "Hydrologische Wirkung oder Verantwortung ohne Validierung.",
+  "fr": "Effet hydrologique ou responsabilité sans validation.",
+  "it": "Effetto idrologico o responsabilità senza convalida.",
+  "rm": "Effect idrologic u responsabladad senza validaziun."
+ },
+ "<span class=\"evidenceTag official\">Official record</span>": {
+  "de": "<span class=\"evidenceTag official\">Amtliches Dokument</span>",
+  "fr": "<span class=\"evidenceTag official\">Document officiel</span>",
+  "it": "<span class=\"evidenceTag official\">Documento ufficiale</span>",
+  "rm": "<span class=\"evidenceTag official\">Document uffizial</span>"
+ },
+ "What an authority published or decided.": {
+  "de": "Was eine Behörde veröffentlicht oder entschieden hat.",
+  "fr": "Ce qu’une autorité a publié ou décidé.",
+  "it": "Ciò che un’autorità ha pubblicato o deciso.",
+  "rm": "Quai ch’ina autoritad ha publitgà u decidì."
+ },
+ "That every statement in the record is independently verified.": {
+  "de": "Dass jede Aussage darin unabhängig bestätigt ist.",
+  "fr": "Que chaque énoncé du document est vérifié indépendamment.",
+  "it": "Che ogni affermazione nel documento sia verificata indipendentemente.",
+  "rm": "Che mintga decleraziun en il document saja verifitgada independentamain."
+ },
+ "<span class=\"evidenceTag model\">Model or screen</span>": {
+  "de": "<span class=\"evidenceTag model\">Modell oder Screening</span>",
+  "fr": "<span class=\"evidenceTag model\">Modèle ou dépistage</span>",
+  "it": "<span class=\"evidenceTag model\">Modello o screening</span>",
+  "rm": "<span class=\"evidenceTag model\">Model u screening</span>"
+ },
+ "A reproducible indication under stated assumptions.": {
+  "de": "Ein reproduzierbarer Hinweis unter angegebenen Annahmen.",
+  "fr": "Une indication reproductible sous des hypothèses déclarées.",
+  "it": "Un’indicazione riproducibile sotto ipotesi dichiarate.",
+  "rm": "Ina indicaziun reproducibla sut premissas decleradas."
+ },
+ "A measured condition, binding boundary or breach.": {
+  "de": "Ein gemessener Zustand, eine verbindliche Grenze oder eine Rechtsverletzung.",
+  "fr": "Un état mesuré, une limite contraignante ou une violation.",
+  "it": "Una condizione misurata, un confine vincolante o una violazione.",
+  "rm": "In stadi mesirà, in cunfin liant u ina violaziun."
+ },
+ "<span class=\"evidenceTag inferred\">Inference</span>": {
+  "de": "<span class=\"evidenceTag inferred\">Schlussfolgerung</span>",
+  "fr": "<span class=\"evidenceTag inferred\">Inférence</span>",
+  "it": "<span class=\"evidenceTag inferred\">Inferenza</span>",
+  "rm": "<span class=\"evidenceTag inferred\">Inferenza</span>"
+ },
+ "A reasoned question or connection between evidence.": {
+  "de": "Eine begründete Frage oder Verbindung zwischen Belegen.",
+  "fr": "Une question raisonnée ou un lien entre des preuves.",
+  "it": "Una domanda motivata o un collegamento tra prove.",
+  "rm": "Ina dumonda motivada u ina colliaziun tranter cumprovas."
+ },
+ "The underlying facts beyond its cited support.": {
+  "de": "Die zugrunde liegenden Tatsachen über die zitierten Belege hinaus.",
+  "fr": "Les faits sous-jacents au-delà des sources citées.",
+  "it": "I fatti sottostanti oltre le fonti citate.",
+  "rm": "Ils fatgs da basa ultra las funtaunas citadas."
+ },
+ "<span class=\"evidenceTag open\">Not assessed</span>": {
+  "de": "<span class=\"evidenceTag open\">Nicht beurteilt</span>",
+  "fr": "<span class=\"evidenceTag open\">Non évalué</span>",
+  "it": "<span class=\"evidenceTag open\">Non valutato</span>",
+  "rm": "<span class=\"evidenceTag open\">Betg valità</span>"
+ },
+ "That relevant evidence has not yet been reviewed here.": {
+  "de": "Dass die relevante Evidenz hier noch nicht geprüft wurde.",
+  "fr": "Que les preuves pertinentes n’ont pas encore été examinées ici.",
+  "it": "Che le prove pertinenti non sono ancora state esaminate qui.",
+  "rm": "Che las cumprovas relevantas n’èn anc betg vegnidas examinadas qua."
+ },
+ "That the evidence does not exist or a duty was not met.": {
+  "de": "Dass die Evidenz nicht existiert oder eine Pflicht nicht erfüllt wurde.",
+  "fr": "Que les preuves n’existent pas ou qu’une obligation n’a pas été respectée.",
+  "it": "Che le prove non esistono o che un obbligo non è stato rispettato.",
+  "rm": "Che las cumprovas na existian betg u ch’ina obligaziun na saja betg ademplida."
+ },
+ "Publish with care": {
+  "de": "Sorgfältig veröffentlichen",
+  "fr": "Publier avec soin",
+  "it": "Pubblicare con cura",
+  "rm": "Publitgar cun precauziun"
+ },
+ "GitHub issues are public. Do not publish personal data, private correspondence, access credentials, the exact location of sensitive species or material whose disclosure could cause harm. Remove image metadata when it is not needed. Obtain consent before identifying another person.": {
+  "de": "GitHub-Issues sind öffentlich. Veröffentlichen Sie keine Personendaten, private Korrespondenz, Zugangsdaten, genaue Standorte empfindlicher Arten oder Material, dessen Offenlegung Schaden verursachen könnte. Entfernen Sie unnötige Bildmetadaten. Holen Sie Einwilligung ein, bevor Sie andere Personen identifizieren.",
+  "fr": "Les issues GitHub sont publiques. Ne publiez ni données personnelles, ni correspondance privée, ni identifiants d’accès, ni localisation exacte d’espèces sensibles, ni contenu dont la divulgation pourrait nuire. Supprimez les métadonnées d’image inutiles. Obtenez le consentement avant d’identifier une autre personne.",
+  "it": "Le issue GitHub sono pubbliche. Non pubblicare dati personali, corrispondenza privata, credenziali, ubicazioni esatte di specie sensibili o materiale la cui divulgazione potrebbe causare danni. Rimuovi i metadati non necessari dalle immagini. Ottieni il consenso prima di identificare un’altra persona.",
+  "rm": "Issues da GitHub èn publicas. Na publitgai betg datas persunalas, correspundenza privata, datas d’access, lieus exacts da spezias sensiblas u material che pudess chaschunar donn cun sia publicaziun. Allontanai metadatas d’imagines betg necessarias. Dumandai il consentiment avant d’identifitgar in’autra persuna."
+ },
+ "For security issues or evidence that should not be public, use the repository’s private <a href=\"https://github.com/jonashertner/riverflow-ch/security/advisories/new\">security reporting channel</a> and describe the safe contact route before sending sensitive material.": {
+  "de": "Nutzen Sie bei Sicherheitsfragen oder nicht öffentlichen Belegen den privaten <a href=\"https://github.com/jonashertner/riverflow-ch/security/advisories/new\">Meldekanal für Sicherheit</a> des Repositorys und beschreiben Sie zuerst den sicheren Kontaktweg, bevor Sie sensibles Material senden.",
+  "fr": "Pour les questions de sécurité ou les preuves qui ne doivent pas être publiques, utilisez le <a href=\"https://github.com/jonashertner/riverflow-ch/security/advisories/new\">canal privé de signalement de sécurité</a> du dépôt et décrivez d’abord le moyen de contact sûr avant d’envoyer du contenu sensible.",
+  "it": "Per problemi di sicurezza o prove che non devono essere pubbliche, usa il <a href=\"https://github.com/jonashertner/riverflow-ch/security/advisories/new\">canale privato di segnalazione</a> del repository e descrivi prima il contatto sicuro, prima di inviare materiale sensibile.",
+  "rm": "Per problems da segirezza u cumprovas che na duain betg esser publicas duvrai il <a href=\"https://github.com/jonashertner/riverflow-ch/security/advisories/new\">canal privat da segirezza</a> dal repository e descrivai l’emprim la via da contact segira avant da trametter material sensibel."
+ },
+ "<a href=\"https://github.com/jonashertner/riverflow-ch/blob/main/CONTRIBUTING.md\">Read the full contribution guide</a> <a href=\"https://github.com/jonashertner/riverflow-ch/issues\">See public work in progress</a>": {
+  "de": "<a href=\"https://github.com/jonashertner/riverflow-ch/blob/main/CONTRIBUTING.md\">Vollständigen Leitfaden lesen</a> <a href=\"https://github.com/jonashertner/riverflow-ch/issues\">Öffentliche Arbeiten ansehen</a>",
+  "fr": "<a href=\"https://github.com/jonashertner/riverflow-ch/blob/main/CONTRIBUTING.md\">Lire le guide complet</a> <a href=\"https://github.com/jonashertner/riverflow-ch/issues\">Voir le travail public en cours</a>",
+  "it": "<a href=\"https://github.com/jonashertner/riverflow-ch/blob/main/CONTRIBUTING.md\">Leggi la guida completa</a> <a href=\"https://github.com/jonashertner/riverflow-ch/issues\">Vedi i lavori pubblici in corso</a>",
+  "rm": "<a href=\"https://github.com/jonashertner/riverflow-ch/blob/main/CONTRIBUTING.md\">Leger il guid cumplet</a> <a href=\"https://github.com/jonashertner/riverflow-ch/issues\">Vesair la lavur publica en curs</a>"
+ },
+ "<a class=\"toMapBig\" href=\"en/\"><svg class=\"mark\" width=\"22\" height=\"10\" viewBox=\"0 0 22 10\" aria-hidden=\"true\"><rect x=\"0\" y=\"0\" width=\"1.4\" height=\"10\" rx=\"0.7\" class=\"mA\"/><rect x=\"2.6\" y=\"0\" width=\"11.6\" height=\"10\" rx=\"1.2\" class=\"mB\"/><rect x=\"15.4\" y=\"0\" width=\"6.6\" height=\"10\" rx=\"1.2\" class=\"mC\"/></svg> Back to the map</a>": {
+  "de": "<a class=\"toMapBig\" href=\"en/\"><svg class=\"mark\" width=\"22\" height=\"10\" viewBox=\"0 0 22 10\" aria-hidden=\"true\"><rect x=\"0\" y=\"0\" width=\"1.4\" height=\"10\" rx=\"0.7\" class=\"mA\"/><rect x=\"2.6\" y=\"0\" width=\"11.6\" height=\"10\" rx=\"1.2\" class=\"mB\"/><rect x=\"15.4\" y=\"0\" width=\"6.6\" height=\"10\" rx=\"1.2\" class=\"mC\"/></svg> Zurück zur Karte</a>",
+  "fr": "<a class=\"toMapBig\" href=\"en/\"><svg class=\"mark\" width=\"22\" height=\"10\" viewBox=\"0 0 22 10\" aria-hidden=\"true\"><rect x=\"0\" y=\"0\" width=\"1.4\" height=\"10\" rx=\"0.7\" class=\"mA\"/><rect x=\"2.6\" y=\"0\" width=\"11.6\" height=\"10\" rx=\"1.2\" class=\"mB\"/><rect x=\"15.4\" y=\"0\" width=\"6.6\" height=\"10\" rx=\"1.2\" class=\"mC\"/></svg> Retour à la carte</a>",
+  "it": "<a class=\"toMapBig\" href=\"en/\"><svg class=\"mark\" width=\"22\" height=\"10\" viewBox=\"0 0 22 10\" aria-hidden=\"true\"><rect x=\"0\" y=\"0\" width=\"1.4\" height=\"10\" rx=\"0.7\" class=\"mA\"/><rect x=\"2.6\" y=\"0\" width=\"11.6\" height=\"10\" rx=\"1.2\" class=\"mB\"/><rect x=\"15.4\" y=\"0\" width=\"6.6\" height=\"10\" rx=\"1.2\" class=\"mC\"/></svg> Torna alla carta</a>",
+  "rm": "<a class=\"toMapBig\" href=\"en/\"><svg class=\"mark\" width=\"22\" height=\"10\" viewBox=\"0 0 22 10\" aria-hidden=\"true\"><rect x=\"0\" y=\"0\" width=\"1.4\" height=\"10\" rx=\"0.7\" class=\"mA\"/><rect x=\"2.6\" y=\"0\" width=\"11.6\" height=\"10\" rx=\"1.2\" class=\"mB\"/><rect x=\"15.4\" y=\"0\" width=\"6.6\" height=\"10\" rx=\"1.2\" class=\"mC\"/></svg> Enavos a la charta</a>"
+ },
+ "<b>Water and ice in Switzerland.</b> A public evidence project for the whole water cycle. Contributions remain distinguishable as measurements, observations, registers, models and inferences.": {
+  "de": "<b>Wasser und Eis in der Schweiz.</b> Ein öffentliches Evidenzprojekt für den gesamten Wasserkreislauf. Beiträge bleiben als Messungen, Beobachtungen, Register, Modelle und Schlussfolgerungen unterscheidbar.",
+  "fr": "<b>L’eau et la glace en Suisse.</b> Un projet public de preuves pour tout le cycle de l’eau. Les contributions restent distinguées comme mesures, observations, registres, modèles et inférences.",
+  "it": "<b>Acqua e ghiaccio in Svizzera.</b> Un progetto pubblico di prove per l’intero ciclo dell’acqua. I contributi restano distinti come misure, osservazioni, registri, modelli e inferenze.",
+  "rm": "<b>Aua e glatsch en Svizra.</b> In project public da cumprovas per l’entir ciclus da l’aua. Contribuziuns restan distinguidas sco mesiraziuns, observaziuns, registers, models ed inferenzas."
+ },
+ "Nothing on this site is a finding of breach or legal advice. Use the original source and obtain object-specific scientific and legal review before relying on a contribution.": {
+  "de": "Nichts auf dieser Website ist eine Feststellung einer Rechtsverletzung oder Rechtsberatung. Verwenden Sie die Originalquelle und holen Sie vor einer Verwendung objektspezifische wissenschaftliche und rechtliche Prüfung ein.",
+  "fr": "Rien sur ce site n’est un constat de violation ni un conseil juridique. Utilisez la source originale et obtenez un examen scientifique et juridique propre à l’objet avant de vous appuyer sur une contribution.",
+  "it": "Nulla su questo sito è un accertamento di violazione o una consulenza legale. Usa la fonte originale e ottieni una revisione scientifica e giuridica specifica per l’oggetto prima di fare affidamento su un contributo.",
+  "rm": "Nagut sin questa pagina n’è ina constataziun d’ina violaziun u cussegliaziun giuridica. Duvrai la funtauna originala e procurai ina revisiun scientifica e giuridica specifica a l’object avant da sa basar sin ina contribuziun."
+ },
+ "<a href=\"en/\">The map</a> <a href=\"about.html\">Project</a> <a href=\"method.html\">Method</a> <a href=\"sources.html\">Sources</a> <a href=\"law.html\">Law</a> <a href=\"collaborate.html\">Contribute</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Source on GitHub</a>": {
+  "de": "<a href=\"en/\">Karte</a> <a href=\"about.html\">Projekt</a> <a href=\"method.html\">Methode</a> <a href=\"sources.html\">Quellen</a> <a href=\"law.html\">Recht</a> <a href=\"collaborate.html\">Mitwirken</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Quellcode auf GitHub</a>",
+  "fr": "<a href=\"en/\">La carte</a> <a href=\"about.html\">Projet</a> <a href=\"method.html\">Méthode</a> <a href=\"sources.html\">Sources</a> <a href=\"law.html\">Droit</a> <a href=\"collaborate.html\">Contribuer</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Source sur GitHub</a>",
+  "it": "<a href=\"en/\">La carta</a> <a href=\"about.html\">Progetto</a> <a href=\"method.html\">Metodo</a> <a href=\"sources.html\">Fonti</a> <a href=\"law.html\">Diritto</a> <a href=\"collaborate.html\">Contribuire</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Sorgente su GitHub</a>",
+ "rm": "<a href=\"en/\">La charta</a> <a href=\"about.html\">Project</a> <a href=\"method.html\">Metoda</a> <a href=\"sources.html\">Funtaunas</a> <a href=\"law.html\">Dretg</a> <a href=\"collaborate.html\">Contribuir</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Funtauna sin GitHub</a>"
+ },
+ "<a href=\"method.html\">Method</a> <a href=\"sources.html\">Sources</a> <a href=\"law.html\">Law</a> <a href=\"about.html\">About</a> <a href=\"collaborate.html\">Contribute</a>": {
+  "de": "<a href=\"method.html\">Methode</a> <a href=\"sources.html\">Quellen</a> <a href=\"law.html\">Recht</a> <a href=\"about.html\">Projekt</a> <a href=\"collaborate.html\">Mitwirken</a>",
+  "fr": "<a href=\"method.html\">Méthode</a> <a href=\"sources.html\">Sources</a> <a href=\"law.html\">Droit</a> <a href=\"about.html\">Projet</a> <a href=\"collaborate.html\">Contribuer</a>",
+  "it": "<a href=\"method.html\">Metodo</a> <a href=\"sources.html\">Fonti</a> <a href=\"law.html\">Diritto</a> <a href=\"about.html\">Progetto</a> <a href=\"collaborate.html\">Contribuire</a>",
+  "rm": "<a href=\"method.html\">Metoda</a> <a href=\"sources.html\">Funtaunas</a> <a href=\"law.html\">Dretg</a> <a href=\"about.html\">Project</a> <a href=\"collaborate.html\">Contribuir</a>"
+ },
+ "<a href=\"https://github.com/jonashertner/riverflow-ch/blob/main/CONTRIBUTING.md\">Read the contribution guide</a> <a href=\"collaborate.html\">Choose a contribution</a>": {
+  "de": "<a href=\"https://github.com/jonashertner/riverflow-ch/blob/main/CONTRIBUTING.md\">Leitfaden lesen</a> <a href=\"collaborate.html\">Beitrag auswählen</a>",
+  "fr": "<a href=\"https://github.com/jonashertner/riverflow-ch/blob/main/CONTRIBUTING.md\">Lire le guide</a> <a href=\"collaborate.html\">Choisir une contribution</a>",
+  "it": "<a href=\"https://github.com/jonashertner/riverflow-ch/blob/main/CONTRIBUTING.md\">Leggi la guida</a> <a href=\"collaborate.html\">Scegli un contributo</a>",
+  "rm": "<a href=\"https://github.com/jonashertner/riverflow-ch/blob/main/CONTRIBUTING.md\">Leger il guid</a> <a href=\"collaborate.html\">Tscherner ina contribuziun</a>"
+ },
+ "<a href=\"./\">The map</a> <a href=\"method.html\">Method</a> <a href=\"sources.html\">Sources</a> <a href=\"law.html\">Law</a> <a href=\"about.html\">About</a> <a href=\"collaborate.html\">Contribute</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Source code</a>": {
+  "de": "<a href=\"./\">Karte</a> <a href=\"method.html\">Methode</a> <a href=\"sources.html\">Quellen</a> <a href=\"law.html\">Recht</a> <a href=\"about.html\">Projekt</a> <a href=\"collaborate.html\">Mitwirken</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Quellcode</a>",
+  "fr": "<a href=\"./\">Carte</a> <a href=\"method.html\">Méthode</a> <a href=\"sources.html\">Sources</a> <a href=\"law.html\">Droit</a> <a href=\"about.html\">Projet</a> <a href=\"collaborate.html\">Contribuer</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Code source</a>",
+  "it": "<a href=\"./\">Carta</a> <a href=\"method.html\">Metodo</a> <a href=\"sources.html\">Fonti</a> <a href=\"law.html\">Diritto</a> <a href=\"about.html\">Progetto</a> <a href=\"collaborate.html\">Contribuire</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Codice sorgente</a>",
+  "rm": "<a href=\"./\">Charta</a> <a href=\"method.html\">Metoda</a> <a href=\"sources.html\">Funtaunas</a> <a href=\"law.html\">Dretg</a> <a href=\"about.html\">Project</a> <a href=\"collaborate.html\">Contribuir</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Code da funtauna</a>"
+ },
+ "<a class=\"toMapBig\" href=\"../\"><svg class=\"mark\" width=\"22\" height=\"10\" viewBox=\"0 0 22 10\" aria-hidden=\"true\"><rect x=\"0\" y=\"0\" width=\"1.4\" height=\"10\" rx=\"0.7\" class=\"mA\"/><rect x=\"2.6\" y=\"0\" width=\"11.6\" height=\"10\" rx=\"1.2\" class=\"mB\"/><rect x=\"15.4\" y=\"0\" width=\"6.6\" height=\"10\" rx=\"1.2\" class=\"mC\"/></svg> Back to the map</a>": {
+  "de": "<a class=\"toMapBig\" href=\"../\"><svg class=\"mark\" width=\"22\" height=\"10\" viewBox=\"0 0 22 10\" aria-hidden=\"true\"><rect x=\"0\" y=\"0\" width=\"1.4\" height=\"10\" rx=\"0.7\" class=\"mA\"/><rect x=\"2.6\" y=\"0\" width=\"11.6\" height=\"10\" rx=\"1.2\" class=\"mB\"/><rect x=\"15.4\" y=\"0\" width=\"6.6\" height=\"10\" rx=\"1.2\" class=\"mC\"/></svg> Zurück zur Karte</a>"
+ },
+ "<a class=\"toMapBig\" href=\"./\"><svg class=\"mark\" width=\"22\" height=\"10\" viewBox=\"0 0 22 10\" aria-hidden=\"true\"><rect x=\"0\" y=\"0\" width=\"1.4\" height=\"10\" rx=\"0.7\" class=\"mA\"/><rect x=\"2.6\" y=\"0\" width=\"11.6\" height=\"10\" rx=\"1.2\" class=\"mB\"/><rect x=\"15.4\" y=\"0\" width=\"6.6\" height=\"10\" rx=\"1.2\" class=\"mC\"/></svg> Back to the map</a>": {
+  "fr": "<a class=\"toMapBig\" href=\"./\"><svg class=\"mark\" width=\"22\" height=\"10\" viewBox=\"0 0 22 10\" aria-hidden=\"true\"><rect x=\"0\" y=\"0\" width=\"1.4\" height=\"10\" rx=\"0.7\" class=\"mA\"/><rect x=\"2.6\" y=\"0\" width=\"11.6\" height=\"10\" rx=\"1.2\" class=\"mB\"/><rect x=\"15.4\" y=\"0\" width=\"6.6\" height=\"10\" rx=\"1.2\" class=\"mC\"/></svg> Retour à la carte</a>",
+  "it": "<a class=\"toMapBig\" href=\"./\"><svg class=\"mark\" width=\"22\" height=\"10\" viewBox=\"0 0 22 10\" aria-hidden=\"true\"><rect x=\"0\" y=\"0\" width=\"1.4\" height=\"10\" rx=\"0.7\" class=\"mA\"/><rect x=\"2.6\" y=\"0\" width=\"11.6\" height=\"10\" rx=\"1.2\" class=\"mB\"/><rect x=\"15.4\" y=\"0\" width=\"6.6\" height=\"10\" rx=\"1.2\" class=\"mC\"/></svg> Torna alla carta</a>",
+  "rm": "<a class=\"toMapBig\" href=\"./\"><svg class=\"mark\" width=\"22\" height=\"10\" viewBox=\"0 0 22 10\" aria-hidden=\"true\"><rect x=\"0\" y=\"0\" width=\"1.4\" height=\"10\" rx=\"0.7\" class=\"mA\"/><rect x=\"2.6\" y=\"0\" width=\"11.6\" height=\"10\" rx=\"1.2\" class=\"mB\"/><rect x=\"15.4\" y=\"0\" width=\"6.6\" height=\"10\" rx=\"1.2\" class=\"mC\"/></svg> Enavos a la charta</a>"
+ },
+ "<a href=\"../\">The map</a> <a href=\"about.html\">Project</a> <a href=\"method.html\">Method</a> <a href=\"sources.html\">Sources</a> <a href=\"law.html\">Law</a> <a href=\"collaborate.html\">Contribute</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Source on GitHub</a>": {
+  "de": "<a href=\"../\">Karte</a> <a href=\"about.html\">Projekt</a> <a href=\"method.html\">Methode</a> <a href=\"sources.html\">Quellen</a> <a href=\"law.html\">Recht</a> <a href=\"collaborate.html\">Mitwirken</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Quellcode auf GitHub</a>"
+ },
+ "<a href=\"./\">The map</a> <a href=\"about.html\">Project</a> <a href=\"method.html\">Method</a> <a href=\"sources.html\">Sources</a> <a href=\"law.html\">Law</a> <a href=\"collaborate.html\">Contribute</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Source on GitHub</a>": {
+  "fr": "<a href=\"./\">La carte</a> <a href=\"about.html\">Projet</a> <a href=\"method.html\">Méthode</a> <a href=\"sources.html\">Sources</a> <a href=\"law.html\">Droit</a> <a href=\"collaborate.html\">Contribuer</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Source sur GitHub</a>",
+  "it": "<a href=\"./\">La carta</a> <a href=\"about.html\">Progetto</a> <a href=\"method.html\">Metodo</a> <a href=\"sources.html\">Fonti</a> <a href=\"law.html\">Diritto</a> <a href=\"collaborate.html\">Contribuire</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Sorgente su GitHub</a>",
+ "rm": "<a href=\"./\">La charta</a> <a href=\"about.html\">Project</a> <a href=\"method.html\">Metoda</a> <a href=\"sources.html\">Funtaunas</a> <a href=\"law.html\">Dretg</a> <a href=\"collaborate.html\">Contribuir</a> <a href=\"https://github.com/jonashertner/riverflow-ch\">Funtauna sin GitHub</a>"
+ },
+ "<a href=\"data/collaboration.json\">Download these starting points as structured JSON</a> · schema 1 · updated 23.08.2026": {
+  "de": "<a href=\"data/collaboration.json\">Diese Ausgangspunkte als strukturiertes JSON herunterladen</a> · Schema 1 · aktualisiert 23.08.2026",
+  "fr": "<a href=\"data/collaboration.json\">Télécharger ces points de départ en JSON structuré</a> · schéma 1 · mis à jour le 23.08.2026",
+  "it": "<a href=\"data/collaboration.json\">Scarica questi punti di partenza come JSON strutturato</a> · schema 1 · aggiornato il 23.08.2026",
+ "rm": "<a href=\"data/collaboration.json\">Telechargiar quests puncts da partenza sco JSON structurà</a> · schema 1 · actualisà ils 23-08-2026"
+ },
+ "<a href=\"../data/collaboration.json\">Download these starting points as structured JSON</a> · schema 1 · updated 23.08.2026": {
+  "de": "<a href=\"../data/collaboration.json\">Diese Ausgangspunkte als strukturiertes JSON herunterladen</a> · Schema 1 · aktualisiert 23.08.2026",
+  "fr": "<a href=\"../data/collaboration.json\">Télécharger ces points de départ en JSON structuré</a> · schéma 1 · mis à jour le 23.08.2026",
+  "it": "<a href=\"../data/collaboration.json\">Scarica questi punti di partenza come JSON strutturato</a> · schema 1 · aggiornato il 23.08.2026",
+  "rm": "<a href=\"../data/collaboration.json\">Telechargiar quests puncts da partenza sco JSON structurà</a> · schema 1 · actualisà ils 23-08-2026"
+ }
+}

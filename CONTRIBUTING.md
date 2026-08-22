@@ -5,6 +5,28 @@ Thank you for helping make Swiss water evidence clearer and more reliable.
 The project welcomes corrections, new sources, method reviews, translations and
 accessibility work. Small, well-supported changes are preferred to broad claims.
 
+The public contribution routes are explained on the
+[collaboration page](https://opengovclimate.ch/riverflow/collaborate.html). Use
+the local-observation form for something you saw and the public-record form for
+an official instrument, plan, dataset, consultation or decision. Scientific and
+legal review use their own forms because those reviews answer different questions.
+
+## Local observations and public records
+
+A local observation should state the place and time, describe visible facts
+before interpretation, and identify any device or method used. It can start a
+review; it does not establish cause, responsibility or a legal breach.
+
+An official record should identify its issuer, exact title, date, stable link,
+reuse terms where relevant, and the smallest proposition it supports. The record
+establishes what its issuer published. It does not automatically verify every
+statement within it.
+
+Issues are public. Do not publish personal data, private correspondence, access
+credentials, exact locations of sensitive species or material whose disclosure
+could cause harm. Remove unnecessary image metadata. Use the repository’s
+private security-reporting channel when a safe public version cannot be made.
+
 ## Scientific and data review
 
 A useful scientific report states:
@@ -46,6 +68,8 @@ representation.
 - Add a domain validation when fixing a data defect.
 - Keep English source pages and all four translation catalogues in sync.
 - Preserve keyboard, touch and reduced-motion behavior.
+- Keep measurements, field observations, official records, models and inferences
+  labelled separately throughout review and publication.
 
 Run before opening a pull request:
 

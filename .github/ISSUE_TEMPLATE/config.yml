@@ -3,3 +3,6 @@ contact_links:
   - name: Live map and methods
     url: https://opengovclimate.ch/riverflow/method.html
     about: Check the published method and limits before filing.
+  - name: Private or sensitive report
+    url: https://github.com/jonashertner/riverflow-ch/security/advisories/new
+    about: Use private reporting for vulnerabilities or material that should not be public.

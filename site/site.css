@@ -37,6 +37,7 @@ body[data-page="method"]  { --accent: var(--ev-estimated-ink); }
 body[data-page="sources"] { --accent: var(--seq-300); }
 body[data-page="law"]     { --accent: var(--law); }
 body[data-page="about"]   { --accent: var(--seq-300); }
+body[data-page="collaborate"] { --accent: var(--ev-measured); }
 
 /* ---- the bar ----
    Riverflow has one identity and one route order on every surface. The active
@@ -396,6 +397,80 @@ body[data-page="about"]   { --accent: var(--seq-300); }
 @media (max-width: 480px) {
   .collaborateActions { display: grid; }
   .collaborateActions a { width: 100%; }
+}
+
+/* ---- public collaboration ----
+   Contributions are decisions, not marketing tiles. The layouts use open rows
+   and one ruled edge so the reader can scan routes, campaigns and evidence
+   without mistaking them for interchangeable content cards. */
+.contributionGrid, .campaignGrid { display: grid; gap: 1px; margin: 24px 0; background: var(--rule); }
+.contributionGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.campaignGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.contributionCard, .campaignCard {
+  min-width: 0; padding: 20px; background: var(--plane);
+}
+.contributionCard h3, .campaignCard h3, .placeCard h3, .workflowList h3 {
+  margin: 4px 0 10px; font-family: var(--serif); font-size: 19px; letter-spacing: -0.005em;
+}
+.contributionCard p, .campaignCard p, .placeCard p, .workflowList p {
+  font-size: 14.5px; line-height: 1.6;
+}
+.cardKicker {
+  margin: 0 !important; font-family: var(--mono); font-size: 10.5px !important;
+  letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent) !important;
+}
+.contributionCard > a {
+  display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px;
+  color: var(--ink); font-size: 13px; font-weight: 600; text-decoration: none;
+  border-bottom: 1px solid var(--accent);
+}
+.contributionCard > a::after { content: '→'; margin-left: 8px; color: var(--accent); }
+.campaignCard { border-top: 3px solid var(--rule); }
+.campaignCard.activeCampaign { border-top-color: var(--ev-measured); }
+.campaignCard ul { padding-left: 19px; }
+.campaignCard li { font-size: 14px; line-height: 1.55; }
+.cardLinks { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 20px !important; }
+.cardLinks a { font-size: 13px; }
+
+.placeList { margin: 24px 0; border-top: 1px solid var(--rule); }
+.placeCard { padding: 22px 0; border-bottom: 1px solid var(--rule); }
+.placeCard > header { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.placeCard h3 { font-size: 22px; }
+.placeCard.positiveComparator { border-left: 3px solid var(--good); padding-left: 16px; }
+.sourceLine { font-family: var(--mono); font-size: 11.5px !important; color: var(--ink-muted) !important; }
+.sourceLine a { color: var(--ink-2); }
+
+.evidenceTag {
+  display: inline-flex; align-items: center; width: fit-content; padding: 3px 7px;
+  border: 1px solid var(--hairline); border-radius: 999px; white-space: nowrap;
+  font-family: var(--mono); font-size: 10px; color: var(--ink-2);
+}
+.evidenceTag.measured { border-color: color-mix(in srgb, var(--ev-measured) 56%, var(--hairline)); }
+.evidenceTag.observed { border-color: color-mix(in srgb, var(--seq-300) 56%, var(--hairline)); }
+.evidenceTag.official { border-color: color-mix(in srgb, var(--law) 48%, var(--hairline)); }
+.evidenceTag.model { border-color: color-mix(in srgb, var(--ev-estimated-ink) 58%, var(--hairline)); }
+.evidenceTag.inferred { border-color: color-mix(in srgb, var(--serious) 50%, var(--hairline)); }
+.evidenceTag.open { border-style: dashed; color: var(--ink-muted); }
+.evidenceTable td:first-child { width: 9.5rem; }
+
+.workflowList { list-style: none; margin: 24px 0 !important; padding: 0 !important; counter-reset: none; }
+.workflowList > li {
+  display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 14px;
+  margin: 0; padding: 15px 0; border-top: 1px solid var(--rule);
+}
+.workflowList > li:last-child { border-bottom: 1px solid var(--rule); }
+.workflowList > li > span {
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent);
+  font-family: var(--mono); font-size: 11px;
+}
+.workflowList h3 { margin: 2px 0 4px; }
+.workflowList p { margin: 0; }
+
+@media (max-width: 620px) {
+  .contributionGrid, .campaignGrid { grid-template-columns: 1fr; }
+  .placeCard > header { align-items: flex-start; }
+  .evidenceTable { min-width: 620px !important; }
 }
 
 /* ---- what a page ends with ---- */

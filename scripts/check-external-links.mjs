@@ -13,7 +13,7 @@ for (const source of vintage.sources) {
 }
 const monitoring = JSON.parse(fs.readFileSync(path.join(site, 'data/canton-monitoring.json'), 'utf8'));
 for (const canton of monitoring.cantons) urls.add(canton.url);
-for (const name of ['about.html', 'method.html', 'law.html', 'sources.html']) {
+for (const name of ['about.html', 'collaborate.html', 'method.html', 'law.html', 'sources.html']) {
   const raw = fs.readFileSync(path.join(site, name), 'utf8');
   for (const match of raw.matchAll(/\bhref=["'](https:\/\/[^"']+)["']/g)) urls.add(match[1].replaceAll('&amp;', '&'));
 }
@@ -35,7 +35,10 @@ async function status(url) {
   }
 }
 
-const queue = [...urls].filter(Boolean);
+// The site verifier resolves every internal publication link against site/. The
+// live origin can legitimately lag a pull request, so the external audit must
+// not reject a new local route merely because it has not been deployed yet.
+const queue = [...urls].filter(url => url && !url.startsWith('https://opengovclimate.ch/riverflow/'));
 const results = [];
 let cursor = 0;
 await Promise.all(Array.from({ length: 8 }, async () => {

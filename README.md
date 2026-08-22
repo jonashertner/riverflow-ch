@@ -86,9 +86,16 @@ from:
 
 The most valuable contribution is often a precise correction: the affected
 place or claim, the primary source, its date, and the smallest defensible change.
-See [CONTRIBUTING.md](CONTRIBUTING.md) for scientific and legal review standards.
+The public [collaboration page](https://opengovclimate.ch/riverflow/collaborate.html)
+now separates four routes: a dated local observation, an official public record,
+scientific or data review, and legal review. It also publishes bounded starting
+questions for wetland hydrology and water quality, with neutral evidence labels,
+primary sources and a structured JSON download. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for the review and publication standards.
 
-Please use GitHub issues for data defects, source updates and research proposals.
+Please use the matching GitHub issue form for observations, public records, data
+defects, source updates and research proposals. Issues are public; use the private
+security-reporting route for sensitive material.
 Pull requests should keep the five language editions and the release checks in
 sync.
 

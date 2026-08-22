@@ -102,6 +102,51 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/about.html"/>
   </url>
   <url>
+    <loc>https://opengovclimate.ch/riverflow/collaborate.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/collaborate.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/de/collaborate.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/collaborate.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/fr/collaborate.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/collaborate.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/it/collaborate.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/collaborate.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/rm/collaborate.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/collaborate.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/collaborate.html"/>
+  </url>
+  <url>
     <loc>https://opengovclimate.ch/riverflow/method.html</loc>
     <lastmod>2026-08-22</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/method.html"/>

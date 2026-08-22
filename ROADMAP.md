@@ -60,3 +60,16 @@ factual review.
 
 Each package should be proposed as an issue before implementation so scientific,
 legal, geospatial and accessibility reviewers can agree on the evidence contract.
+
+## Public collaboration sequence
+
+The first public campaign uses wetlands to test an object-by-object workflow:
+connect the federal object, operative protection instrument, separate buffer
+functions, model indications, field hydrology, restoration and live procedure.
+Neeracherried is the first object question; the Schwyz protection programme is a
+records question; Bern’s moor-hydrology workflow is the positive comparator.
+
+Water quality uses the same contribution and review path. Its next package adds
+cantonal station series to the existing NAWA layer, then keeps sampling method,
+flow context, possible inputs, permits and authority assessments separate. A
+concentration alone never becomes a finding of cause or compliance.

@@ -1,0 +1,76 @@
+name: Local water observation
+description: Record a dated observation about a waterway, wetland or water-cycle pathway.
+title: "[Observation] "
+labels: [observation, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. Report only what you observed. A public observation can start a review; it is not proof of cause, responsibility or a legal breach.
+
+        Issues are public. Do not include personal data, private correspondence, the exact location of sensitive species or material whose disclosure could cause harm.
+  - type: input
+    id: place
+    attributes:
+      label: Place or waterbody
+      description: Give a public place name, waterbody, protected-object identifier or approximate coordinates.
+      placeholder: e.g. Neeracherried, FM 1297
+    validations:
+      required: true
+  - type: input
+    id: observed_at
+    attributes:
+      label: Date and time observed
+      description: Include the timezone if the exact time matters.
+      placeholder: YYYY-MM-DD, about HH:MM Europe/Zurich
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Observation type
+      options:
+        - Water level or dry area
+        - Drain, ditch or pipe
+        - Barrier or altered channel
+        - Discharge, colour, odour or foam
+        - Erosion or sediment
+        - Restoration or maintenance measure
+        - Land use near water or wetland
+        - Other visible condition
+    validations:
+      required: true
+  - type: textarea
+    id: observation
+    attributes:
+      label: What did you observe?
+      description: Describe visible facts first. Put any interpretation in the next field.
+    validations:
+      required: true
+  - type: textarea
+    id: interpretation
+    attributes:
+      label: Possible interpretation
+      description: Optional. Explain why it may matter and clearly state uncertainty.
+  - type: input
+    id: public_source
+    attributes:
+      label: Related public source
+      description: Optional link to an official map, monitoring record, plan or instrument.
+  - type: textarea
+    id: media
+    attributes:
+      label: Public photo, video or measurement
+      description: Optional. Link only material you may publish. Remove unnecessary metadata and identify any device or method used.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Publication checks
+      options:
+        - label: I have separated what I observed from what I infer.
+          required: true
+        - label: I have the right to publish the material I linked.
+          required: true
+        - label: This report contains no personal data, sensitive-species location or confidential material.
+          required: true
+
