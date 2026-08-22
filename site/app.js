@@ -23,8 +23,9 @@ const workspaceHead = document.createElement('header');
 workspaceHead.id = 'workspaceHead';
 const workspaceUtility = document.createElement('div');
 workspaceUtility.className = 'workspaceUtility';
-const workspaceBrand = document.createElement('span');
+const workspaceBrand = document.createElement('a');
 workspaceBrand.className = 'workspaceBrand';
+workspaceBrand.href = './';
 workspaceBrand.innerHTML = '<svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg><b>Riverflow</b>';
 const siteNav = document.getElementById('siteNav');
 const languageSwitch = siteNav?.querySelector('.langs');
@@ -3845,13 +3846,13 @@ function setLiveOnly(v) {
 /* ===========================================================================
    THE PROJECT BRIEF, ONCE
    The first visit explains the instrument before asking the reader to operate
-   it. Citation links with a map hash go straight to their cited view; the brief
-   remains available from the masthead on every visit.
+   it. Citation links with a map hash go straight to their cited view. The
+   persistent Project destination carries the complete account after this brief.
    =========================================================================== */
 (function projectBrief() {
   const dialog = document.getElementById('intro');
   const open = document.getElementById('introOpen');
-  if (!dialog || !open) return;
+  if (!dialog) return;
   // A new key is intentional: returning readers should see the language choice
   // and the first complete cycle view once, even if they saw the older brief.
   const KEY = 'riverflow.intro.v2';
@@ -3867,7 +3868,7 @@ function setLiveOnly(v) {
     if (dialog.open) dialog.close();
     cv.focus({ preventScroll: true });
   };
-  open.onclick = show;
+  if (open) open.onclick = show;
   document.getElementById('introEnter').onclick = close;
   document.getElementById('introClose').onclick = close;
   for (const button of dialog.querySelectorAll('[data-cycle-mode]')) {

@@ -92,21 +92,25 @@ html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 }
 
 /* ---- where the site goes ----
-   The masthead already carries the identity, the currency and the composition of
-   the drawing. The four places this site goes belong with them: a reader who wants
-   to know where a number came from should not have to hunt for the door. */
+   Map, project record and evidence pages use one route system. The current place
+   is stated rather than inferred from which control happens to be missing. */
 #siteNav {
   display: flex; flex-wrap: wrap; gap: 2px;
   margin-top: 11px; padding-top: 9px; border-top: 1px solid var(--rule);
   pointer-events: auto;
 }
-#siteNav a, #introOpen {
+#siteNav a {
+  position: relative;
   color: var(--ink-2); text-decoration: none; font-size: 11.5px;
   padding: 5px 7px; border-radius: 5px; white-space: nowrap;
   transition: color 120ms, background 120ms;
 }
-#introOpen { margin-left: -7px; background: none; border: 0; cursor: pointer; font-family: inherit; }
-#siteNav a:hover, #introOpen:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, transparent); }
+#siteNav a:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, transparent); }
+#siteNav a[aria-current="page"] { color: var(--ink); font-weight: 650; }
+#siteNav a[aria-current="page"]::after {
+  content: ''; position: absolute; right: 7px; bottom: 2px; left: 7px;
+  height: 2px; border-radius: 2px; background: var(--accent);
+}
 #siteNav a.contributeLink { color: var(--accent); font-weight: 650; }
 
 /* Shown once, then never again. The map answers when it is pointed at, and
@@ -810,7 +814,6 @@ body.hasRibbon #credits { display: none; }
   }
   #titlebar .hint { display: none; }
   #siteNav { flex-wrap: nowrap; align-items: center; margin-top: 7px; padding-top: 6px; }
-  #introOpen { min-height: 40px; margin-left: -5px; padding-inline: 5px; }
   #titlebar .langs { margin-left: auto; padding-left: 4px; }
   #titlebar .langs [lang] {
     display: grid; place-items: center; min-width: 28px; min-height: 44px; padding: 0 2px;
@@ -1048,8 +1051,10 @@ body.hasRibbon #credits { display: none; }
 }
 .workspaceBrand {
   display: inline-flex; align-items: center; gap: 9px; min-width: 0;
-  color: var(--ink); font-size: 13px; letter-spacing: -.01em;
+  min-height: 38px; color: var(--ink); text-decoration: none;
+  font-size: 13px; letter-spacing: -.01em;
 }
+.workspaceBrand:hover { color: var(--ink); }
 .workspaceBrand .mark { display: block; flex: none; }
 .workspaceBrand .mA { fill: var(--ev-measured); }
 .workspaceBrand .mB { fill: var(--ev-estimated); }
@@ -1067,12 +1072,12 @@ body.hasRibbon #credits { display: none; }
   scrollbar-color: var(--rule) transparent; border-top: 1px solid var(--rule);
 }
 #workspaceHead #siteNav::-webkit-scrollbar { height: 3px; }
-#workspaceHead #siteNav > a,
-#workspaceHead #introOpen {
+#workspaceHead #siteNav > a {
   display: inline-flex; align-items: center; flex: none; min-height: 40px;
   margin: 0; padding: 6px 5px; color: var(--ink-2); font-size: 12px;
   scroll-snap-align: start;
 }
+#workspaceHead #siteNav > a[aria-current="page"] { color: var(--ink); }
 #workspaceHead #siteNav > a.contributeLink { color: var(--accent); }
 #workspaceScroll {
   flex: 1 1 auto; min-width: 0; min-height: 0;
@@ -1408,8 +1413,7 @@ body.hasRibbon #workspace #credits { display: block; }
 }
 @media (max-width: 360px) {
   #workspaceHead #siteNav { gap: 0; padding-inline: 4px; }
-  #workspaceHead #siteNav > a,
-  #workspaceHead #introOpen { min-height: 44px; padding-inline: 5px; font-size: 11.5px; }
+  #workspaceHead #siteNav > a { min-height: 44px; padding-inline: 4px; font-size: 11.5px; }
 }
 
 /* Short landscape screens keep real columns but compact the index into one
@@ -1417,8 +1421,7 @@ body.hasRibbon #workspace #credits { display: block; }
 @media (max-height: 560px) and (orientation: landscape) {
   :root { --workspace-w: min(42vw, 340px); }
   #workspaceHead #siteNav { gap: 0; padding-inline: 4px; }
-  #workspaceHead #siteNav > a,
-  #workspaceHead #introOpen { min-height: 44px; padding-inline: 5px; font-size: 11.5px; }
+  #workspaceHead #siteNav > a { min-height: 44px; padding-inline: 4px; font-size: 11.5px; }
   #workspace #titlebar { padding: 9px 12px 7px; }
   #workspace #titlebar h1 { font-size: 15px; }
   #workspace #titlebar .sub,

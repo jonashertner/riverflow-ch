@@ -39,8 +39,8 @@ body[data-page="law"]     { --accent: var(--law); }
 body[data-page="about"]   { --accent: var(--seq-300); }
 
 /* ---- the bar ----
-   Wordmark, and the four places this site goes. It is the same on every page and
-   on the map, so a reader never has to look for it twice. */
+   Riverflow has one identity and one route order on every surface. The active
+   route is underlined; colour is reserved for the invitation to contribute. */
 .siteHead {
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; justify-content: space-between;
@@ -64,23 +64,24 @@ body[data-page="about"]   { --accent: var(--seq-300); }
 .mark .mB { fill: var(--seq-400); }
 .mark .mC { fill: var(--ev-none); }
 .brandName { overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 560px) { .brandLong { display: none; } }
-@media (min-width: 561px) { .brandShort { display: none; } }
 
 .siteNav { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 2px; margin-left: auto; }
 .siteNav a {
-  display: inline-flex; align-items: center;
+  position: relative; display: inline-flex; align-items: center;
   color: var(--ink-2); text-decoration: none;
   font-size: 12.5px; font-weight: 500; padding: 7px 10px; border-radius: 6px;
   transition: background 120ms, color 120ms;
 }
 .siteNav a:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
-.siteNav a[aria-current="page"] { color: var(--ink); background: color-mix(in srgb, var(--ink) 10%, transparent); }
-.siteNav a.toMap { color: var(--accent); }
+.siteNav a[aria-current="page"] { color: var(--ink); font-weight: 650; }
+.siteNav a[aria-current="page"]::after {
+  content: ''; position: absolute; right: 10px; bottom: 2px; left: 10px;
+  height: 2px; border-radius: 2px; background: var(--accent);
+}
 .siteNav a.contributeLink { color: var(--accent); font-weight: 650; }
 .pageUtility { display: flex; align-items: center; gap: 5px; margin-left: 4px; }
 .pageUtility .langs { margin-left: 0; }
-@media (max-width: 560px) {
+@media (max-width: 900px) {
   body.page { scroll-padding-top: 108px; }
   body.page .doc section { scroll-margin-top: 108px; }
   .siteHead { padding: 8px 0 0; gap: 7px 0; }
@@ -102,9 +103,11 @@ body[data-page="about"]   { --accent: var(--seq-300); }
   }
 }
 @media (max-width: 360px) {
-  .brandName { display: none; }
+  .brand { padding-right: 6px; padding-left: 10px; }
+  .pageUtility { padding-right: 8px; }
   .siteNav { gap: 0; padding-inline: 4px; }
-  .siteNav a { padding-inline: 5px; font-size: 11.5px; }
+  .siteNav a { padding-inline: 4px; font-size: 11.5px; }
+  .siteNav a[aria-current="page"]::after { right: 4px; left: 4px; }
 }
 
 /* ---- the column ---- */
