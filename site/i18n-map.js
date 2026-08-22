@@ -28,6 +28,18 @@ Object.assign(STR, {
     it: 'Ingrandire con i pulsanti della carta, la rotellina o il gesto a due dita. Trascinare o usare i tasti freccia per spostarsi. Home ripristina la vista e Invio apre l’oggetto più vicino al centro.',
     rm: 'Zoomar cun ils buttuns da la charta, cun la roda da la mieur u cun dus dets. Trer u duvrar las tastas cun frizzas per spustar. Home restabilescha la vista ed Enter avra l’object il pli datiers dal center.',
   },
+  'm.readEvidence': {
+    en: 'Read', de: 'Lesen', fr: 'Lire', it: 'Leggi', rm: 'Leger',
+  },
+  'm.readEvidenceAria': {
+    en: 'Read the evidence full screen', de: 'Evidenz im Vollbild lesen', fr: 'Lire les éléments de preuve en plein écran', it: 'Leggi le evidenze a schermo intero', rm: 'Leger las cumprovas sin l’entir visur',
+  },
+  'm.backToMap': {
+    en: 'Map', de: 'Karte', fr: 'Carte', it: 'Carta', rm: 'Charta',
+  },
+  'm.backToMapAria': {
+    en: 'Back to map', de: 'Zurück zur Karte', fr: 'Retour à la carte', it: 'Torna alla carta', rm: 'Enavos a la charta',
+  },
 
   // ---- the layers that can fail to arrive ----
   'm.failBase': {

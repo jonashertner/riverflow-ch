@@ -230,8 +230,12 @@ for (const [label, pattern] of [
   ['sidebar map readout', /#workspace #tooltip\s*\{[^}]*position:\s*static;[^}]*border-bottom:/s],
   ['sidebar legal screen', /#workspace #liveAlerts\s*\{[^}]*flex:\s*none;[^}]*border-bottom:/s],
   ['touch-sized legal screen', /#workspace #liveAlertsToggle\s*\{[^}]*min-height:\s*44px/s],
-  ['viewport-bound legal details', /#workspace #liveAlertsBody\s*\{[^}]*max-height:\s*clamp\(100px,\s*18dvh,\s*180px\);[^}]*overflow-y:\s*auto/s],
-  ['smallest-phone legal details', /@media \(max-width:\s*480px\) and \(max-height:\s*650px\) and \(orientation:\s*portrait\)[\s\S]*?#workspace #liveAlertsBody\s*\{[^}]*max-height:\s*70px/s],
+  ['single-scroll legal details', /#workspace #liveAlertsBody\s*\{[^}]*max-height:\s*none;[^}]*overflow-y:\s*visible/s],
+  ['readable legal explanation', /#workspace \.liveAlertLimit\s*\{[^}]*font-size:\s*13px;[^}]*line-height:\s*1\.55/s],
+  ['full-screen reading mode', /body\.workspaceReading #workspace\s*\{[^}]*inset:\s*0;[^}]*width:\s*100vw;[^}]*height:\s*100dvh/s],
+  ['persistent map return', /#workspaceBack\s*\{[^}]*min-height:\s*38px/s],
+  ['full reading detail surface', /body\.workspaceReading #workspace #panel\s*\{[^}]*inset:\s*var\(--workspace-head-h,\s*99px\) 0 0/s],
+  ['adaptive phone reading height', /body:is\(\.readingLegal, \.readingDetail, \.readingBrief\)\s*\{\s*--workspace-h:\s*72dvh/s],
   ['persistent project navigation', /#workspaceHead #siteNav\s*\{[^}]*flex-wrap:\s*nowrap;[^}]*overflow-x:\s*auto/s],
   ['high-contrast control boundary token', /--control-border:\s*#[0-9a-f]{6}/i],
 ]) if (!pattern.test(responsiveCss)) fail(responsiveCssFile, `missing responsive contract: ${label}`);
@@ -266,6 +270,15 @@ if (/#workspace #siteNav > a\s*\{[^}]*display:\s*none/s.test(responsiveCss)) {
 if (!/workspaceScroll\.tabIndex\s*=\s*0/.test(appSource) ||
     !/workspaceScroll\.setAttribute\(['"]aria-labelledby['"],\s*['"]workspaceTitle['"]\)/.test(appSource)) {
   fail(join(site, 'app.js'), 'the evidence scroller is not keyboard focusable and labelled');
+}
+if (!/function syncWorkspaceReading\(\)/.test(appSource) ||
+    !/workspaceBack\.onclick\s*=\s*leaveWorkspaceReading/.test(appSource) ||
+    !/workspaceRead\.setAttribute\(['"]aria-expanded['"]/.test(appSource)) {
+  fail(join(site, 'app.js'), 'full-screen reading mode lacks a persistent, stateful return to the map');
+}
+if (!/panel\.scrollTop\s*=\s*0/.test(appSource) ||
+    !/new ResizeObserver\(syncWorkspaceHeadHeight\)\.observe\(workspaceHead\)/.test(appSource)) {
+  fail(join(site, 'app.js'), 'detail reading does not start at the top or respect the live navigation height');
 }
 const siteSource = readFileSync(join(site, 'site.js'), 'utf8');
 if (!/function restoreDeepLink\(\)[\s\S]*?target\.scrollIntoView\(\{ block: 'start' \}\)[\s\S]*?new ResizeObserver\(align\)/.test(siteSource)) {
