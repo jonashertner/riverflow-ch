@@ -77,8 +77,10 @@ body[data-page="about"]   { --accent: var(--seq-300); }
 .siteNav a:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
 .siteNav a[aria-current="page"] { color: var(--ink); background: color-mix(in srgb, var(--ink) 10%, transparent); }
 .siteNav a.toMap { color: var(--accent); }
+.siteNav a.contributeLink { color: var(--accent); }
 @media (max-width: 560px) {
   body.page { scroll-padding-top: 108px; }
+  body.page .doc section { scroll-margin-top: 108px; }
   .siteHead { padding: 8px 0 0; gap: 7px 0; }
   .brand { padding: 0 14px; min-height: 32px; }
   .siteNav {
@@ -362,6 +364,22 @@ body[data-page="about"]   { --accent: var(--seq-300); }
   margin: 22px 0; padding: 16px; border-radius: 8px;
   background: var(--surface-2); border: 1px solid var(--hairline);
   font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--ink-2);
+}
+
+.collaborateActions {
+  display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 10px;
+}
+.collaborateActions a {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 10px 14px;
+  color: var(--ink); font-size: 13px; font-weight: 500; text-decoration: none;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  border: 1px solid var(--hairline); border-radius: 8px;
+}
+.collaborateActions a:first-child { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 42%, var(--hairline)); }
+.collaborateActions a:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+@media (max-width: 480px) {
+  .collaborateActions { display: grid; }
+  .collaborateActions a { width: 100%; }
 }
 
 /* ---- what a page ends with ---- */

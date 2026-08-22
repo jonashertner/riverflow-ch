@@ -164,6 +164,29 @@ for (const file of landingFiles) {
       !/method\.html#live/.test(raw)) {
     fail(file, 'live legal screen is missing its accessible list, legal basis or method source');
   }
+  if (!/<details\b[^>]*id=["']siteMenu["'][\s\S]*?<summary>[\s\S]*?<nav\b[^>]*class=["']siteMenuLinks["']/i.test(raw)) {
+    fail(file, 'compact project-information menu is missing');
+  }
+  if (!/<nav\b[^>]*class=["']creditsNav["'][\s\S]*?#collaborate/i.test(raw)) {
+    fail(file, 'persistent project documentation and contribution links are missing');
+  }
+}
+
+// Every reading page exposes the collaborative path in its primary navigation.
+// About is the durable statement of scope and links directly to the public guide.
+const readingFiles = ['', 'de', 'fr', 'it', 'rm'].flatMap(lang =>
+  ['about.html', 'method.html', 'sources.html', 'law.html'].map(page => join(site, lang, page)));
+for (const file of readingFiles) {
+  const raw = htmlByFile.get(file) ?? '';
+  if (!/<nav\b[^>]*class=["']siteNav["'][\s\S]*?<a\b[^>]*class=["']contributeLink["'][^>]*href=["'][^"']*#collaborate["']/i.test(raw)) {
+    fail(file, 'primary navigation does not expose the contribution path');
+  }
+}
+for (const file of ['', 'de', 'fr', 'it', 'rm'].map(lang => join(site, lang, 'about.html'))) {
+  const raw = htmlByFile.get(file) ?? '';
+  if (!/<section\b[^>]*id=["']collaborate["'][\s\S]*?CONTRIBUTING\.md[\s\S]*?github\.com\/jonashertner\/riverflow-ch\/issues/i.test(raw)) {
+    fail(file, 'collaboration statement, guide or public correction route is missing');
+  }
 }
 const responsiveCssFile = join(site, 'style.css');
 const responsiveCss = readFileSync(join(site, 'tokens.css'), 'utf8') + '\n' + readFileSync(responsiveCssFile, 'utf8');
@@ -186,6 +209,7 @@ for (const [label, pattern] of [
   ['touch-sized legal screen', /#workspace #liveAlertsToggle\s*\{[^}]*min-height:\s*44px/s],
   ['viewport-bound legal details', /#workspace #liveAlertsBody\s*\{[^}]*max-height:\s*clamp\(100px,\s*18dvh,\s*180px\);[^}]*overflow-y:\s*auto/s],
   ['smallest-phone legal details', /@media \(max-width:\s*480px\) and \(max-height:\s*650px\) and \(orientation:\s*portrait\)[\s\S]*?#workspace #liveAlertsBody\s*\{[^}]*max-height:\s*70px/s],
+  ['compact project information menu', /#siteMenu \.siteMenuLinks\s*\{[^}]*position:\s*absolute[\s\S]*?@media \(max-width:\s*900px\) and \(orientation:\s*portrait\)[\s\S]*?#workspace #siteMenu\s*\{\s*display:\s*block/s],
   ['high-contrast control boundary token', /--control-border:\s*#[0-9a-f]{6}/i],
 ]) if (!pattern.test(responsiveCss)) fail(responsiveCssFile, `missing responsive contract: ${label}`);
 const appSource = readFileSync(join(site, 'app.js'), 'utf8');
@@ -207,6 +231,10 @@ for (const id of ['titlebar', 'modes', 'mapControls', 'liveAlerts', 'tooltip', '
   if (!new RegExp(`['"]${id}['"]`).test(workspaceComposition)) {
     fail(join(site, 'app.js'), `${id} is not composed into the evidence workspace`);
   }
+}
+const siteSource = readFileSync(join(site, 'site.js'), 'utf8');
+if (!/function restoreDeepLink\(\)[\s\S]*?target\.scrollIntoView\(\{ block: 'start' \}\)[\s\S]*?new ResizeObserver\(align\)/.test(siteSource)) {
+  fail(join(site, 'site.js'), 'late data layout can displace direct section links');
 }
 if (/tt\.style\.(?:left|top)\s*=/.test(appSource)) {
   fail(join(site, 'app.js'), 'map readout must live in the evidence workspace instead of floating over geography');

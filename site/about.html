@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://wms.geo.admin.ch https://geodienste.ch; connect-src 'self' https://lindas.admin.ch https://data.bafu.admin.ch https://api3.geo.admin.ch https://wms.geo.admin.ch https://geodienste.ch; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>About — Water and ice in Switzerland</title>
-<meta name="description" content="What this map is, who it is for, what it adds to the official federal products, what it is not, and how to cite it.">
+<meta name="description" content="An open, collaborative evidence base for understanding and protecting Switzerland’s whole water cycle—and how to contribute science, data or legal expertise.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0d0d0d">
 <link rel="canonical" href="https://opengovclimate.ch/riverflow/about.html">
@@ -18,7 +18,7 @@
 <link rel="alternate" hreflang="x-default" href="about.html">
 <link rel="icon" href="favicon.svg?v=20260821" type="image/svg+xml">
 <meta property="og:title" content="About — Water and ice in Switzerland">
-<meta property="og:description" content="What this map is, who it is for, what it adds to the official federal products, what it is not, and how to cite it.">
+<meta property="og:description" content="An open, collaborative evidence base for understanding and protecting Switzerland’s whole water cycle—and how to contribute science, data or legal expertise.">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Water and ice in Switzerland">
 <meta property="og:url" content="https://opengovclimate.ch/riverflow/about.html">
@@ -30,7 +30,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fonts.css?v=20260821">
 <link rel="stylesheet" href="tokens.css?v=20260822">
-<link rel="stylesheet" href="site.css?v=20260821b">
+<link rel="stylesheet" href="site.css?v=20260822a">
 <script src="i18n.js?v=20260821"></script>
 <script src="i18n-data.js?v=20260821"></script>
 <script src="theme.js?v=20260821"></script>
@@ -50,6 +50,7 @@
     <a href="sources.html">Sources</a>
     <a href="law.html">Law</a>
     <a href="about.html" aria-current="page">About</a>
+    <a class="contributeLink" href="#collaborate">Contribute</a>
     <span class="langs" data-langswitch></span>
     <button type="button" class="themeBtn" title="Night. Switch to day." aria-label="Night. Switch to day.">
       <svg class="tIconNight" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z"/></svg>
@@ -67,6 +68,7 @@
       <li><a href="#europe">One country, four seas</a></li>
       <li><a href="#what">What this is</a></li>
       <li><a href="#who">Who it is for</a></li>
+      <li><a href="#collaborate">Build this with us</a></li>
       <li><a href="#new">What is new here</a></li>
       <li><a href="#not">What it is not</a></li>
       <li><a href="#cite">How to cite it</a></li>
@@ -81,7 +83,7 @@
       <h1>A measured base layer, and an argument about age</h1>
       <p class="lede">Switzerland sits upstream of four European seas. Much of the published picture
         is inference over old registers. Inference is unavoidable. <b>Hiding it is not.</b></p>
-      <p class="dateline">Last revised <b>21.08.2026</b>. Prior art was checked by fetching, not from memory.</p>
+      <p class="dateline">Last revised <b>22.08.2026</b>. Prior art was checked by fetching, not from memory.</p>
     </header>
 
     <section id="europe">
@@ -191,10 +193,11 @@
     <section id="what">
       <h2>What this is</h2>
       <p>The goal is to understand the whole water cycle and the law protecting its essential pathways:
-        precipitation, snow and ice, soil, groundwater, rivers, lakes, storage, use, return flows and
-        water leaving Switzerland. The purpose is practical: protect wetlands and enable evidence-led
-        legal action when protection is not enforced. This surface-water foundation joins current river
-        observations, reservoir history, glacier inventories, water-use registers and protected wetlands.</p>
+        precipitation, snow and ice, soil, groundwater, rivers, lakes, wetlands, storage, use, return
+        flows and water leaving Switzerland. The purpose is practical: make change visible, protect
+        wetlands and support evidence-led legal action when protection is not enforced. This release is
+        the surface-water foundation. It joins current river observations, reservoir history, glacier
+        inventories, water-use registers and protected wetlands without pretending the whole cycle is live.</p>
       <p>The organising idea is not the drawing. It is this: <b>every figure states its class of
         evidence and its age.</b> A reading from a gauge and an inference from a register two
         decades old are both on the screen, and they are never allowed to look alike. The bar at the
@@ -205,10 +208,26 @@
     <section id="who">
       <h2>Who it is for</h2>
       <p>For anyone who must know a number&rsquo;s origin before using it: scientists, lawyers,
-        journalists, public authorities and communities living with the water. The repository is public;
-        scientific and legal contributions are welcome.</p>
+        journalists, public authorities and communities living with the water. The repository is public,
+        and every useful correction should be able to improve the shared record.</p>
       <p>It is also, deliberately, an argument aimed at the people who publish the underlying data:
         that a data state belongs on the face of a layer, not three clicks away in metadata.</p>
+    </section>
+
+    <section id="collaborate">
+      <h2>Build this with us</h2>
+      <p>Riverflow is a public, collaborative project. Its shared goal is to make Switzerland&rsquo;s
+        whole water cycle observable—from precipitation, snow and ice through soil, groundwater,
+        rivers, lakes, wetlands, storage, use and return—so change can be seen early, protection can
+        be checked and legal action can rest on evidence.</p>
+      <p>We invite contributions from hydrology, glaciology, limnology, ecology, water quality,
+        geospatial engineering, public administration and Swiss environmental law. A useful
+        contribution can be a corrected value, a primary source, a missing cantonal dataset, a method
+        review, a translation or a clearer, more accessible interface.</p>
+      <div class="collaborateActions">
+        <a href="https://github.com/jonashertner/riverflow-ch/blob/main/CONTRIBUTING.md">Read the contribution guide</a>
+        <a href="https://github.com/jonashertner/riverflow-ch/issues">Propose a correction or source</a>
+      </div>
     </section>
 
     <section id="new">
@@ -321,6 +340,7 @@
       <a href="sources.html">Sources</a>
       <a href="law.html">Law</a>
       <a href="about.html">About</a>
+      <a href="about.html#collaborate">Contribute</a>
       <a href="https://github.com/jonashertner/riverflow-ch">Source code</a>
     </div>
   </div>
@@ -328,6 +348,6 @@
 
 <script src="fmt.js?v=20260822"></script>
 <script src="gschg31.js?v=20260821"></script>
-<script src="site.js?v=20260821"></script>
+<script src="site.js?v=20260822"></script>
 </body>
 </html>
