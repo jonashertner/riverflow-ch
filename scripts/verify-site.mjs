@@ -164,8 +164,8 @@ for (const file of landingFiles) {
       !/method\.html#live/.test(raw)) {
     fail(file, 'live legal screen is missing its accessible list, legal basis or method source');
   }
-  if (!/<details\b[^>]*id=["']siteMenu["'][\s\S]*?<summary>[\s\S]*?<nav\b[^>]*class=["']siteMenuLinks["']/i.test(raw)) {
-    fail(file, 'compact project-information menu is missing');
+  if (!/<nav\b[^>]*id=["']siteNav["'][\s\S]*?href=["'][^"']*method\.html["'][\s\S]*?href=["'][^"']*sources\.html["'][\s\S]*?href=["'][^"']*law\.html["'][\s\S]*?href=["'][^"']*about\.html["'][\s\S]*?href=["'][^"']*#collaborate["']/i.test(raw)) {
+    fail(file, 'primary project navigation is incomplete');
   }
   if (!/<nav\b[^>]*class=["']creditsNav["'][\s\S]*?#collaborate/i.test(raw)) {
     fail(file, 'persistent project documentation and contribution links are missing');
@@ -198,7 +198,8 @@ for (const [label, pattern] of [
   ['large landing language targets', /#intro \.introLangs \[lang\][^{]*\{[^}]*min-width:\s*40px;[^}]*min-height:\s*44px/s],
   ['persistent evidence workspace', /#workspace\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;[^}]*width:\s*var\(--workspace-w\)/s],
   ['unobstructed desktop map surface', /#map, #flow\s*\{[^}]*left:\s*var\(--workspace-w\);[^}]*width:\s*calc\(100vw - var\(--workspace-w\)\);[^}]*height:\s*100dvh/s],
-  ['independently scrolling evidence', /#workspace #legend\s*\{[^}]*flex:\s*1 1 auto;[^}]*overflow-y:\s*auto/s],
+  ['continuous evidence scroller', /#workspaceScroll\s*\{[^}]*flex:\s*1 1 auto;[^}]*overflow-y:\s*auto/s],
+  ['single-flow legend content', /#workspace #legend\s*\{[^}]*flex:\s*none;[^}]*overflow:\s*visible/s],
   ['stacked portrait workspace', /@media \(max-width:\s*900px\) and \(orientation:\s*portrait\)[\s\S]*?#workspace\s*\{[^}]*height:\s*var\(--workspace-h\)[\s\S]*?#map, #flow\s*\{[^}]*width:\s*100vw;[^}]*height:\s*calc\(100dvh - var\(--workspace-h\)\)/s],
   ['compact short-landscape rail', /@media \(max-height:\s*560px\) and \(orientation:\s*landscape\)[\s\S]*?#workspace #modes\s*\{[^}]*overflow-x:\s*auto/s],
   ['discoverable narrow layer rail', /#workspace #modeRail\.canScrollForward \.modeRailCue-end\s*\{\s*opacity:\s*1/s],
@@ -209,7 +210,7 @@ for (const [label, pattern] of [
   ['touch-sized legal screen', /#workspace #liveAlertsToggle\s*\{[^}]*min-height:\s*44px/s],
   ['viewport-bound legal details', /#workspace #liveAlertsBody\s*\{[^}]*max-height:\s*clamp\(100px,\s*18dvh,\s*180px\);[^}]*overflow-y:\s*auto/s],
   ['smallest-phone legal details', /@media \(max-width:\s*480px\) and \(max-height:\s*650px\) and \(orientation:\s*portrait\)[\s\S]*?#workspace #liveAlertsBody\s*\{[^}]*max-height:\s*70px/s],
-  ['compact project information menu', /#siteMenu \.siteMenuLinks\s*\{[^}]*position:\s*absolute[\s\S]*?@media \(max-width:\s*900px\) and \(orientation:\s*portrait\)[\s\S]*?#workspace #siteMenu\s*\{\s*display:\s*block/s],
+  ['persistent project navigation', /#workspaceHead #siteNav\s*\{[^}]*flex-wrap:\s*nowrap;[^}]*overflow-x:\s*auto/s],
   ['high-contrast control boundary token', /--control-border:\s*#[0-9a-f]{6}/i],
 ]) if (!pattern.test(responsiveCss)) fail(responsiveCssFile, `missing responsive contract: ${label}`);
 const appSource = readFileSync(join(site, 'app.js'), 'utf8');
@@ -226,11 +227,23 @@ if (!/modeNav\.addEventListener\(['"]scroll['"],\s*syncCues/.test(appSource) ||
 if (!/workspace\.append\(el\)/.test(appSource) || !/dialog\.show\(\)/.test(appSource) || /dialog\.showModal\(\)/.test(appSource)) {
   fail(join(site, 'app.js'), 'project brief must occupy the evidence workspace without covering the map');
 }
-const workspaceComposition = /for \(const id of \[([^\]]+)\]\)/.exec(appSource.slice(0, 3500))?.[1] ?? '';
+const workspaceComposition = appSource.slice(0, 6500);
 for (const id of ['titlebar', 'modes', 'mapControls', 'liveAlerts', 'tooltip', 'legend', 'ribbon', 'panel', 'intro']) {
   if (!new RegExp(`['"]${id}['"]`).test(workspaceComposition)) {
     fail(join(site, 'app.js'), `${id} is not composed into the evidence workspace`);
   }
+}
+for (const id of ['workspaceHead', 'workspaceScroll']) {
+  if (!new RegExp(`['"]${id}['"]`).test(workspaceComposition)) {
+    fail(join(site, 'app.js'), `${id} is not part of the evidence workspace`);
+  }
+}
+if (/#workspace #siteNav > a\s*\{[^}]*display:\s*none/s.test(responsiveCss)) {
+  fail(responsiveCssFile, 'project navigation links are hidden at a responsive breakpoint');
+}
+if (!/workspaceScroll\.tabIndex\s*=\s*0/.test(appSource) ||
+    !/workspaceScroll\.setAttribute\(['"]aria-labelledby['"],\s*['"]workspaceTitle['"]\)/.test(appSource)) {
+  fail(join(site, 'app.js'), 'the evidence scroller is not keyboard focusable and labelled');
 }
 const siteSource = readFileSync(join(site, 'site.js'), 'utf8');
 if (!/function restoreDeepLink\(\)[\s\S]*?target\.scrollIntoView\(\{ block: 'start' \}\)[\s\S]*?new ResizeObserver\(align\)/.test(siteSource)) {

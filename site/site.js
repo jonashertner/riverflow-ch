@@ -8,6 +8,22 @@
  * the same way and the statutory table is transcribed once.
  */
 
+// Keep language and surface controls in the identity row, leaving the second row
+// as an unmistakable set of destinations on narrow reading pages. The links stay
+// in their original nav landmark; only the two utilities move.
+(function arrangePageNavigation() {
+  const head = document.querySelector('.siteHead');
+  const nav = head?.querySelector('.siteNav');
+  const languages = nav?.querySelector('.langs');
+  const theme = nav?.querySelector('.themeBtn');
+  if (!head || !nav || (!languages && !theme)) return;
+  const utility = document.createElement('div');
+  utility.className = 'pageUtility';
+  if (languages) utility.append(languages);
+  if (theme) utility.append(theme);
+  head.append(utility);
+})();
+
 // A deep link can arrive before an earlier, data-built figure has its final
 // height. Keep the named section aligned while that initial layout settles, then
 // stop at the reader's first interaction. Without this, #collaborate can drift
