@@ -167,6 +167,15 @@ for (const file of landingFiles) {
   if (!/<nav\b[^>]*id=["']siteNav["'][\s\S]*?href=["'][^"']*method\.html["'][\s\S]*?href=["'][^"']*sources\.html["'][\s\S]*?href=["'][^"']*law\.html["'][\s\S]*?href=["'][^"']*about\.html["'][\s\S]*?href=["'][^"']*#collaborate["']/i.test(raw)) {
     fail(file, 'primary project navigation is incomplete');
   }
+  const primaryNav = /<nav\b[^>]*id=["']siteNav["'][^>]*>([\s\S]*?)<\/nav>/i.exec(raw)?.[1] ?? '';
+  const primaryLinks = [...primaryNav.matchAll(/<a\b([^>]*)>/gi)].map(match => match[1]);
+  if (primaryLinks.length !== 6 ||
+      !/class=["'][^"']*toMap/.test(primaryLinks[0]) ||
+      !/aria-current=["']page["']/.test(primaryLinks[0]) ||
+      !/href=["'][^"']*about\.html["']/.test(primaryLinks[1]) ||
+      /<button\b[^>]*id=["']introOpen["']/i.test(primaryNav)) {
+    fail(file, 'map navigation must begin with an active Map link followed by Project, without a competing dialog action');
+  }
   if (!/<nav\b[^>]*class=["']creditsNav["'][\s\S]*?#collaborate/i.test(raw)) {
     fail(file, 'persistent project documentation and contribution links are missing');
   }
@@ -180,6 +189,19 @@ for (const file of readingFiles) {
   const raw = htmlByFile.get(file) ?? '';
   if (!/<nav\b[^>]*class=["']siteNav["'][\s\S]*?<a\b[^>]*class=["']contributeLink["'][^>]*href=["'][^"']*#collaborate["']/i.test(raw)) {
     fail(file, 'primary navigation does not expose the contribution path');
+  }
+  const nav = /<nav\b[^>]*class=["'][^"']*siteNav[^"']*["'][^>]*>([\s\S]*?)<\/nav>/i.exec(raw)?.[1] ?? '';
+  const links = [...nav.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)];
+  const hrefs = links.map(match => /href=["']([^"']*)["']/.exec(match[1])?.[1] ?? '');
+  const active = links.filter(match => /aria-current=["']page["']/.test(match[1]));
+  if (links.length !== 6 || !/^(?:en\/|\.\.\/|\.\/)$/i.test(hrefs[0]) ||
+      !/about\.html$/.test(hrefs[1]) || !/method\.html$/.test(hrefs[2]) ||
+      !/sources\.html$/.test(hrefs[3]) || !/law\.html$/.test(hrefs[4]) ||
+      active.length !== 1) {
+    fail(file, 'reading-page navigation order, map return or active route is inconsistent');
+  }
+  if (!/<a\b[^>]*class=["']brand["'][^>]*>[\s\S]*?Riverflow[\s\S]*?<\/a>/i.test(raw)) {
+    fail(file, 'reading-page identity must consistently link Riverflow back to the map');
   }
 }
 for (const file of ['', 'de', 'fr', 'it', 'rm'].map(lang => join(site, lang, 'about.html'))) {

@@ -225,6 +225,12 @@ def relocate(raw, lang, page):
             '<link rel="alternate" hreflang="x-default" href="../">',
         ]
     else:
+        # The English reading pages live at the publication root while their map
+        # lives at /en/. Translated reading pages and maps share a directory.
+        # Keep the authored English links semantically correct, then localise the
+        # two map destinations when a reading page moves under /de, /fr, /it or /rm.
+        map_href = '../' if lang == 'de' else './'
+        raw = raw.replace('href="en/"', 'href="%s"' % map_href)
         raw = raw.replace('<link rel="canonical" href="%s%s">' % (BASE, tail),
                           '<link rel="canonical" href="%s%s/%s">' % (BASE, lang, tail))
         raw = raw.replace('<meta property="og:url" content="%s%s">' % (BASE, tail),

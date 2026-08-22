@@ -1,4 +1,5 @@
 {
+ "Riverflow": {"de":"Riverflow","fr":"Riverflow","it":"Riverflow","rm":"Riverflow"},
  "<span class=\"liveAlertHeading\"><i aria-hidden=\"true\"></i><span id=\"liveAlertsTitle\">Legal screen</span></span> <span id=\"liveAlertsSummary\" role=\"status\" aria-live=\"polite\">Checking current readings…</span> <span class=\"liveAlertChevron\" aria-hidden=\"true\"></span>": {
   "de": "<span class=\"liveAlertHeading\"><i aria-hidden=\"true\"></i><span id=\"liveAlertsTitle\">Rechtsprüfung</span></span> <span id=\"liveAlertsSummary\" role=\"status\" aria-live=\"polite\">Aktuelle Messwerte werden geprüft…</span> <span class=\"liveAlertChevron\" aria-hidden=\"true\"></span>",
   "fr": "<span class=\"liveAlertHeading\"><i aria-hidden=\"true\"></i><span id=\"liveAlertsTitle\">Contrôle juridique</span></span> <span id=\"liveAlertsSummary\" role=\"status\" aria-live=\"polite\">Vérification des mesures actuelles…</span> <span class=\"liveAlertChevron\" aria-hidden=\"true\"></span>",
