@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://wms.geo.admin.ch https://geodienste.ch; connect-src 'self' https://lindas.admin.ch https://data.bafu.admin.ch https://api3.geo.admin.ch https://wms.geo.admin.ch https://geodienste.ch; form-action 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Come è fatta questa carta, e come leggerla — Acqua e ghiaccio in Svizzera</title>
 <meta name="description" content="Ogni livello della carta svizzera dell’acqua e del ghiaccio, il collegamento che vi sta dietro, la classe di prova cui appartiene e il punto in cui ogni catena si rompe. Compreso come leggere la carta stessa.">
 <meta name="robots" content="index,follow">
@@ -20,16 +22,14 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Acqua e ghiaccio in Svizzera">
 <meta property="og:url" content="https://opengovclimate.ch/riverflow/it/method.html">
-<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg?v=20260822">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="La rete idrografica svizzera accanto al titolo Acqua e ghiaccio in Svizzera, con il numero di tratti, dighe e corpi glaciali.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="../tokens.css?v=20260821b">
+<link rel="stylesheet" href="../fonts.css?v=20260821">
+<link rel="stylesheet" href="../tokens.css?v=20260822">
 <link rel="stylesheet" href="../site.css?v=20260821b">
 <script src="../i18n.js?v=20260821"></script>
 <script src="../i18n-data.js?v=20260821"></script>
@@ -97,7 +97,7 @@
         <thead><tr><th scope="col">Livello</th><th scope="col">La domanda cui risponde</th><th scope="col">Da che cosa è disegnato</th></tr></thead>
         <tbody>
           <tr><td><b>Portata</b></td><td>Quanta acqua scorre ora?</td><td>187 serie federali di portata; solo misure attuali e valide alimentano 8'711 tratti</td></tr>
-          <tr><td><b>Contro la norma</b></td><td>È molto o poco per questo fiume?</td><td>Oggi contro una media pluriennale modellata. Non citabile, e il livello lo dice</td></tr>
+          <tr><td><b>Rispetto alla media pluriennale</b></td><td>La portata è alta o bassa per questo corso d’acqua?</td><td>Portata attuale divisa per una media annua pluriennale modellata. Un rapporto, non un indice di siccità; non citabile</td></tr>
           <tr><td><b>Temperatura</b></td><td>Dove è in gioco il limite di 25&nbsp;°C?</td><td>Le stazioni che portano un termometro, contro l’OPAc allegato&nbsp;2 n.&nbsp;12 cpv.&nbsp;4</td></tr>
           <tr><td><b>Qualità dell’acqua</b></td><td>Che cosa è stato misurato qui, per quale sostanza e quando?</td><td>Ogni risultato di laboratorio dell’edizione preparata NAWA TREND attuale, mantenuto nella sua stazione</td></tr>
           <tr><td><b>Bacini</b></td><td>Quanta acqua è trattenuta, e quanto è pieno?</td><td>225 sbarramenti sotto vigilanza federale, e una serie settimanale di riempimento dal 2000</td></tr>
@@ -105,7 +105,7 @@
           <tr><td><b>Deflusso residuale</b></td><td>Cosa dà il calcolo dell’art.&nbsp;31 cpv.&nbsp;1?</td><td>1'041 punti Q<sub>347</sub> pubblicati; illustrazione, non determinazione cantonale</td></tr>
           <tr><td><b>Usi dell’acqua</b></td><td>Chi preleva acqua, e chi immette calore?</td><td>Quattro registri federali: forza idrica, prelievi, siti nucleari, impianti di depurazione</td></tr>
           <tr><td><b>Zone umide</b></td><td>Quali luoghi dipendenti dall’acqua hanno protezione federale?</td><td>Cinque inventari federali, disegnati conservando classe giuridica e identità d’inventario</td></tr>
-          <tr><td><b>Risorse idriche</b></td><td>Da dove viene l’acqua?</td><td>Corpi d’acqua sotterranea, tratti sorgentizi, sottobacini e le zone di protezione in vigore</td></tr>
+          <tr><td><b>Sorgenti e falde</b></td><td>Da dove viene l’acqua?</td><td>Corpi d’acqua sotterranea, tratti sorgentizi, sottobacini e le zone di protezione in vigore</td></tr>
         </tbody>
       </table></div>
 
@@ -341,7 +341,7 @@
   </div>
 </footer>
 
-<script src="../fmt.js?v=20260821"></script>
+<script src="../fmt.js?v=20260822"></script>
 <script src="../gschg31.js?v=20260821"></script>
 <script src="../site.js?v=20260821"></script>
 </body>

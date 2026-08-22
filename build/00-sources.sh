@@ -21,18 +21,18 @@ unzip -oq ne_countries.zip -d ne_countries
 BB=5.8,45.7,10.6,48.0     # Switzerland with a border margin
 
 echo "clip the river network"
-npx -y mapshaper@0.7.53 HydroRIVERS_v10_eu_shp/HydroRIVERS_v10_eu.shp \
+npx --no-install mapshaper HydroRIVERS_v10_eu_shp/HydroRIVERS_v10_eu.shp \
   -clip bbox=$BB \
   -filter 'UPLAND_SKM >= 5' \
   -filter-fields HYRIV_ID,NEXT_DOWN,MAIN_RIV,ORD_STRA,ORD_CLAS,UPLAND_SKM,CATCH_SKM,DIS_AV_CMS,LENGTH_KM,DIST_DN_KM \
   -o "$D/rivers_ch.json" format=geojson precision=0.00001
 
 echo "clip the lakes and the border"
-npx -y mapshaper@0.7.53 ne_lakes/ne_10m_lakes.shp -clip bbox=$BB -filter-fields name \
+npx --no-install mapshaper ne_lakes/ne_10m_lakes.shp -clip bbox=$BB -filter-fields name \
   -o "$D/lakes.json" format=geojson precision=0.00001
-npx -y mapshaper@0.7.53 ne_lakes_eu/ne_10m_lakes_europe.shp -clip bbox=$BB -filter-fields name \
+npx --no-install mapshaper ne_lakes_eu/ne_10m_lakes_europe.shp -clip bbox=$BB -filter-fields name \
   -o "$D/lakes_eu.json" format=geojson precision=0.00001
-npx -y mapshaper@0.7.53 ne_countries/ne_10m_admin_0_countries.shp -filter '"CHE"===ADM0_A3' -filter-fields ADM0_A3 \
+npx --no-install mapshaper ne_countries/ne_10m_admin_0_countries.shp -filter '"CHE"===ADM0_A3' -filter-fields ADM0_A3 \
   -o "$D/border.json" format=geojson precision=0.00001
 
 echo "done. now run: node build/01-stations.mjs && node build/02-network.mjs && node build/03-context.mjs"
@@ -55,13 +55,13 @@ done
 # Mercator out of the .prj, so the source frame is given explicitly.
 LV95='+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs'
 
-npx -y mapshaper@0.7.53 x/inventory_sgi2023_r2026/SGI_2023_glaciers.shp \
+npx --no-install mapshaper x/inventory_sgi2023_r2026/SGI_2023_glaciers.shp \
   -proj from="$LV95" wgs84 \
   -filter-fields sgi-id,name,area_km2,length_km,masl_min,masl_max,year_acq \
   -simplify 6% keep-shapes \
   -o "$G/g2023.json" format=geojson precision=0.00001
 
-npx -y mapshaper@0.7.53 x/inventory_sgi1850_r1992/SGI_1850.shp \
+npx --no-install mapshaper x/inventory_sgi1850_r1992/SGI_1850.shp \
   -proj from="$LV95" wgs84 \
   -filter-fields SGI,Shape_Area \
   -simplify 5% keep-shapes \
@@ -104,22 +104,22 @@ for f in inventory_sgi1931_r2022 inventory_sgi1973_r1976 inventory_sgi2010_r2010
   mkdir -p "x/$f"; unzip -oq "$f.zip" -d "x/$f"
 done
 
-npx -y mapshaper@0.7.53 x/inventory_sgi1931_r2022/SGI_1931.shp \
+npx --no-install mapshaper x/inventory_sgi1931_r2022/SGI_1931.shp \
   -each 'AREA_M2 = this.area' -proj from="$LV03" wgs84 \
   -filter-fields SGI,AREA_M2,date -simplify 3% keep-shapes \
   -o "$G/g1931.json" format=geojson precision=0.00001
 
-npx -y mapshaper@0.7.53 x/inventory_sgi1973_r1976/SGI_1973.shp \
+npx --no-install mapshaper x/inventory_sgi1973_r1976/SGI_1973.shp \
   -each 'AREA_M2 = this.area' -proj from="$LV95" wgs84 \
   -filter-fields SGI,AREA_M2 -simplify 3% keep-shapes \
   -o "$G/g1973.json" format=geojson precision=0.00001
 
-npx -y mapshaper@0.7.53 x/inventory_sgi2010_r2010/SGI_2010.shp \
+npx --no-install mapshaper x/inventory_sgi2010_r2010/SGI_2010.shp \
   -each 'AREA_M2 = this.area' -proj from="$LV95" wgs84 \
   -filter-fields SGI,AREA_M2 -simplify 3% keep-shapes \
   -o "$G/g2010.json" format=geojson precision=0.00001
 
-npx -y mapshaper@0.7.53 x/inventory_sgi2016_r2020/SGI_2016_glaciers.shp \
+npx --no-install mapshaper x/inventory_sgi2016_r2020/SGI_2016_glaciers.shp \
   -proj from="$LV95" wgs84 \
   -filter-fields sgi-id,area_km2,year_acq -simplify 3% keep-shapes \
   -o "$G/g2016.json" format=geojson precision=0.00001

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-/* Build the source for the social preview from the same geometry as the map.
- * The committed PNG is rendered from this SVG at 1200 × 630. Keeping the vector
- * source deterministic means the preview can be refreshed when the network moves
- * without redrawing Switzerland by hand or introducing a design dependency. */
+/* Build the social preview from the same committed evidence as the map.
+ * Both the SVG source and the published 1200 × 630 JPEG are deterministic build
+ * products; counts cannot drift because verification checks their sidecar. */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const site = join(here, '..', 'site');
@@ -54,6 +55,7 @@ for (const reach of network.reaches) {
 const fmt = new Intl.NumberFormat('de-CH', { maximumFractionDigits: 0 });
 const glacierCount = glaciers.now?.count ?? glaciers.glaciers?.length ?? 0;
 const damCount = reservoirs.dams?.length ?? 0;
+const inventoryCount = 6;
 const title = 'Water & ice';
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
@@ -69,7 +71,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
   </g>
   <text x="58" y="154" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="700" letter-spacing="-2.4">${esc(title)}</text>
   <text x="58" y="226" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="700" letter-spacing="-2.4">in Switzerland</text>
-  <text x="62" y="282" fill="#9ec5f4" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="600">Rivers, live. Ice, across five surveys.</text>
+  <text x="62" y="282" fill="#9ec5f4" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="600">Rivers, live. Ice, across six dated inventories.</text>
   <text x="62" y="316" fill="#c3c2b7" font-family="Arial, Helvetica, sans-serif" font-size="21">Reservoirs against 26 years of their own record.</text>
   <line x1="62" y1="360" x2="474" y2="360" stroke="#2c2c2a"/>
   <text x="62" y="407" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="600">${fmt.format(network.reaches.length)} river reaches</text>
@@ -85,4 +87,19 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
 </svg>\n`;
 
 writeFileSync(join(here, 'social-card.svg'), svg);
-console.log(`social card: ${network.reaches.length} reaches, ${damCount} dams, ${glacierCount} glacier bodies`);
+const image = await sharp(Buffer.from(svg))
+  .resize(W, H, { fit: 'fill' })
+  .jpeg({ quality: 88, chromaSubsampling: '4:4:4', progressive: true })
+  .toBuffer();
+writeFileSync(join(site, 'og-image.jpg'), image);
+writeFileSync(join(site, 'data', 'social-card.json'), JSON.stringify({
+  schema: 1,
+  reaches: network.reaches.length,
+  dams: damCount,
+  glacierBodies: glacierCount,
+  glacierInventories: inventoryCount,
+  width: W,
+  height: H,
+  sha256: createHash('sha256').update(image).digest('hex'),
+}));
+console.log(`social card: ${network.reaches.length} reaches, ${damCount} dams, ${glacierCount} glacier bodies, ${inventoryCount} inventories`);

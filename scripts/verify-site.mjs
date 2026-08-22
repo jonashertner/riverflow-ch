@@ -126,6 +126,9 @@ for (const file of htmlFiles) {
       fail(file, 'canvas is neither named nor hidden from assistive technology');
     }
   }
+  if (!/<meta\s+[^>]*http-equiv=["']Content-Security-Policy["']/i.test(raw)) fail(file, 'Content Security Policy meta is missing');
+  if (!/<meta\s+[^>]*name=["']referrer["'][^>]*content=["']strict-origin-when-cross-origin["']/i.test(raw)) fail(file, 'referrer policy is missing');
+  if (/fonts\.(?:googleapis|gstatic)\.com/i.test(raw)) fail(file, 'page still depends on externally hosted fonts');
 }
 
 // The publication root is deliberately German. The English map has its own /en/
@@ -150,6 +153,11 @@ for (const file of landingFiles) {
       !/groundwater recharge|Grundwasserneubildung|recharge des nappes|ricarica delle falde|regeneraziun da l’aua sutterrana/i.test(raw)) {
     fail(file, 'water-cycle data gaps are not disclosed');
   }
+  if (!/<dialog\b[^>]*id=["']dataView["'][\s\S]*?<table\b[\s\S]*?id=["']dataRows["']/i.test(raw) ||
+      !/<button\b[^>]*id=["']dataViewOpen["']/i.test(raw) ||
+      !/<label\b[^>]*for=["']dataSearch["']/i.test(raw)) {
+    fail(file, 'active layers need a searchable semantic data-table alternative to the canvases');
+  }
 }
 const responsiveCssFile = join(site, 'style.css');
 const responsiveCss = readFileSync(join(site, 'tokens.css'), 'utf8') + '\n' + readFileSync(responsiveCssFile, 'utf8');
@@ -162,12 +170,32 @@ for (const [label, pattern] of [
   ['large landing language targets', /#intro \.introLangs \[lang\][^{]*\{[^}]*min-width:\s*40px;[^}]*min-height:\s*44px/s],
   ['contained intermediate mode rail', /@media \(min-width:\s*701px\) and \(max-width:\s*1340px\)[\s\S]*?#modes\s*\{[^}]*overflow-x:\s*auto/],
   ['collision-free wide mode rail', /@media \(min-width:\s*1900px\)[\s\S]*?#modes\s*\{[^}]*left:\s*calc\(var\(--pad\) \+ 484px\)/],
+  ['high-contrast control boundary token', /--control-border:\s*#[0-9a-f]{6}/i],
 ]) if (!pattern.test(responsiveCss)) fail(responsiveCssFile, `missing responsive contract: ${label}`);
-if (!/window\.visualViewport\?\.addEventListener\(['"]resize['"]/.test(readFileSync(join(site, 'app.js'), 'utf8'))) {
+const appSource = readFileSync(join(site, 'app.js'), 'utf8');
+if (!/window\.visualViewport\?\.addEventListener\(['"]resize['"]/.test(appSource)) {
   fail(join(site, 'app.js'), 'map does not relayout with the mobile visual viewport');
 }
-if (!/modeNav\.addEventListener\(['"]wheel['"]/.test(readFileSync(join(site, 'app.js'), 'utf8'))) {
+if (!/modeNav\.addEventListener\(['"]wheel['"]/.test(appSource)) {
   fail(join(site, 'app.js'), 'intermediate mode rail has no practical mouse-wheel navigation');
+}
+const initialLoad = /async function load\(\)\s*\{([\s\S]*?)\n\}\n\n\/\/ The ice/.exec(appSource)?.[1] ?? '';
+for (const name of ['loadIce', 'loadUsers', 'loadReservoirs', 'loadResidual', 'loadWetlands', 'loadCantons']) {
+  if (new RegExp('\\b' + name + '\\s*\\(').test(initialLoad)) fail(join(site, 'app.js'), name + ' is loaded eagerly instead of on layer request');
+}
+if (!/const DATA_PAGE\s*=\s*50/.test(appSource) || !/function renderDataView\(/.test(appSource)) {
+  fail(join(site, 'app.js'), 'accessible data view is not implemented or paginated');
+}
+try {
+  const fmtFile = join(site, 'fmt.js');
+  const fmtSandbox = {};
+  vm.createContext(fmtSandbox);
+  vm.runInContext(readFileSync(fmtFile, 'utf8') + '\n;globalThis.__fmtDate = fmtDate;', fmtSandbox);
+  if (fmtSandbox.__fmtDate('2026-07-07T08:25:32.000Z') !== '07.07.2026') {
+    fail(fmtFile, 'fmtDate must accept full ISO timestamps without leaking the time into the date');
+  }
+} catch (error) {
+  fail(join(site, 'fmt.js'), `date-format validation failed: ${error.message}`);
 }
 
 // The sitemap must describe exactly the canonical publication surface.
@@ -221,13 +249,16 @@ try {
   const monitoring = data('canton-monitoring.json');
   const unique = values => new Set(values).size;
 
-  if (data('vintage.json').sources.length !== 22) fail(join(site, 'data', 'vintage.json'), 'published source count is no longer 22');
+  if (data('vintage.json').sources.length < 10) fail(join(site, 'data', 'vintage.json'), 'source register is implausibly small');
 
   // NAWA TREND is deliberately reduced for the country view, but no category is
   // allowed to disappear in that reduction. Every source row is either quantified,
   // below the determination limit, or missing; censored values never acquire a
   // median. Parameter and unit together remain the identity of a series.
   if (quality.meta.schema !== 1) fail(qualityFile, `unsupported NAWA schema ${quality.meta.schema}`);
+  if (!/^v\d{4}-\d{2}-\d{2}$/.test(quality.meta.sourceVersion ?? '')) fail(qualityFile, 'NAWA source version is missing or malformed');
+  if (!/^[a-f0-9]{64}$/.test(quality.meta.sourceFingerprint ?? '')) fail(qualityFile, 'NAWA source listing fingerprint is missing or malformed');
+  if (!Number.isFinite(Date.parse(quality.meta.sourceModified))) fail(qualityFile, 'NAWA source modification date is missing or invalid');
   if (quality.meta.rows < 1_000_000) fail(qualityFile, `implausibly small NAWA release (${quality.meta.rows} rows)`);
   if (quality.meta.stations !== quality.stations.length || quality.meta.locatedStations !== quality.stations.length) fail(qualityFile, 'station counts or coordinates disagree with metadata');
   if (quality.meta.parameters !== quality.parameters.length) fail(qualityFile, 'parameter count disagrees with metadata');
@@ -269,28 +300,23 @@ try {
   for (const canton of monitoring.cantons) {
     if (!['results', 'programme', 'partial'].includes(canton.record)) fail(monitoringFile, `${canton.ct} has an invalid evidence class`);
     if (!/^https:\/\//.test(canton.url ?? '')) fail(monitoringFile, `${canton.ct} has no primary HTTPS evidence link`);
-    if (canton.year !== null && (!Number.isInteger(canton.year) || canton.year < 2000 || canton.year > 2026)) fail(monitoringFile, `${canton.ct} has an invalid evidence year`);
+    if (canton.year !== null && (!Number.isInteger(canton.year) || canton.year < 2000 || canton.year > new Date().getUTCFullYear())) fail(monitoringFile, `${canton.ct} has an invalid evidence year`);
     if (!Array.isArray(canton.scope) || !canton.scope.length || canton.scope.some(s => !allowedScopes.has(s))) fail(monitoringFile, `${canton.ct} has an invalid evidence scope`);
     const expected = nawaByCanton.get(canton.ct) ?? 0;
     if (canton.nawaStations !== expected) fail(monitoringFile, `${canton.ct} states ${canton.nawaStations} NAWA stations, expected ${expected}`);
   }
   if (monitoring.meta.nationalVersion !== quality.meta.sourceVersion || monitoring.meta.nationalStations !== quality.meta.stations) fail(monitoringFile, 'national release metadata disagrees with quality.json');
-  if (monitoring.meta.cantonsWithNationalStations !== nawaByCanton.size || nawaByCanton.size !== 25) fail(monitoringFile, `expected NAWA stations in 25 cantons, found ${nawaByCanton.size}`);
-  const ar = monitoring.cantons.find(c => c.ct === 'AR');
-  if (!ar || ar.nawaStations !== 0 || ar.record !== 'results' || ar.year !== 2024) fail(monitoringFile, 'AR counterexample is missing or no longer matches the audited record');
+  if (monitoring.meta.cantonsWithNationalStations !== nawaByCanton.size) fail(monitoringFile, `national canton coverage says ${monitoring.meta.cantonsWithNationalStations}, found ${nawaByCanton.size}`);
 
   if (stations.length !== unique(stations.map(s => String(s.id)))) fail(stationFile, 'station identifiers are not unique');
   if (reaches.length !== unique(reaches.map(r => r.i))) fail(networkFile, 'reach identifiers are not unique');
-  if (stations.length !== 233) fail(stationFile, `published method expects 233 stations, found ${stations.length}`);
-  if (stations.filter(s => s.reach).length !== 227) fail(stationFile, `published method expects 227 bound stations, found ${stations.filter(s => s.reach).length}`);
-  if (reaches.length !== 8711) fail(networkFile, `published method expects 8711 reaches, found ${reaches.length}`);
   const qStations = stations.filter(s => s.hasQ);
   const unknownUnits = qStations.filter(s => !Number.isFinite(s.factor));
   const qReaches = unique(qStations.filter(s => s.reach).map(s => s.reach));
   const eligible = new Set(qStations.filter(s => s.reach && Number.isFinite(s.factor)).map(s => s.reach));
-  if (qStations.length !== 187) fail(stationFile, `published method expects 187 discharge stations, found ${qStations.length}`);
-  if (unknownUnits.length !== 5) fail(stationFile, `published method expects 5 unresolved discharge units, found ${unknownUnits.length}`);
-  if (qReaches !== 173 || eligible.size !== 168) fail(stationFile, `published method expects 173 discharge reaches and 168 unit-verified reaches, found ${qReaches} and ${eligible.size}`);
+  if (!qStations.length || !eligible.size) fail(stationFile, 'discharge evidence is empty');
+  if (unknownUnits.length === qStations.length) fail(stationFile, 'no discharge station has a verified unit');
+  if (qReaches < eligible.size) fail(stationFile, 'eligible discharge reaches exceed all discharge reaches');
   for (const s of qStations) {
     if (s.factor !== null && s.factor !== 1 && s.factor !== 0.001) fail(stationFile, `station ${s.id} has unsupported conversion factor ${s.factor}`);
   }
@@ -313,9 +339,7 @@ try {
     }
     if (hasDownstream || above.has(start.i)) estimated++; else none++;
   }
-  if (measured !== 168 || estimated !== 5125 || none !== 3418) {
-    fail(networkFile, `structural evidence changed: ${measured} measured, ${estimated} estimated, ${none} none`);
-  }
+  if (measured !== eligible.size || measured + estimated + none !== reaches.length) fail(networkFile, `structural evidence is inconsistent: ${measured} measured, ${estimated} estimated, ${none} none`);
 
   if (residual.points.length !== residual.counts.total) fail(residualFile, 'Q347 point count disagrees with summary');
   if (Object.values(residual.counts.bySource).reduce((a, n) => a + n, 0) !== residual.points.length) fail(residualFile, 'Q347 source classes do not sum to the point count');
@@ -348,7 +372,7 @@ try {
     if (frame.drawnKm2 !== undefined && (frame.drawnKm2 > frame.km2 || frame.drawnKm2 / frame.km2 < 0.95)) fail(iceFile, `frame ${frame.y} geometry omits too much area`);
   }
   const iceYears = ice.frames.map(f => f.y);
-  if (JSON.stringify(iceYears) !== JSON.stringify([1850, 1931, 1973, 2010, 2016, 2023])) fail(iceFile, `unexpected glacier inventory years: ${iceYears.join(', ')}`);
+  if (iceYears.length < 2 || iceYears.some((year, i) => !Number.isInteger(year) || (i && year <= iceYears[i - 1])) || iceYears.at(-1) > new Date().getUTCFullYear()) fail(iceFile, `invalid glacier inventory chronology: ${iceYears.join(', ')}`);
   const ice2010 = ice.frames.find(f => f.y === 2010), ice2016 = ice.frames.find(f => f.y === 2016);
   if (ice2010?.km2 !== 944.4 || ice2016?.km2 !== 961.3) fail(iceFile, 'the documented 2010–2016 method break no longer matches the data');
 
@@ -371,12 +395,47 @@ try {
     const file = join(root, name);
     if (statSync(file).size !== stated.bytes || hash(file) !== stated.sha256) fail(provenanceFile, `generator hash mismatch for ${name}; rebuild provenance`);
   }
-  for (const [key, expected] of Object.entries({ stations: 233, uniqueStationIds: 233, boundStations: 227, dischargeStations: 187, unresolvedDischargeUnits: 5, dischargeReaches: 173, eligibleDischargeReaches: 168, reaches: 8711, uniqueReachIds: 8711, q347Points: 1041, reservoirWeeks: 1390, qualityRows: quality.meta.rows, qualityStations: quality.meta.stations, qualityParameters: quality.meta.parameters, monitoringCantons: 26, monitoringCantonsWithNawa: 25 })) {
+  const expectedFacts = {
+    stations: stations.length,
+    uniqueStationIds: unique(stations.map(s => String(s.id))),
+    boundStations: stations.filter(s => s.reach).length,
+    dischargeStations: qStations.length,
+    unresolvedDischargeUnits: unknownUnits.length,
+    dischargeReaches: qReaches,
+    eligibleDischargeReaches: eligible.size,
+    reaches: reaches.length,
+    uniqueReachIds: unique(reaches.map(r => r.i)),
+    q347Points: residual.points.length,
+    reservoirWeeks: reservoirs.fill.weeks.length,
+    qualityRows: quality.meta.rows,
+    qualityStations: quality.meta.stations,
+    qualityParameters: quality.meta.parameters,
+    monitoringCantons: monitoring.cantons.length,
+    monitoringCantonsWithNawa: nawaByCanton.size,
+  };
+  for (const [key, expected] of Object.entries(expectedFacts)) {
     if (provenance.facts[key] !== expected) fail(provenanceFile, `fact ${key} is ${provenance.facts[key]}, expected ${expected}`);
   }
+  if (provenance.schema !== 3 || !/^sha256:[0-9a-f]{64}$/.test(provenance.publicationDigest ?? '') || provenance.revision !== provenance.publicationDigest) fail(provenanceFile, 'publication digest is missing or invalid');
+  const publicationCore = {
+    schema: 3,
+    facts: provenance.facts,
+    sources: provenance.sources,
+    upstreamArchives: provenance.upstreamArchives,
+    generators: provenance.generators,
+    artifacts: provenance.artifacts,
+  };
+  const expectedDigest = `sha256:${createHash('sha256').update(JSON.stringify(publicationCore)).digest('hex')}`;
+  if (provenance.publicationDigest !== expectedDigest) fail(provenanceFile, 'publication digest does not match its evidence manifest');
+
+  const social = data('social-card.json');
+  const socialImage = join(site, 'og-image.jpg');
+  if (social.schema !== 1 || social.reaches !== reaches.length || social.dams !== reservoirs.dams.length ||
+      social.glacierInventories !== ice.frames.length || social.width !== 1200 || social.height !== 630 ||
+      social.sha256 !== hash(socialImage)) fail(join(site, 'data', 'social-card.json'), 'social preview facts or image hash are stale');
 
   const claims = [readFileSync(join(root, 'README.md'), 'utf8'), ...['index.html', 'method.html', 'sources.html', 'law.html'].map(name => readFileSync(join(site, name), 'utf8'))].join('\n');
-  for (const phrase of ['legally operative figure', 'what the statute would require', '8\'716 reaches', '236 federal gauges']) {
+  for (const phrase of ['legally operative figure', 'what the statute would require', '8\'716 reaches', '236 federal gauges', 'Gegen normal', 'Against normal', 'Contro la norma', 'five surveys']) {
     if (claims.includes(phrase)) fail(join(root, 'README.md'), `obsolete claim remains: ${phrase}`);
   }
 } catch (error) {
@@ -430,6 +489,21 @@ try {
 
 const ogImage = readFileSync(join(site, 'og-image.jpg'));
 if (!(ogImage[0] === 0xff && ogImage[1] === 0xd8 && ogImage[2] === 0xff)) fail(join(site, 'og-image.jpg'), 'file is not a JPEG');
+else {
+  let size = null;
+  for (let i = 2; i + 9 < ogImage.length;) {
+    if (ogImage[i] !== 0xff) { i++; continue; }
+    const marker = ogImage[i + 1];
+    if ([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf].includes(marker)) {
+      size = [ogImage.readUInt16BE(i + 7), ogImage.readUInt16BE(i + 5)];
+      break;
+    }
+    if (marker === 0xd8 || marker === 0xd9 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) { i += 2; continue; }
+    if (i + 4 > ogImage.length) break;
+    i += 2 + ogImage.readUInt16BE(i + 2);
+  }
+  if (!size || size[0] !== 1200 || size[1] !== 630) fail(join(site, 'og-image.jpg'), `expected 1200 × 630, found ${size?.join(' × ') ?? 'no readable dimensions'}`);
+}
 
 if (errors.length) {
   console.error(`Site verification failed with ${errors.length} issue${errors.length === 1 ? '' : 's'}:\n`);

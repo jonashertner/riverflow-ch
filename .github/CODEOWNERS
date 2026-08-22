@@ -1,0 +1,8 @@
+# Release, scientific provenance and legal-method changes need an accountable
+# maintainer review. Add domain reviewers here as the contributor group grows.
+* @jonashertner
+
+/build/ @jonashertner
+/scripts/ @jonashertner
+/site/data/ @jonashertner
+/.github/ @jonashertner

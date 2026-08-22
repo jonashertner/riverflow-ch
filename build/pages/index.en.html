@@ -6,6 +6,8 @@
      through touch-action:none, so pinching the page still works for anyone who
      needs the text bigger. A map is not a reason to break zoom. -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://wms.geo.admin.ch https://geodienste.ch; connect-src 'self' https://lindas.admin.ch https://data.bafu.admin.ch https://api3.geo.admin.ch https://wms.geo.admin.ch https://geodienste.ch; form-action 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Water and ice in Switzerland — a measured base layer</title>
 <meta name="description" content="Live Swiss rivers, water quality by station, reservoir history and six glacier inventories—with every source, date and evidence class disclosed.">
 <meta name="robots" content="index,follow">
@@ -23,20 +25,18 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Water and ice in Switzerland">
 <meta property="og:url" content="https://opengovclimate.ch/riverflow/">
-<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg?v=20260822">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The Swiss river network beside the title Water and ice in Switzerland, with counts for river reaches, dams and glacier bodies.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="tokens.css?v=20260821b">
-<link rel="stylesheet" href="style.css?v=20260821c">
+<link rel="stylesheet" href="fonts.css?v=20260821">
+<link rel="stylesheet" href="tokens.css?v=20260822">
+<link rel="stylesheet" href="style.css?v=20260822b">
 <script src="i18n.js?v=20260821"></script>
 <script src="i18n-data.js?v=20260821"></script>
-<script src="i18n-map.js?v=20260821"></script>
+<script src="i18n-map.js?v=20260822"></script>
 <script src="theme.js?v=20260821"></script>
 </head>
 <body class="viz-root" data-layer="flow">
@@ -95,13 +95,14 @@
     <button type="button" id="zoomOut" aria-label="Zoom out" title="Zoom out"><span aria-hidden="true">−</span></button>
   </div>
   <button type="button" id="zoomFit" aria-label="Fit Switzerland in view" title="Fit Switzerland in view">Fit</button>
+  <button type="button" id="dataViewOpen" aria-label="Explore this layer as data" title="Explore this layer as data">Data</button>
 </nav>
 
 <nav id="modes" aria-label="Layer">
   <div class="modeGroup" role="group" aria-label="Water now">
     <span class="modeGroupLabel">Now</span>
     <button type="button" data-mode="flow" class="on">Flow</button>
-    <button type="button" data-mode="normal">Against normal</button>
+    <button type="button" data-mode="normal">Relative to mean</button>
     <button type="button" data-mode="temp">Temperature</button>
   </div>
   <div class="modeGroup" role="group" aria-label="Water quality">
@@ -110,18 +111,18 @@
   </div>
   <div class="modeGroup" role="group" aria-label="Water stored">
     <span class="modeGroupLabel">Stored</span>
-    <button type="button" data-mode="res" id="modeRes" disabled>Reservoirs</button>
-    <button type="button" data-mode="ice" id="modeIce" disabled>Ice</button>
+    <button type="button" data-mode="res" id="modeRes">Reservoirs</button>
+    <button type="button" data-mode="ice" id="modeIce">Ice</button>
   </div>
   <div class="modeGroup" role="group" aria-label="Water and law">
     <span class="modeGroupLabel">Law</span>
-    <button type="button" data-mode="residual" id="modeResidual" disabled>Residual flow</button>
-    <button type="button" data-mode="use" id="modeUse" disabled>Water use</button>
-    <button type="button" data-mode="wet" id="modeWet" disabled>Wetlands</button>
+    <button type="button" data-mode="residual" id="modeResidual">Residual flow</button>
+    <button type="button" data-mode="use" id="modeUse">Water use</button>
+    <button type="button" data-mode="wet" id="modeWet">Wetlands</button>
   </div>
   <div class="modeGroup" role="group" aria-label="Where water comes from">
     <span class="modeGroupLabel">Source</span>
-    <button type="button" data-mode="source">Water sources</button>
+    <button type="button" data-mode="source">Sources &amp; groundwater</button>
   </div>
 </nav>
 
@@ -346,6 +347,35 @@
 <div id="tooltip" role="status" hidden></div>
 </main>
 
+<dialog id="dataView" aria-labelledby="dataViewTitle" aria-describedby="dataViewLead">
+  <button type="button" id="dataViewClose" aria-label="Close data view">&times;</button>
+  <p class="dataEyebrow">Accessible data view</p>
+  <h2 id="dataViewTitle">Explore this layer as data</h2>
+  <p id="dataViewLead">Search the complete layer without using the map. Values keep the same evidence class and source shown in the visual view.</p>
+  <label for="dataSearch">Search names, identifiers and evidence</label>
+  <input id="dataSearch" type="search" autocomplete="off" placeholder="Search this layer">
+  <div class="dataTableWrap" tabindex="0">
+    <table>
+      <caption id="dataCaption"></caption>
+      <thead><tr>
+        <th scope="col">Feature</th>
+        <th scope="col">Value</th>
+        <th scope="col">Evidence</th>
+        <th scope="col">Source</th>
+      </tr></thead>
+      <tbody id="dataRows"></tbody>
+    </table>
+  </div>
+  <div class="dataFooter">
+    <p id="dataStatus" role="status" aria-live="polite"></p>
+    <div class="dataPager">
+      <button type="button" id="dataPrev">Previous</button>
+      <button type="button" id="dataNext">Next</button>
+    </div>
+    <a href="sources.html">Sources and downloads</a>
+  </div>
+</dialog>
+
 <dialog id="intro" aria-labelledby="introTitle" aria-describedby="introLead">
   <button type="button" id="introClose" aria-label="Close project brief">&times;</button>
   <div class="introTop">
@@ -409,8 +439,8 @@
   <a href="sources.html">sources page</a>. Measured and modelled water, not a forecast.</p>
 </footer>
 
-<script src="fmt.js?v=20260821"></script>
+<script src="fmt.js?v=20260822"></script>
 <script src="gschg31.js?v=20260821"></script>
-<script src="app.js?v=20260821b"></script>
+<script src="app.js?v=20260822"></script>
 </body>
 </html>

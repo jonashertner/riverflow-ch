@@ -9,7 +9,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 // ISO in, Swiss out. Every date on this site is written 19.08.2026, because that
 // is how the registers being cited write theirs.
 const fmtDate = iso => {
-  const [y, m, d] = String(iso).split('-');
+  const [y, m, d] = String(iso).slice(0, 10).split('-');
   return `${d}.${m}.${y}`;
 };
 

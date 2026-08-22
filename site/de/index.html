@@ -6,6 +6,8 @@
      through touch-action:none, so pinching the page still works for anyone who
      needs the text bigger. A map is not a reason to break zoom. -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://wms.geo.admin.ch https://geodienste.ch; connect-src 'self' https://lindas.admin.ch https://data.bafu.admin.ch https://api3.geo.admin.ch https://wms.geo.admin.ch https://geodienste.ch; form-action 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Wasser und Eis in der Schweiz — eine gemessene Grundlage</title>
 <meta name="description" content="Aktuelle Daten zu Schweizer Flüssen, Wasserqualität pro Messstelle, Speicherverlauf und sechs Gletscherinventare – mit offengelegter Quelle, Datum und Beweisklasse.">
 <meta name="robots" content="index,follow">
@@ -23,20 +25,18 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Wasser und Eis in der Schweiz">
 <meta property="og:url" content="https://opengovclimate.ch/riverflow/">
-<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg?v=20260822">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Das Schweizer Flussnetz neben dem Titel Wasser und Eis in der Schweiz, mit Zahlen zu Gewässerabschnitten, Stauanlagen und Gletscherkörpern.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="../tokens.css?v=20260821b">
-<link rel="stylesheet" href="../style.css?v=20260821c">
+<link rel="stylesheet" href="../fonts.css?v=20260821">
+<link rel="stylesheet" href="../tokens.css?v=20260822">
+<link rel="stylesheet" href="../style.css?v=20260822b">
 <script src="../i18n.js?v=20260821"></script>
 <script src="../i18n-data.js?v=20260821"></script>
-<script src="../i18n-map.js?v=20260821"></script>
+<script src="../i18n-map.js?v=20260822"></script>
 <script src="../theme.js?v=20260821"></script>
 </head>
 <body class="viz-root" data-layer="flow">
@@ -94,13 +94,14 @@
     <button type="button" id="zoomOut" aria-label="Verkleinern" title="Verkleinern"><span aria-hidden="true">−</span></button>
   </div>
   <button type="button" id="zoomFit" aria-label="Die ganze Schweiz anzeigen" title="Die ganze Schweiz anzeigen">Ganz</button>
+  <button type="button" id="dataViewOpen" aria-label="Diese Ebene als Daten erkunden" title="Diese Ebene als Daten erkunden">Daten</button>
 </nav>
 
 <nav id="modes" aria-label="Ebene">
   <div class="modeGroup" role="group" aria-label="Wasser jetzt">
     <span class="modeGroupLabel">Jetzt</span>
     <button type="button" data-mode="flow" class="on">Abfluss</button>
-    <button type="button" data-mode="normal">Gegen normal</button>
+    <button type="button" data-mode="normal">Zum Mittel</button>
     <button type="button" data-mode="temp">Temperatur</button>
   </div>
   <div class="modeGroup" role="group" aria-label="Wasserqualität">
@@ -109,18 +110,18 @@
   </div>
   <div class="modeGroup" role="group" aria-label="Gespeichertes Wasser">
     <span class="modeGroupLabel">Gespeichert</span>
-    <button type="button" data-mode="res" id="modeRes" disabled>Speicherseen</button>
-    <button type="button" data-mode="ice" id="modeIce" disabled>Eis</button>
+    <button type="button" data-mode="res" id="modeRes">Speicherseen</button>
+    <button type="button" data-mode="ice" id="modeIce">Eis</button>
   </div>
   <div class="modeGroup" role="group" aria-label="Wasser und Recht">
     <span class="modeGroupLabel">Recht</span>
-    <button type="button" data-mode="residual" id="modeResidual" disabled>Restwasser</button>
-    <button type="button" data-mode="use" id="modeUse" disabled>Wassernutzung</button>
-    <button type="button" data-mode="wet" id="modeWet" disabled>Feuchtgebiete</button>
+    <button type="button" data-mode="residual" id="modeResidual">Restwasser</button>
+    <button type="button" data-mode="use" id="modeUse">Wassernutzung</button>
+    <button type="button" data-mode="wet" id="modeWet">Feuchtgebiete</button>
   </div>
   <div class="modeGroup" role="group" aria-label="Woher das Wasser kommt">
     <span class="modeGroupLabel">Herkunft</span>
-    <button type="button" data-mode="source">Wasservorkommen</button>
+    <button type="button" data-mode="source">Quellen &amp; Grundwasser</button>
   </div>
 </nav>
 
@@ -307,6 +308,35 @@
 <div id="tooltip" role="status" hidden></div>
 </main>
 
+<dialog id="dataView" aria-labelledby="dataViewTitle" aria-describedby="dataViewLead">
+  <button type="button" id="dataViewClose" aria-label="Datenansicht schliessen">&times;</button>
+  <p class="dataEyebrow">Barrierefreie Datenansicht</p>
+  <h2 id="dataViewTitle">Diese Ebene als Daten erkunden</h2>
+  <p id="dataViewLead">Die vollständige Ebene lässt sich ohne Karte durchsuchen. Werte behalten dieselbe Beweisklasse und Quelle wie in der visuellen Ansicht.</p>
+  <label for="dataSearch">Namen, Kennungen und Beweisklassen durchsuchen</label>
+  <input id="dataSearch" type="search" autocomplete="off" placeholder="Diese Ebene durchsuchen">
+  <div class="dataTableWrap" tabindex="0">
+    <table>
+      <caption id="dataCaption"></caption>
+      <thead><tr>
+        <th scope="col">Objekt</th>
+        <th scope="col">Wert</th>
+        <th scope="col">Beweisklasse</th>
+        <th scope="col">Herkunft</th>
+      </tr></thead>
+      <tbody id="dataRows"></tbody>
+    </table>
+  </div>
+  <div class="dataFooter">
+    <p id="dataStatus" role="status" aria-live="polite"></p>
+    <div class="dataPager">
+      <button type="button" id="dataPrev">Zurück</button>
+      <button type="button" id="dataNext">Weiter</button>
+    </div>
+    <a href="sources.html">Quellen und Downloads</a>
+  </div>
+</dialog>
+
 <dialog id="intro" aria-labelledby="introTitle" aria-describedby="introLead">
   <button type="button" id="introClose" aria-label="Projektübersicht schliessen">&times;</button>
   <div class="introTop">
@@ -361,8 +391,8 @@
   <p><strong>Flüsse</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), nach der HydroRIVERS-Quellenschwelle von 10&nbsp;km&#178; oder 0,1&nbsp;m&#179;/s bei 5&nbsp;km&#178; gefiltert, mit aktuellem gültigem Abfluss aus dem BAFU-Messnetz über LINDAS. <strong>Qualität</strong> BAFU NAWA TREND. <strong>Eis</strong> GLAMOS, sechs datierte Inventare. <strong>Speicher</strong> BFE. <strong>Restwasser und Wassernutzung</strong> BAFU und BFE. <strong>Namen</strong> swissNAMES3D, swisstopo. Jede Quelle, ihre Lizenz und ihr Datenstand stehen auf der <a href="sources.html">Quellenseite</a>. Gemessenes und modelliertes Wasser, keine Prognose.</p>
 </footer>
 
-<script src="../fmt.js?v=20260821"></script>
+<script src="../fmt.js?v=20260822"></script>
 <script src="../gschg31.js?v=20260821"></script>
-<script src="../app.js?v=20260821b"></script>
+<script src="../app.js?v=20260822"></script>
 </body>
 </html>

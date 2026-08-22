@@ -21,15 +21,15 @@ primary law and reproducible methods that can support legal action when needed.
 | Layer | Evidence |
 |---|---|
 | River flow | Current BAFU discharge where a station passes the live-data rules; indicative estimates elsewhere |
-| Against normal | Current discharge divided by a modelled annual mean; not a drought index |
+| Relative to mean | Current discharge divided by a modelled annual mean; not a drought index |
 | Temperature | Current BAFU station readings |
-| Water quality | All 1'543'996 results in the current prepared NAWA TREND release, reduced to station-year summaries with exact laboratory rows on demand |
-| Reservoirs | 225 dam structures and a separate weekly regional energy-storage series |
+| Water quality | The current prepared NAWA TREND release, reduced to station-year summaries with exact laboratory rows on demand |
+| Reservoirs | Federally supervised dam structures and a separate weekly regional energy-storage series |
 | Ice | Glacier area in six inventories: 1850, 1931, 1973, 2010, 2016 and 2023 |
 | Residual flow | BAFU Q347 points and an illustrative Art. 31(1) calculation |
 | Water use | Federal registers of hydropower, abstractions, nuclear sites and treatment plants |
 | Wetlands | Five federal inventories of protected wetlands |
-| Water sources | Groundwater bodies, headwaters, sub-catchments and drinking-water protection zones |
+| Sources and groundwater | Groundwater bodies, headwaters, sub-catchments and drinking-water protection zones |
 | Monitoring duties | Federal duties and a 26-canton public-evidence audit; evidence and freshness, not a compliance score |
 
 This is not a forecast, a finding of breach or legal advice. It is also not a
@@ -86,6 +86,9 @@ Please use GitHub issues for data defects, source updates and research proposals
 Pull requests should keep the five language editions and the release checks in
 sync.
 
+The [roadmap](ROADMAP.md) defines the evidence needed to extend this foundation
+through the full water cycle and into obligation-level monitoring and enforcement.
+
 ## Run locally
 
 The publication is static and has no application backend.
@@ -105,18 +108,21 @@ view.
 ## Verify a release
 
 ```bash
-node scripts/verify-site.mjs
+npm ci
+npm test
 ```
 
 The release gate checks all five languages, links, metadata, accessibility,
 translations, JavaScript and JSON syntax, dataset identities, units, time-series
-order, published counts and artifact hashes.
+order, data-derived publication facts, semantic invariants and artifact hashes.
 
 ## Rebuild data
 
-The build uses Bash, curl, unzip, Node 22 and mapshaper 0.7.53.
+The build uses Bash, curl, unzip and Node 22. Exact JavaScript and map-processing
+dependencies are locked in `package-lock.json`.
 
 ```bash
+npm ci
 bash build/00-sources.sh
 node build/01-stations.mjs
 node build/02-network.mjs
@@ -134,6 +140,7 @@ node build/17-quality.mjs
 node build/18-monitoring.mjs
 node build/08-vintage.mjs
 python3 build/14-pages.py build
+node build/15-social-card.mjs
 node build/16-provenance.mjs
 node scripts/verify-site.mjs
 ```
@@ -146,12 +153,22 @@ each holder and term.
 
 ## Publication
 
-GitHub Actions verifies every push to `main`. A weekly job refreshes federal
-stations, reservoirs, water quality, cantonal deliveries, wetlands and source
-dates, rebuilds provenance, validates the refreshed artifact, and publishes only
-after all checks pass. The curated legal-evidence audit changes only after its
-primary canton records are reviewed again.
+GitHub Actions verifies every pull request and every push to `main`. A weekly job
+builds federal and cantonal updates as a downloadable review patch. It never
+writes directly to `main`. A maintainer applies the patch on a branch, reviews
+the source and data diff, and opens a pull request. Deployment runs only for a
+validated `main` revision and binds that revision into the deployed provenance.
+The curated legal-evidence audit changes only after its primary records are
+reviewed again.
 
 The repository is the publication record. A map URL stores its layer, centre and
 zoom so a view can be cited, but live observations still need their station time
 and underlying BAFU source.
+
+## Licence and governance
+
+Code is available under the [MIT License](LICENSE). Original explanatory content
+is available under [CC BY 4.0](CONTENT-LICENSE.md). Upstream datasets retain their
+own terms and are never relicensed here. See [GOVERNANCE.md](GOVERNANCE.md) for
+review and decision rules, [SECURITY.md](SECURITY.md) for private vulnerability
+reports, and [CITATION.cff](CITATION.cff) for citation metadata.

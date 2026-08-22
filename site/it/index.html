@@ -6,6 +6,8 @@
      through touch-action:none, so pinching the page still works for anyone who
      needs the text bigger. A map is not a reason to break zoom. -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://wms.geo.admin.ch https://geodienste.ch; connect-src 'self' https://lindas.admin.ch https://data.bafu.admin.ch https://api3.geo.admin.ch https://wms.geo.admin.ch https://geodienste.ch; form-action 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Acqua e ghiaccio in Svizzera — una base misurata</title>
 <meta name="description" content="Corsi d’acqua svizzeri in tempo reale, qualità dell’acqua per stazione, storia degli invasi e sei inventari glaciali — con fonte, data e classe di prova esplicite.">
 <meta name="robots" content="index,follow">
@@ -23,20 +25,18 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Acqua e ghiaccio in Svizzera">
 <meta property="og:url" content="https://opengovclimate.ch/riverflow/it/">
-<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg?v=20260822">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="La rete idrografica svizzera accanto al titolo Acqua e ghiaccio in Svizzera, con il numero di tratti, dighe e corpi glaciali.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="../tokens.css?v=20260821b">
-<link rel="stylesheet" href="../style.css?v=20260821c">
+<link rel="stylesheet" href="../fonts.css?v=20260821">
+<link rel="stylesheet" href="../tokens.css?v=20260822">
+<link rel="stylesheet" href="../style.css?v=20260822b">
 <script src="../i18n.js?v=20260821"></script>
 <script src="../i18n-data.js?v=20260821"></script>
-<script src="../i18n-map.js?v=20260821"></script>
+<script src="../i18n-map.js?v=20260822"></script>
 <script src="../theme.js?v=20260821"></script>
 </head>
 <body class="viz-root" data-layer="flow">
@@ -94,13 +94,14 @@
     <button type="button" id="zoomOut" aria-label="Riduci" title="Riduci"><span aria-hidden="true">−</span></button>
   </div>
   <button type="button" id="zoomFit" aria-label="Mostra tutta la Svizzera" title="Mostra tutta la Svizzera">Adatta</button>
+  <button type="button" id="dataViewOpen" aria-label="Esplorare questo livello come dati" title="Esplorare questo livello come dati">Dati</button>
 </nav>
 
 <nav id="modes" aria-label="Livello">
   <div class="modeGroup" role="group" aria-label="L’acqua adesso">
     <span class="modeGroupLabel">Adesso</span>
     <button type="button" data-mode="flow" class="on">Portata</button>
-    <button type="button" data-mode="normal">Contro la norma</button>
+    <button type="button" data-mode="normal">Rispetto alla media</button>
     <button type="button" data-mode="temp">Temperatura</button>
   </div>
   <div class="modeGroup" role="group" aria-label="Qualità dell’acqua">
@@ -109,18 +110,18 @@
   </div>
   <div class="modeGroup" role="group" aria-label="Acqua immagazzinata">
     <span class="modeGroupLabel">Immagazzinata</span>
-    <button type="button" data-mode="res" id="modeRes" disabled>Bacini</button>
-    <button type="button" data-mode="ice" id="modeIce" disabled>Ghiaccio</button>
+    <button type="button" data-mode="res" id="modeRes">Bacini</button>
+    <button type="button" data-mode="ice" id="modeIce">Ghiaccio</button>
   </div>
   <div class="modeGroup" role="group" aria-label="Acqua e diritto">
     <span class="modeGroupLabel">Diritto</span>
-    <button type="button" data-mode="residual" id="modeResidual" disabled>Deflusso residuale</button>
-    <button type="button" data-mode="use" id="modeUse" disabled>Usi dell’acqua</button>
-    <button type="button" data-mode="wet" id="modeWet" disabled>Zone umide</button>
+    <button type="button" data-mode="residual" id="modeResidual">Deflusso residuale</button>
+    <button type="button" data-mode="use" id="modeUse">Usi dell’acqua</button>
+    <button type="button" data-mode="wet" id="modeWet">Zone umide</button>
   </div>
   <div class="modeGroup" role="group" aria-label="Da dove viene l’acqua">
     <span class="modeGroupLabel">Origine</span>
-    <button type="button" data-mode="source">Risorse idriche</button>
+    <button type="button" data-mode="source">Sorgenti e falde</button>
   </div>
 </nav>
 
@@ -307,6 +308,35 @@
 <div id="tooltip" role="status" hidden></div>
 </main>
 
+<dialog id="dataView" aria-labelledby="dataViewTitle" aria-describedby="dataViewLead">
+  <button type="button" id="dataViewClose" aria-label="Chiudere la vista dati">&times;</button>
+  <p class="dataEyebrow">Vista dati accessibile</p>
+  <h2 id="dataViewTitle">Esplorare questo livello come dati</h2>
+  <p id="dataViewLead">Cercare nell’intero livello senza usare la carta. I valori mantengono la stessa classe di prova e la stessa fonte della vista grafica.</p>
+  <label for="dataSearch">Cercare nomi, identificatori e classi di prova</label>
+  <input id="dataSearch" type="search" autocomplete="off" placeholder="Cercare in questo livello">
+  <div class="dataTableWrap" tabindex="0">
+    <table>
+      <caption id="dataCaption"></caption>
+      <thead><tr>
+        <th scope="col">Oggetto</th>
+        <th scope="col">Valore</th>
+        <th scope="col">Prova</th>
+        <th scope="col">Origine</th>
+      </tr></thead>
+      <tbody id="dataRows"></tbody>
+    </table>
+  </div>
+  <div class="dataFooter">
+    <p id="dataStatus" role="status" aria-live="polite"></p>
+    <div class="dataPager">
+      <button type="button" id="dataPrev">Indietro</button>
+      <button type="button" id="dataNext">Avanti</button>
+    </div>
+    <a href="sources.html">Fonti e download</a>
+  </div>
+</dialog>
+
 <dialog id="intro" aria-labelledby="introTitle" aria-describedby="introLead">
   <button type="button" id="introClose" aria-label="Chiudi la sintesi del progetto">&times;</button>
   <div class="introTop">
@@ -361,8 +391,8 @@
   <p><strong>Corsi d’acqua</strong> HydroRIVERS v1.0 (HydroSHEDS, WWF), filtrato a 5&nbsp;km&#178; dopo la propria soglia fonte di 10&nbsp;km&#178; o 0,1&nbsp;m&#179;/s, con portata attuale valida della rete UFAM tramite LINDAS. <strong>Qualità</strong> UFAM NAWA TREND. <strong>Ghiaccio</strong> GLAMOS, sei inventari datati. <strong>Invasi</strong> UFE. <strong>Deflussi residuali e usi</strong> UFAM e UFE. <strong>Nomi</strong> swissNAMES3D, swisstopo. Ogni fonte, licenza e stato dei dati è nella <a href="sources.html">pagina delle fonti</a>. Acqua misurata e modellata, non una previsione.</p>
 </footer>
 
-<script src="../fmt.js?v=20260821"></script>
+<script src="../fmt.js?v=20260822"></script>
 <script src="../gschg31.js?v=20260821"></script>
-<script src="../app.js?v=20260821b"></script>
+<script src="../app.js?v=20260822"></script>
 </body>
 </html>

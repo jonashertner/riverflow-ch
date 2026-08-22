@@ -1,87 +1,94 @@
-name: Publish site
+name: Verify and publish
+
 on:
+  pull_request:
   push:
     branches: [main]
   schedule:
-    # Monday 05:40 UTC. BFE posts the reservoir filling level for the previous
-    # week early in the week, and the vintage audit re-reads every federal
-    # layer's Datenstand at the same time, so the page never claims a currency
-    # it no longer has.
+    # Monday 05:40 UTC, after the usual weekly reservoir publication.
     - cron: '40 5 * * 1'
   workflow_dispatch:
+    inputs:
+      refresh_data:
+        description: Build a review artifact from current upstream data
+        type: boolean
+        default: false
+
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
+
 concurrency:
-  group: pages
+  group: riverflow-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22'
+          cache: npm
+      - run: npm ci
       - name: Verify the complete publication surface
-        run: node scripts/verify-site.mjs
+        run: npm test
 
-  # The weekly filling series is baked at build time because the BFE file allows
-  # only map.geo.admin.ch to read it from a browser. Baked data goes stale in a
-  # way live data cannot, so it is rebuilt on a schedule and the result is
-  # committed: the repo, not just the deployment, stays the record.
-  refresh:
-    if: github.event_name != 'push'
+  refresh-review:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.refresh_data)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22'
-      - name: Refresh federal stations, reservoirs, quality, cantonal dates, wetlands and source states
-        id: build
+          cache: npm
+      - run: npm ci
+      - name: Refresh reviewable federal and cantonal artifacts
+        run: npm run refresh
+      - name: Check primary external links
+        run: npm run check:links
+      - name: Record the candidate patch
+        id: diff
+        shell: bash
         run: |
-          node build/01-stations.mjs
-          node build/06-reservoirs.mjs
-          node build/11-cantons.mjs
-          node build/12-wetlands.mjs
-          node build/17-quality.mjs
-          node build/18-monitoring.mjs
-          node build/08-vintage.mjs
-          node build/16-provenance.mjs
-          node scripts/verify-site.mjs
-      - name: Commit if anything moved
-        if: success()
-        run: |
-          if git diff --quiet -- site/data; then
-            echo "no change this week"
-            exit 0
+          if git diff --quiet -- site build/pages; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No upstream publication change detected." >> "$GITHUB_STEP_SUMMARY"
+          else
+            git diff --binary -- site build/pages > riverflow-refresh.patch
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "A reviewed data refresh is available as a workflow artifact. Apply it on a branch and open a pull request; this workflow never writes to main." >> "$GITHUB_STEP_SUMMARY"
           fi
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/data
-          git commit -m "Weekly refresh: stations, reservoirs, quality and source states"
-          git push
-      - name: Say so if the refresh failed
-        if: failure()
-        run: |
-          echo "::error::The weekly data refresh or evidence validation failed. Nothing will deploy."
+      - name: Upload the review patch
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: riverflow-refresh-${{ github.run_id }}
+          path: riverflow-refresh.patch
+          if-no-files-found: error
+          retention-days: 30
+
   deploy:
-    needs: [refresh, validate]
-    # Runs on a push too, where refresh is skipped.
-    if: always() && needs.validate.result == 'success' && (needs.refresh.result == 'success' || needs.refresh.result == 'skipped')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Bind the deployed provenance to this source revision
+        env:
+          PUBLICATION_REVISION: ${{ github.sha }}
+        run: node build/16-provenance.mjs
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: site
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0

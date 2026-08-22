@@ -183,7 +183,7 @@ def load(lang):
 
 
 # --- the mechanical half ---------------------------------------------------
-ASSETS = ('tokens.css', 'style.css', 'site.css', 'favicon.svg', 'i18n.js',
+ASSETS = ('fonts.css', 'tokens.css', 'style.css', 'site.css', 'favicon.svg', 'i18n.js',
           'i18n-data.js', 'i18n-map.js', 'theme.js', 'fmt.js', 'gschg31.js',
           'site.js', 'app.js')
 BASE = 'https://opengovclimate.ch/riverflow/'

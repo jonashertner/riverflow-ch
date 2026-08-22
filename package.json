@@ -1,0 +1,27 @@
+{
+  "name": "riverflow-ch",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An evidence-led map of water, ice, wetlands and water law in Switzerland.",
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/verify-site.mjs && node scripts/check-performance-budget.mjs",
+    "verify": "node scripts/verify-site.mjs",
+    "check:links": "node scripts/check-external-links.mjs",
+    "build:pages": "python3 build/14-pages.py build",
+    "build:social": "node build/15-social-card.mjs",
+    "build:provenance": "node build/16-provenance.mjs",
+    "release": "npm run build:pages && npm run build:social && npm run build:provenance && npm test",
+    "refresh": "node build/01-stations.mjs && node build/06-reservoirs.mjs && node build/11-cantons.mjs && node build/12-wetlands.mjs && node build/17-quality.mjs && node build/18-monitoring.mjs && node build/08-vintage.mjs && npm run release"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "mapshaper": "0.6.113",
+    "sharp": "0.35.3"
+  },
+  "overrides": {
+    "adm-zip": "0.6.0"
+  }
+}

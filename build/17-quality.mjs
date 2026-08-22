@@ -12,6 +12,7 @@
 // remark says that every constituent sample was below its determination limit;
 // those are counted as censored too. Missing values remain missing.
 import fs from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 
 const ROOT = 'https://data.bafu.admin.ch';
 const PREFIX = 'water/nawa-trend/';
@@ -33,12 +34,19 @@ const objects = [...listing.matchAll(/<Contents>([\s\S]*?)<\/Contents>/g)].map(m
 const versions = [...new Set(objects.map(o => /\/v(\d{4}-\d{2}-\d{2})\//.exec(o.key)?.[1]).filter(Boolean))].sort();
 const version = versions.at(-1);
 if (!version) throw new Error('NAWA listing contains no version');
+const versionObjects = objects
+  .filter(o => o.key.startsWith(`${PREFIX}v${version}/`))
+  .sort((a, b) => a.key.localeCompare(b.key));
+const sourceFingerprint = createHash('sha256')
+  .update(JSON.stringify(versionObjects.map(({ key, modified, bytes }) => [key, modified, bytes])))
+  .digest('hex');
 
 if (!FORCE) {
   try {
     const old = JSON.parse(await fs.readFile(OUT, 'utf8'));
-    if (old.meta?.schema === SCHEMA && old.meta?.sourceVersion === `v${version}`) {
-      console.log(`NAWA TREND v${version}: quality.json is already current`);
+    if (old.meta?.schema === SCHEMA && old.meta?.sourceVersion === `v${version}` &&
+        old.meta?.sourceFingerprint === sourceFingerprint) {
+      console.log(`NAWA TREND v${version}: quality.json matches the current object listing`);
       process.exit(0);
     }
   } catch { /* first build */ }
@@ -259,6 +267,7 @@ const modified = dataObjects.map(o => o.modified).filter(Boolean).sort().at(-1) 
 const out = {
   meta: {
     schema: SCHEMA, source: 'BAFU NAWA TREND', sourceVersion: `v${version}`, sourceModified: modified,
+    sourceFingerprint,
     sourceFirst, sourceLast, years, rows: totalRows, stations: stations.size,
     locatedStations: [...stations.values()].filter(s => s.x !== null).length,
     parameters: params.length, featured,

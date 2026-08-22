@@ -37,7 +37,7 @@ function readPalette() {
   const v = n => cs.getPropertyValue('--' + n).trim();
   // Discharge: one hue stepped by lightness, quiet end first.
   PAL.seq  = [700, 600, 500, 450, 400, 300, 200, 100].map(k => v('seq-' + k));
-  // Against normal: one hue below the mean, one above, neutral at the mean. The
+  // Relative to the mean: one hue below, one above, neutral at the mean. The
   // middle is quiet on purpose, because a river at its long-term mean is not news.
   PAL.div  = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(k => v('div-' + k));
   // Water temperature, 0 to 25 C. ONE hue. The old ramp ran blue-green-yellow-red,
@@ -236,16 +236,11 @@ async function load() {
   applyHash();
   requestAnimationFrame(frame);
   if (wantMode && setMode(wantMode)) wantMode = null;
-  // None of these is needed to read a gauge, so none of them holds up the water.
-  loadIce().then(loadIceHistory);
-  loadUsers();
-  loadReservoirs();
-  loadResidual();
-  loadWetlands();
-  loadVintage();
-  loadNames();
-  loadCantons();
   await refresh();
+  // Names and source ages improve every layer but do not carry its primary
+  // quantity. Fill them only after the live reading has had the main thread.
+  const idle = window.requestIdleCallback ?? (fn => setTimeout(fn, 250));
+  idle(() => { loadVintage(); loadNames(); });
 }
 
 // The ice arrives after the water. Until it does the Ice button stays disabled,
@@ -291,8 +286,6 @@ async function loadIce() {
     for (const x of g.glaciers) x.path = toPath(x.rings);
     g.byId = new Map(g.length.map(l => [l.id, l]));
     glaciers = g;
-    document.getElementById('modeIce').disabled = false;
-    if (wantMode === 'ice' && setMode('ice')) wantMode = null;
     document.getElementById('iceTotals').innerHTML = T('m.iceTotals', {
       pc: g.past.count, pk: nf(g.past.km2), py: g.past.year,
       nc: g.now.count, nk: nf(g.now.km2), ny: g.now.year,
@@ -318,8 +311,6 @@ async function loadUsers() {
     for (const p of u.hydro) { p.t = D(p.t); p.s = D(p.s); }
     for (const p of u.npp) { p.st = D(p.st); p.fix = D(p.fix); }
     users = u;
-    document.getElementById('modeUse').disabled = false;
-    if (wantMode === 'use' && setMode('use')) wantMode = null;
     const withQ = u.hydro.filter(h => h.q !== null).length;
     document.getElementById('useCount').innerHTML = T('m.useCount', {
       ab: nf(u.abstraction.length), hy: u.hydro.length, q: withQ,
@@ -809,6 +800,7 @@ function setQualityParameter(i) {
   qualityParam = i;
   document.getElementById('qualityParameter').value = String(i);
   qualityLegend();
+  if (dataView.open) renderDataView();
   if (selected?.kind === 'quality') select(selected, false);
   invalidate();
 }
@@ -817,6 +809,7 @@ function setQualityYear(y) {
   qualityYear = y;
   document.getElementById('qualityYear').value = String(y);
   qualityLegend();
+  if (dataView.open) renderDataView();
   if (selected?.kind === 'quality') select(selected, false);
   invalidate();
 }
@@ -903,13 +896,19 @@ async function qualitySamples(s, p) {
   const key = `${s.id}\u0000${p.de}\u0000${p.unit}`;
   if (qualitySampleCache.has(key)) return qualitySampleCache.get(key);
   const promise = (async () => {
-    const query = `query QualitySamples($station:String!,$parameter:String!,$unit:String!){water{nawa_trend{data(where:{stationId:{_eq:$station} measuredParameter:{_eq:$parameter} unit:{_eq:$unit}},limit:5000){stationId stationName samplingLocation samplingType naquaSamplingDate naquaSamplingTime nawaSamplingStartTs nawaSamplingEndTs nawaSamplingDurationHours measuredParameter measuredValue determinationLimit nawaDetectionLimit unit measurementUncertaintyAbsoluteRelative measurementUncertainty deviceMethod measuredValueRemark}}}}`;
-    const r = await fetch(quality.meta.api, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, variables: { station: s.id, parameter: p.de, unit: p.unit } }) });
-    if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-    const j = await r.json();
-    if (j.errors?.length) throw new Error(j.errors.map(x => x.message).join('; '));
-    return j.data?.water?.nawa_trend?.data ?? [];
+    const query = 'query QualitySamples($station:String!,$parameter:String!,$unit:String!,$offset:Int!,$limit:Int!){water{nawa_trend{data(where:{stationId:{_eq:$station} measuredParameter:{_eq:$parameter} unit:{_eq:$unit}},offset:$offset,limit:$limit){stationId stationName samplingLocation samplingType naquaSamplingDate naquaSamplingTime nawaSamplingStartTs nawaSamplingEndTs nawaSamplingDurationHours measuredParameter measuredValue determinationLimit nawaDetectionLimit unit measurementUncertaintyAbsoluteRelative measurementUncertainty deviceMethod measuredValueRemark}}}}';
+    const rows = [], limit = 1000;
+    for (let offset = 0; offset < 50_000; offset += limit) {
+      const r = await fetch(quality.meta.api, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, variables: { station: s.id, parameter: p.de, unit: p.unit, offset, limit } }) });
+      if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+      const j = await r.json();
+      if (j.errors?.length) throw new Error(j.errors.map(x => x.message).join('; '));
+      const page = j.data?.water?.nawa_trend?.data ?? [];
+      rows.push(...page);
+      if (page.length < limit) return rows;
+    }
+    throw new Error(T('m.qExactTooMany'));
   })();
   qualitySampleCache.set(key, promise);
   try { return await promise; } catch (e) { qualitySampleCache.delete(key); throw e; }
@@ -1962,6 +1961,41 @@ window.__diag = () => {
 // One control, seven readings of the same country. Switching a layer must never
 // change a number; it changes which number the colour carries.
 const OWNS = { glacier: 'ice', use: 'use', dam: 'res', residual: 'residual', quality: 'quality' };
+const layerLoads = new Map();
+const LAYER_READY = {
+  quality: () => !!quality,
+  res: () => !!reservoirs,
+  ice: () => !!glaciers && !!iceFrames,
+  residual: () => !!residual,
+  use: () => !!users,
+  wet: () => !!wetlands,
+};
+const LAYER_LOAD = {
+  quality: loadQuality,
+  res: loadReservoirs,
+  ice: async () => { await loadIce(); if (glaciers) await loadIceHistory(); },
+  residual: loadResidual,
+  use: loadUsers,
+  wet: loadWetlands,
+};
+function requestLayerData(m, btn) {
+  if (!LAYER_LOAD[m] || LAYER_READY[m]()) return false;
+  wantMode = m;
+  if (!layerLoads.has(m)) {
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    const task = Promise.resolve(LAYER_LOAD[m]()).finally(() => {
+      layerLoads.delete(m);
+      btn.disabled = false;
+      btn.removeAttribute('aria-busy');
+      if (LAYER_READY[m]()) {
+        if (wantMode === m && setMode(m)) wantMode = null;
+      } else if (wantMode === m) wantMode = null;
+    });
+    layerLoads.set(m, task);
+  }
+  return true;
+}
 function setMode(m) {
   // Returns whether the layer was actually shown. A layer whose data is still on
   // the wire is not a layer that is empty, and the caller has to be able to tell
@@ -1979,13 +2013,10 @@ function setMode(m) {
     }
     return false;
   }
-  // The complete chemical record is the largest optional file. Keep the live
-  // map light and ask for it only when the reader asks the quality question.
-  if (m === 'quality' && !quality) {
-    wantMode = 'quality';
-    loadQuality();
-    return false;
-  }
+  // Optional evidence is loaded only when its question is asked. This keeps the
+  // initial map small without making an unavailable layer look empty.
+  if (requestLayerData(m, btn)) return false;
+  if (m === 'source') loadCantons();
   mode = m;
   // The sheets take their accent from the layer, so a checkbox or a focus ring in
   // the legend is in the colour of the thing the legend is about.
@@ -2011,6 +2042,7 @@ function setMode(m) {
     nav.scrollTo({ left: btn.offsetLeft - (nav.clientWidth - btn.offsetWidth) / 2, behavior: 'smooth' });
   }
   setRibbon(m);
+  if (dataView.open) renderDataView();
   clearFlow();
   dirty = true;
   return true;
@@ -2034,6 +2066,139 @@ for (const b of document.querySelectorAll('#modes button')) {
     if (modeNav.scrollLeft !== before) event.preventDefault();
   }, { passive: false });
 })();
+
+// ---- accessible data view --------------------------------------------------
+// Canvas is the visual instrument, not the only route to its evidence. This
+// dialog exposes the complete active layer as ordinary table semantics with the
+// same values, evidence classes and sources.
+const dataView = document.getElementById('dataView');
+const dataSearch = document.getElementById('dataSearch');
+const dataBody = document.getElementById('dataRows');
+const dataPrev = document.getElementById('dataPrev');
+const dataNext = document.getElementById('dataNext');
+const DATA_PAGE = 50;
+let dataPage = 0;
+let dataReturnFocus = null;
+
+function reachEvidence(r) {
+  if (r.basis === 'measured') return T('m.basisMeasured');
+  if (r.basis === 'none') return T('m.basisNone');
+  return T('m.dataEstimated');
+}
+function dataRowsForMode() {
+  const missing = T('m.dataNoValue');
+  if (mode === 'flow' || mode === 'normal') return reaches.map(r => {
+    const nm = nameOf(r);
+    const current = r.basis !== 'none' && Number.isFinite(r.live);
+    const value = !current ? T('m.dataNoCurrent')
+      : mode === 'normal' && r.mean > 0 ? nfd(100 * r.live / r.mean, 0) + ' %'
+      : fmtQ(r.live) + ' m³/s';
+    return [nm?.n || T('m.dataReach', { id: r.id }), value, reachEvidence(r),
+      r.basis === 'measured' ? 'BAFU · LINDAS' : 'HydroRIVERS · BAFU'];
+  });
+  if (mode === 'temp') return stations.map(s => [
+    s.name + ' · ' + s.id,
+    Number.isFinite(s.obs?.temp) ? nfd(s.obs.temp, 1) + ' °C' : missing,
+    Number.isFinite(s.obs?.temp) ? T('m.dataMeasured') : T('m.dataNoCurrent'),
+    'BAFU · LINDAS',
+  ]);
+  if (mode === 'quality' && quality) {
+    const p = quality.parameters[qualityParam], unit = qualityUnit(p);
+    return quality.stations.map(s => {
+      const a = qualityCell(s);
+      const value = !a ? T('m.qNotSampled', { y: qualityYear })
+        : a[6] === null ? T('m.qAllBelow', { n: a[4], total: a[2] - a[5] })
+        : qualityNumber(a[6]) + (unit ? ' ' + unit : '') + ' · ' + T('m.qMedian');
+      return [s.name + (s.water ? ' · ' + s.water : '') + ' · ' + s.id, value,
+        a ? T('m.dataMeasured') : T('m.dataNoValue'), 'BAFU · NAWA TREND · ' + qualityYear];
+    });
+  }
+  if (mode === 'res' && reservoirs) {
+    const levels = resLevels(resWeekIndex());
+    return reservoirs.dams.map(d => {
+      const fill = isPowerDam(d) ? levels[d.g] : null;
+      return [d.n, nf(d.v) + ' mio m³' + (fill === null ? '' : ' · ' + nfd(100 * fill, 1) + ' % ' + RESNAME[d.g]),
+        T('m.dataRegister'), 'BFE · ' + (fill === null ? T('m.dataCapacity') : fmtDate(levels.d))];
+    });
+  }
+  if (mode === 'ice' && glaciers) return glaciers.glaciers.map(g => [
+    g.n || T('m.unnamedGlacier', { id: g.id }),
+    nfd(g.a, 2) + ' km² · ' + (g.y ?? glaciers.now.year),
+    T('m.dataSurvey'), 'GLAMOS · SGI2023',
+  ]);
+  if (mode === 'residual' && residual) return residual.points.map(p => [
+    (p.w || T('m.unnamedWater')) + (p.pl ? ' · ' + p.pl : '') + ' · ' + p.id,
+    'Q347 ' + (p.q === null ? missing : lps(p.q)) + ' · Art. 31(1) ' + (p.min === null ? missing : lps(p.min)),
+    residualMeasured(p) ? T('m.dataMeasuredModelled') : T('m.dataModelled'),
+    'BAFU · ' + (RESIDUAL_SRC[p.src] ?? T('m.srcNone')),
+  ]);
+  if (mode === 'use' && users) return ['hydro', 'abstraction', 'npp', 'ara'].flatMap(kind =>
+    users[kind].map(p => {
+      const value = kind === 'hydro' && p.q !== null ? fmtQ(p.q) + ' m³/s ' + T('m.dataDerived')
+        : kind === 'ara' && p.e ? T('m.pe', { n: nf(p.e) }) : missing;
+      return [p.n || p.w || USE[kind].label + ' · ' + (p.r ?? ''), value,
+        T('m.dataRegister'), USE[kind].label + ' · BAFU/BFE'];
+    }));
+  if (mode === 'wet' && wetlands) return wetlands.objects.map(o => [
+    o.n || WETCLASS[o.k].label + ' · ' + o.num,
+    o.a >= 0.01 ? nfd(o.a, 2) + ' km²' : nfd(o.a * 100, 2) + ' ha',
+    T('m.dataRegister'), 'BAFU · ' + wetlands.inventories[o.k].sr,
+  ]);
+  if (mode === 'source' && vintage) {
+    const keys = new Set(['groundwater', 'catchments', 'zones', 'names']);
+    return vintage.sources.filter(s => keys.has(s.key)).map(s => [
+      D(s.name), s.datenstand ? fmtDate(s.datenstand) : missing, D(s.cls), s.holder,
+    ]);
+  }
+  return [];
+}
+
+function renderDataView() {
+  if (!dataView.open) return;
+  document.getElementById('dataViewTitle').textContent = T('m.dataTitle', { layer: LGTITLE[mode] });
+  document.getElementById('dataViewLead').textContent = T('m.dataLead');
+  const query = dataSearch.value.trim().toLocaleLowerCase(LANG);
+  const rows = dataRowsForMode()
+    .filter(row => !query || row.join(' ').toLocaleLowerCase(LANG).includes(query))
+    .sort((a, b) => a[0].localeCompare(b[0], LANG, { numeric: true, sensitivity: 'base' }));
+  const pages = Math.max(1, Math.ceil(rows.length / DATA_PAGE));
+  dataPage = Math.min(dataPage, pages - 1);
+  const from = dataPage * DATA_PAGE, shown = rows.slice(from, from + DATA_PAGE);
+  dataBody.replaceChildren();
+  if (!shown.length) {
+    const tr = document.createElement('tr'), td = document.createElement('td');
+    td.colSpan = 4; td.textContent = T('m.dataEmpty'); tr.appendChild(td); dataBody.appendChild(tr);
+  } else for (const row of shown) {
+    const tr = document.createElement('tr');
+    for (const value of row) {
+      const td = document.createElement('td');
+      td.textContent = value || '—';
+      tr.appendChild(td);
+    }
+    dataBody.appendChild(tr);
+  }
+  document.getElementById('dataCaption').textContent = T('m.dataCaption', { layer: LGTITLE[mode], n: nf(rows.length) });
+  document.getElementById('dataStatus').textContent = rows.length
+    ? T('m.dataStatus', { from: nf(from + 1), to: nf(from + shown.length), n: nf(rows.length) })
+    : T('m.dataStatusEmpty');
+  dataPrev.disabled = dataPage === 0;
+  dataNext.disabled = dataPage >= pages - 1;
+}
+
+document.getElementById('dataViewOpen').onclick = async event => {
+  dataReturnFocus = event.currentTarget;
+  dataPage = 0;
+  dataSearch.value = '';
+  dataView.showModal();
+  if (mode === 'source' && !vintage) await loadVintage();
+  renderDataView();
+  dataSearch.focus();
+};
+document.getElementById('dataViewClose').onclick = () => dataView.close();
+dataView.addEventListener('close', () => dataReturnFocus?.focus());
+dataSearch.addEventListener('input', () => { dataPage = 0; renderDataView(); });
+dataPrev.onclick = () => { dataPage--; renderDataView(); };
+dataNext.onclick = () => { dataPage++; renderDataView(); };
 
 // ---- Art. 31(1) GSchG -------------------------------------------------------
 // The statute states a base figure at the foot of each band and a rate above it.
@@ -2074,8 +2239,6 @@ async function loadReservoirs() {
     // biggest last, so a 385 mio m3 disc is never hidden under a farm pond
     j.dams.sort((a, b) => a.v - b.v);
     reservoirs = j;
-    document.getElementById('modeRes').disabled = false;
-    if (wantMode === 'res' && setMode('res')) wantMode = null;
     resLegend();
   } catch (e) {
     document.getElementById('resTotals').textContent = T('m.failRes', { e: e.message });
@@ -2207,8 +2370,6 @@ async function loadResidual() {
     for (const p of j.points) { p.wx = mercX(p.x); p.wy = mercY(p.y); p.kind = 'residual'; }
     j.points.sort((a, b) => (a.min ?? 0) - (b.min ?? 0));
     residual = j;
-    document.getElementById('modeResidual').disabled = false;
-    if (wantMode === 'residual' && setMode('residual')) wantMode = null;
     const c = j.counts;
     document.getElementById('residualCount').innerHTML = T('m.residualCount', {
       total: nf(c.total), gauged: nf(c.bySource.q8493 + c.bySource.qp), dec: nf(c.bySource.q8493),
@@ -2390,8 +2551,6 @@ async function loadWetlands() {
       for (const id of o.h) if (!alluvialByReach.has(id)) alluvialByReach.set(id, o);
     }
     wetlands = w;
-    document.getElementById('modeWet').disabled = false;
-    if (wantMode === 'wet' && setMode('wet')) wantMode = null;
     wetlandNote();
   } catch (e) {
     const el = document.getElementById('wetCount');
