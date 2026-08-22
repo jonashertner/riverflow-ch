@@ -36,6 +36,15 @@ if (themeControl) workspaceUtility.append(themeControl);
 workspaceHead.append(workspaceUtility);
 if (siteNav) workspaceHead.append(siteNav);
 
+// Detail reading occupies the whole evidence surface below the persistent
+// project navigation. Measure that navigation instead of duplicating its height
+// in breakpoint-specific CSS; safe-area insets and translated labels can change it.
+const syncWorkspaceHeadHeight = () => {
+  workspace.style.setProperty('--workspace-head-h', `${workspaceHead.offsetHeight}px`);
+};
+syncWorkspaceHeadHeight();
+new ResizeObserver(syncWorkspaceHeadHeight).observe(workspaceHead);
+
 const workspaceScroll = document.createElement('div');
 workspaceScroll.id = 'workspaceScroll';
 workspaceScroll.tabIndex = 0;
@@ -76,6 +85,60 @@ for (const [side, arrow] of [['start', '\u2039'], ['end', '\u203a']]) {
   cue.textContent = arrow;
   modeRail.append(cue);
 }
+
+// The map remains the working surface; prose can become a reading surface on
+// demand. The same full-screen mode is used for legal review, selected features
+// and the first-visit brief, so users learn one way in and one way back.
+let manualReading = false;
+const workspaceBack = document.createElement('button');
+workspaceBack.type = 'button';
+workspaceBack.id = 'workspaceBack';
+workspaceBack.hidden = true;
+workspaceBack.textContent = `\u2190 ${T('m.backToMap')}`;
+workspaceBack.setAttribute('aria-label', T('m.backToMapAria'));
+workspaceUtility.insertBefore(workspaceBack, languageSwitch || themeControl || null);
+
+const workspaceRead = document.createElement('button');
+workspaceRead.type = 'button';
+workspaceRead.id = 'workspaceRead';
+workspaceRead.textContent = T('m.readEvidence');
+workspaceRead.setAttribute('aria-label', T('m.readEvidenceAria'));
+workspaceRead.setAttribute('aria-expanded', 'false');
+document.getElementById('dataViewOpen')?.before(workspaceRead);
+
+function syncWorkspaceReading() {
+  const active = manualReading || document.body.classList.contains('readingLegal') ||
+    document.body.classList.contains('readingDetail') ||
+    document.body.classList.contains('readingBrief');
+  document.body.classList.toggle('workspaceReading', active);
+  workspaceBack.hidden = !active;
+  workspaceRead.setAttribute('aria-expanded', String(active));
+}
+
+function leaveWorkspaceReading() {
+  manualReading = false;
+  if (legalAlertToggle?.getAttribute('aria-expanded') === 'true') {
+    legalAlertToggle.setAttribute('aria-expanded', 'false');
+    legalAlertBody.hidden = true;
+  }
+  document.body.classList.remove('readingLegal');
+  if (!panel.hidden) closePanel(false);
+  const brief = document.getElementById('intro');
+  if (brief?.open) document.getElementById('introClose')?.click();
+  document.body.classList.remove('readingDetail', 'readingBrief');
+  syncWorkspaceReading();
+  cv.focus({ preventScroll: true });
+}
+
+workspaceRead.onclick = () => {
+  manualReading = true;
+  syncWorkspaceReading();
+  requestAnimationFrame(() => {
+    workspaceScroll.scrollTo({ top: 0 });
+    workspaceScroll.focus({ preventScroll: true });
+  });
+};
+workspaceBack.onclick = leaveWorkspaceReading;
 
 const ENDPOINT = 'https://lindas.admin.ch/query';
 
@@ -831,6 +894,9 @@ legalAlertToggle?.addEventListener('click', () => {
   const open = legalAlertToggle.getAttribute('aria-expanded') === 'true';
   legalAlertToggle.setAttribute('aria-expanded', String(!open));
   legalAlertBody.hidden = open;
+  document.body.classList.toggle('readingLegal', !open);
+  syncWorkspaceReading();
+  if (!open) requestAnimationFrame(() => legalAlertRoot.scrollIntoView({ block: 'nearest' }));
 });
 
 /* ===========================================================================
@@ -1802,11 +1868,16 @@ function tip(mx, my) {
 const panel = document.getElementById('panel');
 let panelReturnFocus = null;
 function revealPanel(moveFocus) {
+  panel.scrollTop = 0;
   panel.hidden = false;
-  if (moveFocus) requestAnimationFrame(() => panel.focus({ preventScroll: true }));
+  document.body.classList.add('readingDetail');
+  syncWorkspaceReading();
+  requestAnimationFrame(() => panel.focus({ preventScroll: true }));
 }
 function closePanel(returnFocus = true) {
   panel.hidden = true;
+  document.body.classList.remove('readingDetail');
+  syncWorkspaceReading();
   selected = null;
   dirty = true;
   const target = panelReturnFocus;
@@ -2358,6 +2429,7 @@ dataNext.onclick = () => { dataPage++; renderDataView(); };
 window.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (!panel.hidden) closePanel();
+  else if (document.body.classList.contains('workspaceReading')) leaveWorkspaceReading();
 });
 
 /* ===========================================================================
@@ -3861,11 +3933,15 @@ function setLiveOnly(v) {
   const show = () => {
     if (!dialog.open) dialog.show();
     dialog.scrollTop = 0;
+    document.body.classList.add('readingBrief');
+    syncWorkspaceReading();
     document.getElementById('introClose').focus({ preventScroll: true });
   };
   const close = () => {
     try { localStorage.setItem(KEY, '1'); } catch (e) { /* private mode */ }
     if (dialog.open) dialog.close();
+    document.body.classList.remove('readingBrief');
+    syncWorkspaceReading();
     cv.focus({ preventScroll: true });
   };
   if (open) open.onclick = show;
