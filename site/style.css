@@ -1170,7 +1170,7 @@ body.hasRibbon #credits { display: none; }
 }
 #workspace #liveAlerts[data-state="alert"] #liveAlertsSummary { color: var(--critical); font-weight: 650; }
 #workspace #liveAlertsBody {
-  max-height: min(330px, 40dvh); padding: 12px 16px 14px; overflow-y: auto;
+  max-height: clamp(100px, 18dvh, 180px); padding: 12px 16px 14px; overflow-y: auto;
   color: var(--ink-2); border-top: 1px solid var(--rule);
   scrollbar-gutter: stable;
 }
@@ -1326,7 +1326,7 @@ body.hasRibbon #workspace #credits { display: block; }
   #workspace #liveAlertsToggle { min-height: 44px; padding: 6px 11px; }
   #workspace .liveAlertHeading { font-size: 9px; }
   #workspace #liveAlertsSummary { font-size: 10.5px; }
-  #workspace #liveAlertsBody { max-height: 34dvh; padding: 10px 12px 12px; }
+  #workspace #liveAlertsBody { max-height: min(150px, 18dvh); padding: 10px 12px 12px; }
   #workspace .zoomGroup button,
   #workspace #zoomLevel,
   #workspace #zoomFit,
@@ -1346,6 +1346,7 @@ body.hasRibbon #workspace #credits { display: block; }
     font-size: 9.5px; line-height: 1.25; letter-spacing: -.01em;
   }
   #workspace #siteNav { margin-top: 2px; padding-top: 2px; }
+  #workspace #liveAlertsBody { max-height: 70px; }
 }
 
 /* Short landscape screens keep real columns but compact the index into one
@@ -1382,7 +1383,7 @@ body.hasRibbon #workspace #credits { display: block; }
   #workspace #liveAlertsToggle { min-height: 44px; padding: 6px 10px; }
   #workspace .liveAlertHeading { font-size: 9px; }
   #workspace #liveAlertsSummary { font-size: 10px; }
-  #workspace #liveAlertsBody { max-height: 38dvh; padding: 9px 11px 11px; }
+  #workspace #liveAlertsBody { max-height: min(150px, 18dvh); padding: 9px 11px 11px; }
   #workspace .zoomGroup button,
   #workspace #zoomLevel,
   #workspace #zoomFit,
