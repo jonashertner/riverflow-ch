@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://wms.geo.admin.ch https://geodienste.ch; connect-src 'self' https://lindas.admin.ch https://data.bafu.admin.ch https://api3.geo.admin.ch https://wms.geo.admin.ch https://geodienste.ch; form-action 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Wie diese Karte gemacht ist und wie sie zu lesen ist — Wasser und Eis in der Schweiz</title>
 <meta name="description" content="Jede Ebene der Schweizer Wasser- und Eiskarte, die Verknüpfung dahinter, die Beweisklasse, zu der sie gehört, und die Stelle, an der jede Kette reisst. Samt Anleitung, wie die Karte selbst zu lesen ist.">
 <meta name="robots" content="index,follow">
@@ -20,16 +22,14 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Wasser und Eis in der Schweiz">
 <meta property="og:url" content="https://opengovclimate.ch/riverflow/de/method.html">
-<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg?v=20260822">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Das Schweizer Flussnetz neben dem Titel Wasser und Eis in der Schweiz, mit Zahlen zu Gewässerabschnitten, Stauanlagen und Gletscherkörpern.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="../tokens.css?v=20260821b">
+<link rel="stylesheet" href="../fonts.css?v=20260821">
+<link rel="stylesheet" href="../tokens.css?v=20260822">
 <link rel="stylesheet" href="../site.css?v=20260821b">
 <script src="../i18n.js?v=20260821"></script>
 <script src="../i18n-data.js?v=20260821"></script>
@@ -97,7 +97,7 @@
         <thead><tr><th scope="col">Ebene</th><th scope="col">Die Frage, die sie beantwortet</th><th scope="col">Woraus sie gezeichnet ist</th></tr></thead>
         <tbody>
           <tr><td><b>Abfluss</b></td><td>Wie viel Wasser fliesst jetzt?</td><td>187 Abflussreihen des Bundes; nur aktuelle, gültige Messungen steuern 8'711 Abschnitte</td></tr>
-          <tr><td><b>Gegen normal</b></td><td>Ist das viel oder wenig für diesen Fluss?</td><td>Heute gegen ein modelliertes langjähriges Mittel. Nicht zitierfähig, und die Ebene sagt es</td></tr>
+          <tr><td><b>Im Verhältnis zum langjährigen Mittel</b></td><td>Ist der Abfluss für diesen Fluss hoch oder niedrig?</td><td>Aktueller Abfluss geteilt durch ein modelliertes langjähriges Jahresmittel. Ein Verhältnis, kein Trockenheitsindex; nicht zitierfähig</td></tr>
           <tr><td><b>Temperatur</b></td><td>Wo steht die Obergrenze von 25&nbsp;°C im Spiel?</td><td>Die Messstellen mit Thermometer, gegen GSchV Anhang&nbsp;2 Ziff.&nbsp;12 Abs.&nbsp;4</td></tr>
           <tr><td><b>Wasserqualität</b></td><td>Was wurde hier für welchen Stoff und wann gemessen?</td><td>Jedes Laborresultat der aktuellen aufbereiteten NAWA-TREND-Ausgabe, an seiner Messstelle belassen</td></tr>
           <tr><td><b>Speicherseen</b></td><td>Wie viel Wasser wird zurückgehalten, und wie voll ist es?</td><td>225 Stauanlagen unter Bundesaufsicht und eine wöchentliche Füllungsreihe seit 2000</td></tr>
@@ -105,7 +105,7 @@
           <tr><td><b>Restwasser</b></td><td>Was ergibt die Rechnung nach Art.&nbsp;31 Abs.&nbsp;1?</td><td>1'041 publizierte Q<sub>347</sub>-Punkte; veranschaulichend, keine kantonale Festlegung</td></tr>
           <tr><td><b>Wassernutzung</b></td><td>Wer entnimmt Wasser, und wer trägt Wärme ein?</td><td>Vier Bundesregister: Wasserkraft, Wasserentnahmen, Kernanlagen, Abwasserreinigungsanlagen</td></tr>
           <tr><td><b>Feuchtgebiete</b></td><td>Welche wasserabhängigen Orte stehen unter Bundesschutz?</td><td>Fünf Bundesinventare, mit unveränderter Rechtsklasse und Inventaridentität gezeichnet</td></tr>
-          <tr><td><b>Wasservorkommen</b></td><td>Woher kommt das Wasser?</td><td>Grundwasserkörper, Oberläufe, Teileinzugsgebiete und die rechtskräftigen Schutzzonen</td></tr>
+          <tr><td><b>Quellen und Grundwasser</b></td><td>Woher kommt das Wasser?</td><td>Grundwasserkörper, Oberläufe, Teileinzugsgebiete und die rechtskräftigen Schutzzonen</td></tr>
         </tbody>
       </table></div>
 
@@ -341,7 +341,7 @@
   </div>
 </footer>
 
-<script src="../fmt.js?v=20260821"></script>
+<script src="../fmt.js?v=20260822"></script>
 <script src="../gschg31.js?v=20260821"></script>
 <script src="../site.js?v=20260821"></script>
 </body>

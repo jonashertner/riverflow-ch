@@ -51,6 +51,7 @@
   --ink-muted:   #898781;
   --hairline:    rgba(255,255,255,0.10);
   --rule:        #2c2c2a;
+  --control-border: #666660;
 
   /* The knockout a bright mark is drawn on so that it separates from whatever is
      under it. On the dark plane it is the plane; on paper it is the paper. */
@@ -72,7 +73,7 @@
   --hi:      #cde2fb;
   --flow:    #eaf4ff;
 
-  /* Against normal. One hue below the mean, one above, neutral at the mean. The
+  /* Relative to the mean. One hue below, one above, neutral at the mean. The
      middle is quiet on purpose: a river at its long-term mean is not news. */
   --div-1: #7a3f19; --div-2: #a85f28; --div-3: #c8813c; --div-4: #dda86d;
   --div-5: #7f7d78;
@@ -202,6 +203,7 @@
   --ink-muted:   #5c646e;
   --hairline:    rgba(16,21,26,0.14);
   --rule:        #d2d9e0;
+  --control-border: #737f8a;
 
   --halo:        #ffffff;
   --halo-rgb:    255,255,255;

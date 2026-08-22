@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If this project supports your work, cite the repository and the dated source records used by the relevant layer."
+title: "Water and ice in Switzerland"
+type: software
+authors:
+  - name: "riverflow-ch contributors"
+repository-code: "https://github.com/jonashertner/riverflow-ch"
+url: "https://opengovclimate.ch/riverflow/"
+license: MIT
+version: 0.1.0
+date-released: 2026-08-22
+keywords:
+  - hydrology
+  - water quality
+  - wetlands
+  - Switzerland
+  - environmental law
+  - open government data
