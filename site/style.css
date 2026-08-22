@@ -101,36 +101,13 @@ html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
   pointer-events: auto;
 }
 #siteNav a, #introOpen {
-  color: var(--ink-muted); text-decoration: none; font-size: 11.5px;
+  color: var(--ink-2); text-decoration: none; font-size: 11.5px;
   padding: 5px 7px; border-radius: 5px; white-space: nowrap;
   transition: color 120ms, background 120ms;
 }
 #introOpen { margin-left: -7px; background: none; border: 0; cursor: pointer; font-family: inherit; }
 #siteNav a:hover, #introOpen:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, transparent); }
-#siteNav a.contributeLink { color: var(--accent); }
-#siteMenu { display: none; position: relative; }
-#siteMenu summary {
-  display: flex; align-items: center; gap: 5px; min-height: 40px; padding: 5px 7px;
-  color: var(--ink-muted); font-size: 11.5px; border-radius: 5px; cursor: pointer;
-  list-style: none; transition: color 120ms, background 120ms;
-}
-#siteMenu summary::-webkit-details-marker { display: none; }
-#siteMenu summary::after { content: '\203a'; font-size: 16px; line-height: 1; transform: rotate(90deg); }
-#siteMenu[open] summary, #siteMenu summary:hover {
-  color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, transparent);
-}
-#siteMenu[open] summary::after { transform: rotate(-90deg); }
-#siteMenu .siteMenuLinks {
-  position: absolute; z-index: 30; top: calc(100% + 5px); left: 0;
-  display: grid; width: min(210px, calc(var(--workspace-w) - 28px)); padding: 6px;
-  background: var(--surface-1); border: 1px solid var(--control-border);
-  border-radius: 8px; box-shadow: var(--shadow);
-}
-#siteMenu .siteMenuLinks a {
-  display: flex; align-items: center; min-height: 40px; padding: 8px 10px;
-  color: var(--ink-2); font-size: 12.5px;
-}
-#siteMenu .siteMenuLinks a.contributeLink { color: var(--accent); border-top: 1px solid var(--rule); }
+#siteNav a.contributeLink { color: var(--accent); font-weight: 650; }
 
 /* Shown once, then never again. The map answers when it is pointed at, and
    nothing on a still screen says so. */
@@ -831,9 +808,8 @@ body.hasRibbon #credits { display: none; }
     margin-top: 3px; overflow: hidden; font-size: 11px;
     white-space: nowrap; text-overflow: ellipsis;
   }
-  #titlebar .hint, #siteNav > a { display: none; }
+  #titlebar .hint { display: none; }
   #siteNav { flex-wrap: nowrap; align-items: center; margin-top: 7px; padding-top: 6px; }
-  #siteMenu { display: block; }
   #introOpen { min-height: 40px; margin-left: -5px; padding-inline: 5px; }
   #titlebar .langs { margin-left: auto; padding-left: 4px; }
   #titlebar .langs [lang] {
@@ -1062,6 +1038,57 @@ body.hasRibbon #credits { display: none; }
   overflow: hidden;
 }
 
+#workspaceHead {
+  position: relative; z-index: 11; flex: none; min-width: 0;
+  background: var(--surface-1); border-bottom: 1px solid var(--control-border);
+}
+.workspaceUtility {
+  display: flex; align-items: center; min-width: 0; min-height: 44px;
+  padding: calc(6px + var(--safe-t)) 12px 4px calc(14px + var(--safe-l));
+}
+.workspaceBrand {
+  display: inline-flex; align-items: center; gap: 9px; min-width: 0;
+  color: var(--ink); font-size: 13px; letter-spacing: -.01em;
+}
+.workspaceBrand .mark { display: block; flex: none; }
+.workspaceBrand .mA { fill: var(--ev-measured); }
+.workspaceBrand .mB { fill: var(--ev-estimated); }
+.workspaceBrand .mC { fill: var(--ev-none); }
+#workspaceHead .langs { margin-left: auto; }
+#workspaceHead .langs [lang] {
+  display: grid; place-items: center; min-width: 28px; min-height: 38px; padding: 0 2px;
+}
+#workspaceHead .themeBtn { width: 38px; height: 38px; margin-left: 5px; }
+#workspaceHead #siteNav {
+  display: flex; flex-wrap: nowrap; align-items: center; gap: 0;
+  margin: 0; padding: 2px calc(8px + var(--safe-r)) 7px calc(8px + var(--safe-l));
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity; scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent; border-top: 1px solid var(--rule);
+}
+#workspaceHead #siteNav::-webkit-scrollbar { height: 3px; }
+#workspaceHead #siteNav > a,
+#workspaceHead #introOpen {
+  display: inline-flex; align-items: center; flex: none; min-height: 40px;
+  margin: 0; padding: 6px 5px; color: var(--ink-2); font-size: 12px;
+  scroll-snap-align: start;
+}
+#workspaceHead #siteNav > a.contributeLink { color: var(--accent); }
+#workspaceScroll {
+  flex: 1 1 auto; min-width: 0; min-height: 0;
+  overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-gutter: stable; scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ink-muted) 58%, transparent) transparent;
+}
+#workspaceScroll::-webkit-scrollbar { width: 7px; }
+#workspaceScroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--ink-muted) 48%, transparent);
+  border: 2px solid transparent; border-radius: 8px; background-clip: padding-box;
+}
+#workspaceScroll:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: -2px;
+}
+
 #map, #flow {
   inset: auto; top: 0; left: var(--workspace-w);
   width: calc(100vw - var(--workspace-w)); height: 100dvh;
@@ -1077,10 +1104,12 @@ body.hasRibbon #credits { display: none; }
 #workspace #titlebar h1 { font-size: clamp(18px, 1.55vw, 23px); }
 #workspace #titlebar .sub { display: block; max-width: 35em; }
 #workspace #titlebar .stamp { margin-top: 6px; }
-#workspace #siteNav { margin-top: 9px; padding-top: 8px; }
-#workspace #introOpen { margin-left: -7px; }
 #workspace #evidence { display: none; }
-#workspace #modeRail { display: contents; }
+#workspace #modeRail {
+  position: sticky; z-index: 7; top: 0;
+  display: block; min-width: 0;
+  background: var(--surface-1); border-bottom: 1px solid var(--rule);
+}
 #workspace .modeRailCue {
   position: absolute; z-index: 2; top: 0; bottom: 1px;
   display: none; place-items: center; width: 34px;
@@ -1111,7 +1140,7 @@ body.hasRibbon #credits { display: none; }
   gap: 0; width: auto; max-width: none;
   padding: 8px 12px; overflow: visible;
   background: transparent; backdrop-filter: none;
-  border: 0; border-bottom: 1px solid var(--rule); border-radius: 0;
+  border: 0; border-radius: 0;
 }
 #workspace .modeGroup {
   display: grid; grid-template-columns: 68px minmax(0, 1fr);
@@ -1131,6 +1160,17 @@ body.hasRibbon #credits { display: none; }
 #workspace #modes button {
   min-width: 0; min-height: 38px; padding: 7px 6px;
   white-space: normal; line-height: 1.18; text-align: left;
+}
+/* At the 340 px minimum workspace, long German layer names need the full row.
+   The category becomes a quiet heading rather than consuming a narrow column. */
+@media (max-width: 1350px) and (min-height: 561px) {
+  #workspace .modeGroup { grid-template-columns: minmax(0, 1fr); }
+  #workspace .modeGroup:first-child,
+  #workspace .modeGroup:nth-child(4) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #workspace .modeGroup:nth-child(3) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #workspace .modeGroupLabel {
+    grid-column: 1 / -1; min-height: 16px; padding: 2px 5px 0;
+  }
 }
 
 #workspace #mapControls {
@@ -1232,13 +1272,12 @@ body.hasRibbon #credits { display: none; }
 }
 
 #workspace #legend {
-  position: static; z-index: auto; flex: 1 1 auto;
+  position: static; z-index: auto; flex: none;
   width: auto; min-width: 0; min-height: 0; max-height: none;
   margin: 0; padding: 16px 18px calc(18px + var(--safe-b));
-  overflow-y: auto; overscroll-behavior: contain;
+  overflow: visible;
   background: transparent; backdrop-filter: none;
   border: 0; border-radius: 0;
-  scrollbar-gutter: stable;
 }
 #workspace #sheetHandle { display: none; }
 #workspace #legend h2 { display: block; font-size: 12px; }
@@ -1313,25 +1352,13 @@ body.hasRibbon #workspace #credits { display: block; }
   #workspace #titlebar h1 { font-size: 16px; }
   #workspace #titlebar .sub,
   #workspace #titlebar .hint,
-  #workspace #evidence,
-  #workspace #siteNav > a { display: none; }
+  #workspace #evidence { display: none; }
   #workspace #titlebar .stamp {
     margin-top: 3px; font-size: 10.5px; line-height: 1.35;
     white-space: normal;
   }
-  #workspace #siteNav {
-    flex-wrap: nowrap; align-items: center; margin-top: 4px; padding-top: 3px;
-  }
-  #workspace #siteMenu { display: block; }
-  #workspace #introOpen { min-height: 40px; }
-  #workspace #titlebar .langs { margin-left: auto; }
-  #workspace #titlebar .langs [lang] {
-    display: grid; place-items: center; min-width: 28px; min-height: 40px; padding: 0 2px;
-  }
-  #workspace #titlebar .themeBtn { width: 40px; height: 40px; }
-
   #workspace #modeRail {
-    position: relative; display: block; flex: none; min-width: 0;
+    position: sticky; top: 0; display: block; min-width: 0;
   }
   #workspace .modeRailCue { display: grid; }
   #workspace #modes {
@@ -1364,6 +1391,8 @@ body.hasRibbon #workspace #credits { display: block; }
   #workspace #legend { padding: 11px 13px calc(13px + var(--safe-b)); }
   #workspace #legendBody .notes,
   #workspace #legendBody .lgNote { font-size: 12.5px; }
+  #workspace #ribbon { max-height: min(190px, 32dvh); }
+  #workspace #ribbonCv { height: 54px; }
   #workspace #panel { max-height: 100%; }
   #workspace #intro { padding: 20px 18px calc(20px + var(--safe-b)); }
   #workspace #introTitle { font-size: clamp(31px, 9vw, 43px); }
@@ -1375,26 +1404,29 @@ body.hasRibbon #workspace #credits { display: block; }
   #workspace #titlebar .stamp {
     font-size: 9.5px; line-height: 1.25; letter-spacing: -.01em;
   }
-  #workspace #siteNav { margin-top: 2px; padding-top: 2px; }
   #workspace #liveAlertsBody { max-height: 70px; }
+}
+@media (max-width: 360px) {
+  #workspaceHead #siteNav { gap: 0; padding-inline: 4px; }
+  #workspaceHead #siteNav > a,
+  #workspaceHead #introOpen { min-height: 44px; padding-inline: 5px; font-size: 11.5px; }
 }
 
 /* Short landscape screens keep real columns but compact the index into one
    horizontal rail, preserving useful height for evidence and detail. */
 @media (max-height: 560px) and (orientation: landscape) {
   :root { --workspace-w: min(42vw, 340px); }
+  #workspaceHead #siteNav { gap: 0; padding-inline: 4px; }
+  #workspaceHead #siteNav > a,
+  #workspaceHead #introOpen { min-height: 44px; padding-inline: 5px; font-size: 11.5px; }
   #workspace #titlebar { padding: 9px 12px 7px; }
   #workspace #titlebar h1 { font-size: 15px; }
   #workspace #titlebar .sub,
   #workspace #titlebar .hint,
-  #workspace #evidence,
-  #workspace #siteNav > a { display: none; }
+  #workspace #evidence { display: none; }
   #workspace #titlebar .stamp { display: block; margin-top: 2px; font-size: 10.5px; }
-  #workspace #siteNav { flex-wrap: nowrap; margin-top: 4px; padding-top: 3px; }
-  #workspace #siteMenu { display: block; }
-  #workspace #titlebar .langs { margin-left: auto; }
   #workspace #modeRail {
-    position: relative; display: block; flex: none; min-width: 0;
+    position: sticky; top: 0; display: block; min-width: 0;
   }
   #workspace .modeRailCue { display: grid; }
   #workspace #modes {

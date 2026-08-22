@@ -10,19 +10,54 @@
  */
 
 // The publication is one instrument with two persistent surfaces: evidence and
-// map. Keep every control, legend, detail and time series in the evidence
-// workspace so the geography is never used as furniture space. The source order
-// remains reading-first; this small composition step gives CSS one stable layout
-// container without duplicating the five translated documents.
+// map. The evidence side has a permanent project header and one continuous scroll
+// surface. A reader can therefore start a wheel or touch gesture anywhere in the
+// evidence itself instead of discovering that only the legend's last few pixels
+// move. Detail sheets still sit above that surface; geography is never furniture.
 const workspace = document.createElement('aside');
 workspace.id = 'workspace';
+workspace.setAttribute('aria-labelledby', 'workspaceTitle');
 document.getElementById('main').before(workspace);
-for (const id of ['titlebar', 'modes', 'mapControls', 'liveAlerts', 'tooltip', 'legend', 'ribbon', 'panel', 'intro']) {
+
+const workspaceHead = document.createElement('header');
+workspaceHead.id = 'workspaceHead';
+const workspaceUtility = document.createElement('div');
+workspaceUtility.className = 'workspaceUtility';
+const workspaceBrand = document.createElement('span');
+workspaceBrand.className = 'workspaceBrand';
+workspaceBrand.innerHTML = '<svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg><b>Riverflow</b>';
+const siteNav = document.getElementById('siteNav');
+const languageSwitch = siteNav?.querySelector('.langs');
+const themeControl = siteNav?.querySelector('.themeBtn');
+workspaceUtility.append(workspaceBrand);
+if (languageSwitch) workspaceUtility.append(languageSwitch);
+if (themeControl) workspaceUtility.append(themeControl);
+workspaceHead.append(workspaceUtility);
+if (siteNav) workspaceHead.append(siteNav);
+
+const workspaceScroll = document.createElement('div');
+workspaceScroll.id = 'workspaceScroll';
+workspaceScroll.tabIndex = 0;
+workspaceScroll.setAttribute('aria-labelledby', 'workspaceTitle');
+workspace.append(workspaceHead, workspaceScroll);
+for (const id of ['titlebar', 'modes', 'mapControls', 'liveAlerts', 'tooltip', 'legend']) {
+  const el = document.getElementById(id);
+  if (el) workspaceScroll.append(el);
+}
+for (const id of ['ribbon', 'panel', 'intro']) {
   const el = document.getElementById(id);
   if (el) workspace.append(el);
 }
 const publicationCredits = document.getElementById('credits');
 if (publicationCredits) document.getElementById('legendBody')?.append(publicationCredits);
+
+// A vertical wheel over the permanent project header belongs to the evidence
+// column. Horizontal input remains native navigation scrolling.
+workspaceHead.addEventListener('wheel', event => {
+  if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+  workspaceScroll.scrollBy({ top: event.deltaY });
+  event.preventDefault();
+}, { passive: false });
 
 // On narrow screens the layers form a real horizontal rail. Give that rail a
 // stable shell so its two quiet edge cues can stay fixed while the buttons move
@@ -40,19 +75,6 @@ for (const [side, arrow] of [['start', '\u2039'], ['end', '\u203a']]) {
   cue.textContent = arrow;
   modeRail.append(cue);
 }
-
-// The compact project index appears only where the full row of links cannot fit.
-// It remains native <details> for keyboard and screen-reader semantics, with the
-// two expected menu behaviours added explicitly: click away and Escape close it.
-const siteMenu = document.getElementById('siteMenu');
-document.addEventListener('pointerdown', event => {
-  if (siteMenu?.open && !siteMenu.contains(event.target)) siteMenu.open = false;
-});
-siteMenu?.addEventListener('keydown', event => {
-  if (event.key !== 'Escape') return;
-  siteMenu.open = false;
-  siteMenu.querySelector('summary')?.focus();
-});
 
 const ENDPOINT = 'https://lindas.admin.ch/query';
 
