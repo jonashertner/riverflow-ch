@@ -1,14 +1,13 @@
 /* The map.
  *
  * The two kinds of ink, the palette and the type registers are in tokens.css,
- * which every page on this site loads. This file is the instrument: the canvases,
- * the furniture that floats over them, and the four shapes that furniture takes.
+ * which every page on this site loads. This file is the instrument: the canvases
+ * and the evidence workspace that remains physically separate from them.
  *
  * Layout runs on four shapes, not on a grid framework:
- *   phone     the map, a compact header, and one bottom sheet that snaps
- *   tablet    a legend rail on the left, the panel on the right
- *   desktop   the settled arrangement
- *   wide      a reading column on the right, so nothing floats in a sea of black
+ *   portrait  map above, independently scrolling evidence below
+ *   landscape evidence beside an unobstructed map
+ *   wide      a calm reading column beside a larger map
  */
 
 /* The active layer keys the accent. */
@@ -1010,4 +1009,279 @@ body.hasRibbon #credits { display: none; }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important; }
+}
+
+/* ============================================================
+   TWO-SURFACE WORKSPACE
+
+   The map is evidence, not a backdrop. Permanent controls and explanatory text
+   live on a separate surface: beside the map when width permits, below it on a
+   portrait phone or tablet. Nothing in this workspace obscures geography.
+   ============================================================ */
+:root {
+  --workspace-w: clamp(340px, 28vw, 440px);
+  --workspace-h: 52dvh;
+}
+
+#workspace {
+  position: fixed; inset: 0 auto 0 0; z-index: 10;
+  display: flex; flex-direction: column;
+  width: var(--workspace-w); min-width: 0; min-height: 0;
+  color: var(--ink); background: var(--surface-1);
+  border-right: 1px solid var(--control-border);
+  box-shadow: 10px 0 28px rgba(0,0,0,.12);
+  overflow: hidden;
+}
+
+#map, #flow {
+  inset: auto; top: 0; left: var(--workspace-w);
+  width: calc(100vw - var(--workspace-w)); height: 100dvh;
+}
+
+#workspace #titlebar {
+  position: static; z-index: auto; flex: none;
+  width: auto; max-width: none;
+  margin: 0; padding: calc(16px + var(--safe-t)) 18px 13px calc(18px + var(--safe-l));
+  pointer-events: auto; border-radius: 0;
+  background: transparent; border-bottom: 1px solid var(--rule);
+}
+#workspace #titlebar h1 { font-size: clamp(18px, 1.55vw, 23px); }
+#workspace #titlebar .sub { display: block; max-width: 35em; }
+#workspace #titlebar .stamp { margin-top: 6px; }
+#workspace #siteNav { margin-top: 9px; padding-top: 8px; }
+#workspace #introOpen { margin-left: -7px; }
+#workspace #evidence { display: none; }
+@media (min-width: 1100px) and (min-height: 860px) {
+  #workspace #evidence { display: block; }
+}
+@media (max-height: 799px) {
+  #workspace #titlebar .sub { display: none; }
+}
+
+#workspace #modes {
+  position: static; z-index: auto; flex: none; transform: none;
+  display: flex; flex-direction: column;
+  gap: 0; width: auto; max-width: none;
+  padding: 8px 12px; overflow: visible;
+  background: transparent; backdrop-filter: none;
+  border: 0; border-bottom: 1px solid var(--rule); border-radius: 0;
+}
+#workspace .modeGroup {
+  display: grid; grid-template-columns: 68px minmax(0, 1fr);
+  align-items: stretch; gap: 3px; min-width: 0;
+  padding: 3px 4px;
+}
+#workspace .modeGroup:first-child,
+#workspace .modeGroup:nth-child(4) { grid-template-columns: 68px repeat(3, minmax(0, 1fr)); }
+#workspace .modeGroup:nth-child(3) { grid-template-columns: 68px repeat(2, minmax(0, 1fr)); }
+#workspace .modeGroup + .modeGroup {
+  margin: 0; border-left: 0; border-top: 1px solid var(--rule); padding-left: 4px;
+}
+#workspace .modeGroupLabel {
+  display: flex; align-items: center; grid-column: auto; padding: 0 5px;
+  font-size: 8.5px; line-height: 1.2;
+}
+#workspace #modes button {
+  min-width: 0; min-height: 38px; padding: 7px 6px;
+  white-space: normal; line-height: 1.18; text-align: left;
+}
+
+#workspace #mapControls {
+  position: static; z-index: auto; flex: none;
+  display: flex; align-items: center; gap: 6px;
+  width: auto; padding: 8px 16px;
+  background: var(--surface-2); border-bottom: 1px solid var(--rule);
+}
+#workspace .zoomGroup,
+#workspace #zoomFit,
+#workspace #dataViewOpen {
+  background: transparent; backdrop-filter: none;
+  border: 1px solid var(--control-border); border-radius: 6px; box-shadow: none;
+}
+#workspace .zoomGroup { display: flex; }
+#workspace .zoomGroup button,
+#workspace #zoomFit,
+#workspace #dataViewOpen { min-width: 44px; min-height: 44px; }
+#workspace #zoomLevel {
+  min-width: 44px; min-height: 44px;
+  border-block: 0; border-inline: 1px solid var(--rule);
+}
+#workspace #dataViewOpen { margin-left: auto; padding-inline: 10px; }
+
+#workspace #tooltip {
+  position: static; flex: none;
+  width: auto; max-width: none; margin: 0; padding: 9px 16px;
+  background: var(--surface-2); border: 0; border-bottom: 1px solid var(--rule);
+  border-radius: 0; box-shadow: none;
+}
+
+#workspace #legend {
+  position: static; z-index: auto; flex: 1 1 auto;
+  width: auto; min-width: 0; min-height: 0; max-height: none;
+  margin: 0; padding: 16px 18px calc(18px + var(--safe-b));
+  overflow-y: auto; overscroll-behavior: contain;
+  background: transparent; backdrop-filter: none;
+  border: 0; border-radius: 0;
+  scrollbar-gutter: stable;
+}
+#workspace #sheetHandle { display: none; }
+#workspace #legend h2 { display: block; font-size: 12px; }
+#workspace #legendBody { padding: 0; overflow: visible; }
+#workspace #legendBody .notes,
+#workspace #legendBody .lgNote { line-height: 1.5; }
+
+#workspace #credits {
+  position: static; display: block; max-width: none;
+  margin: 20px 0 0; padding: 14px 0 0;
+  text-align: left; pointer-events: auto;
+  color: var(--ink-muted); background: transparent;
+  border-top: 1px solid var(--rule); border-radius: 0;
+}
+body.hasRibbon #workspace #credits { display: block; }
+
+#workspace #ribbon {
+  position: static; z-index: auto; flex: none; transform: none;
+  width: auto; min-width: 0; max-height: min(250px, 38vh);
+  padding: 11px 16px 10px; overflow-y: auto;
+  background: var(--surface-2); backdrop-filter: none;
+  border: 0; border-top: 1px solid var(--control-border); border-radius: 0;
+}
+#workspace #ribbonCv { height: 64px; }
+
+#workspace #panel {
+  position: absolute; inset: auto 0 0 0; z-index: 12;
+  width: auto; max-height: min(76%, 660px);
+  padding: 18px 18px calc(18px + var(--safe-b));
+  overflow-y: auto; background: var(--surface-1); backdrop-filter: none;
+  border: 0; border-top: 1px solid var(--control-border); border-radius: 0;
+  box-shadow: 0 -16px 34px rgba(0,0,0,.22);
+}
+
+#workspace #intro {
+  position: absolute; inset: 0; z-index: 15;
+  box-sizing: border-box; width: 100%; height: 100%; max-height: none;
+  margin: 0; padding: 28px 24px calc(26px + var(--safe-b));
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable;
+  color: var(--ink); background: var(--surface-1);
+  border: 0; border-radius: 0; box-shadow: none;
+}
+#workspace #intro::backdrop { display: none; background: transparent; backdrop-filter: none; }
+#workspace #introTitle { font-size: clamp(37px, 4vw, 52px); line-height: .98; }
+#workspace .introTop { align-items: flex-start; flex-direction: column; gap: 9px; margin-right: 38px; }
+#workspace .introLangs { margin-left: 0; padding-left: 0; }
+#workspace .introLead { margin-top: 18px; font-size: 16px; line-height: 1.46; }
+#workspace .introActions { align-items: stretch; flex-direction: column; gap: 8px; margin-top: 20px; }
+#workspace #introEnter,
+#workspace .introActions a { width: 100%; min-height: 46px; }
+#workspace .cycleViz { margin-top: 24px; }
+#workspace .cycleViz svg { max-height: 150px; }
+#workspace .cycleStages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#workspace .cycleStages li:last-child { grid-column: 1 / -1; }
+#workspace .introFacts { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 24px; }
+
+/* A portrait phone or tablet uses the same two surfaces, stacked. The map keeps
+   the upper viewport and the workspace scrolls independently below it. */
+@media (max-width: 900px) and (orientation: portrait) {
+  #workspace {
+    inset: auto 0 0; width: auto; height: var(--workspace-h);
+    border-right: 0; border-top: 1px solid var(--control-border);
+    box-shadow: 0 -10px 28px rgba(0,0,0,.16);
+  }
+  #map, #flow {
+    inset: auto; top: 0; left: 0;
+    width: 100vw; height: calc(100dvh - var(--workspace-h));
+  }
+  #workspace #titlebar {
+    padding: 9px calc(11px + var(--safe-r)) 7px calc(11px + var(--safe-l));
+  }
+  #workspace #titlebar h1 { font-size: 16px; }
+  #workspace #titlebar .sub,
+  #workspace #titlebar .hint,
+  #workspace #evidence,
+  #workspace #siteNav > a { display: none; }
+  #workspace #titlebar .stamp {
+    margin-top: 3px; font-size: 10.5px; line-height: 1.35;
+    white-space: normal;
+  }
+  #workspace #siteNav {
+    flex-wrap: nowrap; align-items: center; margin-top: 4px; padding-top: 3px;
+  }
+  #workspace #introOpen { min-height: 40px; }
+  #workspace #titlebar .langs { margin-left: auto; }
+  #workspace #titlebar .langs [lang] {
+    display: grid; place-items: center; min-width: 28px; min-height: 40px; padding: 0 2px;
+  }
+  #workspace #titlebar .themeBtn { width: 40px; height: 40px; }
+
+  #workspace #modes {
+    display: flex; flex-direction: row; gap: 2px; padding: 4px 8px;
+    overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+    touch-action: pan-x; scroll-snap-type: x proximity;
+    scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
+  }
+  #workspace #modes::-webkit-scrollbar { display: block; height: 3px; }
+  #workspace .modeGroup,
+  #workspace .modeGroup:first-child,
+  #workspace .modeGroup:nth-child(4) {
+    display: flex; flex: none; gap: 2px; padding: 0 3px;
+    border: 0; border-left: 1px solid var(--rule); grid-template-columns: none;
+  }
+  #workspace .modeGroup:first-child { border-left: 0; }
+  #workspace .modeGroupLabel { display: none; }
+  #workspace #modes button {
+    min-height: 44px; padding: 7px 10px; white-space: nowrap; scroll-snap-align: center;
+  }
+  #workspace #mapControls { padding: 5px 10px; }
+  #workspace .zoomGroup button,
+  #workspace #zoomLevel,
+  #workspace #zoomFit,
+  #workspace #dataViewOpen { min-height: 44px; }
+  #workspace #legend { padding: 11px 13px calc(13px + var(--safe-b)); }
+  #workspace #legendBody .notes,
+  #workspace #legendBody .lgNote { font-size: 12.5px; }
+  #workspace #panel { max-height: 100%; }
+  #workspace #intro { padding: 20px 18px calc(20px + var(--safe-b)); }
+  #workspace #introTitle { font-size: clamp(31px, 9vw, 43px); }
+  #workspace .introLangs [lang] { min-width: 40px; min-height: 44px; }
+}
+@media (max-width: 480px) and (max-height: 650px) and (orientation: portrait) {
+  :root { --workspace-h: 58dvh; }
+}
+
+/* Short landscape screens keep real columns but compact the index into one
+   horizontal rail, preserving useful height for evidence and detail. */
+@media (max-height: 560px) and (orientation: landscape) {
+  :root { --workspace-w: min(42vw, 340px); }
+  #workspace #titlebar { padding: 9px 12px 7px; }
+  #workspace #titlebar h1 { font-size: 15px; }
+  #workspace #titlebar .sub,
+  #workspace #titlebar .hint,
+  #workspace #evidence,
+  #workspace #siteNav > a { display: none; }
+  #workspace #titlebar .stamp { display: block; margin-top: 2px; font-size: 10.5px; }
+  #workspace #siteNav { flex-wrap: nowrap; margin-top: 4px; padding-top: 3px; }
+  #workspace #titlebar .langs { margin-left: auto; }
+  #workspace #modes {
+    display: flex; flex-direction: row; gap: 2px; padding: 4px 7px;
+    overflow-x: auto; overflow-y: hidden; touch-action: pan-x;
+  }
+  #workspace .modeGroup,
+  #workspace .modeGroup:first-child,
+  #workspace .modeGroup:nth-child(4) {
+    display: flex; flex: none; gap: 2px; padding: 0 3px;
+    border: 0; border-left: 1px solid var(--rule); grid-template-columns: none;
+  }
+  #workspace .modeGroup:first-child { border-left: 0; }
+  #workspace .modeGroupLabel { display: none; }
+  #workspace #modes button { min-height: 44px; padding: 6px 9px; white-space: nowrap; }
+  #workspace #mapControls { padding: 4px 9px; }
+  #workspace .zoomGroup button,
+  #workspace #zoomLevel,
+  #workspace #zoomFit,
+  #workspace #dataViewOpen { min-height: 44px; }
+  #workspace #legend { padding: 10px 12px 12px; }
+  #workspace #ribbon { max-height: 58%; }
+  #workspace #intro { padding: 17px 16px; }
+  #workspace #introTitle { font-size: 32px; }
+  #workspace .cycleViz svg { max-height: 110px; }
 }

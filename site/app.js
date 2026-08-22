@@ -9,6 +9,21 @@
  *           nearest gauge downstream. A layer selects and weights; it adds no fact.
  */
 
+// The publication is one instrument with two persistent surfaces: evidence and
+// map. Keep every control, legend, detail and time series in the evidence
+// workspace so the geography is never used as furniture space. The source order
+// remains reading-first; this small composition step gives CSS one stable layout
+// container without duplicating the five translated documents.
+const workspace = document.createElement('aside');
+workspace.id = 'workspace';
+document.getElementById('main').before(workspace);
+for (const id of ['titlebar', 'modes', 'mapControls', 'tooltip', 'legend', 'ribbon', 'panel', 'intro']) {
+  const el = document.getElementById(id);
+  if (el) workspace.append(el);
+}
+const publicationCredits = document.getElementById('credits');
+if (publicationCredits) document.getElementById('legendBody')?.append(publicationCredits);
+
 const ENDPOINT = 'https://lindas.admin.ch/query';
 
 /* ---- the palette -----------------------------------------------------------
@@ -989,39 +1004,21 @@ function fit() {
     if (r.py[i] < y0) y0 = r.py[i]; if (r.py[i] > y1) y1 = r.py[i];
   }
   mapBounds = { x0, x1, y0, y1 };
-  // On a phone the header and the sheet own real estate at the top and the bottom,
-  // and a country fitted to the whole viewport lands as a band in the middle with
-  // black above and below it. Fit to the strip that is actually visible instead,
-  // and let the width run nearly edge to edge: Switzerland is about 2.2 to 1, so on
-  // a portrait screen the width is always the binding constraint.
+  // The map owns its entire canvas at every breakpoint. Switzerland is about 2.2
+  // to 1, so width is normally the binding constraint in a portrait map surface.
   const box = fitBox();
   const availH = Math.max(80, H - box.t - box.b);
-  const padX = isPhone() ? 0.99 : 0.94, padY = 0.94;
+  const padX = 0.95, padY = 0.94;
   view.k = Math.min(W / (x1 - x0) * padX, availH / (y1 - y0) * padY);
   K0 = view.k;
   view.x = W / 2 - view.k * (x0 + x1) / 2;
-  // Held a little above centre on a phone, so the room that a 2.2-to-1 country
-  // cannot fill on a portrait screen collects at the bottom, which is exactly where
-  // the sheet opens into. Opening the legend then costs no map.
-  view.y = box.t + availH * (isPhone() ? 0.4 : 0.5) - view.k * (y0 + y1) / 2;
+  view.y = box.t + availH * 0.5 - view.k * (y0 + y1) / 2;
   updateZoomControls();
 }
-// Everything here is looked up rather than closed over, because fit() runs during
-// load and the furniture it measures is declared further down the file.
 function fitBox() {
-  // Only a portrait screen has this problem. In landscape the country and the
-  // window are about the same shape and the furniture sits in the corners.
-  if (!isPhone() && H <= W * 1.05) return { t: 0, b: 0 };
-  const nav = document.getElementById('modes').getBoundingClientRect();
-  const rb = document.getElementById('ribbon');
-  const ribH = rb.hidden ? 0 : rb.offsetHeight + 10;
-  const sheet = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sheet-h')) || 0;
-  const navLow = nav.top > H / 2;              // narrow layouts put the switch at the foot
-  const title = document.getElementById('titlebar').getBoundingClientRect();
-  return {
-    t: Math.max(0, navLow ? title.bottom : nav.bottom) + 6,
-    b: (navLow ? Math.max(0, H - nav.top) : 0) + sheet + ribH + 8,
-  };
+  // Permanent controls live outside the canvas. Every pixel in this box belongs
+  // to the geography, at every breakpoint.
+  return { t: 0, b: 0 };
 }
 function resize() {
   dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1343,7 +1340,7 @@ function clampView() {
     return Math.max(minPos, Math.min(maxPos, pos));
   };
   view.x = axis(view.x, mapBounds.x0, mapBounds.x1, 0, W, 0.5);
-  view.y = axis(view.y, mapBounds.y0, mapBounds.y1, top, bottom, isPhone() ? 0.4 : 0.5);
+  view.y = axis(view.y, mapBounds.y0, mapBounds.y1, top, bottom, 0.5);
   updateZoomControls();
 }
 
@@ -1368,39 +1365,45 @@ function zoomAbout(k2, cx, cy, from) {
   clampView();
   invalidate(); dirtyAlloc = true;
 }
+function canvasPoint(e) {
+  const box = cv.getBoundingClientRect();
+  return { x: e.clientX - box.left, y: e.clientY - box.top };
+}
 function twoFingers() {
   const [a, b] = [...ptrs.values()];
   return { d: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)), cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 };
 }
 
 cv.addEventListener('pointerdown', e => {
+  const p = canvasPoint(e);
   cv.setPointerCapture(e.pointerId);
-  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  ptrs.set(e.pointerId, p);
   if (ptrs.size === 2) {
     const t = twoFingers();
     pinch = { d: t.d, cx: t.cx, cy: t.cy, k: view.k, vx: view.x, vy: view.y };
     drag = null; cv.classList.remove('dragging');
   } else if (ptrs.size === 1) {
-    drag = { x: e.clientX, y: e.clientY, vx: view.x, vy: view.y, moved: false, touch: e.pointerType !== 'mouse' };
+    drag = { x: p.x, y: p.y, vx: view.x, vy: view.y, moved: false, touch: e.pointerType !== 'mouse' };
     cv.classList.add('dragging');
   }
 });
 cv.addEventListener('pointermove', e => {
-  if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  const p = canvasPoint(e);
+  if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, p);
   if (pinch && ptrs.size >= 2) {
     const t = twoFingers();
     zoomAbout(pinch.k * (t.d / pinch.d), t.cx, t.cy, pinch);
     return;
   }
   if (drag) {
-    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    const dx = p.x - drag.x, dy = p.y - drag.y;
     if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
     view.x = drag.vx + dx; view.y = drag.vy + dy;
     clampView();
     invalidate(); dirtyAlloc = true;
     return;
   }
-  if (e.pointerType === 'mouse') pick(e.clientX, e.clientY);
+  if (e.pointerType === 'mouse') pick(p.x, p.y);
 });
 function endPointer(e) {
   ptrs.delete(e.pointerId);
@@ -1409,7 +1412,8 @@ function endPointer(e) {
   const was = drag;
   drag = null; cv.classList.remove('dragging');
   if (!was || was.moved) { writeHash(); return; }
-  pick(e.clientX, e.clientY);
+  const p = canvasPoint(e);
+  pick(p.x, p.y);
   select(hovered);
   // A finger leaves no cursor behind, so the highlight it lit has to go out with
   // it, or the map keeps showing a hover that nobody is making.
@@ -1419,15 +1423,17 @@ cv.addEventListener('pointerup', endPointer);
 cv.addEventListener('pointercancel', endPointer);
 cv.addEventListener('wheel', e => {
   e.preventDefault();
-  zoomAbout(view.k * Math.exp(-e.deltaY * 0.0016), e.clientX, e.clientY,
-            { k: view.k, cx: e.clientX, cy: e.clientY, vx: view.x, vy: view.y });
+  const p = canvasPoint(e);
+  zoomAbout(view.k * Math.exp(-e.deltaY * 0.0016), p.x, p.y,
+            { k: view.k, cx: p.x, cy: p.y, vx: view.x, vy: view.y });
   clearTimeout(window.__hashT);
   window.__hashT = setTimeout(writeHash, 350);
 }, { passive: false });
 cv.addEventListener('dblclick', e => {
   e.preventDefault();
-  zoomAbout(view.k * 1.7, e.clientX, e.clientY,
-            { k: view.k, cx: e.clientX, cy: e.clientY, vx: view.x, vy: view.y });
+  const p = canvasPoint(e);
+  zoomAbout(view.k * 1.7, p.x, p.y,
+            { k: view.k, cx: p.x, cy: p.y, vx: view.x, vy: view.y });
   writeHash();
 });
 
@@ -1588,7 +1594,7 @@ function fmtQ(q) {
   return nfd(q, q >= 100 ? 0 : q >= 10 ? 1 : q >= 1 ? 2 : 3);
 }
 function tip(mx, my) {
-  if (!hovered) { tt.hidden = true; return; }
+  if (!hovered || !document.getElementById('panel').hidden) { tt.hidden = true; return; }
   if (hovered.kind === 'dam') {
     const d = hovered.ref;
     const lv = resLevels(resWeekIndex());
@@ -1655,8 +1661,6 @@ function tip(mx, my) {
             T('m.no', { n: esc(alluvialByReach.get(r.id).num) }) })}</div>` : '');
   }
   tt.hidden = false;
-  tt.style.left = Math.min(mx + 14, window.innerWidth - 250) + 'px';
-  tt.style.top = Math.min(my + 14, window.innerHeight - 90) + 'px';
 }
 
 const panel = document.getElementById('panel');
@@ -1676,6 +1680,7 @@ function closePanel(returnFocus = true) {
 function select(h, moveFocus = false) {
   selected = h;
   if (!h) { closePanel(false); return; }
+  tt.hidden = true;
   if (!panel.contains(document.activeElement)) panelReturnFocus = document.activeElement;
   const titleEl = document.getElementById('panelTitle');
   const B = document.getElementById('panelBody');
@@ -3067,10 +3072,10 @@ function renderVintage() {
 }
 
 /* ===========================================================================
-   THE SHEET
-   On a phone the legend stops being a floating card and becomes a bottom sheet.
-   It opens to the layer it is describing and closes to a handle, and the ribbon
-   rides above whichever of the two it is.
+   THE EVIDENCE WORKSPACE
+   Earlier releases turned the legend into a bottom sheet on phones. The map and
+   evidence now occupy separate boxes, so relayout only clears any transform left
+   by an older cached stylesheet.
    =========================================================================== */
 function isPhone() { return window.matchMedia('(max-width: 700px)').matches; }
 let sheetOpen = false;
@@ -3079,26 +3084,15 @@ const handleEl = document.getElementById('sheetHandle');
 
 function layoutSheet() {
   const root = document.documentElement;
-  // The title block grows and shrinks with the screen: the subtitle appears at
-  // 1500 px and the evidence bar only where there is room for it. So its height is
-  // measured rather than assumed, and the legend below is given what is left.
-  const tb = document.getElementById('titlebar').getBoundingClientRect();
-  root.style.setProperty('--title-h', Math.round(tb.bottom) + 'px');
-  if (!isPhone()) {
-    legendEl.style.transform = '';
-    legendEl.classList.remove('collapsed');
-    root.style.setProperty('--sheet-h', '0px');
-    return;
-  }
-  const hh = handleEl.offsetHeight || 46;
-  legendEl.classList.toggle('collapsed', !sheetOpen);
-  legendEl.style.transform = sheetOpen ? '' : `translateY(${Math.max(0, legendEl.offsetHeight - hh)}px)`;
-  root.style.setProperty('--sheet-h', (sheetOpen ? Math.min(legendEl.offsetHeight, innerHeight * 0.76) : hh) + 'px');
+  legendEl.style.transform = '';
+  legendEl.classList.remove('collapsed');
+  root.style.setProperty('--sheet-h', '0px');
 }
 handleEl.onclick = () => {
-  sheetOpen = !sheetOpen;
-  handleEl.setAttribute('aria-expanded', String(sheetOpen));
-  layoutSheet();
+  // Backward-compatible fallback for an older cached stylesheet. The current
+  // layout hides this handle and scrolls the evidence workspace instead.
+  sheetOpen = true;
+  handleEl.setAttribute('aria-expanded', 'true');
 };
 
 
@@ -3571,18 +3565,8 @@ function drawPlaces() {
     boxes.push([a, b, c, d]);
     return true;
   };
-  // The furniture is claimed before any name is placed, so nothing is ever drawn
-  // under the legend or behind the title. A label hidden by a panel is worse than a
-  // label not drawn: it costs the reader a name AND spends the space that the next
-  // name down the ranking would have used.
-  for (const id of ['titlebar', 'legend', 'ribbon', 'panel', 'modes']) {
-    // offsetParent is null for a fixed-positioned element, which every panel here
-    // is, so visibility is taken from the rectangle and the computed display.
-    const el = document.getElementById(id);
-    if (!el || el.hidden || getComputedStyle(el).display === 'none') continue;
-    const b = el.getBoundingClientRect();
-    if (b.width && b.height) boxes.push([b.left - 6, b.top - 6, b.right + 6, b.bottom + 6]);
-  }
+  // Interface and evidence occupy their own surface, outside this coordinate
+  // system. Labels therefore compete only with other labels.
 
   ctx.save();
   ctx.textAlign = 'center';
@@ -3729,7 +3713,9 @@ function setLiveOnly(v) {
   let seen = false;
   try { seen = localStorage.getItem(KEY) === '1'; } catch (e) { /* private mode */ }
   const show = () => {
-    if (!dialog.open) dialog.showModal();
+    if (!dialog.open) dialog.show();
+    dialog.scrollTop = 0;
+    document.getElementById('introClose').focus({ preventScroll: true });
   };
   const close = () => {
     try { localStorage.setItem(KEY, '1'); } catch (e) { /* private mode */ }
