@@ -30,7 +30,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../fonts.css?v=20260821">
 <link rel="stylesheet" href="../tokens.css?v=20260822">
-<link rel="stylesheet" href="../site.css?v=20260823a">
+<link rel="stylesheet" href="../site.css?v=20260823b">
 <script src="../i18n.js?v=20260821"></script>
 <script src="../i18n-data.js?v=20260821"></script>
 <script src="../theme.js?v=20260821"></script>
@@ -76,9 +76,15 @@
 
   <main class="doc" id="main">
     <header class="docHead">
-      <p class="eyebrow">Collaboration publique</p>
-      <h1>Aidez l’eau à raconter toute son histoire.</h1>
-      <p class="lede">Un ruisseau, une zone humide et un résultat de laboratoire font partie d’un même cycle de l’eau. Riverflow transforme connaissances locales, documents officiels et revue spécialisée en une base de preuves commune, afin de montrer ce qui est connu, ce qui manque et ce qui peut ensuite être protégé.</p>
+      <div class="heroCopy">
+        <p class="eyebrow">Collaboration publique</p>
+        <h1>Aidez l’eau à raconter toute son histoire.</h1>
+        <p class="lede">Un ruisseau, une zone humide et un résultat de laboratoire font partie d’un même cycle de l’eau. Riverflow transforme connaissances locales, documents officiels et revue spécialisée en une base de preuves commune, afin de montrer ce qui est connu, ce qui manque et ce qui peut ensuite être protégé.</p>
+        <div class="heroActions"><a href="#help">Comment aider maintenant</a> <a href="#campaigns">Deux campagnes liées</a></div>
+      </div>
+      <div class="waterTrace" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i>
+      </div>
       <p class="dateline">Questions de recherche publiques vérifiées le <b>23.08.2026</b>. Une question mentionnée n’est pas un constat de violation.</p>
     </header>
 
@@ -86,25 +92,25 @@
       <h2>Comment aider maintenant</h2>
       <p>Vous n’avez pas à mener une enquête entière. La contribution la plus utile est souvent une observation précise ou une source primaire liée à un lieu et à une date. Choisissez la voie correspondant à ce que vous savez réellement.</p>
       <div class="contributionGrid">
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="01">
           <p class="cardKicker">Connaissance locale</p>
           <h3>Consigner une observation</h3>
           <p>Signalez un drain, une zone sèche, un obstacle, un rejet, une mesure de restauration ou un changement observé. Indiquez où et quand ; distinguez ce que vous avez vu de votre interprétation.</p>
           <a href="https://github.com/jonashertner/riverflow-ch/issues/new?template=field-observation.yml">Soumettre une observation</a>
         </article>
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="02">
           <p class="cardKicker">Administration publique</p>
           <h3>Ajouter un document officiel</h3>
           <p>Indiquez un instrument de protection, un plan, une autorisation, une série de mesures, une consultation ou un rapport de restauration. Donnez l’autorité, la date et un lien public stable.</p>
           <a href="https://github.com/jonashertner/riverflow-ch/issues/new?template=public-record.yml">Ajouter un document public</a>
         </article>
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="03">
           <p class="cardKicker">Science et données</p>
           <h3>Examiner les preuves</h3>
           <p>Vérifiez une mesure, une méthode, une jointure, une unité, un modèle ou un jeu de données manquant. Ajoutez un contrôle reproductible et dites ce que les preuves montrent — et ne montrent pas.</p>
           <a href="https://github.com/jonashertner/riverflow-ch/issues/new?template=scientific-review.yml">Lancer une revue scientifique</a>
         </article>
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="04">
           <p class="cardKicker">Droit et procédure</p>
           <h3>Examiner une proposition juridique</h3>
           <p>Identifiez la règle, la décision, l’instrument ou l’étape procédurale exacte. Une superposition cartographique peut soulever une question juridique ; elle ne peut pas y répondre.</p>

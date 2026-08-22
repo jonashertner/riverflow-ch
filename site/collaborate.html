@@ -30,7 +30,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fonts.css?v=20260821">
 <link rel="stylesheet" href="tokens.css?v=20260822">
-<link rel="stylesheet" href="site.css?v=20260823a">
+<link rel="stylesheet" href="site.css?v=20260823b">
 <script src="i18n.js?v=20260821"></script>
 <script src="i18n-data.js?v=20260821"></script>
 <script src="theme.js?v=20260821"></script>
@@ -76,11 +76,20 @@
 
   <main class="doc" id="main">
     <header class="docHead">
-      <p class="eyebrow">Public collaboration</p>
-      <h1>Help the water tell its whole story.</h1>
-      <p class="lede">A stream, a wetland and a laboratory result are parts of one water cycle.
-        Riverflow turns local knowledge, official records and specialist review into a shared evidence
-        base—so people can find what is known, what is missing and what can be protected next.</p>
+      <div class="heroCopy">
+        <p class="eyebrow">Public collaboration</p>
+        <h1>Help the water tell its whole story.</h1>
+        <p class="lede">A stream, a wetland and a laboratory result are parts of one water cycle.
+          Riverflow turns local knowledge, official records and specialist review into a shared evidence
+          base—so people can find what is known, what is missing and what can be protected next.</p>
+        <div class="heroActions">
+          <a href="#help">How you can help now</a>
+          <a href="#campaigns">Two connected campaigns</a>
+        </div>
+      </div>
+      <div class="waterTrace" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i>
+      </div>
       <p class="dateline">Public research questions last checked <b>23.08.2026</b>. A listed question is not a finding of breach.</p>
     </header>
 
@@ -90,28 +99,28 @@
         precise observation or one primary record, tied to a place and date. Choose the route that
         matches what you actually know.</p>
       <div class="contributionGrid">
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="01">
           <p class="cardKicker">Local knowledge</p>
           <h3>Record an observation</h3>
           <p>Report a drain, dry area, barrier, discharge, restoration measure or change you observed.
             State when and where; separate what you saw from what you think it means.</p>
           <a href="https://github.com/jonashertner/riverflow-ch/issues/new?template=field-observation.yml">Submit an observation</a>
         </article>
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="02">
           <p class="cardKicker">Public administration</p>
           <h3>Add an official record</h3>
           <p>Point to a protection instrument, plan, permit, monitoring series, consultation or
             restoration report. Give the issuing authority, date and stable public link.</p>
           <a href="https://github.com/jonashertner/riverflow-ch/issues/new?template=public-record.yml">Add a public record</a>
         </article>
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="03">
           <p class="cardKicker">Science and data</p>
           <h3>Review the evidence</h3>
           <p>Check a measurement, method, join, unit, model or missing dataset. Include a reproducible
             check and say what the evidence can—and cannot—show.</p>
           <a href="https://github.com/jonashertner/riverflow-ch/issues/new?template=scientific-review.yml">Start a scientific review</a>
         </article>
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="04">
           <p class="cardKicker">Law and procedure</p>
           <h3>Review a legal proposition</h3>
           <p>Identify the exact rule, decision, instrument or procedural step. A map overlap can start

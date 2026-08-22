@@ -400,43 +400,147 @@ body[data-page="collaborate"] { --accent: var(--ev-measured); }
 }
 
 /* ---- public collaboration ----
-   Contributions are decisions, not marketing tiles. The layouts use open rows
-   and one ruled edge so the reader can scan routes, campaigns and evidence
-   without mistaking them for interchangeable content cards. */
-.contributionGrid, .campaignGrid { display: grid; gap: 1px; margin: 24px 0; background: var(--rule); }
-.contributionGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.campaignGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+   The collaboration page is a working surface, not another long report. The
+   hero gives the invitation a visible current; the four routes are distinct
+   decisions; campaigns, places and review steps keep an editorial evidence
+   hierarchy underneath. */
+body[data-page="collaborate"] .docWrap { grid-template-columns: min(56rem, 100%); }
+body[data-page="collaborate"] .docHead {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 12px 34px; margin-bottom: clamp(42px, 6vw, 72px); padding: clamp(24px, 4vw, 42px);
+  overflow: hidden; border: 1px solid var(--hairline); border-radius: 18px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--ev-measured) 9%, transparent), transparent 54%),
+    var(--surface-2);
+  box-shadow: 0 24px 64px color-mix(in srgb, var(--plane) 68%, transparent);
+}
+body[data-page="collaborate"] .docHead::after {
+  content: ''; position: absolute; right: 0; bottom: 0; left: 0; height: 1px;
+  background: linear-gradient(90deg, var(--ev-measured), var(--quality-4), transparent 82%);
+}
+.heroCopy { position: relative; z-index: 1; min-width: 0; }
+body[data-page="collaborate"] .docHead .eyebrow { font-size: 11px; line-height: 1.4; }
+body[data-page="collaborate"] .docHead h1 { max-width: none; font-size: clamp(38px, 4.6vw, 58px); }
+body[data-page="collaborate"] .docHead .lede {
+  max-width: 44rem; font-size: clamp(16.5px, 1.5vw, 19px); line-height: 1.58;
+}
+.heroActions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.heroActions a {
+  display: inline-flex; align-items: center; justify-content: space-between; gap: 18px;
+  min-height: 46px; padding: 10px 15px; border: 1px solid var(--hairline); border-radius: 999px;
+  color: var(--ink) !important; background: color-mix(in srgb, var(--ink) 4%, transparent);
+  font-size: 13px; font-weight: 600; text-decoration: none;
+  transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+.heroActions a::after { content: '↓'; color: var(--accent); font-family: var(--mono); }
+.heroActions a:hover {
+  transform: translateY(-1px); border-color: color-mix(in srgb, var(--accent) 52%, var(--hairline));
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.waterTrace {
+  position: relative; align-self: stretch; min-height: 282px; opacity: 0.95;
+  background:
+    radial-gradient(circle at 50% 15%, color-mix(in srgb, var(--ev-measured) 23%, transparent) 0 2px, transparent 3px),
+    repeating-radial-gradient(ellipse at 82% 42%, transparent 0 25px, color-mix(in srgb, var(--ev-measured) 18%, transparent) 26px 27px, transparent 28px 42px);
+}
+.waterTrace::before {
+  content: ''; position: absolute; top: -18%; right: 54%; width: 1px; height: 132%;
+  transform: rotate(15deg); transform-origin: 50% 50%;
+  background: linear-gradient(transparent, var(--seq-300) 19%, var(--ev-measured) 52%, var(--quality-4) 78%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--ev-measured) 45%, transparent);
+}
+.waterTrace::after {
+  content: ''; position: absolute; inset: 17% 5% 11% 18%; border: 1px solid color-mix(in srgb, var(--ev-measured) 28%, transparent);
+  border-radius: 48% 52% 42% 58% / 36% 42% 58% 64%; transform: rotate(-11deg);
+}
+.waterTrace i {
+  position: absolute; z-index: 1; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--plane); border: 2px solid var(--ev-measured);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--ev-measured) 12%, transparent);
+}
+.waterTrace i:nth-child(1) { top: 8%; left: 47%; }
+.waterTrace i:nth-child(2) { top: 28%; left: 56%; }
+.waterTrace i:nth-child(3) { top: 50%; left: 62%; border-color: var(--quality-5); }
+.waterTrace i:nth-child(4) { top: 71%; left: 68%; border-color: var(--law); }
+.waterTrace i:nth-child(5) { top: 90%; left: 74%; border-color: var(--good); }
+body[data-page="collaborate"] .docHead .dateline {
+  position: relative; z-index: 1; grid-column: 1 / -1; margin: 10px 0 0;
+  font-size: 11.5px; line-height: 1.6;
+}
+
+body[data-page="collaborate"] .doc section { margin-top: clamp(52px, 7vw, 84px); }
+body[data-page="collaborate"] .doc section > h2 + p { max-width: 46rem; }
+.contributionGrid, .campaignGrid { display: grid; margin: 28px 0; }
+.contributionGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.campaignGrid { grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr); gap: 14px; }
 .contributionCard, .campaignCard {
-  min-width: 0; padding: 20px; background: var(--plane);
+  min-width: 0; border: 1px solid var(--hairline); border-radius: 14px; background: var(--surface-2);
+}
+.contributionCard {
+  --route: var(--ev-measured); position: relative; display: flex; flex-direction: column;
+  min-height: 284px; padding: 24px; overflow: hidden;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+.contributionCard:nth-child(2) { --route: var(--law); }
+.contributionCard:nth-child(3) { --route: var(--quality-5); }
+.contributionCard:nth-child(4) { --route: var(--serious); }
+.contributionCard::before {
+  content: attr(data-route); position: absolute; top: 17px; right: 19px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-muted);
+}
+.contributionCard::after {
+  content: ''; position: absolute; top: 0; right: 0; left: 0; height: 3px; background: var(--route);
+}
+.contributionCard:hover {
+  transform: translateY(-2px); border-color: color-mix(in srgb, var(--route) 42%, var(--hairline));
+  background: color-mix(in srgb, var(--route) 6%, var(--surface-2));
 }
 .contributionCard h3, .campaignCard h3, .placeCard h3, .workflowList h3 {
-  margin: 4px 0 10px; font-family: var(--serif); font-size: 19px; letter-spacing: -0.005em;
+  margin: 5px 0 10px; font-family: var(--serif); font-size: 21px; line-height: 1.22; letter-spacing: -0.01em;
 }
-.contributionCard p, .campaignCard p, .placeCard p, .workflowList p {
-  font-size: 14.5px; line-height: 1.6;
-}
+.contributionCard p, .campaignCard p, .placeCard p, .workflowList p { font-size: 14.5px; line-height: 1.62; }
 .cardKicker {
-  margin: 0 !important; font-family: var(--mono); font-size: 10.5px !important;
-  letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent) !important;
+  margin: 0 !important; font-family: var(--mono); font-size: 10px !important;
+  letter-spacing: 0.11em; text-transform: uppercase; color: var(--accent) !important;
 }
+.contributionCard .cardKicker { color: var(--route) !important; }
 .contributionCard > a {
-  display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px;
-  color: var(--ink); font-size: 13px; font-weight: 600; text-decoration: none;
-  border-bottom: 1px solid var(--accent);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 46px; margin-top: auto; padding: 9px 12px; border: 1px solid color-mix(in srgb, var(--route) 42%, var(--hairline));
+  border-radius: 8px; color: var(--ink); background: color-mix(in srgb, var(--route) 8%, transparent);
+  font-size: 13px; font-weight: 600; text-decoration: none;
 }
-.contributionCard > a::after { content: '→'; margin-left: 8px; color: var(--accent); }
-.campaignCard { border-top: 3px solid var(--rule); }
-.campaignCard.activeCampaign { border-top-color: var(--ev-measured); }
+.contributionCard > a::after { content: '→'; color: var(--route); }
+.contributionCard > a:hover { background: color-mix(in srgb, var(--route) 14%, transparent); }
+.campaignCard { position: relative; padding: 26px; overflow: hidden; }
+.campaignCard::before {
+  content: ''; position: absolute; top: 0; right: 0; left: 0; height: 4px;
+  background: linear-gradient(90deg, var(--quality-4), color-mix(in srgb, var(--quality-4) 15%, transparent));
+}
+.campaignCard.activeCampaign {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--ev-measured) 10%, var(--surface-2)), var(--surface-2) 55%);
+}
+.campaignCard.activeCampaign::before {
+  background: linear-gradient(90deg, var(--ev-measured), color-mix(in srgb, var(--ev-measured) 15%, transparent));
+}
+.campaignCard:not(.activeCampaign) .cardKicker { color: var(--quality-5) !important; }
 .campaignCard ul { padding-left: 19px; }
 .campaignCard li { font-size: 14px; line-height: 1.55; }
-.cardLinks { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 20px !important; }
-.cardLinks a { font-size: 13px; }
+.cardLinks { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 22px !important; }
+.cardLinks a { font-size: 13px; font-weight: 600; }
 
-.placeList { margin: 24px 0; border-top: 1px solid var(--rule); }
-.placeCard { padding: 22px 0; border-bottom: 1px solid var(--rule); }
-.placeCard > header { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.placeCard h3 { font-size: 22px; }
-.placeCard.positiveComparator { border-left: 3px solid var(--good); padding-left: 16px; }
+.placeList { margin: 28px 0; border-top: 1px solid var(--rule); }
+.placeCard {
+  display: grid; grid-template-columns: minmax(150px, 0.38fr) minmax(0, 1fr); gap: 0 34px;
+  padding: 28px 0; border-bottom: 1px solid var(--rule);
+}
+.placeCard > header { grid-column: 1; grid-row: 1; display: block; }
+.placeCard > header .evidenceTag { margin-top: 12px; }
+.placeCard > h3 { grid-column: 1; grid-row: 2; align-self: start; margin-top: 12px; font-size: 23px; }
+.placeCard > p:nth-of-type(1) { grid-column: 2; grid-row: 1; }
+.placeCard > p:nth-of-type(2) { grid-column: 2; grid-row: 2; }
+.placeCard > p:nth-of-type(3) { grid-column: 2; grid-row: 3; }
+.placeCard.positiveComparator { margin-top: 10px; padding-left: 18px; border-left: 3px solid var(--good); }
 .sourceLine { font-family: var(--mono); font-size: 11.5px !important; color: var(--ink-muted) !important; }
 .sourceLine a { color: var(--ink-2); }
 
@@ -453,12 +557,15 @@ body[data-page="collaborate"] { --accent: var(--ev-measured); }
 .evidenceTag.open { border-style: dashed; color: var(--ink-muted); }
 .evidenceTable td:first-child { width: 9.5rem; }
 
-.workflowList { list-style: none; margin: 24px 0 !important; padding: 0 !important; counter-reset: none; }
-.workflowList > li {
-  display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 14px;
-  margin: 0; padding: 15px 0; border-top: 1px solid var(--rule);
+.workflowList {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;
+  list-style: none; margin: 28px 0 !important; padding: 0 !important; counter-reset: none;
 }
-.workflowList > li:last-child { border-bottom: 1px solid var(--rule); }
+.workflowList > li {
+  position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px;
+  margin: 0; padding: 17px; border: 1px solid var(--hairline); border-radius: 10px;
+  background: color-mix(in srgb, var(--ink) 2.5%, transparent);
+}
 .workflowList > li > span {
   display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
   background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent);
@@ -467,10 +574,31 @@ body[data-page="collaborate"] { --accent: var(--ev-measured); }
 .workflowList h3 { margin: 2px 0 4px; }
 .workflowList p { margin: 0; }
 
-@media (max-width: 620px) {
+@media (min-width: 1080px) {
+  body[data-page="collaborate"] .docWrap { grid-template-columns: 216px min(56rem, calc(100% - 300px)); }
+}
+@media (max-width: 760px) {
+  body[data-page="collaborate"] .toc { display: none; }
+  body[data-page="collaborate"] .docHead { grid-template-columns: 1fr; padding: 22px 20px; border-radius: 14px; }
+  body[data-page="collaborate"] .docHead h1 { font-size: clamp(34px, 9.5vw, 40px); line-height: 1.04; }
+  body[data-page="collaborate"] .docHead .lede { margin-top: 14px; font-size: 15.5px; line-height: 1.52; }
+  body[data-page="collaborate"] .docHead .dateline { margin-top: 4px; font-size: 10.5px; line-height: 1.5; }
+  .heroActions { margin-top: 20px; }
+  .waterTrace { display: none; }
+  .heroActions { display: grid; }
+  .heroActions a { width: 100%; }
   .contributionGrid, .campaignGrid { grid-template-columns: 1fr; }
-  .placeCard > header { align-items: flex-start; }
+  .contributionCard { min-height: 250px; }
+  .placeCard { display: block; padding: 24px 0; }
+  .placeCard > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+  .placeCard > header .evidenceTag { margin-top: 0; }
+  .placeCard > h3 { margin-top: 12px; }
+  .placeCard.positiveComparator { padding-left: 14px; }
+  .workflowList { grid-template-columns: 1fr; }
   .evidenceTable { min-width: 620px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .heroActions a, .contributionCard { transition: none; }
 }
 
 /* ---- what a page ends with ---- */

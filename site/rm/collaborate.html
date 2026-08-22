@@ -30,7 +30,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../fonts.css?v=20260821">
 <link rel="stylesheet" href="../tokens.css?v=20260822">
-<link rel="stylesheet" href="../site.css?v=20260823a">
+<link rel="stylesheet" href="../site.css?v=20260823b">
 <script src="../i18n.js?v=20260821"></script>
 <script src="../i18n-data.js?v=20260821"></script>
 <script src="../theme.js?v=20260821"></script>
@@ -76,9 +76,15 @@
 
   <main class="doc" id="main">
     <header class="docHead">
-      <p class="eyebrow">Collavuraziun publica</p>
-      <h1>Gidai l’aua a raquintar sia entira istorgia.</h1>
-      <p class="lede">In aual, ina zona umida ed in resultat da labor fan part d’in unic ciclus da l’aua. Riverflow transfurma savida locala, documents uffizials e revisiun spezialisada en ina basa cuminaivla da cumprovas, per ch’ins vesia tge ch’è enconuschent, tge che manca e tge che po vegnir protegì sco proxim.</p>
+      <div class="heroCopy">
+        <p class="eyebrow">Collavuraziun publica</p>
+        <h1>Gidai l’aua a raquintar sia entira istorgia.</h1>
+        <p class="lede">In aual, ina zona umida ed in resultat da labor fan part d’in unic ciclus da l’aua. Riverflow transfurma savida locala, documents uffizials e revisiun spezialisada en ina basa cuminaivla da cumprovas, per ch’ins vesia tge ch’è enconuschent, tge che manca e tge che po vegnir protegì sco proxim.</p>
+        <div class="heroActions"><a href="#help">Co che Vus pudais gidar ussa</a> <a href="#campaigns">Duas campagnas colliadas</a></div>
+      </div>
+      <div class="waterTrace" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i>
+      </div>
       <p class="dateline">Dumondas publicas da perscrutaziun controlladas l’ultima giada ils <b>23-08-2026</b>. Ina dumonda n’è betg ina constataziun d’ina violaziun.</p>
     </header>
 
@@ -86,25 +92,25 @@
       <h2>Co che Vus pudais gidar ussa</h2>
       <p>Vus na stuais betg far in’entira investigaziun. Savens è ina observaziun precisa u ina funtauna primara cun lieu e data la contribuziun la pli utila. Tschernai la via che correspunda a quai che Vus savais propi.</p>
       <div class="contributionGrid">
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="01">
           <p class="cardKicker">Savida locala</p>
           <h3>Registrar ina observaziun</h3>
           <p>Annunziai in drenadi, ina surfatscha sitga, ina barriera, in sbuccament, ina mesira da restauraziun u ina midada observada. Inditgai cura e nua; separai quai che Vus avais vesì da Vossa interpretaziun.</p>
           <a href="https://github.com/jonashertner/riverflow-ch/issues/new?template=field-observation.yml">Trametter ina observaziun</a>
         </article>
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="02">
           <p class="cardKicker">Administraziun publica</p>
           <h3>Agiuntar in document uffizial</h3>
           <p>Inditgai in instrument da protecziun, in plan, ina permissiun, ina seria da mesiraziuns, ina consultaziun u in rapport da restauraziun. Dai l’autoritad, la data ed in link public stabil.</p>
           <a href="https://github.com/jonashertner/riverflow-ch/issues/new?template=public-record.yml">Agiuntar in document public</a>
         </article>
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="03">
           <p class="cardKicker">Scienza e datas</p>
           <h3>Examinar las cumprovas</h3>
           <p>Controllai ina mesiraziun, ina metoda, ina colliaziun, in’unitad, in model u in set da datas mancant. Agiuntai in test reproducibel e ditgai tge che las cumprovas pon mussar — e tge betg.</p>
           <a href="https://github.com/jonashertner/riverflow-ch/issues/new?template=scientific-review.yml">Cumenzer ina revisiun scientifica</a>
         </article>
-        <article class="contributionCard">
+        <article class="contributionCard" data-route="04">
           <p class="cardKicker">Dretg e procedura</p>
           <h3>Examinar ina proposiziun giuridica</h3>
           <p>Inditgai la norma, la decisiun, l’instrument u il pass procedural exact. Ina surposiziun da chartas po far nascher ina dumonda giuridica; ella na po betg respunder a quella.</p>
