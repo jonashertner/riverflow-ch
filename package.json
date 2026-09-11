@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "mapshaper": "0.6.113",
-    "sharp": "0.35.3"
+    "sharp": "0.35.4"
   },
   "overrides": {
     "adm-zip": "0.6.0"
