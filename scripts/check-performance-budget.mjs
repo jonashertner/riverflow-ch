@@ -26,7 +26,7 @@ const initialFonts = [
 const optional = [
   'data/glaciers.json', 'data/icehistory.json', 'data/users.json', 'data/reservoirs.json',
   'data/residual.json', 'data/wetlands.json', 'data/quality.json', 'data/vintage.json',
-  'data/names.json', 'data/cantons.json',
+  'data/names.json', 'data/cantons.json', 'data/budget.json', 'data/conditions.json',
 ];
 const totals = {
   code: code.reduce((n, name) => n + gzip(name), 0),

@@ -30,9 +30,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../fonts.css?v=20260821">
 <link rel="stylesheet" href="../tokens.css?v=20260822">
-<link rel="stylesheet" href="../site.css?v=20260822d">
-<script src="../i18n.js?v=20260821"></script>
-<script src="../i18n-data.js?v=20260821"></script>
+<link rel="stylesheet" href="../site.css?v=20261010">
+<script src="../i18n.js?v=20261010b"></script>
+<script src="../i18n-data.js?v=20261010"></script>
 <script src="../theme.js?v=20260821"></script>
 </head>
 <body class="page" data-page="method">
@@ -46,6 +46,7 @@
   </a>
   <nav class="siteNav" aria-label="Website">
     <a href="../" class="toMap">Karte</a>
+    <a href="budget.html">Bilanz</a>
     <a href="about.html">Projekt</a>
     <a href="method.html" aria-current="page">Methode</a>
     <a href="sources.html">Quellen</a>
@@ -275,12 +276,12 @@
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Pfad</th><th scope="col">Heutige Abdeckung</th><th scope="col">Als Nächstes nötig</th></tr></thead>
         <tbody>
-          <tr><td>Niederschlag, Schnee, Boden</td><td>Nicht kartiert</td><td>Gemessener Niederschlag, Schneewasseräquivalent und Bodenfeuchte</td></tr>
-          <tr><td>Eis</td><td>Sechs Flächeninventare</td><td>Jährliche Massenbilanz und Volumen</td></tr>
-          <tr><td>Grundwasser und Quellen</td><td>Nur Kontext der Grundwasserkörper</td><td>NAQUA-Stände, Quellschüttung und Neubildung</td></tr>
+          <tr><td>Niederschlag, Schnee, Boden</td><td>Nationale Bilanz und Bilanz der Einzugsgebiete, jährlich; wöchentlicher Trockenheitsindex, auf der <a href="budget.html">Seite zur Wasserbilanz</a></td><td>Gemessener Niederschlag, Schneewasseräquivalent und Bodenfeuchte</td></tr>
+          <tr><td>Eis</td><td>Sechs Flächeninventare; nationales Eisvolumen aus dem jährlichen Bulletin</td><td>Jährliche Massenbilanz und Volumen</td></tr>
+          <tr><td>Grundwasser und Quellen</td><td>Kontext der Grundwasserkörper; monatliche Pegel an Messstellen im Vergleich mit ihrer eigenen Reihe</td><td>Vorrat, Quellschüttung und Neubildung</td></tr>
           <tr><td>Flüsse und Seen</td><td>Aktuelle Stationsbeobachtungen auf einem Modellnetz; NAWA-TREND-Laborresultate 2011–2024</td><td>Kleine Gewässer, Geschiebe, kantonale Qualitätsdaten, Seeprofile und biologischer Zustand</td></tr>
           <tr><td>Speicherung</td><td>Stauanlagen und regional gespeicherte Energie</td><td>Füllstände einzelner Speicher und Seespeicherung</td></tr>
-          <tr><td>Nutzung und Rücklauf</td><td>Vier historische Register</td><td>Sektormengen, Überleitungen, Rückläufe und aktuelle Bewilligungen</td></tr>
+          <tr><td>Nutzung und Rücklauf</td><td>Vier historische Register; jährliche öffentliche Trinkwasserversorgung</td><td>Sektormengen, Überleitungen, Rückläufe und aktuelle Bewilligungen</td></tr>
           <tr><td>Rechtlicher Schutz</td><td>Restwasser, Feuchtgebiete und Schutzzonen</td><td>Konzessionen, Ablauf, Anordnungen, Vollzug und kantonale Entscheide</td></tr>
           <tr><td>Über die Grenze</td><td>Meeresbecken-Kontext und Grenzmessstellen</td><td>Abgestimmte Beobachtungen unterhalb und grenzüberschreitende Pflichten</td></tr>
         </tbody>
@@ -326,9 +327,11 @@
           <tr><td class="n">16</td><td>Maschinenlesbare Quellenprovenienz</td><td><b>wöchentlich</b></td></tr>
           <tr><td class="n">17</td><td>Der Wasserqualitätsdatensatz NAWA TREND</td><td><b>wöchentlich</b></td></tr>
           <tr><td class="n">18</td><td>Das Audit kantonaler Monitoringnachweise</td><td><b>wöchentlich</b></td></tr>
+          <tr><td class="n">19</td><td>Die nationale Wasserbilanz, Speicher und Nutzungen</td><td><b>wöchentlich</b></td></tr>
+          <tr><td class="n">20</td><td>Aktueller Abfluss, Grundwasser, Seestände und Trockenheit</td><td><b>wöchentlich</b></td></tr>
         </tbody>
       </table></div>
-      <p class="fine">Die Montagsaktualisierung baut Messstellen, Speicher, kantonale Daten, Feuchtgebiete, Wasserqualität, Monitoringnachweise, Quellenalter und Provenienz neu; danach prüft und versioniert sie das Ergebnis. Jährliche Namen und deterministische Einzugsgebietsgeometrie werden neu gebaut, wenn sich ihre Eingaben ändern. Die Quellenseite prüft Bundesdatenstände auch im Browser, sodass sich ein Datum zwischen geplanten Builds aktualisieren kann.</p>
+      <p class="fine">Die Montagsaktualisierung baut Messstellen, Speicher, kantonale Daten, Feuchtgebiete, Wasserqualität, Monitoringnachweise, die Wasserbilanz und ihren aktuellen Stand, Quellenalter und Provenienz neu; danach prüft und versioniert sie das Ergebnis. Jährliche Namen und deterministische Einzugsgebietsgeometrie werden neu gebaut, wenn sich ihre Eingaben ändern. Die Quellenseite prüft Bundesdatenstände auch im Browser, sodass sich ein Datum zwischen geplanten Builds aktualisieren kann.</p>
     </section>
 
     <p><a class="toMapBig" href="./"><svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg> Zurück zur Karte</a></p>
@@ -339,7 +342,7 @@
   <div class="siteFootIn">
     <p><b>Wasser und Eis in der Schweiz.</b> Live-Abfluss, Wasserstand und Temperatur aus dem BAFU-Messnetz über LINDAS. Flüsse HydroRIVERS v1.0 (HydroSHEDS, WWF). Eis GLAMOS. Speicherseen und Wasserkraft BFE. Restwasser, Wasserentnahmen und Abwasserreinigungsanlagen BAFU. Namen swissNAMES3D (swisstopo). Schutzzonen, die sechsundzwanzig Kantone über geodienste.ch. Jede Quelle, ihre Lizenz und ihr Datenstand stehen auf der <a href="sources.html">Quellenseite</a>.</p>
     <p>Gemessenes und modelliertes Wasser, keine Prognose. Ein Datum hier ist eine Tatsache über einen Fluss, einen Speicher oder einen Gletscher; es ist keine Feststellung einer Rechtsverletzung, und nichts auf dieser Website ist Rechtsberatung.</p>
-    <div class="footLinks"><a href="./">Karte</a> <a href="method.html">Methode</a> <a href="sources.html">Quellen</a> <a href="law.html">Recht</a> <a href="about.html">Über</a> <a href="about.html#collaborate">Mitwirken</a> <a href="https://github.com/jonashertner/riverflow-ch">Quellcode</a></div>
+    <div class="footLinks"><a href="./">Karte</a> <a href="budget.html">Wasserbilanz</a> <a href="method.html">Methode</a> <a href="sources.html">Quellen</a> <a href="law.html">Recht</a> <a href="about.html">Über</a> <a href="about.html#collaborate">Mitwirken</a> <a href="https://github.com/jonashertner/riverflow-ch">Quellcode</a></div>
   </div>
 </footer>
 

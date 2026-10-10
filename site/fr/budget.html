@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fr" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://wms.geo.admin.ch https://geodienste.ch; connect-src 'self' https://lindas.admin.ch https://data.bafu.admin.ch https://api3.geo.admin.ch https://wms.geo.admin.ch https://geodienste.ch; form-action 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Bilan hydrique — L’eau et la glace en Suisse</title>
+<meta name="description" content="Le bilan hydrique de la Suisse à partir de sources officielles : le dernier bilan national, ce qui est stocké dans la glace, les lacs, les eaux souterraines et les retenues, ce qui est utilisé, où en est le bilan ce mois-ci, et ce qui manque encore.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="canonical" href="https://opengovclimate.ch/riverflow/fr/budget.html">
+<link rel="alternate" hreflang="en" href="../budget.html">
+<link rel="alternate" hreflang="de" href="../de/budget.html">
+<link rel="alternate" hreflang="fr" href="budget.html">
+<link rel="alternate" hreflang="it" href="../it/budget.html">
+<link rel="alternate" hreflang="rm" href="../rm/budget.html">
+<link rel="alternate" hreflang="x-default" href="../budget.html">
+<link rel="icon" href="../favicon.svg?v=20260821" type="image/svg+xml">
+<meta property="og:title" content="Bilan hydrique — L’eau et la glace en Suisse">
+<meta property="og:description" content="Le bilan hydrique de la Suisse à partir de sources officielles : le dernier bilan national, ce qui est stocké dans la glace, les lacs, les eaux souterraines et les retenues, ce qui est utilisé, où en est le bilan ce mois-ci, et ce qui manque encore.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="L’eau et la glace en Suisse">
+<meta property="og:url" content="https://opengovclimate.ch/riverflow/fr/budget.html">
+<meta property="og:image" content="https://opengovclimate.ch/riverflow/og-image.jpg?v=20260822">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Le réseau hydrographique suisse à côté du titre L’eau et la glace en Suisse, avec le nombre de tronçons, de barrages et de corps glaciaires.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../fonts.css?v=20260821">
+<link rel="stylesheet" href="../tokens.css?v=20260822">
+<link rel="stylesheet" href="../site.css?v=20261010">
+<script src="../i18n.js?v=20261010b"></script>
+<script src="../i18n-data.js?v=20261010"></script>
+<script src="../theme.js?v=20260821"></script>
+</head>
+<body class="page" data-page="budget">
+
+<a class="skip" href="#main">Aller au texte</a>
+
+<header class="siteHead">
+  <a class="brand" href="./">
+    <svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg>
+    <span class="brandName">Riverflow</span>
+  </a>
+  <nav class="siteNav" aria-label="Site">
+    <a href="./" class="toMap">Carte</a>
+    <a href="budget.html" aria-current="page">Bilan</a>
+    <a href="about.html">Projet</a>
+    <a href="method.html">Méthode</a>
+    <a href="sources.html">Sources</a>
+    <a href="law.html">Droit</a>
+    <a class="contributeLink" href="about.html#collaborate">Contribuer</a>
+    <span class="langs" data-langswitch></span>
+    <button type="button" class="themeBtn" title="Nuit. Passer au jour." aria-label="Nuit. Passer au jour.">
+      <svg class="tIconNight" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z"/></svg>
+      <svg class="tIconDay" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="3.1"/><path d="M8 1.4v1.5M8 13v1.5M14.5 8H13M3 8H1.5M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1M12.6 12.6l-1.1-1.1M4.5 4.5 3.4 3.4"/></svg>
+      <svg class="tIconAuto" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="8" cy="8" r="5.7"/><path d="M8 2.3a5.7 5.7 0 0 1 0 11.4Z" fill="currentColor" stroke="none"/></svg>
+    </button>
+  </nav>
+</header>
+
+<div class="docWrap">
+  <details class="toc" open>
+    <summary><span class="tocTitle">Sommaire</span></summary>
+    <span class="tocTitle">Sommaire</span>
+    <ol>
+      <li><a href="#now">Où en est le bilan</a></li>
+      <li><a href="#balance">Le bilan annuel</a></li>
+      <li><a href="#catchments">Par bassin versant</a></li>
+      <li><a href="#stores">Ce qui est stocké</a></li>
+      <li><a href="#use">Ce qui est utilisé</a></li>
+      <li><a href="#gaps">Ce qui manque, et qui le détient</a></li>
+      <li><a href="#rules">Comment cette page est faite</a></li>
+    </ol>
+  </details>
+
+  <main class="doc" id="main">
+    <header class="docHead">
+      <p class="eyebrow">Bilan hydrique</p>
+      <h1>Ce que la Suisse possède, et où cela va</h1>
+      <p class="lede">Un bilan hydrique du pays, composé uniquement de ce que publient les offices fédéraux et leurs réseaux de mesure : combien tombe, combien s’évapore, combien s’écoule, combien est stocké, combien est utilisé, et où en est chacun de ces termes ce mois-ci.</p>
+      <p class="dateline" id="budgetDateline">Lecture des dernières publications officielles&#8230;</p>
+    </header>
+
+    <section id="now">
+      <h2>Où en est le bilan</h2>
+      <p>Le bilan national est publié une fois par an, environ neuf mois après la fin de l’année. Ces indicateurs comblent l’intervalle. Chacun compare la dernière période complète aux mêmes mois de 1991&#8211;2020 à la même station ; une valeur basse est donc basse pour ce lieu et cette saison, pas dans l’absolu.</p>
+      <div id="nowTiles" class="bTiles" aria-live="polite"></div>
+      <h3>L’eau qui quitte le pays</h3>
+      <p>Débit moyen mensuel du Rhin à Bâle et du Rhône à Chancy, les deux stations où passe la frontière la plus grande partie de l’eau suisse, en part de la moyenne 1991&#8211;2020 du même mois. Ensemble, ils emportent environ cinq sixièmes de l’écoulement national ; le Tessin, l’Inn, le Doubs et de plus petites rivières frontalières emportent le reste.</p>
+      <div id="outflowFig" class="bChart"></div>
+      <h3>Régions de sécheresse</h3>
+      <p>L’indice de sécheresse combiné de la plateforme fédérale sur la sécheresse pour ses 38 régions d’alerte, semaine après semaine. Il réunit les précipitations sur un, trois et vingt-quatre mois, le débit des cours d’eau et l’humidité du sol modélisée en cinq niveaux, de 1, pas sec, à 5, extrêmement sec.</p>
+      <div id="droughtFig" class="bChart"></div>
+      <p class="fine" id="nowNote"></p>
+    </section>
+
+    <section id="balance">
+      <h2>Le bilan annuel</h2>
+      <p>Pour le pays dans son ensemble, le bilan se ferme : les précipitations et l’eau qui arrive de l’étranger s’évaporent, quittent le pays par la frontière, ou modifient ce qui est stocké dans la neige, la glace, le sol, les eaux souterraines et les lacs. L’OFEV publie les termes pour la Suisse politique, 41&#8217;285&#160;km&#178;, en millimètres d’eau sur cette surface. Ils sont aussi donnés ici en kilomètres cubes ; un millimètre vaut 0,041&#160;km&#179;.</p>
+      <div id="balanceFig" class="bFig"></div>
+      <div id="balanceTable" class="tWrap"></div>
+      <p class="aside"><b>Un modèle contraint par la mesure.</b> Les chiffres proviennent du modèle hydrologique PREVAH sur une grille de 200 mètres. Le débit mesuré est tenu pour exact et l’erreur du modèle est attribuée aux précipitations, le terme le plus difficile à mesurer en montagne. Les prélèvements et l’utilisation ne font pas partie de ce bilan naturel. Une variation négative des réserves est de l’eau prise dans les réserves du pays, avant tout dans la glace des glaciers.</p>
+      <p class="fine" id="balanceNote"></p>
+    </section>
+
+    <section id="catchments">
+      <h2>Par bassin versant</h2>
+      <p>Le même tableau donne les douze grands bassins versants que l’OFEV équilibre séparément. Leurs chiffres sont en millimètres sur la surface propre de chaque bassin et sont comparés ici à la moyenne 1991&#8211;2020 de ce bassin.</p>
+      <div id="catchTable" class="tWrap"></div>
+    </section>
+
+    <section id="stores">
+      <h2>Ce qui est stocké</h2>
+      <p>Les réserves sont plus grandes que l’écoulement d’une année, mais la plupart ne sont pas une réserve dans laquelle on peut puiser. Les chiffres ci-dessous sont des estimations d’âges et de méthodes différents, et ils ne s’additionnent pas : le chiffre des lacs compte les lacs frontaliers en entier, et celui des retenues est un registre des volumes de barrage, pas l’eau qu’elles contiennent aujourd’hui.</p>
+      <div id="storeFig" class="bFig"></div>
+      <div id="storeTable" class="tWrap"></div>
+    </section>
+
+    <section id="use">
+      <h2>Ce qui est utilisé</h2>
+      <p>Une seule utilisation est comptée chaque année : la distribution publique d’eau potable, d’après une extrapolation de la Société suisse de l’industrie du gaz et des eaux (SSIGE) publiée par l’Office fédéral de la statistique. Tout autre chiffre national sur les prélèvements décrit 2006 ou ne porte aucune année.</p>
+      <div id="useFig" class="tWrap"></div>
+      <div id="useOther" class="tWrap"></div>
+    </section>
+
+    <section id="gaps">
+      <h2>Ce qui manque, et qui le détient</h2>
+      <p>Un bilan fiable a besoin de chacun des éléments suivants. Aucun n’est publié sous une forme que cette page peut lire. Chaque ligne nomme l’office qui détient ou produit les données ; ce sont les demandes à adresser.</p>
+      <div class="tWrap"><table>
+        <thead><tr>
+          <th scope="col">Manque</th><th scope="col">Pourquoi c’est important</th><th scope="col">Détenteur</th>
+        </tr></thead>
+        <tbody>
+          <tr><td><b>Des bilans annuels pour chaque année</b></td>
+            <td>L’OFEV remplace son tableau chaque année. Sans l’archive, il n’existe pas de série nationale à laquelle comparer une année.</td>
+            <td>OFEV, division Hydrologie, hydrologie@bafu.admin.ch</td></tr>
+          <tr><td><b>Équivalent en eau de la neige, pour toute la Suisse</b></td>
+            <td>La neige est la plus grande réserve saisonnière. Les estimations publiées divergent, et aucun chiffre national actuel n’est publié.</td>
+            <td>Institut WSL pour l’étude de la neige et des avalanches SLF, service opérationnel d’hydrologie de la neige</td></tr>
+          <tr><td><b>Évapotranspiration réelle, maillée et actuelle</b></td>
+            <td>Le deuxième terme sortant en importance. Seule l’évapotranspiration de référence aux stations météorologiques est ouverte ; c’est la demande de l’atmosphère, pas l’eau perdue.</td>
+            <td>MétéoSuisse ; l’OFEV pour les résultats du modèle PREVAH</td></tr>
+          <tr><td><b>Une série des précipitations moyennes en Suisse</b></td>
+            <td>Les grilles de 1&#160;km sont ouvertes, mais il n’existe pas de total mensuel national officiel à citer ; tout agrégat serait donc celui de ce site.</td>
+            <td>MétéoSuisse, service clientèle</td></tr>
+          <tr><td><b>Réserves et recharge des eaux souterraines</b></td>
+            <td>La plus grande réserve utilisable repose sur une estimation de 2012. Les niveaux aux stations de mesure disent si elle est haute ou basse, pas combien elle contient.</td>
+            <td>OFEV, observation des eaux souterraines NAQUA ; les cantons</td></tr>
+          <tr><td><b>Prélèvements par secteur</b></td>
+            <td>L’industrie, le refroidissement et l’agriculture ont été comptés au niveau national pour la dernière fois en 2006. Les volumes d’irrigation ne sont mesurés que dans quelques cantons.</td>
+            <td>Les cantons, qui octroient les droits de prélèvement ; l’OFEV ; l’Office fédéral de l’agriculture</td></tr>
+          <tr><td><b>Le volume des glaciers en série nationale</b></td>
+            <td>Le volume national annuel est publié dans un bulletin PDF ; les fichiers ouverts sont par glacier.</td>
+            <td>GLAMOS (réseau suisse de mesure des glaciers)</td></tr>
+          <tr><td><b>Contenu des retenues en mètres cubes</b></td>
+            <td>La série hebdomadaire indique l’énergie stockée, pas l’eau. Un volume par retenue montrerait combien d’eau est retenue hors des rivières.</td>
+            <td>Office fédéral de l’énergie (OFEN) ; les exploitants</td></tr>
+        </tbody>
+      </table></div>
+      <p>Si vous détenez certaines de ces données, ou savez où elles sont publiées, dites-le par les <a href="about.html#collaborate">voies de contribution</a>.</p>
+    </section>
+
+    <section id="rules">
+      <h2>Comment cette page est faite</h2>
+      <ul>
+        <li>Chaque nombre est lu à la construction dans le fichier même de l’office qui le publie et porte la date de ce fichier. Le tableau du bilan doit se fermer terme par terme, sinon la construction s’arrête.</li>
+        <li>Seules les semaines et les mois complets sont utilisés. La plateforme sécheresse date une période par son premier jour et inclut la période en cours ; celle-ci est écartée.</li>
+        <li>Une station n’est comparée qu’à sa propre série pour le même mois civil, et seulement si au moins quinze années de 1991&#8211;2020 existent. Bas signifie sous le 20<sup>e</sup>&#160;centile de cette série, haut au-dessus du 80<sup>e</sup>.</li>
+        <li>Les niveaux et les centiles ne sont pas des volumes. Rien n’est converti en kilomètres cubes, sauf les termes du bilan national et l’écoulement, où le débit multiplié par la durée est un volume.</li>
+        <li>Les chiffres anciens gardent leur année. Un chiffre sans année le dit.</li>
+      </ul>
+      <p>Chaque source, sa licence et l’état de ses données figurent sur la <a href="sources.html">page des sources</a>. Les scripts sont <code>build/19-budget.mjs</code> et <code>build/20-conditions.mjs</code> dans le <a href="https://github.com/jonashertner/riverflow-ch">dépôt</a>.</p>
+    </section>
+
+    <p><a class="toMapBig" href="./"><svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg> Retour à la carte</a></p>
+  </main>
+</div>
+
+<footer class="siteFoot">
+  <div class="siteFootIn">
+    <p><b>L’eau et la glace en Suisse.</b> Débit, niveau et température en direct du réseau de mesure de l’OFEV via LINDAS. Cours d’eau HydroRIVERS v1.0 (HydroSHEDS, WWF). Glace GLAMOS. Retenues et force hydraulique OFEN. Débits résiduels, prélèvements et stations d’épuration OFEV. Noms swissNAMES3D (swisstopo). Zones de protection, les vingt-six cantons via geodienste.ch. Chaque source, sa licence et son état des données figurent sur la <a href="sources.html">page des sources</a>.</p>
+    <p>De l’eau mesurée et modélisée, pas une prévision. Une donnée ici est un fait concernant une rivière, une retenue ou un glacier ; ce n’est pas un constat de violation, et rien sur ce site n’est un conseil juridique.</p>
+    <div class="footLinks"><a href="./">Carte</a> <a href="budget.html">Bilan hydrique</a> <a href="method.html">Méthode</a> <a href="sources.html">Sources</a> <a href="law.html">Droit</a> <a href="about.html">À propos</a> <a href="about.html#collaborate">Contribuer</a> <a href="https://github.com/jonashertner/riverflow-ch">Code source</a></div>
+  </div>
+</footer>
+
+<script src="../fmt.js?v=20260822"></script>
+<script src="../gschg31.js?v=20260821"></script>
+<script src="../site.js?v=20260822b"></script>
+<script src="../budget.js?v=20261010b"></script>
+</body>
+</html>
