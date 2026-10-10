@@ -653,4 +653,82 @@ Object.assign(DSTR, {
   'public GraphQL API': { de: 'öffentliche GraphQL-API', fr: 'API GraphQL publique', it: 'API GraphQL pubblica', rm: 'API GraphQL publica' },
   'licence and source': { de: 'Lizenz und Quelle', fr: 'licence et source', it: 'licenza e fonte', rm: 'licenza e funtauna' },
   'unknown': { de: 'unbekannt', fr: 'inconnu', it: 'sconosciuto', rm: 'nunenconuschent' },
+
+  // ---- the water budget sources in the vintage register ----
+  'Natural water balance of Switzerland and its large catchments': {
+    de: 'Natürlicher Wasserhaushalt der Schweiz und ihrer grossen Einzugsgebiete', fr: 'Bilan hydrique naturel de la Suisse et de ses grands bassins versants',
+    it: 'Bilancio idrico naturale della Svizzera e dei suoi grandi bacini imbriferi', rm: 'Bilantscha d’aua natirala da la Svizra e da ses gronds bogns da derivaziun',
+  },
+  'annual; the table is replaced each year': {
+    de: 'jährlich; die Tabelle wird jedes Jahr ersetzt', fr: 'annuel ; le tableau est remplacé chaque année',
+    it: 'annuale; la tabella è sostituita ogni anno', rm: 'annual; la tabella vegn remplazzada mintg’onn',
+  },
+  'No licence stated on the file; federal website terms, with source attribution.': {
+    de: 'Auf der Datei ist keine Lizenz angegeben; Nutzungsbedingungen der Bundeswebsite, mit Quellenangabe.',
+    fr: 'Aucune licence n’est indiquée sur le fichier ; conditions d’utilisation du site fédéral, avec mention de la source.',
+    it: 'Nessuna licenza indicata sul file; condizioni d’uso del sito federale, con indicazione della fonte.',
+    rm: 'Sin la datoteca n’è indicada nagina licenza; cundiziuns d’utilisaziun da la website federala, cun indicaziun da la funtauna.',
+  },
+  'PREVAH model output constrained by measured discharge. Read on the water budget page, which keeps every year it has read.': {
+    de: 'Ergebnisse des Modells PREVAH, gebunden an den gemessenen Abfluss. Gelesen auf der Seite zur Wasserbilanz, die jedes gelesene Jahr behält.',
+    fr: 'Résultats du modèle PREVAH contraints par le débit mesuré. Lus sur la page du bilan hydrique, qui conserve chaque année lue.',
+    it: 'Risultati del modello PREVAH vincolati dalla portata misurata. Letti nella pagina del bilancio idrico, che conserva ogni anno letto.',
+    rm: 'Resultats dal model PREVAH, liads al defluss mesirà. Legids sin la pagina da la bilantscha d’aua, che tegna mintg’onn legì.',
+  },
+  'method': { de: 'Methode', fr: 'méthode', it: 'metodo', rm: 'metoda' },
+  'Drought platform, numeric data: discharge, groundwater, lake levels and drought index': {
+    de: 'Trockenheitsplattform, numerische Daten: Abfluss, Grundwasser, Seestände und Trockenheitsindex',
+    fr: 'Plateforme sécheresse, données numériques : débit, eaux souterraines, niveaux des lacs et indice de sécheresse',
+    it: 'Piattaforma siccità, dati numerici: portata, acque sotterranee, livelli dei laghi e indice di siccità',
+    rm: 'Plattafurma da sitgira, datas numericas: defluss, aua sutterrana, nivels dals lais ed index da sitgira',
+  },
+  'BAFU, MeteoSwiss, swisstopo': { de: 'BAFU, MeteoSchweiz, swisstopo', fr: 'OFEV, MétéoSuisse, swisstopo', it: 'UFAM, MeteoSvizzera, swisstopo', rm: 'UFAM, MeteoSvizra, swisstopo' },
+  'daily, weekly and monthly files': { de: 'tägliche, wöchentliche und monatliche Dateien', fr: 'fichiers quotidiens, hebdomadaires et mensuels', it: 'file giornalieri, settimanali e mensili', rm: 'datotecas quotidianas, d’emna e mensilas' },
+  'drought platform': { de: 'Trockenheitsplattform', fr: 'plateforme sécheresse', it: 'piattaforma siccità', rm: 'plattafurma da sitgira' },
+  'Only complete weeks and months are used. The drought index is partly modelled: it combines measured precipitation and discharge with modelled soil moisture.': {
+    de: 'Verwendet werden nur abgeschlossene Wochen und Monate. Der Trockenheitsindex ist teilweise modelliert: Er verbindet gemessenen Niederschlag und Abfluss mit modellierter Bodenfeuchte.',
+    fr: 'Seules les semaines et les mois complets sont utilisés. L’indice de sécheresse est en partie modélisé : il combine les précipitations et le débit mesurés avec l’humidité du sol modélisée.',
+    it: 'Si usano solo settimane e mesi completi. L’indice di siccità è in parte modellato: combina precipitazioni e portata misurate con l’umidità del suolo modellata.',
+    rm: 'Duvradas vegnan mo emnas e mais cumplets. L’index da sitgira è per part modelà: el cumbinescha precipitaziun e defluss mesirads cun umiditad dal terren modelada.',
+  },
+  'Public drinking-water supply by origin': {
+    de: 'Öffentliche Trinkwasserversorgung nach Herkunft', fr: 'Distribution publique d’eau potable selon l’origine',
+    it: 'Approvvigionamento pubblico di acqua potabile secondo l’origine', rm: 'Provediment public d’aua da baiver tenor derivanza',
+  },
+  'BFS, from SVGW': { de: 'BFS, nach SVGW', fr: 'OFS, d’après la SSIGE', it: 'UST, secondo la SSIGA', rm: 'UST, tenor la SSIGA' },
+  'BFS terms of use: free use with source attribution': {
+    de: 'Nutzungsbedingungen des BFS: freie Nutzung mit Quellenangabe', fr: 'Conditions d’utilisation de l’OFS : libre utilisation avec mention de la source',
+    it: 'Condizioni d’uso dell’UST: libero utilizzo con indicazione della fonte', rm: 'Cundiziuns d’utilisaziun da l’UST: utilisaziun libra cun indicaziun da la funtauna',
+  },
+  'An extrapolation from the suppliers that report to the SVGW. Other uses are national estimates for 2006 or carry no year.': {
+    de: 'Eine Hochrechnung aus den Versorgern, die dem SVGW melden. Andere Nutzungen sind nationale Schätzungen für 2006 oder tragen kein Jahr.',
+    fr: 'Une extrapolation à partir des distributeurs qui font rapport à la SSIGE. Les autres utilisations sont des estimations nationales pour 2006 ou ne portent aucune année.',
+    it: 'Un’estrapolazione dalle aziende che riferiscono alla SSIGA. Gli altri utilizzi sono stime nazionali per il 2006 o non portano alcun anno.',
+    rm: 'Ina extrapolaziun ord ils furniturs che rapportan a la SSIGA. Autras utilisaziuns èn stimaziuns naziunalas per 2006 u n’han nagin onn.',
+  },
+  'Zappa et al., “Wasserhaushalt der Schweiz 2.0”, Wasser Energie Luft 109(3), 2017': {
+    de: 'Zappa et al., «Wasserhaushalt der Schweiz 2.0», Wasser Energie Luft 109(3), 2017', fr: 'Zappa et al., «&nbsp;Wasserhaushalt der Schweiz 2.0&nbsp;», Wasser Energie Luft 109(3), 2017',
+    it: 'Zappa et al., «Wasserhaushalt der Schweiz 2.0», Wasser Energie Luft 109(3), 2017', rm: 'Zappa et al., «Wasserhaushalt der Schweiz 2.0», Wasser Energie Luft 109(3), 2017',
+  },
+
+  // ---- the stores on the water budget page, as written by build/19-budget.mjs ----
+  'Hydro-CH2018 brochure “Schweizer Gewässer im Klimawandel”, 2021': {
+    de: 'Hydro-CH2018-Broschüre «Schweizer Gewässer im Klimawandel», 2021', fr: 'Brochure Hydro-CH2018 «&nbsp;Schweizer Gewässer im Klimawandel&nbsp;», 2021',
+    it: 'Opuscolo Hydro-CH2018 «Schweizer Gewässer im Klimawandel», 2021', rm: 'Broschura Hydro-CH2018 «Schweizer Gewässer im Klimawandel», 2021',
+  },
+  'Hydro-CH2018 brochure': { de: 'Hydro-CH2018-Broschüre', fr: 'Brochure Hydro-CH2018', it: 'Opuscolo Hydro-CH2018', rm: 'Broschura Hydro-CH2018' },
+  'Swiss Glacier Bulletin 2025 (Annual Report 146), February 2026': {
+    de: 'Schweizer Gletscherbulletin 2025 (Jahresbericht 146), Februar 2026', fr: 'Bulletin des glaciers suisses 2025 (rapport annuel 146), février 2026',
+    it: 'Bollettino dei ghiacciai svizzeri 2025 (rapporto annuale 146), febbraio 2026', rm: 'Bulletin dals glatschers svizzers 2025 (rapport annual 146), favrer 2026',
+  },
+  'Register of dams under federal supervision; weekly filling level of the storage lakes': {
+    de: 'Verzeichnis der Stauanlagen unter Bundesaufsicht; wöchentlicher Füllungsgrad der Speicherseen',
+    fr: 'Liste des ouvrages d’accumulation sous surveillance fédérale ; degré de remplissage hebdomadaire des lacs d’accumulation',
+    it: 'Elenco degli impianti di accumulazione sotto vigilanza federale; grado di riempimento settimanale dei laghi artificiali',
+    rm: 'Register da las serras sut surveglianza federala; grad d’emplenida da mintg’emna dals lais d’accumulaziun',
+  },
+  'reservoirs.json on this site': { de: 'reservoirs.json auf dieser Website', fr: 'reservoirs.json sur ce site', it: 'reservoirs.json su questo sito', rm: 'reservoirs.json sin questa website' },
+  'p. 7': { de: 'S. 7', fr: 'p. 7', it: 'p. 7', rm: 'p. 7' },
+  'p. 208': { de: 'S. 208', fr: 'p. 208', it: 'p. 208', rm: 'p. 208' },
+  'p. 10, Fig. 3.6': { de: 'S. 10, Abb. 3.6', fr: 'p. 10, fig. 3.6', it: 'p. 10, fig. 3.6', rm: 'p. 10, fig. 3.6' },
 });

@@ -30,9 +30,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fonts.css?v=20260821">
 <link rel="stylesheet" href="tokens.css?v=20260822">
-<link rel="stylesheet" href="site.css?v=20260822d">
-<script src="i18n.js?v=20260821"></script>
-<script src="i18n-data.js?v=20260821"></script>
+<link rel="stylesheet" href="site.css?v=20261010">
+<script src="i18n.js?v=20261010b"></script>
+<script src="i18n-data.js?v=20261010"></script>
 <script src="theme.js?v=20260821"></script>
 </head>
 <body class="page" data-page="method">
@@ -46,6 +46,7 @@
   </a>
   <nav class="siteNav" aria-label="Site">
     <a href="en/" class="toMap">Map</a>
+    <a href="budget.html">Budget</a>
     <a href="about.html">Project</a>
     <a href="method.html" aria-current="page">Method</a>
     <a href="sources.html">Sources</a>
@@ -492,12 +493,12 @@
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Pathway</th><th scope="col">Current coverage</th><th scope="col">Needed next</th></tr></thead>
         <tbody>
-          <tr><td>Precipitation, snow, soil</td><td>Not mapped</td><td>Observed precipitation, snow water equivalent and soil moisture</td></tr>
-          <tr><td>Ice</td><td>Six area inventories</td><td>Annual mass balance and volume</td></tr>
-          <tr><td>Groundwater and springs</td><td>Groundwater-body context only</td><td>NAQUA levels, spring discharge and recharge</td></tr>
+          <tr><td>Precipitation, snow, soil</td><td>National and catchment balance, annual; weekly drought index, on the <a href="budget.html">water budget page</a></td><td>Observed precipitation, snow water equivalent and soil moisture</td></tr>
+          <tr><td>Ice</td><td>Six area inventories; national ice volume from the annual bulletin</td><td>Annual mass balance and volume</td></tr>
+          <tr><td>Groundwater and springs</td><td>Groundwater-body context; monthly levels at monitoring sites against their own record</td><td>Storage, spring discharge and recharge</td></tr>
           <tr><td>Rivers and lakes</td><td>Current station observations on a model network; NAWA TREND laboratory results, 2011–2024</td><td>Small streams, sediment, cantonal quality, lake profiles and biological condition</td></tr>
           <tr><td>Storage</td><td>Dams and regional stored energy</td><td>Named-reservoir levels and lake storage</td></tr>
-          <tr><td>Use and return</td><td>Four historical registers</td><td>Sector volumes, transfers, return flows and current permits</td></tr>
+          <tr><td>Use and return</td><td>Four historical registers; annual public drinking-water supply</td><td>Sector volumes, transfers, return flows and current permits</td></tr>
           <tr><td>Legal protection</td><td>Residual flow, wetlands and protection zones</td><td>Concessions, expiry, orders, enforcement and cantonal decisions</td></tr>
           <tr><td>Across the border</td><td>Sea-basin context and frontier gauges</td><td>Matched downstream observations and transboundary duties</td></tr>
         </tbody>
@@ -555,10 +556,12 @@
           <tr><td class="n">16</td><td>Machine-readable source provenance</td><td><b>weekly</b></td></tr>
           <tr><td class="n">17</td><td>The NAWA TREND water-quality record</td><td><b>weekly</b></td></tr>
           <tr><td class="n">18</td><td>The canton monitoring evidence audit</td><td><b>weekly</b></td></tr>
+          <tr><td class="n">19</td><td>The national water balance, stores and uses</td><td><b>weekly</b></td></tr>
+          <tr><td class="n">20</td><td>Current outflow, groundwater, lake levels and drought</td><td><b>weekly</b></td></tr>
         </tbody>
       </table></div>
       <p class="fine">The Monday refresh rebuilds stations, reservoirs, cantonal dates, wetlands,
-        water quality, monitoring evidence, source vintage and provenance; it then verifies and commits
+        water quality, monitoring evidence, the water budget and its current conditions, source vintage and provenance; it then verifies and commits
         the result. Annual names and deterministic basin geometry are rebuilt when their inputs change.
         The sources page also checks federal data states in the reader&rsquo;s browser, so a date can update
         between scheduled builds.</p>
@@ -581,6 +584,7 @@
       advice.</p>
     <div class="footLinks">
       <a href="./">The map</a>
+      <a href="budget.html">Water budget</a>
       <a href="method.html">Method</a>
       <a href="sources.html">Sources</a>
       <a href="law.html">Law</a>

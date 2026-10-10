@@ -32,6 +32,7 @@ primary law and reproducible methods that can support legal action when needed.
 | Wetlands | Five federal inventories of protected wetlands |
 | Sources and groundwater | Groundwater bodies, headwaters, sub-catchments and drinking-water protection zones |
 | Monitoring duties | Federal duties and a 26-canton public-evidence audit; evidence and freshness, not a compliance score |
+| Water budget | BAFU's annual national and catchment balance, the stores in ice, lakes, groundwater, soil and reservoirs, public drinking-water supply, and the latest complete month of outflow, groundwater, lake levels and drought index; a separate [page](https://opengovclimate.ch/riverflow/budget.html) that also lists the missing data and who holds it |
 
 This is not a forecast, a finding of breach or legal advice. It is also not a
 complete account of Swiss water. Important omissions are listed on the
@@ -144,6 +145,8 @@ node build/12-wetlands.mjs
 node build/13-basins.mjs
 node build/17-quality.mjs
 node build/18-monitoring.mjs
+node build/19-budget.mjs
+node build/20-conditions.mjs
 node build/08-vintage.mjs
 python3 build/14-pages.py build
 node build/15-social-card.mjs

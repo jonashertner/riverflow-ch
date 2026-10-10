@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* Dependency-free release gate for the static site.
  *
- * The publication surface is 26 HTML documents with 25 canonical URLs, fourteen
+ * The publication surface is 31 HTML documents with 30 canonical URLs, fourteen
  * JSON datasets and three shared string catalogues. A broken relative link or one
  * missing translation can therefore hide in a page nobody happened to open. This
  * check treats the site as one artifact and verifies the contracts that make those
@@ -173,12 +173,13 @@ for (const file of landingFiles) {
   }
   const primaryNav = /<nav\b[^>]*id=["']siteNav["'][^>]*>([\s\S]*?)<\/nav>/i.exec(raw)?.[1] ?? '';
   const primaryLinks = [...primaryNav.matchAll(/<a\b([^>]*)>/gi)].map(match => match[1]);
-  if (primaryLinks.length !== 6 ||
+  if (primaryLinks.length !== 7 ||
       !/class=["'][^"']*toMap/.test(primaryLinks[0]) ||
       !/aria-current=["']page["']/.test(primaryLinks[0]) ||
-      !/href=["'][^"']*about\.html["']/.test(primaryLinks[1]) ||
+      !/href=["'][^"']*budget\.html["']/.test(primaryLinks[1]) ||
+      !/href=["'][^"']*about\.html["']/.test(primaryLinks[2]) ||
       /<button\b[^>]*id=["']introOpen["']/i.test(primaryNav)) {
-    fail(file, 'map navigation must begin with an active Map link followed by Project, without a competing dialog action');
+    fail(file, 'map navigation must begin with an active Map link followed by Budget and Project, without a competing dialog action');
   }
   if (!/<nav\b[^>]*class=["']creditsNav["'][\s\S]*?#collaborate/i.test(raw)) {
     fail(file, 'persistent project documentation and contribution links are missing');
@@ -188,7 +189,7 @@ for (const file of landingFiles) {
 // Every reading page exposes the collaborative path in its primary navigation.
 // About is the durable statement of scope and links directly to the public guide.
 const readingFiles = ['', 'de', 'fr', 'it', 'rm'].flatMap(lang =>
-  ['about.html', 'method.html', 'sources.html', 'law.html'].map(page => join(site, lang, page)));
+  ['budget.html', 'about.html', 'method.html', 'sources.html', 'law.html'].map(page => join(site, lang, page)));
 for (const file of readingFiles) {
   const raw = htmlByFile.get(file) ?? '';
   if (!/<nav\b[^>]*class=["']siteNav["'][\s\S]*?<a\b[^>]*class=["']contributeLink["'][^>]*href=["'][^"']*#collaborate["']/i.test(raw)) {
@@ -198,9 +199,9 @@ for (const file of readingFiles) {
   const links = [...nav.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)];
   const hrefs = links.map(match => /href=["']([^"']*)["']/.exec(match[1])?.[1] ?? '');
   const active = links.filter(match => /aria-current=["']page["']/.test(match[1]));
-  if (links.length !== 6 || !/^(?:en\/|\.\.\/|\.\/)$/i.test(hrefs[0]) ||
-      !/about\.html$/.test(hrefs[1]) || !/method\.html$/.test(hrefs[2]) ||
-      !/sources\.html$/.test(hrefs[3]) || !/law\.html$/.test(hrefs[4]) ||
+  if (links.length !== 7 || !/^(?:en\/|\.\.\/|\.\/)$/i.test(hrefs[0]) ||
+      !/budget\.html$/.test(hrefs[1]) || !/about\.html$/.test(hrefs[2]) || !/method\.html$/.test(hrefs[3]) ||
+      !/sources\.html$/.test(hrefs[4]) || !/law\.html$/.test(hrefs[5]) ||
       active.length !== 1) {
     fail(file, 'reading-page navigation order, map return or active route is inconsistent');
   }
@@ -373,7 +374,7 @@ const sitemap = readFileSync(sitemapFile, 'utf8');
 const sitemapUrls = new Set([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]));
 for (const url of canonicalUrls) if (!sitemapUrls.has(url)) fail(sitemapFile, `missing canonical URL ${url}`);
 for (const url of sitemapUrls) if (!canonicalUrls.has(url)) fail(sitemapFile, `URL has no HTML canonical ${url}`);
-if (sitemapUrls.size !== 25) fail(sitemapFile, `expected 25 URLs, found ${sitemapUrls.size}`);
+if (sitemapUrls.size !== 30) fail(sitemapFile, `expected 30 URLs, found ${sitemapUrls.size}`);
 
 // Parse every committed JSON artifact and syntax-check every JavaScript source.
 for (const file of [...walk(join(site, 'data'), f => extname(f) === '.json'), ...walk(join(root, 'build', 'pages'), f => extname(f) === '.json')]) {
@@ -545,6 +546,28 @@ try {
   const ice2010 = ice.frames.find(f => f.y === 2010), ice2016 = ice.frames.find(f => f.y === 2016);
   if (ice2010?.km2 !== 944.4 || ice2016?.km2 !== 961.3) fail(iceFile, 'the documented 2010–2016 method break no longer matches the data');
 
+  // The national balance must close in every period, as BAFU's table does, and the
+  // monthly conditions must describe complete months only.
+  const budgetFile = join(site, 'data', 'budget.json');
+  const budget = data('budget.json');
+  for (const period of budget.periods) {
+    const t = budget.national[period];
+    if (!t || Math.abs(t.P - t.E - t.R - t.dS) > 2) fail(budgetFile, `national balance does not close for ${period}`);
+    if (!t || Math.abs(t.R + t.inflow - t.outflow) > 2) fail(budgetFile, `inflow and outflow do not close for ${period}`);
+  }
+  if (budget.basins.length !== 12) fail(budgetFile, `expected 12 catchments, found ${budget.basins.length}`);
+  if (budget.periods.at(-1) !== String(budget.year) || !budget.years[budget.year]) fail(budgetFile, 'the latest balance year is not recorded');
+  const conditionsFile = join(site, 'data', 'conditions.json');
+  const conditions = data('conditions.json');
+  if (conditions.meta.lastMonth >= conditions.meta.updated.slice(0, 7)) fail(conditionsFile, 'the latest month is not complete');
+  if (conditions.outflow.months.at(-1).m !== conditions.meta.lastMonth) fail(conditionsFile, 'outflow does not end at the latest complete month');
+  for (const key of ['groundwater', 'lakes']) {
+    const c = conditions[key];
+    if (c.low + c.normal + c.high !== c.n) fail(conditionsFile, `${key} classes do not sum to the station count`);
+  }
+  if (conditions.drought.levels.reduce((a, n) => a + n, 0) > conditions.drought.regions) fail(conditionsFile, 'more drought levels than regions');
+  if (Date.now() - Date.parse(conditions.meta.updated) > 21 * 86400000) fail(conditionsFile, `drought platform data are more than 21 days old (${conditions.meta.updated})`);
+
   const provenance = data('provenance.json');
   const vintage = data('vintage.json');
   for (const source of vintage.sources) {
@@ -603,7 +626,7 @@ try {
       social.glacierInventories !== ice.frames.length || social.width !== 1200 || social.height !== 630 ||
       social.sha256 !== hash(socialImage)) fail(join(site, 'data', 'social-card.json'), 'social preview facts or image hash are stale');
 
-  const claims = [readFileSync(join(root, 'README.md'), 'utf8'), ...['index.html', 'method.html', 'sources.html', 'law.html'].map(name => readFileSync(join(site, name), 'utf8'))].join('\n');
+  const claims = [readFileSync(join(root, 'README.md'), 'utf8'), ...['index.html', 'budget.html', 'method.html', 'sources.html', 'law.html'].map(name => readFileSync(join(site, name), 'utf8'))].join('\n');
   for (const phrase of ['legally operative figure', 'what the statute would require', '8\'716 reaches', '236 federal gauges', 'Gegen normal', 'Against normal', 'Contro la norma', 'five surveys']) {
     if (claims.includes(phrase)) fail(join(root, 'README.md'), `obsolete claim remains: ${phrase}`);
   }

@@ -527,3 +527,108 @@ body[data-page="about"]   { --accent: var(--seq-300); }
    against the long-term mean at the same gauge. */
 .liveQ { color: var(--ev-measured); }
 .liveQ.pending { color: var(--ink-muted); }
+
+/* ---- the water budget page ----
+   Measured water is blue, as everywhere on the site. The two warm marks are the
+   two ways the budget runs short: a month below its mean, and a drought level
+   above 1. The balance bars use one colour per term and print every value in the
+   key beside them, so no term is read from colour alone. */
+body[data-page="budget"] { --accent: var(--seq-300); }
+.bTiles {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(176px, 1fr));
+  gap: 12px; margin: 26px 0 34px;
+}
+.bTile {
+  padding: 14px 16px 15px; border: 1px solid var(--hairline); border-radius: 8px;
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+}
+.doc .bTile p { margin: 0; }
+.doc .bBig {
+  font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 27px;
+  line-height: 1.1; color: var(--ink); letter-spacing: -0.01em;
+}
+.bBig small { font-size: 0.55em; color: var(--ink-muted); }
+.doc .bLabel { margin-top: 6px; font-size: 13.5px; line-height: 1.35; color: var(--ink-2); font-weight: 500; }
+.doc .bSub { margin-top: 5px; font-size: 12.5px; line-height: 1.45; color: var(--ink-muted); }
+
+.bChart, .bFig { margin: 18px 0 26px; }
+.bPlot { position: relative; height: 180px; margin-right: 46px; border-bottom: 1px solid var(--ink-muted); }
+.bPlot.short { height: 130px; margin-right: 0; }
+.bCols { position: absolute; inset: 0; display: flex; align-items: flex-end; gap: 2px; }
+.bCol { flex: 1; min-width: 0; border-radius: 3px 3px 0 0; }
+.bCol.below, .bKey i.below { background: var(--temp-3); }
+.bCol.above, .bKey i.above { background: var(--seq-400); }
+.bTick { position: absolute; left: 0; right: -46px; border-top: 1px dashed var(--rule); pointer-events: none; }
+.bTick em {
+  position: absolute; right: 0; top: -8px; font-style: normal; font-family: var(--mono);
+  font-size: 10.5px; color: var(--ink-muted); background: var(--surface-1); padding-left: 4px;
+}
+.bStack { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.bStack i { display: block; min-height: 1px; }
+.bStack i:first-child { border-radius: 2px 2px 0 0; }
+.cdi1 { background: var(--div-5); }
+.cdi2 { background: var(--temp-2); }
+.cdi3 { background: var(--temp-3); }
+.cdi4 { background: var(--temp-4); }
+.cdi5 { background: var(--temp-5); }
+.bAxis { display: flex; gap: 2px; margin: 5px 46px 0 0; }
+.bPlot.short + .bAxis { margin-right: 0; }
+.bAxis span {
+  flex: 1; min-width: 0; overflow: visible; white-space: nowrap;
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-muted);
+}
+/* The last label is anchored at its right edge so it never runs past the plot. */
+.bAxis span:last-child { direction: rtl; }
+.bKey { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 6px !important; padding: 0 !important; }
+.doc .bKey li { margin: 0; font-size: 13px; color: var(--ink-2); display: flex; align-items: baseline; gap: 7px; }
+.bKey i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; flex: none; }
+.bKey span { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); }
+.bData { margin-top: 10px; }
+.bData summary { cursor: pointer; font-size: 13px; color: var(--accent); }
+
+.bSeg { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.bSeg button {
+  font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--rule); background: transparent; color: var(--ink-2);
+}
+.bSeg button[aria-pressed="true"] { border-color: var(--accent); color: var(--ink); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.bSeg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bBalRow { display: grid; grid-template-columns: 4.5rem 1fr; align-items: center; gap: 10px; margin: 8px 0; }
+.bBalName { font-size: 12px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-muted); }
+.bBand { display: flex; gap: 2px; height: 30px; }
+.bBand span { min-width: 2px; }
+.bBand span:first-child { border-radius: 4px 0 0 4px; }
+.bBand span:last-child { border-radius: 0 4px 4px 0; }
+.t-P { background: var(--seq-200); }
+.t-inflow { background: var(--seq-500); }
+.t-draw { background: var(--temp-3); }
+.t-E { background: var(--div-5); }
+.t-outflow { background: var(--seq-400); }
+.t-gain { background: var(--seq-600); }
+
+.bStores { margin: 6px 0 4px; }
+.bStore { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 9px 0; border-bottom: 1px solid var(--rule); }
+.bStoreName { font-size: 13px; color: var(--ink-2); }
+.bStoreVal { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12px; color: var(--ink-muted); text-align: right; }
+.bTrack { grid-column: 1 / -1; position: relative; height: 9px; }
+.bStoreVal { grid-row: 1; grid-column: 2; }
+.bTrack i, .bTrack u { position: absolute; left: 0; top: 0; height: 9px; border-radius: 0 4px 4px 0; min-width: 2px; }
+.bTrack i.st { background: var(--seq-400); }
+.bTrack u { background: color-mix(in srgb, var(--seq-400) 28%, transparent); }
+.bTrack i.fl { background: transparent; border: 1.5px solid var(--ink-muted); height: 9px; box-sizing: border-box; }
+.bNum { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink); }
+.bStore.flow .bStoreName { color: var(--ink-muted); }
+@media (min-width: 700px) {
+  .bStore { grid-template-columns: 12rem 1fr 6.5rem; align-items: center; gap: 0 14px; }
+  .bTrack { grid-column: auto; }
+  .bStoreVal { grid-row: auto; grid-column: auto; }
+}
+@media (max-width: 480px) {
+  .bPlot { height: 150px; margin-right: 38px; }
+  .bTick { right: -38px; }
+  .bAxis { margin-right: 38px; }
+  .bAxis span { font-size: 9.5px; }
+  .doc .bBig { font-size: 24px; }
+  .bTiles { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .bTile { padding: 12px; }
+}

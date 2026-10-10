@@ -104,6 +104,39 @@ const SOURCES = [
     note: 'The file allows only map.geo.admin.ch to read it from a browser, so it is baked in at build time. The Pages workflow rebuilds weekly to keep the baked copy fresh.',
   },
   {
+    key: 'waterBalance', layer: null,
+    name: 'Natural water balance of Switzerland and its large catchments',
+    holder: 'BAFU', cls: 'modelled', cadence: 'annual; the table is replaced each year', live: false,
+    url: 'https://www.bafu.admin.ch/de/wasserhaushalt-heute',
+    links: [
+      { label: 'method', url: 'https://www.bafu.admin.ch/dam/de/sd-web/r5wsqRim2y1u/WHH_CH_WEL_2017_3_Methode.pdf' },
+    ],
+    licence: 'No licence stated on the file; federal website terms, with source attribution.',
+    fixed: null,   // filled from budget.json below: the end of the balance year
+    note: 'PREVAH model output constrained by measured discharge. Read on the water budget page, which keeps every year it has read.',
+  },
+  {
+    key: 'drought', layer: null,
+    name: 'Drought platform, numeric data: discharge, groundwater, lake levels and drought index',
+    holder: 'BAFU, MeteoSwiss, swisstopo', cls: 'measured', cadence: 'daily, weekly and monthly files', live: false,
+    url: 'https://data.geo.admin.ch/ch.bafu.trockenheitsdaten-numerisch',
+    links: [
+      { label: 'drought platform', url: 'https://www.trockenheit.admin.ch/' },
+    ],
+    licence: 'FSDI general terms of use, free use with source attribution',
+    fixed: null,   // filled from conditions.json below: the platform's own update date
+    note: 'Only complete weeks and months are used. The drought index is partly modelled: it combines measured precipitation and discharge with modelled soil moisture.',
+  },
+  {
+    key: 'drinkingWater', layer: null,
+    name: 'Public drinking-water supply by origin',
+    holder: 'BFS, from SVGW', cls: 'survey', cadence: 'annual', live: false,
+    url: 'https://dam-api.bfs.admin.ch/hub/api/dam/assets/36409183/master',
+    licence: 'BFS terms of use: free use with source attribution',
+    fixed: null,   // filled from budget.json below: the end of the latest year
+    note: 'An extrapolation from the suppliers that report to the SVGW. Other uses are national estimates for 2006 or carry no year.',
+  },
+  {
     key: 'dams', layer: 'ch.bfe.stauanlagen-bundesaufsicht',
     name: 'Dams under federal supervision',
     holder: 'BFE', cls: 'register', cadence: 'irregular', live: false,
@@ -294,6 +327,21 @@ try {
   qualityLatest = q.meta?.sourceLast ?? null;
 } catch { /* quality not built yet; the field stays null and the page says so */ }
 
+// The water budget dates itself by the period it describes: the end of the balance
+// year, the end of the latest drinking-water year, and the drought platform's own
+// update date.
+let balanceEnd = null, drinkingEnd = null, droughtUpdated = null;
+try {
+  const b = JSON.parse(await fs.readFile(new URL('../site/data/budget.json', import.meta.url), 'utf8'));
+  balanceEnd = b.year ? `${b.year}-12-31` : null;
+  const last = b.use?.drinking?.rows?.at(-1);
+  drinkingEnd = last ? `${last.y}-12-31` : null;
+} catch { /* run build/19-budget.mjs first */ }
+try {
+  const c = JSON.parse(await fs.readFile(new URL('../site/data/conditions.json', import.meta.url), 'utf8'));
+  droughtUpdated = c.meta?.updated ?? null;
+} catch { /* run build/20-conditions.mjs first */ }
+
 const sources = [];
 // The protection zones have no data state of their own. A national picture made of
 // 26 cantonal deliveries is exactly as current as the canton that delivered last,
@@ -315,6 +363,9 @@ for (const s of SOURCES) {
   if (s.key === 'reservoirFill') ds = fillLatest;
   if (s.key === 'quality') ds = qualityLatest;
   if (s.key === 'zones') ds = zoneOldest;
+  if (s.key === 'waterBalance') ds = balanceEnd;
+  if (s.key === 'drinkingWater') ds = drinkingEnd;
+  if (s.key === 'drought') ds = droughtUpdated;
   sources.push({
     key: s.key,
     name: s.key === 'zones' && zoneCt ? `${s.name} (oldest delivery: ${zoneCt})` : s.name,

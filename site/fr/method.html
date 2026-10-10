@@ -30,9 +30,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../fonts.css?v=20260821">
 <link rel="stylesheet" href="../tokens.css?v=20260822">
-<link rel="stylesheet" href="../site.css?v=20260822d">
-<script src="../i18n.js?v=20260821"></script>
-<script src="../i18n-data.js?v=20260821"></script>
+<link rel="stylesheet" href="../site.css?v=20261010">
+<script src="../i18n.js?v=20261010b"></script>
+<script src="../i18n-data.js?v=20261010"></script>
 <script src="../theme.js?v=20260821"></script>
 </head>
 <body class="page" data-page="method">
@@ -46,6 +46,7 @@
   </a>
   <nav class="siteNav" aria-label="Site">
     <a href="./" class="toMap">Carte</a>
+    <a href="budget.html">Bilan</a>
     <a href="about.html">Projet</a>
     <a href="method.html" aria-current="page">Méthode</a>
     <a href="sources.html">Sources</a>
@@ -275,12 +276,12 @@
       <div class="tWrap"><table>
         <thead><tr><th scope="col">Voie</th><th scope="col">Couverture actuelle</th><th scope="col">Prochaine étape</th></tr></thead>
         <tbody>
-          <tr><td>Précipitations, neige, sol</td><td>Non cartographié</td><td>Précipitations observées, équivalent en eau de la neige et humidité du sol</td></tr>
-          <tr><td>Glace</td><td>Six inventaires de surface</td><td>Bilan de masse annuel et volume</td></tr>
-          <tr><td>Eaux souterraines et sources</td><td>Contexte des masses d’eau souterraine seulement</td><td>Niveaux NAQUA, débit des sources et recharge</td></tr>
+          <tr><td>Précipitations, neige, sol</td><td>Bilan national et par bassin versant, annuel ; indice de sécheresse hebdomadaire, sur la <a href="budget.html">page du bilan hydrique</a></td><td>Précipitations observées, équivalent en eau de la neige et humidité du sol</td></tr>
+          <tr><td>Glace</td><td>Six inventaires de surface ; volume national de glace tiré du bulletin annuel</td><td>Bilan de masse annuel et volume</td></tr>
+          <tr><td>Eaux souterraines et sources</td><td>Contexte des masses d’eau souterraine ; niveaux mensuels aux stations de mesure comparés à leur propre série</td><td>Réserves, débit des sources et recharge</td></tr>
           <tr><td>Cours d’eau et lacs</td><td>Observations actuelles aux stations sur un réseau modélisé ; résultats de laboratoire NAWA TREND, 2011–2024</td><td>Petits cours d’eau, sédiments, qualité cantonale, profils lacustres et état biologique</td></tr>
           <tr><td>Stockage</td><td>Barrages et énergie stockée par région</td><td>Niveaux des retenues nommées et stockage lacustre</td></tr>
-          <tr><td>Usages et retours</td><td>Quatre registres historiques</td><td>Volumes sectoriels, transferts, retours et autorisations actuelles</td></tr>
+          <tr><td>Usages et retours</td><td>Quatre registres historiques ; distribution publique annuelle d’eau potable</td><td>Volumes sectoriels, transferts, retours et autorisations actuelles</td></tr>
           <tr><td>Protection juridique</td><td>Débits résiduels, zones humides et zones de protection</td><td>Concessions, échéance, décisions, exécution et décisions cantonales</td></tr>
           <tr><td>Au-delà de la frontière</td><td>Contexte des bassins maritimes et stations frontières</td><td>Observations concordantes en aval et obligations transfrontières</td></tr>
         </tbody>
@@ -326,9 +327,11 @@
           <tr><td class="n">16</td><td>Provenance des sources lisible par machine</td><td><b>hebdomadaire</b></td></tr>
           <tr><td class="n">17</td><td>Le dossier de qualité de l’eau NAWA TREND</td><td><b>hebdomadaire</b></td></tr>
           <tr><td class="n">18</td><td>L’audit des preuves de suivi cantonal</td><td><b>hebdomadaire</b></td></tr>
+          <tr><td class="n">19</td><td>Le bilan hydrique national, les réserves et les utilisations</td><td><b>hebdomadaire</b></td></tr>
+          <tr><td class="n">20</td><td>Écoulement actuel, eaux souterraines, niveaux des lacs et sécheresse</td><td><b>hebdomadaire</b></td></tr>
         </tbody>
       </table></div>
-      <p class="fine">L’actualisation du lundi reconstruit stations, retenues, dates cantonales, zones humides, qualité de l’eau, preuves de suivi, ancienneté des sources et provenance ; elle vérifie puis enregistre le résultat. Les noms annuels et la géométrie déterministe des bassins sont reconstruits lorsque leurs entrées changent. La page des sources vérifie aussi les états fédéraux dans le navigateur, afin qu’une date puisse évoluer entre deux builds planifiés.</p>
+      <p class="fine">L’actualisation du lundi reconstruit stations, retenues, dates cantonales, zones humides, qualité de l’eau, preuves de suivi, le bilan hydrique et son état actuel, ancienneté des sources et provenance ; elle vérifie puis enregistre le résultat. Les noms annuels et la géométrie déterministe des bassins sont reconstruits lorsque leurs entrées changent. La page des sources vérifie aussi les états fédéraux dans le navigateur, afin qu’une date puisse évoluer entre deux builds planifiés.</p>
     </section>
 
     <p><a class="toMapBig" href="./"><svg class="mark" width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0" y="0" width="1.4" height="10" rx="0.7" class="mA"/><rect x="2.6" y="0" width="11.6" height="10" rx="1.2" class="mB"/><rect x="15.4" y="0" width="6.6" height="10" rx="1.2" class="mC"/></svg> Retour à la carte</a></p>
@@ -339,7 +342,7 @@
   <div class="siteFootIn">
     <p><b>L’eau et la glace en Suisse.</b> Débit, niveau et température en direct du réseau de mesure de l’OFEV via LINDAS. Cours d’eau HydroRIVERS v1.0 (HydroSHEDS, WWF). Glace GLAMOS. Retenues et force hydraulique OFEN. Débits résiduels, prélèvements et stations d’épuration OFEV. Noms swissNAMES3D (swisstopo). Zones de protection, les vingt-six cantons via geodienste.ch. Chaque source, sa licence et son état des données figurent sur la <a href="sources.html">page des sources</a>.</p>
     <p>De l’eau mesurée et modélisée, pas une prévision. Une donnée ici est un fait concernant une rivière, une retenue ou un glacier ; ce n’est pas un constat de violation, et rien sur ce site n’est un conseil juridique.</p>
-    <div class="footLinks"><a href="./">Carte</a> <a href="method.html">Méthode</a> <a href="sources.html">Sources</a> <a href="law.html">Droit</a> <a href="about.html">À propos</a> <a href="about.html#collaborate">Contribuer</a> <a href="https://github.com/jonashertner/riverflow-ch">Code source</a></div>
+    <div class="footLinks"><a href="./">Carte</a> <a href="budget.html">Bilan hydrique</a> <a href="method.html">Méthode</a> <a href="sources.html">Sources</a> <a href="law.html">Droit</a> <a href="about.html">À propos</a> <a href="about.html#collaborate">Contribuer</a> <a href="https://github.com/jonashertner/riverflow-ch">Code source</a></div>
   </div>
 </footer>
 

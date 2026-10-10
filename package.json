@@ -12,7 +12,7 @@
     "build:social": "node build/15-social-card.mjs",
     "build:provenance": "node build/16-provenance.mjs",
     "release": "npm run build:pages && npm run build:social && npm run build:provenance && npm test",
-    "refresh": "node build/01-stations.mjs && node build/06-reservoirs.mjs && node build/11-cantons.mjs && node build/12-wetlands.mjs && node build/17-quality.mjs && node build/18-monitoring.mjs && node build/08-vintage.mjs && npm run release"
+    "refresh": "node build/01-stations.mjs && node build/06-reservoirs.mjs && node build/11-cantons.mjs && node build/12-wetlands.mjs && node build/17-quality.mjs && node build/18-monitoring.mjs && node build/19-budget.mjs && node build/20-conditions.mjs && node build/08-vintage.mjs && npm run release"
   },
   "engines": {
     "node": ">=22"

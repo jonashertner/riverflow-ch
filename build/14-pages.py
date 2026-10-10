@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Five pages in five languages, with German at the publication root.
+"""Six pages in five languages, with German at the publication root.
 
 The English files under site/ are the originals except for the landing page,
 whose durable source is build/pages/index.en.html. The translated files are
@@ -15,7 +15,7 @@ Chunks are spliced back by offset, never by search-and-replace, so a heading tha
 reads "Law" cannot rewrite the word law in a paragraph below it.
 
   python3 build/14-pages.py missing de [page ...]   what German still owes
-  python3 build/14-pages.py build                   write the twenty files
+  python3 build/14-pages.py build                   write the twenty-four files
                                                     and the sitemap
 """
 import json, os, re, subprocess, sys
@@ -24,7 +24,7 @@ from html.parser import HTMLParser
 HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.join(os.path.dirname(HERE), 'site')
 TRANS = os.path.join(HERE, 'pages')
-PAGES = ['index.html', 'about.html', 'method.html', 'law.html', 'sources.html']
+PAGES = ['index.html', 'budget.html', 'about.html', 'method.html', 'law.html', 'sources.html']
 LANGS = ['de', 'fr', 'it', 'rm']
 
 # A chunk stops at any of these. Inline markup (b, i, em, a, code, sub, abbr, br)
@@ -185,7 +185,7 @@ def load(lang):
 # --- the mechanical half ---------------------------------------------------
 ASSETS = ('fonts.css', 'tokens.css', 'style.css', 'site.css', 'favicon.svg', 'i18n.js',
           'i18n-data.js', 'i18n-map.js', 'theme.js', 'fmt.js', 'gschg31.js',
-          'legal-alerts.js', 'site.js', 'app.js')
+          'legal-alerts.js', 'site.js', 'budget.js', 'app.js')
 BASE = 'https://opengovclimate.ch/riverflow/'
 
 
@@ -214,7 +214,7 @@ def relocate(raw, lang, page):
         # English reading pages keep their stable root URLs, while the English
         # map now lives at /en/.
         if lang == 'en':
-            for target in ('method.html', 'sources.html', 'law.html', 'about.html'):
+            for target in ('method.html', 'sources.html', 'law.html', 'about.html', 'budget.html'):
                 raw = raw.replace('href="%s' % target, 'href="../%s' % target)
         alts = [
             '<link rel="alternate" hreflang="en" href="%s">' % ('./' if lang == 'en' else '../en/'),
@@ -252,7 +252,7 @@ def root_german(raw):
         for attr in ('href', 'src'):
             raw = re.sub(r'%s="\.\./%s' % (attr, re.escape(asset)),
                          '%s="%s' % (attr, asset), raw)
-    for target in ('method.html', 'sources.html', 'law.html', 'about.html'):
+    for target in ('method.html', 'sources.html', 'law.html', 'about.html', 'budget.html'):
         raw = raw.replace('href="%s' % target, 'href="de/%s' % target)
     alts = [
         '<link rel="alternate" hreflang="en" href="en/">',
@@ -332,7 +332,7 @@ def build():
                 print('%s/%s: %d chunk(s) untranslated' % (lang, page, len(todo)))
                 owed += len(todo)
             open(os.path.join(SITE, lang, page), 'w', encoding='utf-8').write(out)
-        print('%s: five pages written' % lang)
+        print('%s: %d pages written' % (lang, len(PAGES)))
     open(os.path.join(SITE, 'index.html'), 'w', encoding='utf-8').write(
         root_german(open(os.path.join(SITE, 'de', 'index.html'), encoding='utf-8').read()))
     sitemap()

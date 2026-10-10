@@ -52,6 +52,51 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/"/>
   </url>
   <url>
+    <loc>https://opengovclimate.ch/riverflow/budget.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/budget.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/de/budget.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/budget.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/fr/budget.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/budget.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/it/budget.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/budget.html"/>
+  </url>
+  <url>
+    <loc>https://opengovclimate.ch/riverflow/rm/budget.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://opengovclimate.ch/riverflow/de/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://opengovclimate.ch/riverflow/fr/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://opengovclimate.ch/riverflow/it/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="rm" href="https://opengovclimate.ch/riverflow/rm/budget.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://opengovclimate.ch/riverflow/budget.html"/>
+  </url>
+  <url>
     <loc>https://opengovclimate.ch/riverflow/about.html</loc>
     <lastmod>2026-08-22</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://opengovclimate.ch/riverflow/about.html"/>

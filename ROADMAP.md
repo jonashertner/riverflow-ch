@@ -19,16 +19,16 @@ A new layer is ready only when it has:
 
 | Pathway | Current state | Next evidence needed |
 |---|---|---|
-| Precipitation | Named in the cycle; not mapped | MeteoSwiss gridded precipitation and station provenance |
+| Precipitation | BAFU's annual modelled national and catchment totals on the budget page | MeteoSwiss gridded precipitation, a citable national monthly series and station provenance |
 | Snow | Named; glacier ice mapped | Operational snow-water equivalent and uncertainty |
-| Glacier ice | Six dated inventories | Annual mass balance and basin contribution |
-| Soil and infiltration | Gap disclosed | Soil moisture and an explicit recharge model |
-| Groundwater | Bodies shown as WMS context | NAQUA levels and quality, spring discharge, recharge |
+| Glacier ice | Six dated inventories; national volume from the GLAMOS bulletin | Annual mass balance and volume as an open series, and basin contribution |
+| Soil and infiltration | Modelled soil moisture in the weekly drought index | Measured soil moisture and an explicit recharge model |
+| Groundwater | Bodies shown as WMS context; monthly levels against each site's own record | Storage, NAQUA quality, spring discharge, recharge |
 | Rivers | Live gauges plus network estimates | Small streams, travel time, diversions and uncertainty |
-| Lakes | Context only | Levels, profiles, quality and residence time |
+| Lakes | Monthly levels against each site's own record | Profiles, quality and residence time |
 | Wetlands | Five federal inventories | Hydrological condition, buffer pressures and restoration |
-| Storage and use | Reservoir series and registers | Current permits, withdrawals, return flows and concessions |
-| Evapotranspiration | Gap disclosed | Observed or modelled basin water loss |
+| Storage and use | Reservoir series, registers, store estimates and annual drinking-water supply | Current permits, withdrawals by sector, return flows and concessions |
+| Evapotranspiration | BAFU's annual modelled national and catchment totals | Current gridded actual evapotranspiration |
 | Borders | Swiss context | Upstream and downstream basin continuity |
 
 ## Monitoring and enforcement
