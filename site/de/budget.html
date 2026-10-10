@@ -30,8 +30,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../fonts.css?v=20260821">
 <link rel="stylesheet" href="../tokens.css?v=20260822">
-<link rel="stylesheet" href="../site.css?v=20261010">
-<script src="../i18n.js?v=20261010b"></script>
+<link rel="stylesheet" href="../site.css?v=20261011">
+<script src="../i18n.js?v=20261011"></script>
 <script src="../i18n-data.js?v=20261010"></script>
 <script src="../theme.js?v=20260821"></script>
 </head>
@@ -90,17 +90,24 @@
       <div id="nowTiles" class="bTiles" aria-live="polite"></div>
       <h3>Wasser, das das Land verlässt</h3>
       <p>Monatsmittel des Abflusses von Rhein bei Basel und Rhone bei Chancy, den beiden Messstationen, an denen der grösste Teil des Schweizer Wassers die Grenze überquert, als Anteil am Mittel 1991&#8211;2020 desselben Monats. Zusammen führen sie etwa fünf Sechstel des nationalen Abflusses; den Rest führen Tessin, Inn, Doubs und kleinere Grenzflüsse.</p>
-      <div id="outflowFig" class="bChart"></div>
+      <figure class="bChart wide"><div id="outflowChart" class="bCanvas"></div><div id="outflowAfter"></div></figure>
       <h3>Trockenheitsregionen</h3>
       <p>Der kombinierte Trockenheitsindex der Trockenheitsplattform des Bundes für ihre 38 Warnregionen, Woche für Woche. Er fasst den Niederschlag über einen, drei und vierundzwanzig Monate, den Abfluss und die modellierte Bodenfeuchte in fünf Stufen zusammen, von 1, nicht trocken, bis 5, extrem trocken.</p>
-      <div id="droughtFig" class="bChart"></div>
+      <figure class="bChart wide"><div id="droughtChart" class="bCanvas"></div><div id="droughtAfter"></div></figure>
+      <h3>Grundwasser und Seen, Messstelle für Messstelle</h3>
+      <p>Jedes Quadrat ist eine Messstelle, eingeordnet danach, wo ihr jüngstes Monatsmittel in ihrer eigenen Messreihe 1991&#8211;2020 für denselben Monat liegt: unter dem 20.&#160;Perzentil, zwischen dem 20. und dem 80. oder über dem 80. Zeigen Sie auf ein Quadrat für die Messstelle und ihre Werte.</p>
+      <figure id="sitesFig" class="bChart wide"></figure>
       <p class="fine" id="nowNote"></p>
     </section>
 
     <section id="balance">
       <h2>Die Jahresbilanz</h2>
       <p>Für das ganze Land geht die Bilanz auf: Niederschlag und das Wasser, das aus dem Ausland zufliesst, verdunsten, fliessen über die Grenze ab oder verändern, was in Schnee, Eis, Boden, Grundwasser und Seen gespeichert ist. Das BAFU veröffentlicht die Grössen für die politische Schweiz, 41&#8217;285&#160;km&#178;, in Millimetern Wasser über dieser Fläche. Hier stehen sie auch in Kubikkilometern; ein Millimeter entspricht 0,041&#160;km&#179;.</p>
-      <div id="balanceFig" class="bFig"></div>
+      <figure class="bFig wide">
+        <div id="balancePick" class="bSeg" role="group"></div>
+        <div id="balanceChart" class="bCanvas"></div>
+        <p class="fine" id="balanceSum"></p>
+      </figure>
       <div id="balanceTable" class="tWrap"></div>
       <p class="aside"><b>Ein Modell, das an Messungen gebunden ist.</b> Die Zahlen stammen aus dem hydrologischen Modell PREVAH auf einem 200-Meter-Raster. Der gemessene Abfluss gilt als exakt, und der Modellfehler wird dem Niederschlag zugewiesen, der in den Bergen am schwersten zu messen ist. Entnahmen und Nutzung sind nicht Teil dieser natürlichen Bilanz. Eine negative Speicheränderung ist Wasser, das den Speichern des Landes entnommen wurde, vor allem dem Gletschereis.</p>
       <p class="fine" id="balanceNote"></p>
@@ -109,7 +116,12 @@
     <section id="catchments">
       <h2>Nach Einzugsgebiet</h2>
       <p>Dieselbe Tabelle enthält die zwölf grossen Einzugsgebiete, die das BAFU einzeln bilanziert. Ihre Zahlen sind Millimeter über der eigenen Fläche jedes Gebiets und werden hier mit dem eigenen Mittel 1991&#8211;2020 dieses Gebiets verglichen.</p>
-      <div id="catchTable" class="tWrap"></div>
+      <figure class="bChart wide">
+        <ul id="catchKey" class="bKey top"></ul>
+        <div id="catchChart" class="bCanvas"></div>
+        <details class="bData"><summary>Zahlen anzeigen</summary><div id="catchTable" class="tWrap"></div></details>
+      </figure>
+      <p class="fine" id="catchNote"></p>
     </section>
 
     <section id="stores">
@@ -122,7 +134,14 @@
     <section id="use">
       <h2>Was genutzt wird</h2>
       <p>Nur eine Nutzung wird jedes Jahr erfasst: die öffentliche Trinkwasserversorgung, aus einer Hochrechnung des Schweizerischen Vereins des Gas- und Wasserfaches (SVGW), veröffentlicht vom Bundesamt für Statistik. Jede andere nationale Zahl zu Entnahmen beschreibt 2006 oder trägt gar kein Jahr.</p>
-      <div id="useFig" class="tWrap"></div>
+      <p id="useLead"></p>
+      <figure class="bChart wide">
+        <div id="useChart" class="bCanvas"></div>
+        <ul id="useKey" class="bKey"></ul>
+        <details class="bData"><summary>Zahlen anzeigen</summary><div id="useTable" class="tWrap"></div></details>
+      </figure>
+      <p class="fine" id="useNote"></p>
+      <h3>Alle übrigen Nutzungen</h3>
       <div id="useOther" class="tWrap"></div>
     </section>
 
@@ -190,6 +209,6 @@
 <script src="../fmt.js?v=20260822"></script>
 <script src="../gschg31.js?v=20260821"></script>
 <script src="../site.js?v=20260822b"></script>
-<script src="../budget.js?v=20261010b"></script>
+<script src="../budget.js?v=20261011"></script>
 </body>
 </html>

@@ -30,8 +30,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fonts.css?v=20260821">
 <link rel="stylesheet" href="tokens.css?v=20260822">
-<link rel="stylesheet" href="site.css?v=20261010">
-<script src="i18n.js?v=20261010b"></script>
+<link rel="stylesheet" href="site.css?v=20261011">
+<script src="i18n.js?v=20261011"></script>
 <script src="i18n-data.js?v=20261010"></script>
 <script src="theme.js?v=20260821"></script>
 </head>
@@ -98,12 +98,17 @@
         where most Swiss water crosses the border, as a share of the 1991&#8211;2020 mean for the
         same month. Together they carry about five sixths of the national outflow; the Ticino,
         the Inn, the Doubs and smaller border rivers carry the rest.</p>
-      <div id="outflowFig" class="bChart"></div>
+      <figure class="bChart wide"><div id="outflowChart" class="bCanvas"></div><div id="outflowAfter"></div></figure>
       <h3>Drought regions</h3>
       <p>The combined drought index of the federal drought platform for its 38 warning regions,
         week by week. It merges precipitation over one, three and twenty-four months, river
         flow and modelled soil moisture into five levels, from 1, not dry, to 5, extremely dry.</p>
-      <div id="droughtFig" class="bChart"></div>
+      <figure class="bChart wide"><div id="droughtChart" class="bCanvas"></div><div id="droughtAfter"></div></figure>
+      <h3>Groundwater and lakes, site by site</h3>
+      <p>Each square is one monitoring site, placed by where its latest monthly mean stands in its
+        own 1991&#8211;2020 record for the same month: below the 20th percentile, between the 20th
+        and 80th, or above the 80th. Point at a square for the site and its values.</p>
+      <figure id="sitesFig" class="bChart wide"></figure>
       <p class="fine" id="nowNote"></p>
     </section>
 
@@ -114,7 +119,11 @@
         ice, soil, groundwater and lakes. BAFU publishes the terms for political Switzerland,
         41&#8217;285&#160;km&#178;, in millimetres of water over that area. Here they are also
         given in cubic kilometres; one millimetre is 0.041&#160;km&#179;.</p>
-      <div id="balanceFig" class="bFig"></div>
+      <figure class="bFig wide">
+        <div id="balancePick" class="bSeg" role="group"></div>
+        <div id="balanceChart" class="bCanvas"></div>
+        <p class="fine" id="balanceSum"></p>
+      </figure>
       <div id="balanceTable" class="tWrap"></div>
       <p class="aside"><b>A model constrained by measurement.</b> The figures come from the
         hydrological model PREVAH on a 200-metre grid. Measured discharge is treated as exact and
@@ -129,7 +138,12 @@
       <p>The same table gives the twelve large catchments BAFU balances separately. Their figures
         are in millimetres over each catchment&#8217;s own area and are compared here with that
         catchment&#8217;s own 1991&#8211;2020 mean.</p>
-      <div id="catchTable" class="tWrap"></div>
+      <figure class="bChart wide">
+        <ul id="catchKey" class="bKey top"></ul>
+        <div id="catchChart" class="bCanvas"></div>
+        <details class="bData"><summary>Show the numbers</summary><div id="catchTable" class="tWrap"></div></details>
+      </figure>
+      <p class="fine" id="catchNote"></p>
     </section>
 
     <section id="stores">
@@ -148,7 +162,14 @@
         by the Swiss Gas and Water Industry Association (SVGW) published by the Federal
         Statistical Office. Every other national figure for abstraction describes 2006 or carries
         no year at all.</p>
-      <div id="useFig" class="tWrap"></div>
+      <p id="useLead"></p>
+      <figure class="bChart wide">
+        <div id="useChart" class="bCanvas"></div>
+        <ul id="useKey" class="bKey"></ul>
+        <details class="bData"><summary>Show the numbers</summary><div id="useTable" class="tWrap"></div></details>
+      </figure>
+      <p class="fine" id="useNote"></p>
+      <h3>Every other use</h3>
       <div id="useOther" class="tWrap"></div>
     </section>
 
@@ -254,6 +275,6 @@
 <script src="fmt.js?v=20260822"></script>
 <script src="gschg31.js?v=20260821"></script>
 <script src="site.js?v=20260822b"></script>
-<script src="budget.js?v=20261010b"></script>
+<script src="budget.js?v=20261011"></script>
 </body>
 </html>
