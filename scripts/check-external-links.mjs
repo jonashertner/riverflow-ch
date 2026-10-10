@@ -35,7 +35,9 @@ async function status(url) {
   }
 }
 
-const queue = [...urls].filter(Boolean);
+// The site's own canonical URLs are checked by verify-site; a new page's would 404 until it deploys.
+const own = 'https://opengovclimate.ch/riverflow/';
+const queue = [...urls].filter(url => url && !url.startsWith(own));
 const results = [];
 let cursor = 0;
 await Promise.all(Array.from({ length: 8 }, async () => {
